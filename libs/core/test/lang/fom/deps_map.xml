@@ -1,0 +1,7 @@
+<!-- The interaction lives in the module the mapped class's module depends on, so finding it means
+     following the dependency. -->
+<senMapping>
+    <class name="Station">
+        <event hlaInteraction="Handover"/>
+    </class>
+</senMapping>

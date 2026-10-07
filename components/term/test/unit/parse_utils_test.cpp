@@ -19,6 +19,8 @@ namespace sen::components::term
 namespace
 {
 
+/// @test
+/// A command with no arguments splits into the command and an empty argument string.
 TEST(SplitCommand, SimpleCommand)
 {
   auto [cmd, args] = splitCommand("help");
@@ -26,6 +28,8 @@ TEST(SplitCommand, SimpleCommand)
   EXPECT_EQ(args, "");
 }
 
+/// @test
+/// A command with one argument splits at the first space.
 TEST(SplitCommand, CommandWithArg)
 {
   auto [cmd, args] = splitCommand("cd local.main");
@@ -33,6 +37,8 @@ TEST(SplitCommand, CommandWithArg)
   EXPECT_EQ(args, "local.main");
 }
 
+/// @test
+/// Everything after the command name stays in the argument string.
 TEST(SplitCommand, CommandWithMultipleArgs)
 {
   auto [cmd, args] = splitCommand("query sensors SELECT * FROM local.main");
@@ -40,6 +46,8 @@ TEST(SplitCommand, CommandWithMultipleArgs)
   EXPECT_EQ(args, "sensors SELECT * FROM local.main");
 }
 
+/// @test
+/// Trailing spaces are dropped.
 TEST(SplitCommand, TrailingWhitespace)
 {
   auto [cmd, args] = splitCommand("cd local.demo   ");
@@ -47,6 +55,8 @@ TEST(SplitCommand, TrailingWhitespace)
   EXPECT_EQ(args, "local.demo");
 }
 
+/// @test
+/// Spaces between the command and its arguments are dropped.
 TEST(SplitCommand, LeadingWhitespaceInArgs)
 {
   auto [cmd, args] = splitCommand("cd   local.demo");
@@ -54,6 +64,8 @@ TEST(SplitCommand, LeadingWhitespaceInArgs)
   EXPECT_EQ(args, "local.demo");
 }
 
+/// @test
+/// Leading and trailing spaces are both dropped.
 TEST(SplitCommand, BothLeadingAndTrailingWhitespace)
 {
   auto [cmd, args] = splitCommand("cd   local.demo   ");
@@ -61,6 +73,8 @@ TEST(SplitCommand, BothLeadingAndTrailingWhitespace)
   EXPECT_EQ(args, "local.demo");
 }
 
+/// @test
+/// A command followed only by spaces has an empty argument string.
 TEST(SplitCommand, OnlySpacesAfterCommand)
 {
   auto [cmd, args] = splitCommand("ls   ");
@@ -68,6 +82,8 @@ TEST(SplitCommand, OnlySpacesAfterCommand)
   EXPECT_EQ(args, "");
 }
 
+/// @test
+/// Empty input gives an empty command and empty arguments.
 TEST(SplitCommand, EmptyInput)
 {
   auto [cmd, args] = splitCommand("");
@@ -75,6 +91,8 @@ TEST(SplitCommand, EmptyInput)
   EXPECT_EQ(args, "");
 }
 
+/// @test
+/// A dotted path is one command name, not split at the dots.
 TEST(SplitCommand, DotInCommand)
 {
   auto [cmd, args] = splitCommand("local.demo.slowLogger.getRate");
@@ -82,6 +100,8 @@ TEST(SplitCommand, DotInCommand)
   EXPECT_EQ(args, "");
 }
 
+/// @test
+/// A dotted command name is split from its arguments at the first space.
 TEST(SplitCommand, DotInCommandWithArgs)
 {
   auto [cmd, args] = splitCommand("obj.method arg1 arg2");
@@ -89,6 +109,8 @@ TEST(SplitCommand, DotInCommandWithArgs)
   EXPECT_EQ(args, "arg1 arg2");
 }
 
+/// @test
+/// A double dot argument survives as an argument.
 TEST(SplitCommand, DoubleDot)
 {
   auto [cmd, args] = splitCommand("cd ..");
@@ -100,8 +122,12 @@ TEST(SplitCommand, DoubleDot)
 // splitTopLevelArgs, accepts both space and comma separators
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// An empty argument string yields no tokens.
 TEST(SplitTopLevelArgs, EmptyString) { EXPECT_TRUE(splitTopLevelArgs("").empty()); }
 
+/// @test
+/// One argument yields one token.
 TEST(SplitTopLevelArgs, SingleToken)
 {
   auto t = splitTopLevelArgs("42");
@@ -109,6 +135,8 @@ TEST(SplitTopLevelArgs, SingleToken)
   EXPECT_EQ(t[0], "42");
 }
 
+/// @test
+/// Arguments separated by spaces split into tokens.
 TEST(SplitTopLevelArgs, SpaceSeparated)
 {
   auto t = splitTopLevelArgs("1 2 3");
@@ -118,6 +146,8 @@ TEST(SplitTopLevelArgs, SpaceSeparated)
   EXPECT_EQ(t[2], "3");
 }
 
+/// @test
+/// Arguments separated by commas split into tokens.
 TEST(SplitTopLevelArgs, CommaSeparated)
 {
   auto t = splitTopLevelArgs("1,2,3");
@@ -127,6 +157,8 @@ TEST(SplitTopLevelArgs, CommaSeparated)
   EXPECT_EQ(t[2], "3");
 }
 
+/// @test
+/// Spaces and commas may be mixed as separators.
 TEST(SplitTopLevelArgs, MixedSeparators)
 {
   auto t = splitTopLevelArgs("1, 2 ,3 4");
@@ -135,6 +167,8 @@ TEST(SplitTopLevelArgs, MixedSeparators)
   EXPECT_EQ(t[3], "4");
 }
 
+/// @test
+/// A quoted string holding spaces stays one token.
 TEST(SplitTopLevelArgs, StringWithSpacesKeepsTogether)
 {
   auto t = splitTopLevelArgs(R"(42 "hello world" true)");
@@ -144,6 +178,8 @@ TEST(SplitTopLevelArgs, StringWithSpacesKeepsTogether)
   EXPECT_EQ(t[2], "true");
 }
 
+/// @test
+/// An escaped quote inside a string does not end the token.
 TEST(SplitTopLevelArgs, StringWithEscapedQuote)
 {
   // Held in a variable rather than written inside EXPECT_EQ. MSVC's default preprocessor does not
@@ -157,6 +193,8 @@ TEST(SplitTopLevelArgs, StringWithEscapedQuote)
   EXPECT_EQ(t[1], "5");
 }
 
+/// @test
+/// Content inside brackets stays one token, separators included.
 TEST(SplitTopLevelArgs, BracketedContentStaysOneToken)
 {
   auto t = splitTopLevelArgs("[1, 2, 3] next");
@@ -165,6 +203,8 @@ TEST(SplitTopLevelArgs, BracketedContentStaysOneToken)
   EXPECT_EQ(t[1], "next");
 }
 
+/// @test
+/// Nested braces stay one token.
 TEST(SplitTopLevelArgs, NestedBracesStayOneToken)
 {
   auto t = splitTopLevelArgs(R"({"x": 1, "y": 2} "end")");
@@ -173,6 +213,8 @@ TEST(SplitTopLevelArgs, NestedBracesStayOneToken)
   EXPECT_EQ(t[1], R"("end")");
 }
 
+/// @test
+/// Separators at either end produce no empty tokens.
 TEST(SplitTopLevelArgs, LeadingAndTrailingSeparatorsIgnored)
 {
   auto t = splitTopLevelArgs("  ,  1  ,  2  ,  ");
@@ -186,6 +228,9 @@ TEST(SplitTopLevelArgs, LeadingAndTrailingSeparatorsIgnored)
 // Codepoint and word motion
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// Stepping left or right moves one whole character at a time, whatever its byte length, and
+/// stops at each end.
 TEST(ParseUtilsCodepoint, StepsOverMultiByteCharacters)
 {
   // "é" is two bytes, "€" three, "𝄞" four.
@@ -204,6 +249,8 @@ TEST(ParseUtilsCodepoint, StepsOverMultiByteCharacters)
   EXPECT_EQ(pos, 0U);
 }
 
+/// @test
+/// Erasing one character removes all of its bytes, leaving no partial sequence.
 TEST(ParseUtilsCodepoint, ErasingOneCodepointLeavesValidText)
 {
   std::string buf = "abé";
@@ -212,6 +259,8 @@ TEST(ParseUtilsCodepoint, ErasingOneCodepointLeavesValidText)
   EXPECT_EQ(buf, "ab");  // not "ab\xc3"
 }
 
+/// @test
+/// Word motion stops at each segment of a dotted path.
 TEST(ParseUtilsWord, StopsAtEachDottedSegment)
 {
   std::string_view text = "local.demo.showcase";
@@ -222,6 +271,8 @@ TEST(ParseUtilsWord, StopsAtEachDottedSegment)
   EXPECT_EQ(prevWord(text, 0U), 0U);
 }
 
+/// @test
+/// Word motion skips separators before reaching a word, and stops at either end.
 TEST(ParseUtilsWord, SkipsSeparatorsBeforeTheWord)
 {
   std::string_view text = "listen obj   ";
@@ -230,12 +281,16 @@ TEST(ParseUtilsWord, SkipsSeparatorsBeforeTheWord)
   EXPECT_EQ(nextWord(text, text.size()), text.size());
 }
 
+/// @test
+/// A non-ASCII character is part of a word, so an accented word is not split at the accent.
 TEST(ParseUtilsWord, TreatsNonAsciiAsWordCharacters)
 {
   std::string_view text = "café bar";
   EXPECT_EQ(prevWord(text, 5U), 0U);  // "café" is one word, accent included
 }
 
+/// @test
+/// A closing bracket with no opener stays in its token and leaves the later separators working.
 TEST(SplitTopLevelArgs, AStrayCloserStaysInItsTokenAndKeepsTheSeparators)
 {
   // An unguarded --depth went negative, which made every later separator invisible and collapsed the
@@ -247,6 +302,8 @@ TEST(SplitTopLevelArgs, AStrayCloserStaysInItsTokenAndKeepsTheSeparators)
   EXPECT_EQ(t[2], "3");
 }
 
+/// @test
+/// A token opening with a closing bracket keeps it.
 TEST(SplitTopLevelArgs, ALeadingCloserIsNotDropped)
 {
   auto t = splitTopLevelArgs("]abc def");
@@ -261,6 +318,8 @@ TEST(SplitTopLevelArgs, ALeadingCloserIsNotDropped)
   EXPECT_EQ(u[2], "2");
 }
 
+/// @test
+/// An unbalanced closer does not change how the rest of the line splits.
 TEST(SplitTopLevelArgs, AnUnbalancedCloserDoesNotUnbalanceTheRest)
 {
   auto t = splitTopLevelArgs("} {1 2} 3");
@@ -274,6 +333,8 @@ TEST(SplitTopLevelArgs, AnUnbalancedCloserDoesNotUnbalanceTheRest)
 // truncateUtf8
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// Text shorter than the bound is returned unchanged.
 TEST(TruncateUtf8, ShorterThanTheBoundIsUnchanged)
 {
   EXPECT_EQ(truncateUtf8("hello", 10U), "hello");
@@ -281,12 +342,16 @@ TEST(TruncateUtf8, ShorterThanTheBoundIsUnchanged)
   EXPECT_EQ(truncateUtf8("", 4U), "");
 }
 
+/// @test
+/// Text longer than the bound is cut at the bound when that falls between characters.
 TEST(TruncateUtf8, CutsOnAByteBoundaryWhenItCan)
 {
   EXPECT_EQ(truncateUtf8("abcdef", 3U), "abc");
   EXPECT_EQ(truncateUtf8("abcdef", 0U), "");
 }
 
+/// @test
+/// A cut never falls inside a character, so the result is always valid text.
 TEST(TruncateUtf8, NeverSplitsAMultiByteSequence)
 {
   // "aé" is 'a' then two bytes. A cut at 2 falls inside the é, so the é goes rather than half of it.
@@ -302,6 +367,24 @@ TEST(TruncateUtf8, NeverSplitsAMultiByteSequence)
     EXPECT_EQ(truncateUtf8(emoji, bound), "") << "bound " << bound << " kept part of the sequence";
   }
   EXPECT_EQ(truncateUtf8(emoji, 4U), emoji);
+}
+
+/// @test
+/// Codepoints are counted, not bytes. The input pane measures what it is about to draw with this,
+/// so counting bytes would make a line of accented text or an emoji wrap early and the cursor sit
+/// in the wrong column.
+TEST(ParseUtils, CodepointCountSkipsContinuationBytes)
+{
+  EXPECT_EQ(codepointCount(""), 0U);
+  EXPECT_EQ(codepointCount("ls -l"), 5U);
+  // Two bytes each, one codepoint each.
+  EXPECT_EQ(codepointCount("héllo"), 5U);
+  // Four bytes, one codepoint.
+  EXPECT_EQ(codepointCount("\xF0\x9F\x9A\x80"), 1U);
+  // Split literal: a hex escape runs on into the next character, and "\x80b" is out of range.
+  EXPECT_EQ(codepointCount("a\xF0\x9F\x9A\x80"
+                           "b"),
+            3U);
 }
 
 }  // namespace sen::components::term

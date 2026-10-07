@@ -27,6 +27,8 @@ std::string lineText(std::string_view text, const VisualLine& line)
     text.substr(static_cast<std::size_t>(line.bufStart), static_cast<std::size_t>(line.bufEnd - line.bufStart)));
 }
 
+/// @test
+/// An empty buffer still produces one line, marked as the first, spanning nothing.
 TEST(TextWrap, AnEmptyBufferStillHasTheFirstLine)
 {
   auto lines = wrapToWidth("", 60, 80);
@@ -36,6 +38,8 @@ TEST(TextWrap, AnEmptyBufferStillHasTheFirstLine)
   EXPECT_TRUE(lines[0].isFirst);
 }
 
+/// @test
+/// Text narrower than the budget stays on one line.
 TEST(TextWrap, ShortAsciiFitsOnOneLine)
 {
   auto lines = wrapToWidth("ls -l", 60, 80);
@@ -43,6 +47,9 @@ TEST(TextWrap, ShortAsciiFitsOnOneLine)
   EXPECT_EQ(lineText("ls -l", lines[0]), "ls -l");
 }
 
+/// @test
+/// Text breaks at the budget, and the first line uses its own width while later lines use the
+/// continuation width.
 TEST(TextWrap, AsciiBreaksAtTheBudgetAndTheFirstLineIsShorter)
 {
   const std::string text(25, 'a');
@@ -55,6 +62,8 @@ TEST(TextWrap, AsciiBreaksAtTheBudgetAndTheFirstLineIsShorter)
   EXPECT_FALSE(lines[1].isFirst);
 }
 
+/// @test
+/// A character that occupies two cells is measured as two, not by its byte count.
 TEST(TextWrap, WideCharactersCountTwoCellsEach)
 {
   // Ten CJK characters are 30 bytes and 20 cells, so a 20-cell line holds exactly ten of them. A
@@ -75,6 +84,8 @@ TEST(TextWrap, WideCharactersCountTwoCellsEach)
   EXPECT_EQ(split[0].bufEnd, 15);  // five characters, not five bytes
 }
 
+/// @test
+/// A two byte character that occupies one cell is measured as one, not by its byte count.
 TEST(TextWrap, TwoByteCharactersCountOneCellEach)
 {
   // Cyrillic is 2 bytes and 1 cell, so a byte count wrapped at half the real width.
@@ -89,6 +100,9 @@ TEST(TextWrap, TwoByteCharactersCountOneCellEach)
   EXPECT_EQ(lines[0].bufEnd, 80);
 }
 
+/// @test
+/// No line boundary falls inside a multi-byte character, which would leave a partial sequence
+/// that renders as nothing.
 TEST(TextWrap, NoLineEverBreaksInsideACharacter)
 {
   // The failure this guards: a break landing mid-sequence leaves ftxui two partial sequences that it
@@ -118,6 +132,8 @@ TEST(TextWrap, NoLineEverBreaksInsideACharacter)
   }
 }
 
+/// @test
+/// A character wider than the whole budget is placed anyway, so wrapping always advances.
 TEST(TextWrap, ACharacterWiderThanTheBudgetStillAdvances)
 {
   // A one-cell budget cannot hold a two-cell character; the line takes it anyway rather than looping.
@@ -128,6 +144,8 @@ TEST(TextWrap, ACharacterWiderThanTheBudgetStillAdvances)
   EXPECT_EQ(lines[1].bufEnd, 6);
 }
 
+/// @test
+/// A width of zero or less is treated as one cell, so wrapping still terminates.
 TEST(TextWrap, ANonPositiveWidthIsTreatedAsOne)
 {
   auto lines = wrapToWidth("abc", 0, -5);
@@ -137,4 +155,25 @@ TEST(TextWrap, ANonPositiveWidthIsTreatedAsOne)
 }
 
 }  // namespace
+/// @test
+/// With the cursor near the start, the window shows the beginning and hides the tail.
+TEST(VisibleLines, CursorNearTheStartShowsTheBeginning)
+{
+  auto window = visibleLines(10, 1, 5);
+  ASSERT_FALSE(window.indices.empty());
+  EXPECT_EQ(window.indices.front(), 0) << "the first line is hidden with the cursor on the second";
+  EXPECT_LE(window.indices.size(), 5U);
+}
+
+/// @test
+/// A total of no lines still answers with one. The function's own comment calls this unreachable
+/// from wrapToWidth, which always returns a line; it is here because a caller that got it wrong
+/// should be given a prompt to draw rather than nothing, and that is worth holding to.
+TEST(VisibleLines, NoLinesAtAllStillAnswersWithOne)
+{
+  auto window = visibleLines(0, 0, 5);
+  ASSERT_EQ(window.indices.size(), 1U);
+  EXPECT_EQ(window.indices.front(), 0);
+}
+
 }  // namespace sen::components::term

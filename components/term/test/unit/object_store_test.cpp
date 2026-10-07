@@ -79,12 +79,16 @@ protected:
 // openSource validation
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A source name with more components than a session, bus and query is refused.
 TEST_F(ObjectStoreTest, OpenSourceTooManyComponentsFails)
 {
   auto result = store->openSource("a.b.c");
   EXPECT_TRUE(result.isError());
 }
 
+/// @test
+/// A four part source name is refused.
 TEST_F(ObjectStoreTest, OpenSourceFourComponentsFails)
 {
   auto result = store->openSource("a.b.c.d");
@@ -95,6 +99,8 @@ TEST_F(ObjectStoreTest, OpenSourceFourComponentsFails)
 // createQuery validation
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A query name containing a dot is refused, naming dots as the reason.
 TEST_F(ObjectStoreTest, CreateQueryRejectsNameWithDot)
 {
   auto result = store->createQuery("foo.bar", "SELECT * FROM session.bus");
@@ -102,6 +108,8 @@ TEST_F(ObjectStoreTest, CreateQueryRejectsNameWithDot)
   EXPECT_NE(result.getError().find("dots"), std::string::npos);
 }
 
+/// @test
+/// A query name containing a space is refused, naming spaces as the reason.
 TEST_F(ObjectStoreTest, CreateQueryRejectsNameWithSpace)
 {
   auto result = store->createQuery("foo bar", "SELECT * FROM session.bus");
@@ -109,6 +117,8 @@ TEST_F(ObjectStoreTest, CreateQueryRejectsNameWithSpace)
   EXPECT_NE(result.getError().find("spaces"), std::string::npos);
 }
 
+/// @test
+/// A selection that does not parse is refused.
 TEST_F(ObjectStoreTest, CreateQueryRejectsInvalidSelection)
 {
   auto result = store->createQuery("q", "this is not a valid SELECT statement");
@@ -116,6 +126,8 @@ TEST_F(ObjectStoreTest, CreateQueryRejectsInvalidSelection)
   EXPECT_NE(result.getError().find("invalid query"), std::string::npos);
 }
 
+/// @test
+/// A selection with no FROM is refused, since it names no bus.
 TEST_F(ObjectStoreTest, CreateQueryRejectsSelectionWithoutSource)
 {
   // A SELECT with no FROM has no bus condition and should be rejected up-front.
@@ -130,6 +142,8 @@ TEST_F(ObjectStoreTest, CreateQueryRejectsSelectionWithoutSource)
 // removeQuery
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// Removing a query that does not exist is refused.
 TEST_F(ObjectStoreTest, RemoveQueryUnknownFails)
 {
   auto result = store->removeQuery("doesNotExist");
@@ -141,12 +155,16 @@ TEST_F(ObjectStoreTest, RemoveQueryUnknownFails)
 // closeSource validation
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A four part name is refused when closing a source.
 TEST_F(ObjectStoreTest, CloseSourceWithFourComponentsFails)
 {
   auto result = store->closeSource("a.b.c.d");
   EXPECT_TRUE(result.isError());
 }
 
+/// @test
+/// Closing a query on a bus that is not open is refused.
 TEST_F(ObjectStoreTest, CloseQueryOnUnopenedBusFails)
 {
   // 3 components ⇒ closeSource interprets it as "session.bus.query".
@@ -160,6 +178,8 @@ TEST_F(ObjectStoreTest, CloseQueryOnUnopenedBusFails)
 // Read-only state
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A new store holds no objects, no open sources and no queries.
 TEST_F(ObjectStoreTest, FreshStoreHasNoObjectsOrSources)
 {
   EXPECT_EQ(store->getObjectCount(), 0U);
@@ -168,8 +188,12 @@ TEST_F(ObjectStoreTest, FreshStoreHasNoObjectsOrSources)
   EXPECT_FALSE(store->isSourceOpen("anything"));
 }
 
+/// @test
+/// A new store's generation is zero.
 TEST_F(ObjectStoreTest, FreshStoreGenerationIsZero) { EXPECT_EQ(store->getGeneration(), 0U); }
 
+/// @test
+/// A new store has no notifications to drain.
 TEST_F(ObjectStoreTest, DrainNotificationsEmptyOnFreshStore) { EXPECT_TRUE(store->drainNotifications().empty()); }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -186,6 +210,8 @@ TEST_F(ObjectStoreTest, DrainNotificationsEmptyOnFreshStore) { EXPECT_TRUE(store
 // that turns that into a verdict is measuring the machine. The live term's `ls` covers it where the
 // environment is real, in the session tests.
 
+/// @test
+/// Opening a source lists it as open and leaves a notification, which draining consumes.
 TEST_F(ObjectStoreTest, OpeningASourceListsItAndSaysSo)
 {
   ASSERT_TRUE(store->openSource("local.probe").isOk());
@@ -198,6 +224,9 @@ TEST_F(ObjectStoreTest, OpeningASourceListsItAndSaysSo)
   EXPECT_TRUE(store->drainNotifications().empty()) << "draining did not consume the notices";
 }
 
+/// @test
+/// The generation counts objects arriving and leaving, not commands, so opening a source does not
+/// move it.
 TEST_F(ObjectStoreTest, TheGenerationCountsObjectTrafficAndNotCommands)
 {
   // Two separate signals, and it is worth pinning which is which. generation_ moves when objects arrive
@@ -212,6 +241,8 @@ TEST_F(ObjectStoreTest, TheGenerationCountsObjectTrafficAndNotCommands)
   EXPECT_EQ(store->getGeneration(), before) << "creating a query moved the object-traffic counter";
 }
 
+/// @test
+/// Closing a source takes it off the open list.
 TEST_F(ObjectStoreTest, ClosingASourceTakesItOffTheList)
 {
   ASSERT_TRUE(store->openSource("local.probe").isOk());
@@ -222,6 +253,8 @@ TEST_F(ObjectStoreTest, ClosingASourceTakesItOffTheList)
   EXPECT_THAT(store->getOpenSources(), ::testing::Not(::testing::Contains("local.probe")));
 }
 
+/// @test
+/// A valid query is created, listed with its selection, and can be removed.
 TEST_F(ObjectStoreTest, AValidQueryIsCreatedListedAndRemovable)
 {
   ASSERT_TRUE(store->createQuery("probes", "SELECT * FROM local.probe").isOk());
@@ -236,6 +269,8 @@ TEST_F(ObjectStoreTest, AValidQueryIsCreatedListedAndRemovable)
   EXPECT_TRUE(std::none_of(after.begin(), after.end(), [](const auto& q) { return q.name == "probes"; }));
 }
 
+/// @test
+/// A second query with the same selection is refused, so identical subscriptions cannot pile up.
 TEST_F(ObjectStoreTest, TwoQueriesWithTheSameSelectionAreRefused)
 {
   // The guard must compare selections without skipping the internal ".all" provider, or identical queries
@@ -254,6 +289,8 @@ TEST_F(ObjectStoreTest, TwoQueriesWithTheSameSelectionAreRefused)
 // incremental onObjectAdded path, and neither reaches the full rebuild, the scope rebuild or the
 // sources and queries refresh.
 
+/// @test
+/// The completer's update rebuilds its lists from the store.
 TEST_F(ObjectStoreTest, CompleterUpdateRebuildsFromTheStore)
 {
   App app([](const std::string&) {});
@@ -280,6 +317,8 @@ TEST_F(ObjectStoreTest, CompleterUpdateRebuildsFromTheStore)
     << "the query was not offered to `query rm`";
 }
 
+/// @test
+/// The completer's update notices a source that has closed.
 TEST_F(ObjectStoreTest, CompleterUpdateNoticesASourceClosing)
 {
   App app([](const std::string&) {});

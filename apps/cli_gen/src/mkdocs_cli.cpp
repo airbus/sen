@@ -33,7 +33,7 @@ namespace
 
 struct MkDocsArgs
 {
-  std::filesystem::path outputFile;
+  std::filesystem::path outputFile = "output.md";
   std::string title = "Package Documentation";
 };
 
@@ -80,7 +80,7 @@ void setupMkDocsCli(CLI::App& app)
                            [mkdocsArgs](auto args)
                            {
                              const sen::lang::TypeSetContext typeSets =
-                               sen::lang::parseFomDocuments(args->paths, args->mappingFiles, {});
+                               sen::lang::parseFomDocuments(args->paths, args->extensions, args->mappingFiles, {});
                              writeOutput(typeSets, *mkdocsArgs);
                            });
 

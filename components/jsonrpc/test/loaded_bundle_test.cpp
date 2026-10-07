@@ -44,6 +44,8 @@ constexpr std::string_view bundlePrefix = "/explorer";
 // stripAndNormalize: happy paths
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A path under the prefix becomes the file name relative to the bundle.
 TEST(StripAndNormalize, normalizesNormalPath)
 {
   const auto out = stripAndNormalize(bundlePrefix, "/explorer/index.html");
@@ -51,6 +53,8 @@ TEST(StripAndNormalize, normalizesNormalPath)
   EXPECT_EQ(*out, "index.html");
 }
 
+/// @test
+/// The prefix with a trailing slash resolves to the empty path, which is the index.
 TEST(StripAndNormalize, rootPathReturnsEmpty)
 {
   const auto out = stripAndNormalize(bundlePrefix, "/explorer/");
@@ -58,6 +62,8 @@ TEST(StripAndNormalize, rootPathReturnsEmpty)
   EXPECT_EQ(*out, "");
 }
 
+/// @test
+/// The bare prefix resolves to the empty path.
 TEST(StripAndNormalize, prefixOnlyReturnsEmpty)
 {
   const auto out = stripAndNormalize(bundlePrefix, "/explorer");
@@ -65,6 +71,8 @@ TEST(StripAndNormalize, prefixOnlyReturnsEmpty)
   EXPECT_EQ(*out, "");
 }
 
+/// @test
+/// A nested path keeps its directories.
 TEST(StripAndNormalize, normalizesNestedPath)
 {
   const auto out = stripAndNormalize(bundlePrefix, "/explorer/assets/main.js");
@@ -72,6 +80,8 @@ TEST(StripAndNormalize, normalizesNestedPath)
   EXPECT_EQ(*out, "assets/main.js");
 }
 
+/// @test
+/// A query string is dropped from the path.
 TEST(StripAndNormalize, stripsQueryString)
 {
   const auto out = stripAndNormalize(bundlePrefix, "/explorer/foo?bar=baz");
@@ -79,6 +89,8 @@ TEST(StripAndNormalize, stripsQueryString)
   EXPECT_EQ(*out, "foo");
 }
 
+/// @test
+/// A percent escape that is not a control character or a backslash is decoded.
 TEST(StripAndNormalize, percentDecodesNormalEscapes)
 {
   // %20 = space; allowed because it's not a control or backslash char.
@@ -87,6 +99,8 @@ TEST(StripAndNormalize, percentDecodesNormalEscapes)
   EXPECT_EQ(*out, "hello world");
 }
 
+/// @test
+/// Repeated slashes collapse to one.
 TEST(StripAndNormalize, collapsesEmptySegments)
 {
   const auto out = stripAndNormalize(bundlePrefix, "/explorer//foo//bar");
@@ -94,6 +108,8 @@ TEST(StripAndNormalize, collapsesEmptySegments)
   EXPECT_EQ(*out, "foo/bar");
 }
 
+/// @test
+/// A dot segment is removed.
 TEST(StripAndNormalize, collapsesDotSegments)
 {
   const auto out = stripAndNormalize(bundlePrefix, "/explorer/./foo/./bar");
@@ -105,26 +121,36 @@ TEST(StripAndNormalize, collapsesDotSegments)
 // stripAndNormalize: traversal rejection
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A parent segment is refused, so a request cannot climb out of the bundle.
 TEST(StripAndNormalize, rejectsParentSegment)
 {
   EXPECT_FALSE(stripAndNormalize(bundlePrefix, "/explorer/../etc").has_value());
 }
 
+/// @test
+/// A parent segment deeper in the path is refused too.
 TEST(StripAndNormalize, rejectsParentSegmentNested)
 {
   EXPECT_FALSE(stripAndNormalize(bundlePrefix, "/explorer/foo/../bar").has_value());
 }
 
+/// @test
+/// A parent segment written with lowercase percent escapes is refused.
 TEST(StripAndNormalize, rejectsLowercasePercentEncodedParent)
 {
   EXPECT_FALSE(stripAndNormalize(bundlePrefix, "/explorer/%2e%2e/secret").has_value());
 }
 
+/// @test
+/// A parent segment written with uppercase percent escapes is refused.
 TEST(StripAndNormalize, rejectsUppercasePercentEncodedParent)
 {
   EXPECT_FALSE(stripAndNormalize(bundlePrefix, "/explorer/%2E%2E/secret").has_value());
 }
 
+/// @test
+/// A parent segment that only appears once empty segments collapse is still refused.
 TEST(StripAndNormalize, parentAfterEmptyCollapseStillRejected)
 {
   // After empty-segment collapse, `["..", "bar"]` still contains `..`; reject.
@@ -135,31 +161,43 @@ TEST(StripAndNormalize, parentAfterEmptyCollapseStillRejected)
 // stripAndNormalize: dangerous characters
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A backslash is refused, since it separates paths on Windows.
 TEST(StripAndNormalize, rejectsRawBackslash)
 {
   EXPECT_FALSE(stripAndNormalize(bundlePrefix, "/explorer/foo\\bar").has_value());
 }
 
+/// @test
+/// A percent encoded backslash is refused for the same reason.
 TEST(StripAndNormalize, rejectsPercentEncodedBackslash)
 {
   EXPECT_FALSE(stripAndNormalize(bundlePrefix, "/explorer/foo%5Cbar").has_value());
 }
 
+/// @test
+/// A nul byte is refused.
 TEST(StripAndNormalize, rejectsNulByte)
 {
   EXPECT_FALSE(stripAndNormalize(bundlePrefix, "/explorer/foo%00bar").has_value());
 }
 
+/// @test
+/// A control character is refused.
 TEST(StripAndNormalize, rejectsControlCharacter)
 {
   EXPECT_FALSE(stripAndNormalize(bundlePrefix, "/explorer/foo%01bar").has_value());
 }
 
+/// @test
+/// A delete character is refused.
 TEST(StripAndNormalize, rejectsDelCharacter)
 {
   EXPECT_FALSE(stripAndNormalize(bundlePrefix, "/explorer/foo%7Fbar").has_value());
 }
 
+/// @test
+/// A raw newline is refused, so a request cannot inject a header.
 TEST(StripAndNormalize, rejectsRawNewlineInUrl)
 {
   EXPECT_FALSE(stripAndNormalize(bundlePrefix, "/explorer/foo\nbar").has_value());
@@ -169,24 +207,34 @@ TEST(StripAndNormalize, rejectsRawNewlineInUrl)
 // stripAndNormalize: prefix matching
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A path under a different prefix is refused.
 TEST(StripAndNormalize, rejectsPrefixMismatch) { EXPECT_FALSE(stripAndNormalize(bundlePrefix, "/api").has_value()); }
 
+/// @test
+/// A path whose prefix is only the start of a longer segment is refused.
 TEST(StripAndNormalize, rejectsPrefixWithoutBoundary)
 {
   EXPECT_FALSE(stripAndNormalize(bundlePrefix, "/explorerfoo").has_value());
 }
 
+/// @test
+/// A path shorter than the prefix is refused.
 TEST(StripAndNormalize, rejectsShortUrl) { EXPECT_FALSE(stripAndNormalize(bundlePrefix, "/expl").has_value()); }
 
 //--------------------------------------------------------------------------------------------------------------
 // stripAndNormalize: malformed input
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A percent escape cut short is refused.
 TEST(StripAndNormalize, rejectsTruncatedPercentEscape)
 {
   EXPECT_FALSE(stripAndNormalize(bundlePrefix, "/explorer/foo%2").has_value());
 }
 
+/// @test
+/// A percent escape whose digits are not hexadecimal is refused.
 TEST(StripAndNormalize, rejectsNonHexPercentEscape)
 {
   EXPECT_FALSE(stripAndNormalize(bundlePrefix, "/explorer/foo%2g").has_value());
@@ -196,6 +244,8 @@ TEST(StripAndNormalize, rejectsNonHexPercentEscape)
 // LoadedBundle: construction
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A bundle with a prefix, an index and files is built.
 TEST(LoadedBundle, makesFromValidInput)
 {
   auto bundle = makeBundle({{"index.html", "text/html", "<html></html>"}});
@@ -204,6 +254,8 @@ TEST(LoadedBundle, makesFromValidInput)
   EXPECT_EQ(bundle.fileCount(), 1U);
 }
 
+/// @test
+/// A file in the bundle is found by its path.
 TEST(LoadedBundle, lookupHits)
 {
   auto bundle = makeBundle(
@@ -215,6 +267,8 @@ TEST(LoadedBundle, lookupHits)
   EXPECT_FALSE(file->etag.empty());
 }
 
+/// @test
+/// A path the bundle does not hold finds nothing.
 TEST(LoadedBundle, lookupMisses)
 {
   auto bundle = makeBundle({{"index.html", "text/html", "<html></html>"}});
@@ -222,6 +276,8 @@ TEST(LoadedBundle, lookupMisses)
   EXPECT_EQ(bundle.find(""), nullptr);
 }
 
+/// @test
+/// The index file is reachable as the named index.
 TEST(LoadedBundle, indexFileLookupResolves)
 {
   auto bundle = makeBundle({{"index.html", "text/html", "<html></html>"}});
@@ -230,6 +286,8 @@ TEST(LoadedBundle, indexFileLookupResolves)
   EXPECT_EQ(idx->contentType, "text/html");
 }
 
+/// @test
+/// Two files with the same contents carry the same etag.
 TEST(LoadedBundle, etagIsStableForSameContents)
 {
   auto bundle = makeBundle({{"a.txt", "text/plain", "hello"}, {"b.txt", "text/plain", "hello"}}, "a.txt");
@@ -240,6 +298,8 @@ TEST(LoadedBundle, etagIsStableForSameContents)
   EXPECT_EQ(a->etag, b->etag);
 }
 
+/// @test
+/// Two files with different contents carry different etags.
 TEST(LoadedBundle, etagDiffersForDifferentContents)
 {
   auto bundle = makeBundle(
@@ -251,6 +311,8 @@ TEST(LoadedBundle, etagDiffersForDifferentContents)
   EXPECT_NE(a->etag, b->etag);
 }
 
+/// @test
+/// An etag is hexadecimal inside double quotes, as the header requires.
 TEST(LoadedBundle, etagIsQuotedHex)
 {
   auto bundle = makeBundle({{"index.html", "text/html", "<html></html>"}});
@@ -266,6 +328,8 @@ TEST(LoadedBundle, etagIsQuotedHex)
   }
 }
 
+/// @test
+/// A bundle with an empty url prefix is refused.
 TEST(LoadedBundle, makeRejectsEmptyPrefix)
 {
   LoadedBundleInput input;
@@ -275,6 +339,8 @@ TEST(LoadedBundle, makeRejectsEmptyPrefix)
   EXPECT_TRUE(LoadedBundle::make(std::move(input)).isError());
 }
 
+/// @test
+/// A url prefix without a leading slash is refused.
 TEST(LoadedBundle, makeRejectsPrefixWithoutLeadingSlash)
 {
   LoadedBundleInput input;
@@ -284,6 +350,8 @@ TEST(LoadedBundle, makeRejectsPrefixWithoutLeadingSlash)
   EXPECT_TRUE(LoadedBundle::make(std::move(input)).isError());
 }
 
+/// @test
+/// A bundle whose named index is not among its files is refused.
 TEST(LoadedBundle, makeRejectsMissingIndex)
 {
   LoadedBundleInput input;
@@ -293,6 +361,8 @@ TEST(LoadedBundle, makeRejectsMissingIndex)
   EXPECT_TRUE(LoadedBundle::make(std::move(input)).isError());
 }
 
+/// @test
+/// A bundle carrying the same path twice is refused.
 TEST(LoadedBundle, makeRejectsDuplicatePath)
 {
   LoadedBundleInput input;
@@ -302,6 +372,8 @@ TEST(LoadedBundle, makeRejectsDuplicatePath)
   EXPECT_TRUE(LoadedBundle::make(std::move(input)).isError());
 }
 
+/// @test
+/// A bundle with an empty index name is refused.
 TEST(LoadedBundle, makeRejectsEmptyIndexFileName)
 {
   LoadedBundleInput input;
@@ -311,6 +383,8 @@ TEST(LoadedBundle, makeRejectsEmptyIndexFileName)
   EXPECT_TRUE(LoadedBundle::make(std::move(input)).isError());
 }
 
+/// @test
+/// A bundle holding a file with an empty path is refused.
 TEST(LoadedBundle, makeRejectsEmptyFilePath)
 {
   LoadedBundleInput input;

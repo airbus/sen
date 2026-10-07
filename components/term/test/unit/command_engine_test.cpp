@@ -28,6 +28,8 @@ namespace
 // commandCategoryName
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// Every command category has a non-empty name.
 TEST(CommandCategory, EveryCategoryHasAName)
 {
   for (auto cat: {CommandCategory::navigation,
@@ -42,6 +44,8 @@ TEST(CommandCategory, EveryCategoryHasAName)
   }
 }
 
+/// @test
+/// The category names are the ones help prints, so a rename is caught here.
 TEST(CommandCategory, NamesAreStable)
 {
   // The human-readable category labels are surfaced in `help` output. Lock
@@ -59,13 +63,19 @@ TEST(CommandCategory, NamesAreStable)
 // Command table shape
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// The command table holds commands.
 TEST(CommandTable, TableIsNonEmpty) { EXPECT_GT(CommandEngine::getCommandTable().size(), 0U); }
 
+/// @test
+/// The descriptor list and the command table hold the same number of entries.
 TEST(CommandTable, DescriptorsAndTableMatchInSize)
 {
   EXPECT_EQ(CommandEngine::getCommandDescriptors().size(), CommandEngine::getCommandTable().size());
 }
 
+/// @test
+/// Every command has a name and a handler.
 TEST(CommandTable, EveryEntryHasANameAndHandler)
 {
   for (const auto& e: CommandEngine::getCommandTable())
@@ -75,6 +85,8 @@ TEST(CommandTable, EveryEntryHasANameAndHandler)
   }
 }
 
+/// @test
+/// Every command has a usage line, a detail line, a completion hint and a named category.
 TEST(CommandTable, EveryDescriptorFieldIsPopulated)
 {
   for (const auto& e: CommandEngine::getCommandTable())
@@ -87,6 +99,8 @@ TEST(CommandTable, EveryDescriptorFieldIsPopulated)
   }
 }
 
+/// @test
+/// No two commands share a name.
 TEST(CommandTable, NamesAreUnique)
 {
   std::set<std::string_view> seen;
@@ -125,6 +139,8 @@ const CommandDescriptor* findDescriptor(std::string_view name)
   return nullptr;
 }
 
+/// @test
+/// The built-in commands a user expects are all registered.
 TEST(CommandTable, ExpectedBuiltInsArePresent)
 {
   for (auto name: {"cd",     "pwd",     "ls",       "open",      "close",   "query", "queries",
@@ -135,6 +151,8 @@ TEST(CommandTable, ExpectedBuiltInsArePresent)
   }
 }
 
+/// @test
+/// exit and shutdown carry the same category and usage, since they differ only in what they stop.
 TEST(CommandTable, ExitAndShutdownShareCategoryAndUsage)
 {
   const auto* exitCmd = findDescriptor("exit");
@@ -149,6 +167,8 @@ TEST(CommandTable, ExitAndShutdownShareCategoryAndUsage)
 // Category assignments
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// cd and pwd are in the navigation category.
 TEST(CommandTable, NavigationCommandsAreCategorizedCorrectly)
 {
   for (auto name: {"cd", "pwd"})
@@ -159,6 +179,8 @@ TEST(CommandTable, NavigationCommandsAreCategorizedCorrectly)
   }
 }
 
+/// @test
+/// listen, unlisten and listeners are in the monitoring category.
 TEST(CommandTable, MonitoringCommandsAreCategorizedCorrectly)
 {
   for (auto name: {"listen", "unlisten", "listeners"})
@@ -169,6 +191,8 @@ TEST(CommandTable, MonitoringCommandsAreCategorizedCorrectly)
   }
 }
 
+/// @test
+/// The inspection commands are in the inspection category.
 TEST(CommandTable, InspectionCommandsAreCategorizedCorrectly)
 {
   for (auto name: {"inspect", "types", "units"})

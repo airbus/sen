@@ -81,6 +81,8 @@ protected:
 // Persistence: writes
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A command added to history is appended to the history file.
 TEST_F(InputPaneHistoryTest, AddToHistoryAppendsToFile)
 {
   InputPane pane {[](const std::string&) {}};
@@ -97,6 +99,8 @@ TEST_F(InputPaneHistoryTest, AddToHistoryAppendsToFile)
   EXPECT_EQ(lines[2], "help");
 }
 
+/// @test
+/// A command identical to the most recent one is not written again.
 TEST_F(InputPaneHistoryTest, DuplicateOfMostRecentIsSkippedInFile)
 {
   InputPane pane {[](const std::string&) {}};
@@ -110,6 +114,8 @@ TEST_F(InputPaneHistoryTest, DuplicateOfMostRecentIsSkippedInFile)
   EXPECT_EQ(lines[0], "ls");
 }
 
+/// @test
+/// With no history path set, nothing is written anywhere, including under the home directory.
 TEST_F(InputPaneHistoryTest, NoFileWritesWhenPathIsEmpty)
 {
   // Asserting that `historyFile` does not exist could not fail: nothing had told the pane that name, so
@@ -160,6 +166,8 @@ TEST_F(InputPaneHistoryTest, NoFileWritesWhenPathIsEmpty)
 // Persistence: reads
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// Loading a history file makes its lines reachable with history up, newest first.
 TEST_F(InputPaneHistoryTest, LoadHistoryPopulatesInMemoryNavigation)
 {
   writeFileLines({"old1", "old2", "old3"});  // chronological: old1 is oldest
@@ -177,6 +185,8 @@ TEST_F(InputPaneHistoryTest, LoadHistoryPopulatesInMemoryNavigation)
   EXPECT_EQ(pane.getBuffer(), "old1");
 }
 
+/// @test
+/// Loading a history file that does not exist does nothing and leaves the buffer alone.
 TEST_F(InputPaneHistoryTest, LoadHistoryMissingFileIsSilentNoop)
 {
   // File doesn't exist yet, loadHistory must not throw or produce side effects.
@@ -191,6 +201,8 @@ TEST_F(InputPaneHistoryTest, LoadHistoryMissingFileIsSilentNoop)
   EXPECT_EQ(pane.getBuffer(), "");
 }
 
+/// @test
+/// Empty lines in the history file are not loaded.
 TEST_F(InputPaneHistoryTest, LoadHistorySkipsEmptyLines)
 {
   writeFileLines({"first", "", "second", "", ""});
@@ -207,6 +219,8 @@ TEST_F(InputPaneHistoryTest, LoadHistorySkipsEmptyLines)
   EXPECT_EQ(pane.getBuffer(), "first");  // stays at oldest
 }
 
+/// @test
+/// A command added after a load is appended after the loaded lines.
 TEST_F(InputPaneHistoryTest, NewEntriesAppendAfterLoad)
 {
   writeFileLines({"existing"});
@@ -225,6 +239,8 @@ TEST_F(InputPaneHistoryTest, NewEntriesAppendAfterLoad)
   EXPECT_EQ(lines[2], "new2");
 }
 
+/// @test
+/// A history file longer than the cap is trimmed in place to the most recent lines.
 TEST_F(InputPaneHistoryTest, LoadTrimsFileWhenOverCap)
 {
   // Write 2500 lines, more than the 2000-line cap. Load should trim the file in place so
@@ -248,6 +264,8 @@ TEST_F(InputPaneHistoryTest, LoadTrimsFileWhenOverCap)
   EXPECT_EQ(afterLoad.back(), "cmd_2499");
 }
 
+/// @test
+/// A history file exactly at the cap is left as it is.
 TEST_F(InputPaneHistoryTest, LoadAtExactlyCapDoesNotRewrite)
 {
   // When the file has exactly the cap, no rewrite is needed.
@@ -281,6 +299,8 @@ TEST_F(InputPaneHistoryTest, LoadAtExactlyCapDoesNotRewrite)
   EXPECT_EQ(before, readFileContent()) << "the file was rewritten when it was already at the cap";
 }
 
+/// @test
+/// A command identical to the last loaded line is not added, in memory or in the file.
 TEST_F(InputPaneHistoryTest, LoadThenAddDuplicateOfLastLoadedIsSkipped)
 {
   writeFileLines({"first", "second"});
@@ -302,6 +322,8 @@ TEST_F(InputPaneHistoryTest, LoadThenAddDuplicateOfLastLoadedIsSkipped)
 // History search
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// An empty search matches nothing.
 TEST(InputPaneSearch, EmptyQueryReturnsFalse)
 {
   InputPane pane {[](const std::string&) {}};
@@ -309,6 +331,8 @@ TEST(InputPaneSearch, EmptyQueryReturnsFalse)
   EXPECT_FALSE(pane.searchHistory(""));
 }
 
+/// @test
+/// A search returns the most recent matching entry.
 TEST(InputPaneSearch, MatchesMostRecentFirst)
 {
   InputPane pane {[](const std::string&) {}};
@@ -321,6 +345,8 @@ TEST(InputPaneSearch, MatchesMostRecentFirst)
   EXPECT_EQ(pane.getBuffer(), "second match");
 }
 
+/// @test
+/// A search with no match leaves the buffer alone.
 TEST(InputPaneSearch, NoMatchReturnsFalse)
 {
   InputPane pane {[](const std::string&) {}};
@@ -328,6 +354,8 @@ TEST(InputPaneSearch, NoMatchReturnsFalse)
   EXPECT_FALSE(pane.searchHistory("xyz"));
 }
 
+/// @test
+/// A search matches on a substring, not only a prefix.
 TEST(InputPaneSearch, SubstringMatch)
 {
   InputPane pane {[](const std::string&) {}};
@@ -337,6 +365,9 @@ TEST(InputPaneSearch, SubstringMatch)
 }
 
 }  // namespace
+/// @test
+/// A line longer than the limit is refused by the in-memory history and the file alike, so it
+/// cannot be recallable in one and absent from the other.
 TEST_F(InputPaneHistoryTest, BothStoresAnswerTheSameWayForAnOverlongLine)
 {
   // Gating only the file leaves an over-long line recallable in this session and absent from the next. The
@@ -353,6 +384,9 @@ TEST_F(InputPaneHistoryTest, BothStoresAnswerTheSameWayForAnOverlongLine)
   EXPECT_TRUE(readFileLines().empty()) << "written to disk after being refused in memory";
 }
 
+/// @test
+/// A line exactly at the limit is written and loaded back, so a command the input accepted is
+/// still in the next session's history.
 TEST_F(InputPaneHistoryTest, ALineAtTheLimitSurvivesARestart)
 {
   // Three constants said how long a line may be, in two files, and raising two of them left the third
@@ -373,6 +407,48 @@ TEST_F(InputPaneHistoryTest, ALineAtTheLimitSurvivesARestart)
   next.loadHistory();
   next.historyUp();
   EXPECT_EQ(next.getBuffer(), atTheLimit) << "accepted and run, then missing from the next session";
+}
+
+/// @test
+/// Walking down through history comes back to the line that was being typed.
+///
+/// Going up is covered; coming back down is the half that has to restore something rather than
+/// just read it. The unsent line is put aside on the way up and has to reappear at the bottom, or
+/// a user who presses Up to check a previous command loses what they were half way through typing.
+TEST(InputPaneHistory, WalkingDownComesBackToTheUnsentLine)
+{
+  InputPane pane {[](const std::string&) {}};
+  pane.addToHistory("ls");
+  pane.addToHistory("status");
+  pane.getBuffer() = "half typed";
+
+  pane.historyUp();
+  EXPECT_EQ(pane.getBuffer(), "status") << "the most recent entry comes first";
+  pane.historyUp();
+  EXPECT_EQ(pane.getBuffer(), "ls");
+
+  pane.historyDown();
+  EXPECT_EQ(pane.getBuffer(), "status");
+  pane.historyDown();
+  EXPECT_EQ(pane.getBuffer(), "half typed") << "the unsent line did not come back";
+}
+
+/// @test
+/// Down at the bottom of the history does nothing, rather than walking off the end of it.
+TEST(InputPaneHistory, DownAtTheBottomIsANoop)
+{
+  InputPane pane {[](const std::string&) {}};
+  pane.addToHistory("ls");
+  pane.getBuffer() = "untouched";
+
+  pane.historyDown();
+  EXPECT_EQ(pane.getBuffer(), "untouched");
+
+  // And again after a round trip, which is where the index could be left somewhere it should not be.
+  pane.historyUp();
+  pane.historyDown();
+  pane.historyDown();
+  EXPECT_EQ(pane.getBuffer(), "untouched");
 }
 
 }  // namespace sen::components::term

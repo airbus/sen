@@ -18,8 +18,11 @@
 // std
 #include <algorithm>
 #include <cctype>
+#include <cstddef>
 #include <cstdint>
+#include <exception>
 #include <limits>
+#include <ostream>
 #include <sstream>
 #include <string>
 #include <tuple>
@@ -36,14 +39,48 @@ using sen::UInt64Type;
 using sen::UInt8Type;
 using sen::Var;
 
+namespace sen
+{
+
+// A parameter gtest cannot print is written out as a hex dump of its bytes, and ctest registers that
+// dump as part of the test name: one name here ran to 613 characters and carried the object layout,
+// which changes between builds. These keep the name short and stable.
+std::ostream& operator<<(std::ostream& out, const ConstTypeHandle<>& handle) { return out << handle->getName(); }
+
+std::ostream& operator<<(std::ostream& out, const Var& var)
+{
+  // A printer must never be the reason a test run fails, so a value that will not serialise is
+  // named rather than thrown over.
+  try
+  {
+    return out << toJson(var, 0);
+  }
+  catch (const std::exception&)
+  {
+    return out << "<unprintable>";
+  }
+}
+
+}  // namespace sen
+
 using std::make_tuple;
 using std::numeric_limits;
 
 std::string convertTypesToTestCaseName(sen::ConstTypeHandle<> originType, Var var, sen::ConstTypeHandle<> targetType)
 {
+  // A float at the limit of its type prints as 309 digits, which is the whole name. Keeping the
+  // leading digits and the length distinguishes the cases this table holds without carrying the
+  // whole number, and stays the same on every platform.
+  auto value = var.getCopyAs<std::string>();
+  constexpr std::size_t valueLimit = 20U;
+  if (value.size() > valueLimit)
+  {
+    value = value.substr(0, valueLimit) + "_" + std::to_string(value.size()) + "d";
+  }
+
   std::stringstream ss;
   ss << originType->getName();
-  ss << "_" << var.getCopyAs<std::string>();
+  ss << "_" << value;
   ss << "_to_" << targetType->getName();
   std::string s = ss.str();
   std::replace(s.begin(), s.end(), '-', 'n');
@@ -74,6 +111,9 @@ struct ConvertToUint8: public VariantAdapterTestBase<uint8_t>
 {
 };
 
+/// @test
+/// Every numeric type converts to uint8. A value above the range caps at the maximum and one
+/// below it caps at the minimum, rather than wrapping.
 TEST_P(ConvertToUint8, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
@@ -114,6 +154,8 @@ struct ConvertToUint16: public VariantAdapterTestBase<uint16_t>
 {
 };
 
+/// @test
+/// Every numeric type converts to uint16, capping at the limits rather than wrapping.
 TEST_P(ConvertToUint16, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
@@ -152,6 +194,8 @@ struct ConvertToUint32: public VariantAdapterTestBase<uint32_t>
 {
 };
 
+/// @test
+/// Every numeric type converts to uint32, capping at the limits rather than wrapping.
 TEST_P(ConvertToUint32, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
@@ -188,6 +232,8 @@ struct ConvertToUint64: public VariantAdapterTestBase<uint64_t>
 {
 };
 
+/// @test
+/// Every numeric type converts to uint64, capping at the limits rather than wrapping.
 TEST_P(ConvertToUint64, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
@@ -222,6 +268,8 @@ struct ConvertToInt16: public VariantAdapterTestBase<int16_t>
 {
 };
 
+/// @test
+/// Every numeric type converts to int16, capping at the limits rather than wrapping.
 TEST_P(ConvertToInt16, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
@@ -263,6 +311,8 @@ struct ConvertToInt32: public VariantAdapterTestBase<int32_t>
 {
 };
 
+/// @test
+/// Every numeric type converts to int32, capping at the limits rather than wrapping.
 TEST_P(ConvertToInt32, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
@@ -304,6 +354,8 @@ struct ConvertToInt64: public VariantAdapterTestBase<int64_t>
 {
 };
 
+/// @test
+/// Every numeric type converts to int64, capping at the limits rather than wrapping.
 TEST_P(ConvertToInt64, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
@@ -345,6 +397,9 @@ struct ConvertToFloat32: public VariantAdapterTestBase<float32_t>
 {
 };
 
+/// @test
+/// Every numeric type converts to float32, and a float64 outside the range caps at the float32
+/// limit.
 TEST_P(ConvertToFloat32, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
@@ -380,6 +435,8 @@ struct ConvertToFloat64: public VariantAdapterTestBase<float64_t>
 {
 };
 
+/// @test
+/// Every numeric type converts to float64.
 TEST_P(ConvertToFloat64, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
@@ -405,6 +462,8 @@ struct ConvertToBool: public VariantAdapterTestBase<bool>
 {
 };
 
+/// @test
+/// Every numeric type converts to bool: zero is false and any other value is true.
 TEST_P(ConvertToBool, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(VariantAdapterTest,

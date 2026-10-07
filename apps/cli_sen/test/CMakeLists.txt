@@ -26,12 +26,17 @@ set_tests_properties(
 # Registered with a bare add_test, so it misses what the helpers give every other test. Without
 # this it carries no log_path and check_sanitizer_lane.py fails the lane, correctly: a finding
 # here would reach nobody.
+record_test_description(
+  sen_missing_generator_setup
+  "Copies the binary somewhere with no generators beside it, which is what the check below needs."
+)
 add_sanitizer_options(sen_missing_generator_setup)
 
 # Matching the diagnostic rather than gating on the exit code alone: the defect this covers
 # exited zero AND printed nothing, so an empty output must not be able to pass.
 add_sen_smoke_test(
-  sen_missing_generator_reports
+  sen_missing_generator_reports DESCRIPTION
+  "Prints a diagnostic when a generator is missing, rather than exiting zero in silence."
   COMMAND ${isolated_sen_dir}/$<TARGET_FILE_NAME:sen::cli_sen> generate mkdocs fom -d
           ${CMAKE_CURRENT_BINARY_DIR} -t ${CMAKE_CURRENT_BINARY_DIR} -o ${CMAKE_CURRENT_BINARY_DIR}/unused.md
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} REQ_DEPS cli_sen

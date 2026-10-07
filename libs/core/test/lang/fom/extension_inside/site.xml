@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <modelIdentification>
+        <name>Base Module</name>
+        <type>FOM</type>
+        <version>1.0</version>
+    </modelIdentification>
+    <objects>
+        <objectClass>
+            <name>HLAobjectRoot</name>
+            <objectClass>
+                <name>Vehicle</name>
+                <sharing>PublishSubscribe</sharing>
+                <semantics>A vehicle.</semantics>
+                <attribute>
+                    <name>Speed</name>
+                    <dataType>Metres</dataType>
+                    <updateType>Conditional</updateType>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <semantics>How fast it goes.</semantics>
+                </attribute>
+            </objectClass>
+        </objectClass>
+    </objects>
+    <interactions>
+        <interactionClass>
+            <name>HLAinteractionRoot</name>
+        </interactionClass>
+    </interactions>
+    <dataTypes>
+        <simpleDataTypes>
+            <simpleData>
+                <name>Knots</name>
+                <representation>HLAinteger32BE</representation>
+                <units>NA</units>
+                <semantics>A speed.</semantics>
+            </simpleData>
+            <simpleData>
+                <name>Metres</name>
+                <representation>HLAinteger32BE</representation>
+                <units>NA</units>
+                <semantics>A length.</semantics>
+            </simpleData>
+        </simpleDataTypes>
+        <enumeratedDataTypes>
+            <enumeratedData>
+                <name>Colour</name>
+                <representation>HLAinteger32BE</representation>
+                <semantics>A colour.</semantics>
+                <enumerator>
+                    <name>Red</name>
+                    <value>1</value>
+                </enumerator>
+            </enumeratedData>
+        </enumeratedDataTypes>
+        <arrayDataTypes/>
+        <fixedRecordDataTypes>
+            <fixedRecordData>
+                <name>PositionStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Where something is.</semantics>
+                <field>
+                    <name>X</name>
+                    <dataType>Metres</dataType>
+                    <semantics>Across.</semantics>
+                </field>
+            </fixedRecordData>
+        </fixedRecordDataTypes>
+        <variantRecordDataTypes>
+            <variantRecordData>
+                <name>ShapeStruct</name>
+                <discriminant>Kind</discriminant>
+                <dataType>Colour</dataType>
+                <encoding>HLAvariantRecord</encoding>
+                <semantics>One shape of several.</semantics>
+                <alternative>
+                    <enumerator>Red</enumerator>
+                    <name>Point</name>
+                    <dataType>PositionStruct</dataType>
+                    <semantics>A point.</semantics>
+                </alternative>
+            </variantRecordData>
+        </variantRecordDataTypes>
+    </dataTypes>
+</objectModel>

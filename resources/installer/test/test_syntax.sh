@@ -65,6 +65,9 @@ fi
 if [ -f "$SAMPLE_PREFIX/activate.fish" ]; then
     if command -v fish >/dev/null 2>&1; then
         check "fish -n activate.fish (generated)" fish -n "$SAMPLE_PREFIX/activate.fish"
+    elif [ -n "${CI:-}" ] || [ -n "${SEN_DEV_STRICT:-}" ]; then
+        printf '  FAIL  fish -n activate.fish (fish not installed, and this environment carries it)\n' >&2
+        RC=1
     else
         printf '  skip  fish -n activate.fish (fish not installed)\n'
     fi

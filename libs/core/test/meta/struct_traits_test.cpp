@@ -43,6 +43,20 @@ class StructTraitsBaseTest: public ::testing::Test
 using GeneratedSenClasses = ::testing::Types<MyEmptyStruct, MyStructWithNativeFieldsOnly, MyStructWithNonNativeFields>;
 TYPED_TEST_SUITE(StructTraitsBaseTest, GeneratedSenClasses);
 
+/// The cases below are about field indices, and a struct with no fields has no index to get
+/// wrong. Instantiating them over the structs that have fields says that in the type list, where
+/// a reader sees it. Asking the empty struct and skipping left four cases reported as skipped in
+/// every run, which reads as something unfinished rather than as something that does not apply.
+template <typename T>
+class StructWithFieldsTraitsTest: public ::testing::Test
+{
+};
+
+using GeneratedSenClassesWithFields = ::testing::Types<MyStructWithNativeFieldsOnly, MyStructWithNonNativeFields>;
+TYPED_TEST_SUITE(StructWithFieldsTraitsTest, GeneratedSenClassesWithFields);
+
+/// @test
+/// Asking a struct with no fields for a field getter is refused.
 TYPED_TEST(StructTraitsBaseTest, ThrowsIfTryingToAccessFieldValueGetterFunctionOnEmptyStruct)
 {
   // arrange
@@ -64,7 +78,9 @@ TYPED_TEST(StructTraitsBaseTest, ThrowsIfTryingToAccessFieldValueGetterFunctionO
   }
 }
 
-TYPED_TEST(StructTraitsBaseTest, ThrowsIfNoFieldIndexIsPassedToFieldValueGetterFunctionOnNonEmptyStruct)
+/// @test
+/// Asking for a field getter with no field index is refused.
+TYPED_TEST(StructWithFieldsTraitsTest, ThrowsIfNoFieldIndexIsPassedToFieldValueGetterFunctionOnNonEmptyStruct)
 {
   // arrange
   std::vector<uint16_t> fieldIndices {};
@@ -72,53 +88,39 @@ TYPED_TEST(StructTraitsBaseTest, ThrowsIfNoFieldIndexIsPassedToFieldValueGetterF
   ASSERT_TRUE(fields.empty());
 
   // act and assert
-  if constexpr (std::is_same_v<TypeParam, MyEmptyStruct>)
-  {
-    GTEST_SKIP();
-  }
-  else
-  {
 #ifndef NDEBUG
-    ASSERT_THROW(sen::VariantTraits<TypeParam>::getFieldValueGetterFunction({}), cpptrace::runtime_error);
+  ASSERT_THROW(sen::VariantTraits<TypeParam>::getFieldValueGetterFunction({}), cpptrace::runtime_error);
 #else
-    ASSERT_THROW(sen::VariantTraits<TypeParam>::getFieldValueGetterFunction(fields), std::runtime_error);
+  ASSERT_THROW(sen::VariantTraits<TypeParam>::getFieldValueGetterFunction(fields), std::runtime_error);
 #endif
-  }
 }
 
-TYPED_TEST(StructTraitsBaseTest, ThrowsIfAnInvalidFieldIndexIsPassedToFieldValueGetterFunctionOnNonEmptyStruct)
+/// @test
+/// A field index outside the struct's fields is refused.
+TYPED_TEST(StructWithFieldsTraitsTest, ThrowsIfAnInvalidFieldIndexIsPassedToFieldValueGetterFunctionOnNonEmptyStruct)
 {
   // arrange
   std::array<uint16_t, 3UL> invalidFieldIndex {10};
   const auto fields {sen::makeSpan(invalidFieldIndex)};
 
   // act and assert
-  if constexpr (std::is_same_v<TypeParam, MyEmptyStruct>)
-  {
-    GTEST_SKIP();
-  }
-  else
-  {
 #ifndef NDEBUG
-    ASSERT_THROW(sen::VariantTraits<TypeParam>::getFieldValueGetterFunction(fields), cpptrace::runtime_error);
+  ASSERT_THROW(sen::VariantTraits<TypeParam>::getFieldValueGetterFunction(fields), cpptrace::runtime_error);
 #else
-    ASSERT_THROW(sen::VariantTraits<TypeParam>::getFieldValueGetterFunction(fields), std::runtime_error);
+  ASSERT_THROW(sen::VariantTraits<TypeParam>::getFieldValueGetterFunction(fields), std::runtime_error);
 #endif
-  }
 }
 
-TYPED_TEST(StructTraitsBaseTest, ThrowsIfNonNativeFieldIsAccessedViaFieldValueGetterFunction)
+/// @test
+/// A field whose type is not native cannot be read through the field getter.
+TYPED_TEST(StructWithFieldsTraitsTest, ThrowsIfNonNativeFieldIsAccessedViaFieldValueGetterFunction)
 {
   // arrange
   std::array<uint16_t, 3UL> fieldIndexWithNonNativeType {0};
   const auto fields {sen::makeSpan(fieldIndexWithNonNativeType)};
 
   // act and assert
-  if constexpr (std::is_same_v<TypeParam, MyEmptyStruct>)
-  {
-    GTEST_SKIP();
-  }
-  else if constexpr (std::is_same_v<TypeParam, MyStructWithNativeFieldsOnly>)
+  if constexpr (std::is_same_v<TypeParam, MyStructWithNativeFieldsOnly>)
   {
     ASSERT_NO_THROW(sen::VariantTraits<TypeParam>::getFieldValueGetterFunction(fields));
   }
@@ -132,7 +134,10 @@ TYPED_TEST(StructTraitsBaseTest, ThrowsIfNonNativeFieldIsAccessedViaFieldValueGe
   }
 }
 
-TYPED_TEST(StructTraitsBaseTest, ThrowsIfVarDoesNotHoldAVarMapWhenConvertingFromVarToValue)
+/// @test
+/// Converting to a struct from a value that is not a map is refused, while a value written from
+/// the struct converts back.
+TYPED_TEST(StructWithFieldsTraitsTest, ThrowsIfVarDoesNotHoldAVarMapWhenConvertingFromVarToValue)
 {
   // arrange
   sen::Var myVar {};
@@ -140,16 +145,9 @@ TYPED_TEST(StructTraitsBaseTest, ThrowsIfVarDoesNotHoldAVarMapWhenConvertingFrom
   TypeParam myGenericStruct {};
 
   // act and assert
-  if constexpr (std::is_same_v<TypeParam, MyEmptyStruct>)
-  {
-    GTEST_SKIP();
-  }
-  else
-  {
-    ASSERT_THROW(sen::VariantTraits<TypeParam>::variantToValue(myInvalidVar, myGenericStruct), std::runtime_error);
-    sen::VariantTraits<TypeParam>::valueToVariant(myGenericStruct, myVar);
-    ASSERT_NO_THROW(sen::VariantTraits<TypeParam>::variantToValue(myVar, myGenericStruct));
-  }
+  ASSERT_THROW(sen::VariantTraits<TypeParam>::variantToValue(myInvalidVar, myGenericStruct), std::runtime_error);
+  sen::VariantTraits<TypeParam>::valueToVariant(myGenericStruct, myVar);
+  ASSERT_NO_THROW(sen::VariantTraits<TypeParam>::variantToValue(myVar, myGenericStruct));
 }
 
 }  // namespace

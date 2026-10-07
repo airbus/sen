@@ -19,7 +19,6 @@
 
 // std
 #include <cstring>
-#include <iomanip>
 #include <tuple>
 
 namespace sen
@@ -173,18 +172,28 @@ inline bool VariantTraitsBase<T>::tryPrintField(std::ostream& out,
   if (val.index() == index)
   {
     out.setf(std::ios::left, std::ios::adjustfield);
-    const auto indent = std::setw(static_cast<int>(out.width() + 2U));
-    out << indent << ' ' << "type:  " << typeName << "\n";
+
+    // The width is set straight on the stream before each padded item instead of being held in a
+    // std::setw object, which keeps <iomanip> out of a header every generated model pulls in. A
+    // width applies to the next item only, so it is set again for each one.
+    const auto indent = static_cast<int>(out.width() + 2U);
+
+    out.width(indent);
+    out << ' ' << "type:  " << typeName << "\n";
 
     if (auto valPtr = std::get_if<index>(&val); valPtr)
     {
       if (requiresNewline)
       {
-        out << indent << ' ' << "value:\n" << indent << *valPtr;
+        out.width(indent);
+        out << ' ' << "value:\n";
+        out.width(indent);
+        out << *valPtr;
       }
       else
       {
-        out << indent << ' ' << "value: " << *valPtr;
+        out.width(indent);
+        out << ' ' << "value: " << *valPtr;
       }
     }
     return true;

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <modelIdentification><name>Nested Z</name><type>FOM</type></modelIdentification>
+    <objects><objectClass><name>HLAobjectRoot</name>
+        <objectClass><name>Vehicle</name><semantics>Something that moves.</semantics>
+            <attribute><name>Weight</name><dataType>Metres</dataType><updateType>Conditional</updateType>
+                <sharing>PublishSubscribe</sharing><transportation>HLAreliable</transportation>
+                <semantics>A measurement.</semantics></attribute>
+            <objectClass><name>Truck</name><semantics>A kind of vehicle.</semantics>
+                <attribute><name>TruckLoad</name><dataType>Metres</dataType><updateType>Conditional</updateType>
+                    <sharing>PublishSubscribe</sharing><transportation>HLAreliable</transportation>
+                    <semantics>What it carries.</semantics></attribute>
+            </objectClass>
+        </objectClass>
+    </objectClass></objects>
+    <dataTypes><simpleDataTypes><simpleData><name>Metres</name>
+        <representation>HLAinteger32BE</representation><units>NA</units><semantics>A length.</semantics>
+    </simpleData></simpleDataTypes></dataTypes>
+</objectModel>

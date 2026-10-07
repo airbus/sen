@@ -19,3 +19,8 @@ add_executable(sen::cli_archive ALIAS cli_archive)
 sen_internal_configure_app(cli_archive)
 sen_internal_install(cli_archive)
 sen_enable_static_analysis(cli_archive)
+
+# The tests read an archive, and the recorder is what writes one: without it there is nothing to read.
+if(SEN_BUILD_TESTS AND SEN_BUILD_RECORDER)
+  add_subdirectory(test)
+endif()

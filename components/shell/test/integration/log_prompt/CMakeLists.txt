@@ -18,6 +18,8 @@ set(_working_dir $<TARGET_FILE_DIR:sen::cli_run>)
 # Checks that the shell prompt is correctly shown after the initial logs
 add_sen_integration_test(
   shell_log_prompt_initial
+  DESCRIPTION
+  "Shows the shell prompt after the logs printed at startup."
   COMMAND
   ${Python_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/test_log_prompt.py
@@ -31,6 +33,8 @@ add_sen_integration_test(
 # Checks that the shell prompt is correctly restored after asynchronous logs
 add_sen_integration_test(
   shell_log_prompt_async
+  DESCRIPTION
+  "Restores the shell prompt after a log arrives while it is waiting for input."
   COMMAND
   ${Python_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/test_log_prompt.py

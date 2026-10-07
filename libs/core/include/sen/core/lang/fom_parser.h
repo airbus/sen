@@ -27,7 +27,12 @@ class FomParser
 
 public:
   /// Stores the tokens for eventual parsing.
+  ///
+  /// \param paths directories of FOM modules, each directory giving its name to a package
+  /// \param extensions files, or directories of them, that add members to types the modules
+  ///        declare. An extension owns no type and generates no file of its own.
   FomParser(const std::vector<std::filesystem::path>& paths,
+            const std::vector<std::filesystem::path>& extensions,
             const std::vector<std::filesystem::path>& mappings,
             const TypeSettings& settings);
   ~FomParser();
@@ -50,10 +55,11 @@ private:
 };
 
 inline TypeSetContext parseFomDocuments(const std::vector<std::filesystem::path>& paths,
+                                        const std::vector<std::filesystem::path>& extensions,
                                         const std::vector<std::filesystem::path>& mappings,
                                         const TypeSettings& settings)
 {
-  sen::lang::FomParser documents(paths, mappings, settings);
+  sen::lang::FomParser documents(paths, extensions, mappings, settings);
   return std::move(documents).convertToCompleteTypeSetContext();
 }
 

@@ -27,6 +27,7 @@
 // std
 #include <array>
 #include <cstdint>
+#include <sstream>
 #include <stdexcept>
 #include <tuple>
 #include <variant>
@@ -73,6 +74,8 @@ class TestVariantTraitsBaseViaVariantTraits: public ::testing::Test
 using VariantTypes = ::testing::Types<MockStruct, f64, u32, bool, MaybeString>;
 TYPED_TEST_SUITE(TestVariantTraitsBaseViaVariantTraits, VariantTypes);
 
+/// @test
+/// Asking for a field getter with no field index is refused.
 TYPED_TEST(TestVariantTraitsBaseViaVariantTraits, ThrowsIfNoFieldIndexIsPassedToFieldValueGetterFunction)
 {
   // arrange
@@ -88,6 +91,8 @@ TYPED_TEST(TestVariantTraitsBaseViaVariantTraits, ThrowsIfNoFieldIndexIsPassedTo
 #endif
 }
 
+/// @test
+/// A field whose type is not native cannot be read through the field getter.
 TYPED_TEST(TestVariantTraitsBaseViaVariantTraits, ThrowsIfNonNativeFieldIsAccessedViaFieldValueGetterFunction)
 {
   // arrange
@@ -102,6 +107,8 @@ TYPED_TEST(TestVariantTraitsBaseViaVariantTraits, ThrowsIfNonNativeFieldIsAccess
 #endif
 }
 
+/// @test
+/// A field index outside the variant's alternatives is refused.
 TYPED_TEST(TestVariantTraitsBaseViaVariantTraits, ThrowsIfAnInvalidFieldIndexIsPassedToFieldValueGetterFunction)
 {
   // arrange
@@ -116,6 +123,8 @@ TYPED_TEST(TestVariantTraitsBaseViaVariantTraits, ThrowsIfAnInvalidFieldIndexIsP
 #endif
 }
 
+/// @test
+/// A variant converts to a value carrying its alternative and its contents.
 TYPED_TEST(TestVariantTraitsBaseViaVariantTraits, IsConvertibleFromValueToVar)
 {
   // arrange
@@ -143,6 +152,8 @@ TYPED_TEST(TestVariantTraitsBaseViaVariantTraits, IsConvertibleFromValueToVar)
   }
 }
 
+/// @test
+/// A value naming the alternative by index converts back to the variant.
 TYPED_TEST(TestVariantTraitsBaseViaVariantTraits, IsConvertibleFromVarToValueIfVarHoldsTypeIndexAndvalue)
 {
   // arrange
@@ -158,6 +169,8 @@ TYPED_TEST(TestVariantTraitsBaseViaVariantTraits, IsConvertibleFromVarToValueIfV
   EXPECT_EQ(mockVariant, makeMockVariant<TypeParam>());
 }
 
+/// @test
+/// A value naming the alternative by name converts back to the variant.
 TYPED_TEST(TestVariantTraitsBaseViaVariantTraits, IsConvertibleFromVarToValueIfVarHoldsTypeNameAndValue)
 {
   // arrange
@@ -195,6 +208,8 @@ TYPED_TEST(TestVariantTraitsBaseViaVariantTraits, IsConvertibleFromVarToValueIfV
   EXPECT_EQ(mockVariant, makeMockVariant<TypeParam>());
 }
 
+/// @test
+/// A value naming an alternative the variant does not hold is refused.
 TYPED_TEST(TestVariantTraitsBaseViaVariantTraits, ThrowsDuringConversionFromVarToValueIfVarHoldsInvalidType)
 {
   // arrange
@@ -217,6 +232,8 @@ class TestVariantTraitsBaseViaSerializationTraits: public ::testing::Test
 using VariantTypes = ::testing::Types<MockStruct, f64, u32, bool, MaybeString>;
 TYPED_TEST_SUITE(TestVariantTraitsBaseViaSerializationTraits, VariantTypes);
 
+/// @test
+/// A variant written to a stream reads back as the same variant.
 TYPED_TEST(TestVariantTraitsBaseViaSerializationTraits, IsWritableToOutputStreamAndReadableByInputStream)
 {
   // arrange
@@ -234,6 +251,17 @@ TYPED_TEST(TestVariantTraitsBaseViaSerializationTraits, IsWritableToOutputStream
   // assert
   ASSERT_TRUE(std::holds_alternative<TypeParam>(mockVariant));
   ASSERT_EQ(mockVariant, makeMockVariant<TypeParam>());
+}
+
+/// @test
+/// The printed form of a variant, pinned exactly. The indentation comes from stream width
+/// manipulation, which is easy to change by accident and which nothing else here asserts.
+TEST(AVariantBeingPrinted, keepsItsFieldIndentation)
+{
+  std::ostringstream out;
+  out << makeMockVariant<u32>();
+
+  EXPECT_EQ(out.str(), "  type:  u32\n  value: 32");
 }
 
 }  // namespace

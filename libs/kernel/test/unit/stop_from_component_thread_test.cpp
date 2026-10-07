@@ -32,6 +32,9 @@ namespace
 /// the process, and (because a terminal component has taken the console over) said nothing about it.
 ///
 /// This test would not have failed before the fix. It would have killed the test binary.
+/// @test
+/// A component calling requestKernelStop from its own run loop stops the kernel without
+/// aborting the process.
 TEST(StopFromComponentThread, AComponentCanAskToStopWithoutAbortingTheProcess)
 {
   TestComponent component;

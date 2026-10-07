@@ -323,6 +323,7 @@ function(get_external_interfaces)
   get_target_property(_build_stl_files ${_arg_TARGET} STL_FILES)
   get_target_property(_build_hla_fom_dirs ${_arg_TARGET} HLA_FOM_DIRS)
   get_target_property(_build_hla_mappings ${_arg_TARGET} HLA_MAPPINGS)
+  get_target_property(_build_hla_extensions ${_arg_TARGET} HLA_EXTENSIONS)
   get_target_property(_build_base_path ${_arg_TARGET} BASE_PATH)
   # Only a package that means to export interfaces ships the config file that calls this, so all
   # three being absent means the package did not pass EXPORT_INTERFACES. Saying nothing here sends
@@ -452,6 +453,43 @@ function(get_external_interfaces)
       endif()
     endforeach()
   endif()
+  # set hla extensions if found
+  if(_build_hla_extensions)
+    foreach(extensions_file ${_build_hla_extensions})
+      string(
+        REPLACE ${_build_base_path}
+                ""
+                relative_extensions_file_path
+                ${extensions_file}
+      )
+      set(installation_extensions_file "${_abs_install_dir}/${relative_extensions_file_path}")
+
+      if(NOT EXISTS ${installation_extensions_file})
+        message(
+          FATAL_ERROR
+            "get_external_interfaces: Could not obtain external interfaces for TARGET ${_arg_TARGET}: Directory ${installation_extensions_file} could not be found on system.\
+            Please, contact with the maintainers of the target. \n\
+            Possible reasons of the failure: \n\
+            \tWrongly inputted BASE_PATH on original package generation.\n\
+            \tNo INSTALL directive on the FOM directories.\n\
+            \tINSTALL directory not compliant with the BASE_PATH. \n\
+
+            Report this information to the developer when suggesting a fix: \n\
+            \tExtensions file was originally built in ${extensions_file}\n\
+            \tFile was expected to be in ${_abs_install_dir}/${relative_extensions_file_path}\
+
+            Please check the interfaces consumption guide on Sen's official documentation for further information.
+                "
+        )
+      else()
+        set_property(
+          TARGET ${_arg_TARGET}
+          APPEND
+          PROPERTY INSTALL_HLA_EXTENSIONS ${installation_extensions_file}
+        )
+      endif()
+    endforeach()
+  endif()
 endfunction()
 
 # Parse all the -config.cmake.in files in the current directory and install the generated -config.cmake files into the target
@@ -528,6 +566,7 @@ function(copy_target_properties to_target from_target)
   copy_target_property(${to_target} ${from_target} STL_FILES)
   copy_target_property(${to_target} ${from_target} HLA_FOM_DIRS)
   copy_target_property(${to_target} ${from_target} HLA_MAPPINGS)
+  copy_target_property(${to_target} ${from_target} HLA_EXTENSIONS)
   copy_target_property(${to_target} ${from_target} EXPORT_FILES)
   copy_target_property(${to_target} ${from_target} SEN_EXPORTS_TYPES)
   copy_target_property(${to_target} ${from_target} SEN_IS_PYTHON)

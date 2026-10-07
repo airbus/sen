@@ -30,12 +30,16 @@ namespace
 // hasPendingCalls bookkeeping
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A new pane has no pending calls.
 TEST(OutputPane, NoPendingCallsInitially)
 {
   OutputPane pane;
   EXPECT_FALSE(pane.hasPendingCalls());
 }
 
+/// @test
+/// Appending a pending entry marks the pane as having pending calls.
 TEST(OutputPane, AppendPendingMakesItPending)
 {
   OutputPane pane;
@@ -43,6 +47,8 @@ TEST(OutputPane, AppendPendingMakesItPending)
   EXPECT_TRUE(pane.hasPendingCalls());
 }
 
+/// @test
+/// Replacing the pending entry with its result clears the flag.
 TEST(OutputPane, ReplacePendingClearsTheFlag)
 {
   OutputPane pane;
@@ -53,6 +59,8 @@ TEST(OutputPane, ReplacePendingClearsTheFlag)
   EXPECT_FALSE(pane.hasPendingCalls());
 }
 
+/// @test
+/// Two pending entries are tracked separately, so replacing one leaves the other pending.
 TEST(OutputPane, MultiplePendingTrackedIndependently)
 {
   OutputPane pane;
@@ -71,6 +79,8 @@ TEST(OutputPane, MultiplePendingTrackedIndependently)
   EXPECT_FALSE(pane.hasPendingCalls());
 }
 
+/// @test
+/// Replacing an id the pane does not hold changes nothing.
 TEST(OutputPane, ReplaceWithUnknownIdIsNoop)
 {
   OutputPane pane;
@@ -85,6 +95,8 @@ TEST(OutputPane, ReplaceWithUnknownIdIsNoop)
   EXPECT_FALSE(pane.hasPendingCalls());
 }
 
+/// @test
+/// Replacing the same id twice does not take the pending count below zero.
 TEST(OutputPane, ReplaceTwiceDoesNotUnderflowPendingCount)
 {
   // Replacing the same id twice is a no-op the second time.
@@ -106,6 +118,8 @@ TEST(OutputPane, ReplaceTwiceDoesNotUnderflowPendingCount)
 // trimLines interacts with pendingCount
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A pending entry dropped by trimming stops being counted as pending.
 TEST(OutputPane, TrimmingPendingEntryDecrementsCount)
 {
   OutputPane pane;
@@ -121,6 +135,8 @@ TEST(OutputPane, TrimmingPendingEntryDecrementsCount)
   EXPECT_FALSE(pane.hasPendingCalls());
 }
 
+/// @test
+/// Trimming an entry that was not pending leaves the pending count alone.
 TEST(OutputPane, TrimmingNonPendingEntryKeepsCount)
 {
   OutputPane pane;
@@ -139,6 +155,8 @@ TEST(OutputPane, TrimmingNonPendingEntryKeepsCount)
   EXPECT_FALSE(pane.hasPendingCalls());
 }
 
+/// @test
+/// Replacing an entry that trimming already dropped changes nothing.
 TEST(OutputPane, ReplaceAfterTrimIsNoop)
 {
   OutputPane pane;
@@ -158,6 +176,8 @@ TEST(OutputPane, ReplaceAfterTrimIsNoop)
 // clear() resets pending state
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// Clearing the pane leaves no pending calls.
 TEST(OutputPane, ClearResetsPendingCount)
 {
   OutputPane pane;
@@ -199,6 +219,8 @@ std::string visible(OutputPane& pane, int width = 40, int height = 10)
 
 }  // namespace
 
+/// @test
+/// A pane that has not been scrolled shows the newest lines.
 TEST(OutputPaneScroll, AFreshPaneFollowsTheBottom)
 {
   OutputPane pane;
@@ -208,6 +230,8 @@ TEST(OutputPaneScroll, AFreshPaneFollowsTheBottom)
   EXPECT_THAT(out, ::testing::Not(::testing::HasSubstr("line_0")));
 }
 
+/// @test
+/// Scrolling up shows earlier lines and stops following the newest.
 TEST(OutputPaneScroll, ScrollingUpShowsEarlierLinesAndStopsFollowing)
 {
   OutputPane pane;
@@ -223,6 +247,9 @@ TEST(OutputPaneScroll, ScrollingUpShowsEarlierLinesAndStopsFollowing)
     << "the view jumped to the bottom after scrolling up";
 }
 
+/// @test
+/// A scroll step moves a fraction of the content rather than a fixed number of rows, so the same
+/// request moves further through short content than through long content.
 TEST(OutputPaneScroll, TheStepIsProportionalToTheContentNotTheRequest)
 {
   // The property the saturating fresh-pane test could not see: on 600 lines, scrolling up 20 rows moves
@@ -240,6 +267,8 @@ TEST(OutputPaneScroll, TheStepIsProportionalToTheContentNotTheRequest)
   EXPECT_THAT(visible(shortPane), ::testing::HasSubstr("line_0")) << "scrolling past the top did not clamp there";
 }
 
+/// @test
+/// Scrolling to the bottom shows the newest lines and follows them again.
 TEST(OutputPaneScroll, ScrollToBottomComesBackAndFollowsAgain)
 {
   OutputPane pane;
@@ -254,6 +283,8 @@ TEST(OutputPaneScroll, ScrollToBottomComesBackAndFollowsAgain)
   EXPECT_THAT(visible(pane), ::testing::HasSubstr("arrived_later")) << "following the bottom did not resume";
 }
 
+/// @test
+/// Scrolling down from the top returns to following the newest lines.
 TEST(OutputPaneScroll, ScrollingDownFromTheTopReturnsToFollowing)
 {
   OutputPane pane;

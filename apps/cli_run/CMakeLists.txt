@@ -92,3 +92,7 @@ sen_internal_add_resources(
 )
 
 sen_internal_install(cli_run)
+
+if(SEN_BUILD_TESTS)
+  add_subdirectory(test)
+endif()

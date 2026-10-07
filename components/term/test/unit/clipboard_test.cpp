@@ -114,6 +114,8 @@ private:
 // Terminal escape framing
 //--------------------------------------------------------------------------------------------------------------
 
+/// @test
+/// A copy writes the payload inside the OSC 52 framing the terminal reads.
 TEST(Clipboard, EmitsOsc52WrapperAroundPayload)
 {
   NoDisplayEnv guard;
@@ -124,6 +126,9 @@ TEST(Clipboard, EmitsOsc52WrapperAroundPayload)
   EXPECT_EQ(out.back(), '\x07');
 }
 
+/// @test
+/// Copying empty text still writes the framing, with nothing between the prefix and the
+/// terminator.
 TEST(Clipboard, EmitsEscapeEvenForEmptyText)
 {
   NoDisplayEnv guard;
@@ -142,29 +147,43 @@ TEST(Clipboard, EmitsEscapeEvenForEmptyText)
 // which is written for POSIX only, and the encoder is the one piece here that behaves identically on
 // every platform.
 
+/// @test
+/// A length that is a multiple of three encodes with no padding.
 TEST(Clipboard, Base64NoPaddingFor3ByteMultiple)
 {
   // "abc" -> YWJj (three bytes are four characters, no '=').
   EXPECT_EQ(clipboard::base64Encode("abc"), "YWJj");
 }
 
+/// @test
+/// Two bytes encode with one padding character.
 TEST(Clipboard, Base64SinglePaddingFor2Bytes) { EXPECT_EQ(clipboard::base64Encode("ab"), "YWI="); }
 
+/// @test
+/// One byte encodes with two padding characters.
 TEST(Clipboard, Base64DoublePaddingFor1Byte) { EXPECT_EQ(clipboard::base64Encode("a"), "YQ=="); }
 
+/// @test
+/// Empty input encodes to an empty string.
 TEST(Clipboard, Base64EmptyInput) { EXPECT_EQ(clipboard::base64Encode(""), ""); }
 
+/// @test
+/// Bytes above the ASCII range encode correctly, reaching the top of the six bit range.
 TEST(Clipboard, Base64HandlesNonAsciiBytes)
 {
   // 0xFF 0xFE 0xFD -> //79, which exercises the top of the 6-bit range and both alphabet tails.
   EXPECT_EQ(clipboard::base64Encode(std::string("\xFF\xFE\xFD", 3)), "//79");
 }
 
+/// @test
+/// A known string encodes to its known base64 form.
 TEST(Clipboard, Base64KnownValueHelloWorld)
 {
   EXPECT_EQ(clipboard::base64Encode("Hello, World!"), "SGVsbG8sIFdvcmxkIQ==");
 }
 
+/// @test
+/// The output holds only base64 alphabet characters and padding.
 TEST(Clipboard, Base64OutputUsesOnlyAlphabetChars)
 {
   const auto encoded = clipboard::base64Encode("The quick brown fox jumps over the lazy dog");
@@ -176,6 +195,91 @@ TEST(Clipboard, Base64OutputUsesOnlyAlphabetChars)
     EXPECT_TRUE(ok) << "Unexpected character in base64 payload: 0x" << std::hex << static_cast<int>(c);
   }
 }
+
+//--------------------------------------------------------------------------------------------------------------
+// The worker, and what it can say afterwards
+//--------------------------------------------------------------------------------------------------------------
+
+#ifndef _WIN32
+
+/// Sets a display so `copy` takes the local-helper path, and puts back whatever was there.
+/// The mirror of NoDisplayEnv above, which exists to keep that path out of the escape tests.
+class WithDisplayEnv
+{
+public:
+  WithDisplayEnv()
+  {
+    const char* existing = std::getenv("DISPLAY");
+    if (existing != nullptr)
+    {
+      saved_ = existing;
+    }
+    // NOLINTNEXTLINE(misc-include-cleaner) POSIX, as above
+    ::setenv("DISPLAY", ":0", 1);
+  }
+
+  ~WithDisplayEnv()
+  {
+    if (saved_.empty())
+    {
+      // NOLINTNEXTLINE(misc-include-cleaner) POSIX, as above
+      ::unsetenv("DISPLAY");
+    }
+    else
+    {
+      // NOLINTNEXTLINE(misc-include-cleaner) POSIX, as above
+      ::setenv("DISPLAY", saved_.c_str(), 1);
+    }
+  }
+
+  WithDisplayEnv(const WithDisplayEnv&) = delete;
+  WithDisplayEnv& operator=(const WithDisplayEnv&) = delete;
+  WithDisplayEnv(WithDisplayEnv&&) = delete;
+  WithDisplayEnv& operator=(WithDisplayEnv&&) = delete;
+
+private:
+  std::string saved_;
+};
+
+/// @test
+/// Reading the last failure clears it, so a reason is shown once rather than on every frame.
+///
+/// The assertion is deliberately weaker than what the test exercises. With a display set, the copy
+/// takes the local-helper path, which on a machine with no helper installed fails through four
+/// commands and on a developer's machine with xclip or pbcopy succeeds. Asserting which of those
+/// happened would be a statement about the machine rather than about Sen. What holds everywhere is
+/// the contract the header states: reading it clears it.
+TEST(Clipboard, ReadingTheLastFailureClearsIt)
+{
+  {
+    const WithDisplayEnv display;
+    auto out = captureStdout([] { clipboard::copy("to the helper"); });
+    EXPECT_FALSE(out.empty()) << "the terminal escape goes out whatever the local helper does";
+    clipboard::shutdown();
+  }
+
+  const auto first = clipboard::takeFailure();
+  const auto second = clipboard::takeFailure();
+
+  if (first.has_value())
+  {
+    EXPECT_FALSE(first->empty()) << "a failure was reported with nothing to read";
+  }
+  EXPECT_FALSE(second.has_value()) << "the reason was still there after being read";
+}
+
+/// @test
+/// Shutting down is safe with nothing in flight and safe twice. It is called on the way out of the
+/// component, which is a path that also runs when the terminal never copied anything.
+TEST(Clipboard, ShutdownIsSafeWithNothingInFlight)
+{
+  clipboard::shutdown();
+  clipboard::shutdown();
+
+  EXPECT_FALSE(clipboard::takeFailure().has_value());
+}
+
+#endif  // _WIN32
 
 }  // namespace
 }  // namespace sen::components::term

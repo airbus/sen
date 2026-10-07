@@ -68,8 +68,10 @@ set(io_tests
 )
 
 set(lang_tests
+    lang/fom_parser_test.cpp
     lang/parser_test.cpp
     lang/compiler_test.cpp
+    lang/vm_test.cpp
     lang/stl_resolver_test.cpp
     lang/stl_token_test.cpp
 )
@@ -154,6 +156,7 @@ source_group("io" FILES ${io_tests})
 source_group("obj" FILES ${obj_tests})
 
 target_compile_definitions(core_test PRIVATE ABS_FILE="${CMAKE_CURRENT_SOURCE_DIR}/base/hash32_test.cpp")
+target_compile_definitions(core_test PRIVATE FOM_TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/lang/fom")
 
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/lang/stl/stl_resolver_test/complex_stl_file.stl

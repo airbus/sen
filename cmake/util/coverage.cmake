@@ -46,7 +46,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     COMMAND ${LCOV_PATH} -d . --capture --no-external --rc lcov_branch_coverage=1 -b ${CMAKE_SOURCE_DIR} -o
             coverage.info
     COMMAND ${LCOV_PATH} -r coverage.info --rc lcov_branch_coverage=1 -o filtered_coverage.info
-            '/usr/include/*' '*/*_generated/*' '*/test/*'
+            '/usr/include/*' '*/*_generated/*' '*/test/*' '${CMAKE_BINARY_DIR}/*'
     COMMAND ${GENHTML_PATH} -o ${SEN_COVERAGE_REPORT_DIR} filtered_coverage.info --legend --rc
             lcov_branch_coverage=1
     COMMAND rm -rf coverage.info filtered_coverage.info
@@ -106,15 +106,42 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     clean-generate-coverage-data COMMAND ${CMAKE_COMMAND} -E remove_directory ${SEN_COVERAGE_DATA_DIR}
   )
 
+  # Only hand-written code is measured. The generator emits <name>.stl.{h,cpp} and <name>.xml.{h,cpp},
+  # a *_build_info.cpp per target and a sen_exported_types.cpp per package; no file of those names
+  # exists in the source tree, so matching them cannot hide anything written by hand.
+  #
+  # explorer, shell and rest are deprecated in 0.8.0: their lines would sit in the denominator as
+  # permanently uncovered and hide movement everywhere else. Drop each when its code goes, so the
+  # pattern never outlives the directory it names.
+  #
+  # cli_remote_shell goes with them: it builds only under SEN_BUILD_SHELL, links the shell's
+  # terminal_lib and connects to a remote shell, so it is part of what is being withdrawn.
+  set(SEN_COVERAGE_IGNORE_PATTERNS
+      ".*generated.*"
+      ".*[.](stl|xml)[.](h|cpp)"
+      ".*_build_info[.]cpp"
+      "(.*/)?sen_exported_types[.]cpp"
+      "(.*/)?components/(explorer|shell|rest)/.*"
+      "(.*/)?apps/cli_remote_shell/.*"
+      "${CMAKE_BINARY_DIR}/.*"
+  )
+  list(
+    JOIN
+    SEN_COVERAGE_IGNORE_PATTERNS
+    "|"
+    SEN_COVERAGE_IGNORE_REGEX
+  )
+
   add_custom_target(
     generate-coverage-report
     COMMAND
       ${Python3_EXECUTABLE} ${GENERATE_COVERAGE_REPORT_SCRIPT} ${LLVM_PROFDATA_PATH} ${LLVM_COV_PATH}
-      ${SEN_COVERAGE_DATA_DIR} ${SEN_COVERAGE_REPORT_DIR} ${coverage_binaries}
-      --ignore-filename-regex=".*generated.*"
+      ${SEN_COVERAGE_DATA_DIR} ${SEN_COVERAGE_REPORT_DIR} ${coverage_binaries} --ignore-filename-regex
+      "${SEN_COVERAGE_IGNORE_REGEX}"
     COMMAND echo "Generated coverage overview [see: ${SEN_COVERAGE_REPORT_DIR}index.html]"
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     DEPENDS run_tests
+    VERBATIM
   )
 else()
   message(STATUS "Coverage setup not supported.")

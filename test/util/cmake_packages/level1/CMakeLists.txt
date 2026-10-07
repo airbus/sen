@@ -40,8 +40,10 @@ target_include_directories(level1S PUBLIC src)
 
 # smoke tests
 add_sen_run_smoke_test(
-  level1_smoke CONFIG_FILE ${PROJECT_SOURCE_DIR}/test/config/cmake_packages/level1_dynamic.yaml
+  level1_smoke DESCRIPTION "Loads a package that depends on another, linked dynamically."
+  CONFIG_FILE ${PROJECT_SOURCE_DIR}/test/config/cmake_packages/level1_dynamic.yaml
 )
 add_sen_run_smoke_test(
-  level1S_smoke CONFIG_FILE ${PROJECT_SOURCE_DIR}/test/config/cmake_packages/level1_static.yaml
+  level1S_smoke DESCRIPTION "Loads a package that depends on another, linked statically."
+  CONFIG_FILE ${PROJECT_SOURCE_DIR}/test/config/cmake_packages/level1_static.yaml
 )

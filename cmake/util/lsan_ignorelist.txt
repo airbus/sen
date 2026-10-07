@@ -13,3 +13,10 @@ leak:sen::ObjectProvider::addListener
 
 # TODO(SEN-1500): fix leak
 leak:sen::impl::FilteredProvider::createTrackedObject
+
+# Not a debt: the tracy component starts the profiler once per process and never shuts it down.
+# Every kernel thread and every other component plots through the tracer it installs, and shutdown
+# unloads tracy's group while the lower groups are still running, so a profiler released on unload
+# would be gone while the kernel's own runner was still plotting into it. The allocation is meant to
+# live until the process exits.
+leak:tracy::Profiler::Profiler

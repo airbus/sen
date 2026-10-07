@@ -187,6 +187,11 @@ public:
   [[nodiscard]] Result<Chunk, CompileError> compile(const QueryStatement& statement) const;
 
 private:
+  /// The dispatch loop. `interpret` wraps it so that a failure leaves as a `RuntimeError` instead
+  /// of as an exception: the one caller evaluates a query per object per cycle and does not catch.
+  [[nodiscard]] Result<Value, RuntimeError> run();
+
+private:
   [[nodiscard]] SEN_ALWAYS_INLINE uint8_t readByte();
   [[nodiscard]] SEN_ALWAYS_INLINE uint16_t readShort();
   [[nodiscard]] SEN_ALWAYS_INLINE Value readConstant();

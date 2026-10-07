@@ -48,6 +48,8 @@ generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/1_static_props)
 
 add_sen_integration_test(
   object_sync_static_props_local_test
+  DESCRIPTION
+  "Carries static properties from a publisher to a listener within one component."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -62,6 +64,8 @@ add_sen_integration_test(
 
 add_sen_integration_test(
   object_sync_static_props_single_process_test
+  DESCRIPTION
+  "Carries static properties from a publisher to a listener between two components in one process."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -76,6 +80,8 @@ add_sen_integration_test(
 
 add_sen_integration_test(
   object_sync_static_props_two_processes
+  DESCRIPTION
+  "Carries static properties from a publisher to a listener between two processes."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -94,6 +100,8 @@ generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/2_best_effort_props)
 
 add_sen_integration_test(
   object_sync_best_effort_props_local
+  DESCRIPTION
+  "Carries best-effort properties from a publisher to a listener within one component."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -108,6 +116,8 @@ add_sen_integration_test(
 
 add_sen_integration_test(
   object_sync_best_effort_props_single_process
+  DESCRIPTION
+  "Carries best-effort properties from a publisher to a listener between two components in one process."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -122,6 +132,8 @@ add_sen_integration_test(
 
 add_sen_integration_test(
   object_sync_best_effort_props_two_processes
+  DESCRIPTION
+  "Carries best-effort properties from a publisher to a listener between two processes."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -140,6 +152,8 @@ generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/3_confirmed_props)
 
 add_sen_integration_test(
   object_sync_confirmed_props_local
+  DESCRIPTION
+  "Carries confirmed properties from a publisher to a listener within one component."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -154,6 +168,8 @@ add_sen_integration_test(
 
 add_sen_integration_test(
   object_sync_confirmed_props_single_process
+  DESCRIPTION
+  "Carries confirmed properties from a publisher to a listener between two components in one process."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -168,6 +184,8 @@ add_sen_integration_test(
 
 add_sen_integration_test(
   object_sync_confirmed_props_two_processes
+  DESCRIPTION
+  "Carries confirmed properties from a publisher to a listener between two processes."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -186,6 +204,8 @@ generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/4_multicast_props)
 
 add_sen_integration_test(
   object_sync_multicast_props_local
+  DESCRIPTION
+  "Carries multicast properties from a publisher to a listener within one component."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -200,6 +220,8 @@ add_sen_integration_test(
 
 add_sen_integration_test(
   object_sync_multicast_props_single_process
+  DESCRIPTION
+  "Carries multicast properties from a publisher to a listener between two components in one process."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -214,6 +236,8 @@ add_sen_integration_test(
 
 add_sen_integration_test(
   object_sync_multicast_props_two_processes
+  DESCRIPTION
+  "Carries multicast properties from a publisher to a listener between two processes."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -232,6 +256,8 @@ generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/5_writable_props)
 
 add_sen_integration_test(
   object_sync_writable_props_local
+  DESCRIPTION
+  "Carries writable properties from a publisher to a listener within one component."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -246,6 +272,8 @@ add_sen_integration_test(
 
 add_sen_integration_test(
   object_sync_writable_props_single_process
+  DESCRIPTION
+  "Carries writable properties from a publisher to a listener between two components in one process."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -260,6 +288,8 @@ add_sen_integration_test(
 
 add_sen_integration_test(
   object_sync_writable_props_two_processes
+  DESCRIPTION
+  "Carries writable properties from a publisher to a listener between two processes."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -278,6 +308,8 @@ generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/6_best_effort_events)
 
 add_sen_integration_test(
   object_sync_best_effort_events_local
+  DESCRIPTION
+  "Delivers best-effort events to a listener within one component."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -292,6 +324,8 @@ add_sen_integration_test(
 
 add_sen_integration_test(
   object_sync_best_effort_events_single_process
+  DESCRIPTION
+  "Delivers best-effort events to a listener between two components in one process."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -306,6 +340,8 @@ add_sen_integration_test(
 
 add_sen_integration_test(
   object_sync_best_effort_events_two_processes
+  DESCRIPTION
+  "Delivers best-effort events to a listener between two processes."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -324,6 +360,8 @@ generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/7_confirmed_events)
 
 add_sen_integration_test(
   object_sync_confirmed_events_local
+  DESCRIPTION
+  "Delivers confirmed events to a listener within one component."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -338,6 +376,8 @@ add_sen_integration_test(
 
 add_sen_integration_test(
   object_sync_confirmed_events_single_process
+  DESCRIPTION
+  "Delivers confirmed events to a listener between two components in one process."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -352,6 +392,8 @@ add_sen_integration_test(
 
 add_sen_integration_test(
   object_sync_confirmed_events_two_processes
+  DESCRIPTION
+  "Delivers confirmed events to a listener between two processes."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -370,6 +412,8 @@ generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/8_multicast_events)
 
 add_sen_integration_test(
   object_sync_multicast_events_local
+  DESCRIPTION
+  "Delivers multicast events to a listener within one component."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -384,6 +428,8 @@ add_sen_integration_test(
 
 add_sen_integration_test(
   object_sync_multicast_events_single_process
+  DESCRIPTION
+  "Delivers multicast events to a listener between two components in one process."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -398,6 +444,8 @@ add_sen_integration_test(
 
 add_sen_integration_test(
   object_sync_multicast_events_two_processes
+  DESCRIPTION
+  "Delivers multicast events to a listener between two processes."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -417,6 +465,8 @@ configure_file(
 
 add_sen_integration_test(
   object_sync_local_method
+  DESCRIPTION
+  "Calls a method on a published object within one component."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -434,6 +484,8 @@ generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/10_const_method)
 
 add_sen_integration_test(
   object_sync_const_method_local
+  DESCRIPTION
+  "Calls a const method on a published object within one component."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -448,6 +500,8 @@ add_sen_integration_test(
 
 add_sen_integration_test(
   object_sync_const_method_single_process
+  DESCRIPTION
+  "Calls a const method on a published object between two components in one process."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -462,6 +516,8 @@ add_sen_integration_test(
 
 add_sen_integration_test(
   object_sync_const_method_two_processes
+  DESCRIPTION
+  "Calls a const method on a published object between two processes."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -480,6 +536,8 @@ generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/11_confirmed_method)
 
 add_sen_integration_test(
   object_sync_confirmed_method_local
+  DESCRIPTION
+  "Calls a confirmed method on a published object within one component."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -494,6 +552,8 @@ add_sen_integration_test(
 
 add_sen_integration_test(
   object_sync_confirmed_method_single_process
+  DESCRIPTION
+  "Calls a confirmed method on a published object between two components in one process."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -508,6 +568,8 @@ add_sen_integration_test(
 
 add_sen_integration_test(
   object_sync_confirmed_method_two_processes
+  DESCRIPTION
+  "Calls a confirmed method on a published object between two processes."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -526,6 +588,8 @@ generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/12_best_effort_method)
 
 add_sen_integration_test(
   object_sync_best_effort_method_local
+  DESCRIPTION
+  "Calls a best-effort method on a published object within one component."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -540,6 +604,8 @@ add_sen_integration_test(
 
 add_sen_integration_test(
   object_sync_best_effort_method_single_process
+  DESCRIPTION
+  "Calls a best-effort method on a published object between two components in one process."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
@@ -554,6 +620,8 @@ add_sen_integration_test(
 
 add_sen_integration_test(
   object_sync_best_effort_method_two_processes
+  DESCRIPTION
+  "Calls a best-effort method on a published object between two processes."
   COMMAND
   ${Python_EXECUTABLE}
   ${_script_file}
