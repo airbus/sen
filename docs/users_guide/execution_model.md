@@ -165,6 +165,10 @@ not match it at all. It is fixed for the cycle you are in, so reading it more th
 `update()` gives the same value. If your system already keeps other clocks, you can correlate them
 to this one and drive them however you like.
 
+A component that runs its own cycle can publish its data with a time of its own instead of Sen's.
+That is for bridging a system that keeps its own clock, and it is covered in
+[Publishing with the time the data came from](../howto_guides/components.md#publishing-with-the-time-the-data-came-from).
+
 You drive that stepping from the master clock. `step()` takes a single step and `steps(n)` takes
 several, while `advanceTime(duration)` takes as many steps as fit in the duration and rounds up to a
 whole one, so asking for 100 ms where a step is 30 ms runs four steps and advances 120 ms.
