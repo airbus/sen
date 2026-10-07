@@ -198,6 +198,8 @@ jobs:
       contents: read
       # Reading the artifacts of the run that tested this commit.
       actions: read
+      # And the image the documents are typeset in, which is a private package.
+      packages: read
     steps:
       - name: Find the run that tested this commit
         id: tested
@@ -223,6 +225,26 @@ jobs:
           github-token: ${{ github.token }}
           pattern: test-report-*
           path: test-reports
+
+
+      # Four of the five legs build on a runner, where there is no typst, so they upload a
+      # .typ and no pdf -- and the assertion in the next step stopped the release there. This
+      # typesets what those runs already rendered; it is not a second render, and the concern
+      # in the next step's comment does not apply to it.
+      - name: Get the image the documents are typeset in
+        uses: ./.github/actions/use_ci_image
+        with:
+          ubuntu: "22.04"
+
+      - name: Typeset any document whose leg had no typst
+        run: |
+          bash .github/scripts/in_image.sh <<'IN'
+          shopt -s nullglob
+          for typ in test-reports/*/testReport.typ; do
+              pdf="${typ%.typ}.pdf"
+              [ -s "$pdf" ] || typst compile "$typ" "$pdf"
+          done
+          IN
 
       - name: Name each one after the leg that produced it
         shell: bash
