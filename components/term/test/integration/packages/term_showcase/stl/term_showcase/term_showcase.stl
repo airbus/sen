@@ -148,6 +148,9 @@ class Showcase
   // Plain text editor: a single string argument.
   fn echo(message : string) -> string [const];
 
+  // Throws, so a caller can see what term does with a method that fails.
+  fn fail(reason : string) -> string [const];
+
   // Numeric text editors: integer arithmetic.
   // @param a the left operand
   // @param b the right operand
