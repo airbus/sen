@@ -159,6 +159,8 @@ void drainInputs(Runner* runner) { runner->drainInputs(); }
 
 void commit(Runner* runner) { runner->commit(); }
 
+void commit(Runner* runner, TimeStamp time) { runner->commit(time); }
+
 void update(Runner* runner) { runner->update(); }
 
 FuncResult execLoop(Runner* runner, Duration cycleTime, std::function<void()>&& workFunction, bool logOverruns)
@@ -704,6 +706,8 @@ void RunApi::drainInputs() { return impl::drainInputs(runner_); }
 void RunApi::update() { impl::update(runner_); }
 
 void RunApi::commit() { return impl::commit(runner_); }
+
+void RunApi::commit(TimeStamp time) { return impl::commit(runner_, time); }
 
 FuncResult RunApi::execLoop(Duration cycleTime, std::function<void()>&& func, bool logOverruns)
 {

@@ -498,6 +498,13 @@ public:
   /// This method is thread-safe.
   void commit();
 
+  /// The same, tagging what is sent with `time` instead of the time Sen would stamp, for a
+  /// component that runs its own cycle and bridges a system keeping its own clock. The time
+  /// applies to every object this component owns. getTime() still reports Sen's time, because the
+  /// rest of the kernel keeps running on its own clock.
+  /// This method is thread-safe.
+  void commit(TimeStamp time);
+
   /// A basic execution loop.
   /// Func is an optional callback that will be invoked on each cycle.
   /// logOverruns keeps the log lines for a missed deadline: an execution time overrun and
