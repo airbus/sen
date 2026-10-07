@@ -223,7 +223,7 @@ jobs:
     needs: detect-changes
     if: >-
       needs.detect-changes.outputs.code == 'true' &&
-      (github.event_name == 'push' ||
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch' ||
        (github.event_name == 'pull_request' && github.event.pull_request.draft == false))
     uses: ./.github/workflows/pr_sanitizers.yaml
     permissions:
@@ -238,7 +238,7 @@ jobs:
     needs: detect-changes
     if: >-
       needs.detect-changes.outputs.code == 'true' &&
-      (github.event_name == 'push' ||
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch' ||
        (github.event_name == 'pull_request' && github.event.pull_request.draft == false))
     uses: ./.github/workflows/clang_tidy_diff.yaml
     permissions:
