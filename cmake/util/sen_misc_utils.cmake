@@ -43,42 +43,37 @@ function(sen_collect_export_args)
     endforeach()
   else()
     foreach(_source ${_arg_SOURCES})
-      file(STRINGS ${_source} _file_strings)
+      file(
+        STRINGS ${_source} _file_strings
+        REGEX
+          "^[ \t]*SEN_EXPORT_CLASS\\([ \t]*[A-Za-z_][A-Za-z0-9_]*[ \t]*\\)([ \t]|//.*|/\\*([^*]|\\*+[^*/])*\\**/?)*$"
+      )
 
       foreach(_line ${_file_strings})
+        string(FIND "${_line}" "(" _open_paren)
+        math(EXPR _start "${_open_paren} + 1")
         string(
-          REGEX MATCH
-                "^[ \t]*SEN_EXPORT_CLASS\((.*)\)"
-                _name
-                ${_line}
+          SUBSTRING "${_line}"
+                    ${_start}
+                    -1
+                    _name_trailing_paren
         )
+        string(FIND "${_name_trailing_paren}" ")" _end)
+        string(
+          SUBSTRING "${_name_trailing_paren}"
+                    0
+                    ${_end}
+                    _final
+        )
+        string(STRIP "${_final}" _final)
 
-        if(_name)
-          string(FIND ${_name} "(" _open_paren)
-          math(EXPR _start "${_open_paren} + 1")
-          string(
-            SUBSTRING ${_name}
-                      ${_start}
-                      -1
-                      _name_trailing_paren
-          )
-          string(LENGTH ${_name_trailing_paren} _len)
-          math(EXPR _end "${_len} - 1")
-          string(
-            SUBSTRING ${_name_trailing_paren}
-                      0
-                      ${_end}
-                      _final
-          )
-
-          list(
-            APPEND
-            _export_args
-            -i
-            ${_arg_EXPORT_NAME}.${_final}
-          )
-          list(APPEND _export_classes ${_arg_EXPORT_NAME}.${_final})
-        endif()
+        list(
+          APPEND
+          _export_args
+          -i
+          ${_arg_EXPORT_NAME}.${_final}
+        )
+        list(APPEND _export_classes ${_arg_EXPORT_NAME}.${_final})
       endforeach()
     endforeach()
   endif()
