@@ -126,6 +126,21 @@ public:
   {
     if (blocked_)
     {
+      // Blocked SIGPIPE remains pending in the thread's signal queue.
+      // If we unblock it now, the OS will immediately deliver it and kill the process.
+      // We check if it's pending and consume it silently before restoring the mask.
+      sigset_t pending;
+      sigemptyset(&pending);
+
+      if (::sigpending(&pending) == 0 && (::sigismember(&pending, SIGPIPE) != 0))
+      {
+        sigset_t waitSet;
+        sigemptyset(&waitSet);
+        sigaddset(&waitSet, SIGPIPE);
+        int consumedSignal = 0;
+        ::sigwait(&waitSet, &consumedSignal);
+      }
+
       ::pthread_sigmask(SIG_SETMASK, &previous_, nullptr);
     }
   }
@@ -238,7 +253,7 @@ public:
     std::unique_lock lock(mutex_);
     if (!worker_.joinable())
     {
-      stopping_ = true;
+      // Already stopped, detached, or never started. Returning early preserves the state
       return;
     }
     stopping_ = true;
@@ -251,6 +266,9 @@ public:
       auto worker = std::move(worker_);
       lock.unlock();
       worker.join();
+
+      lock.lock();
+      stopping_ = false;
     }
     else
     {

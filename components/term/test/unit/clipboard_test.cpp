@@ -20,6 +20,7 @@
 #include <iterator>
 #include <string>
 #include <string_view>
+#include <tuple>
 
 #ifndef _WIN32
 #  include <fcntl.h>
@@ -266,6 +267,25 @@ TEST(Clipboard, ReadingTheLastFailureClearsIt)
     EXPECT_FALSE(first->empty()) << "a failure was reported with nothing to read";
   }
   EXPECT_FALSE(second.has_value()) << "the reason was still there after being read";
+}
+
+/// @test
+/// Ensure that if there is a fail that closes the pipe before we finish writing,
+/// term component catches the SIGPIPE and survive instead of crashing.
+TEST(Clipboard, WritingToClosedPipeDoesNotCrash)
+{
+  {
+    // Force a broken environment that will trigger a SIGPIPE.
+    const WithDisplayEnv display;
+    std::string hugePayload(1024 * 1024, 'A');
+
+    std::ignore = captureStdout([&] { clipboard::copy(hugePayload); });
+    clipboard::shutdown();
+  }
+
+  const auto failure = clipboard::takeFailure();
+  ASSERT_TRUE(failure.has_value());
+  EXPECT_FALSE(failure->empty());
 }
 
 /// @test
