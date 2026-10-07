@@ -8,8 +8,8 @@
 <area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="435,519,416,604,411,603,430,518"/>
 <area shape="rect" id="Node000005" href="$classsen_1_1kernel_1_1_registration_api.html" title="API for objects when registered." alt="" coords="503,643,678,729"/>
 <area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="555,518,584,643,579,644,550,519"/>
-<area shape="rect" id="Node000006" href="$classsen_1_1kernel_1_1_run_api.html" title="What can be done while a component is running." alt="" coords="702,553,853,819"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="605,421,693,552,704,569,700,572,688,555,601,424"/>
-<area shape="rect" id="Node000007" href="$classsen_1_1kernel_1_1_unload_api.html" title="What can be done when unloading a component." alt="" coords="877,643,1024,729"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="608,331,738,430,805,489,867,552,903,597,931,642,926,645,898,600,863,555,802,493,735,434,605,335"/>
+<area shape="rect" id="Node000006" href="$classsen_1_1kernel_1_1_run_api.html" title="What can be done while a component is running." alt="" coords="702,553,831,819"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="605,417,693,552,704,570,700,573,688,555,601,420"/>
+<area shape="rect" id="Node000007" href="$classsen_1_1kernel_1_1_unload_api.html" title="What can be done when unloading a component." alt="" coords="856,643,1003,729"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="608,337,728,435,789,492,846,552,881,597,909,641,904,644,876,600,842,555,785,496,724,439,605,341"/>
 </map>

@@ -1,5 +1,6 @@
 var NAVTREEINDEX11 =
 {
+"event__buffer_8h_source.html":[3,0,0,0,0,0,0,4,0,0],
 "every__kind__model_8h.html":[3,0,0,2,2,0],
 "every__kind__model_8h_source.html":[3,0,0,2,2,0],
 "files.html":[3,0],
@@ -248,6 +249,5 @@ var NAVTREEINDEX11 =
 "group__dr.html#ga98b1dc5c40c8552f371e1f7a261fba42":[0,2,0,58],
 "group__dr.html#ga9a8ec2c2177a201b6e8694b9a2d7ae99":[0,2,0,21],
 "group__dr.html#gaa741de98b097df03a317f98ba4777ca8":[0,2,0,40],
-"group__dr.html#gaaf649573085239747d6a8eea31b9d6a0":[0,2,0,36],
-"group__dr.html#gac819a4b2d275f9441c8cf8c9034bc498":[0,2,0,44]
+"group__dr.html#gaaf649573085239747d6a8eea31b9d6a0":[0,2,0,36]
 };

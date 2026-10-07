@@ -40,7 +40,7 @@ var searchData=
   ['collectconstructorargs_37',['collectConstructorArgs',['../namespacesen_1_1lang_1_1fom.html#ac09c58adfe27008cab6b5d248ad0de8f',1,'sen::lang::fom::collectConstructorArgs(std::vector&lt; Arg &gt; &amp;list, const ClassType &amp;type)'],['../namespacesen_1_1lang_1_1fom.html#aa20c53be63a178853f8483fceac90245',1,'sen::lang::fom::collectConstructorArgs(std::vector&lt; Arg &gt; &amp;list, const ClassSpec &amp;spec)']]],
   ['collectinteractionnodes_38',['collectInteractionNodes',['../namespacesen_1_1lang_1_1fom.html#a0395fcacb31fbd9a34a8543c976ee749',1,'sen::lang::fom']]],
   ['combineschemas_39',['combineSchemas',['../classsen_1_1gen_1_1_json_generator.html#a9a1fc5bc5beb76a74366ab88898a208a',1,'sen::gen::JsonGenerator']]],
-  ['commit_40',['commit',['../classsen_1_1_native_object.html#af4c5c4636521403845052830a3234781',1,'sen::NativeObject::commit()'],['../classsen_1_1kernel_1_1_run_api.html#a0a8228f00560f70ad9b6754f5aa46dd9',1,'sen::kernel::RunApi::commit()']]],
+  ['commit_40',['commit',['../classsen_1_1_native_object.html#af4c5c4636521403845052830a3234781',1,'sen::NativeObject::commit()'],['../classsen_1_1kernel_1_1_run_api.html#a0a8228f00560f70ad9b6754f5aa46dd9',1,'sen::kernel::RunApi::commit()'],['../classsen_1_1kernel_1_1_run_api.html#a22937862e710e800eb1c72c8e596ab23',1,'sen::kernel::RunApi::commit(TimeStamp time)']]],
   ['compile_41',['compile',['../classsen_1_1lang_1_1_v_m.html#ac866729ee7bc343c3d6b2728bc86ce39',1,'sen::lang::VM']]],
   ['component_42',['Component',['../classsen_1_1kernel_1_1_component.html#af384003e3eeafbe06eef62b8daf82d2a',1,'sen::kernel::Component']]],
   ['computeclasspath_43',['computeClassPath',['../namespacesen_1_1lang_1_1fom.html#a2f860586af4c0138cea05e0d57a9d562',1,'sen::lang::fom']]],

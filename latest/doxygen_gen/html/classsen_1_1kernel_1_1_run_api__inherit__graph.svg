@@ -12,33 +12,33 @@
 <g id="Node000001" class="node">
 <title>Node1</title>
 <g id="a_Node000001"><a xlink:title="What can be done while a component is running.">
-<polygon fill="#999999" stroke="transparent" points="194.5,-199 81.5,-199 81.5,0 194.5,0 194.5,-199"/>
+<polygon fill="#999999" stroke="transparent" points="186.5,-199 89.5,-199 89.5,0 186.5,0 186.5,-199"/>
 <text text-anchor="start" x="95" y="-186.5" font-family="Helvetica,sans-Serif" font-size="10.00">sen::kernel::RunApi</text>
 <text text-anchor="start" x="136.5" y="-171.5" font-family="Helvetica,sans-Serif" font-size="10.00"> </text>
-<text text-anchor="start" x="86" y="-156.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="97" y="-156.5" font-family="Helvetica,sans-Serif" font-size="10.00">RunApi()</text>
-<text text-anchor="start" x="86" y="-141.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="97" y="-141.5" font-family="Helvetica,sans-Serif" font-size="10.00">~RunApi()</text>
-<text text-anchor="start" x="86" y="-126.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="97" y="-126.5" font-family="Helvetica,sans-Serif" font-size="10.00">stopRequested()</text>
-<text text-anchor="start" x="86" y="-111.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="97" y="-111.5" font-family="Helvetica,sans-Serif" font-size="10.00">drainInputs()</text>
-<text text-anchor="start" x="86" y="-96.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="97" y="-96.5" font-family="Helvetica,sans-Serif" font-size="10.00">update()</text>
-<text text-anchor="start" x="86" y="-81.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="97" y="-81.5" font-family="Helvetica,sans-Serif" font-size="10.00">commit()</text>
-<text text-anchor="start" x="86" y="-66.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="97" y="-66.5" font-family="Helvetica,sans-Serif" font-size="10.00">execLoop()</text>
-<text text-anchor="start" x="86" y="-51.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="97" y="-51.5" font-family="Helvetica,sans-Serif" font-size="10.00">getStartTime()</text>
-<text text-anchor="start" x="86" y="-36.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="97" y="-36.5" font-family="Helvetica,sans-Serif" font-size="10.00">getTime()</text>
-<text text-anchor="start" x="86" y="-21.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="97" y="-21.5" font-family="Helvetica,sans-Serif" font-size="10.00">getTargetCycleTime()</text>
-<text text-anchor="start" x="97" y="-6.5" font-family="Helvetica,sans-Serif" font-size="10.00">and 6 more...</text>
-<polygon fill="#666666" stroke="#666666" points="82,-181.5 82,-181.5 195,-181.5 195,-181.5 82,-181.5"/>
-<polygon fill="#666666" stroke="#666666" points="82,-166.5 82,-166.5 195,-166.5 195,-166.5 82,-166.5"/>
-<polygon fill="none" stroke="#666666" points="81.5,0 81.5,-199 194.5,-199 194.5,0 81.5,0"/>
+<text text-anchor="start" x="95" y="-156.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="107" y="-156.5" font-family="Helvetica,sans-Serif" font-size="10.00">RunApi()</text>
+<text text-anchor="start" x="95" y="-141.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="107" y="-141.5" font-family="Helvetica,sans-Serif" font-size="10.00">~RunApi()</text>
+<text text-anchor="start" x="95" y="-126.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="107" y="-126.5" font-family="Helvetica,sans-Serif" font-size="10.00">stopRequested()</text>
+<text text-anchor="start" x="95" y="-111.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="107" y="-111.5" font-family="Helvetica,sans-Serif" font-size="10.00">drainInputs()</text>
+<text text-anchor="start" x="95" y="-96.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="107" y="-96.5" font-family="Helvetica,sans-Serif" font-size="10.00">update()</text>
+<text text-anchor="start" x="95" y="-81.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="107" y="-81.5" font-family="Helvetica,sans-Serif" font-size="10.00">commit()</text>
+<text text-anchor="start" x="95" y="-66.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="107" y="-66.5" font-family="Helvetica,sans-Serif" font-size="10.00">commit()</text>
+<text text-anchor="start" x="95" y="-51.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="107" y="-51.5" font-family="Helvetica,sans-Serif" font-size="10.00">execLoop()</text>
+<text text-anchor="start" x="95" y="-36.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="107" y="-36.5" font-family="Helvetica,sans-Serif" font-size="10.00">getStartTime()</text>
+<text text-anchor="start" x="95" y="-21.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="107" y="-21.5" font-family="Helvetica,sans-Serif" font-size="10.00">getTime()</text>
+<text text-anchor="start" x="107" y="-6.5" font-family="Helvetica,sans-Serif" font-size="10.00">and 7 more...</text>
+<polygon fill="#666666" stroke="#666666" points="90,-181.5 90,-181.5 187,-181.5 187,-181.5 90,-181.5"/>
+<polygon fill="#666666" stroke="#666666" points="90,-166.5 90,-166.5 187,-166.5 187,-166.5 90,-166.5"/>
+<polygon fill="none" stroke="#666666" points="89.5,0 89.5,-199 186.5,-199 186.5,0 89.5,0"/>
 </a>
 </g>
 </g>

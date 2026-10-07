@@ -74,7 +74,7 @@ var searchData=
   ['combineschemas_71',['combineSchemas',['../classsen_1_1gen_1_1_json_generator.html#a9a1fc5bc5beb76a74366ab88898a208a',1,'sen::gen::JsonGenerator']]],
   ['comma_72',['comma',['../group__lang.html#gga93b0800803a4979d176a9470893ab868ab6d00dc1ba038e5901cd6c06b2daa192',1,'sen::lang']]],
   ['comment_73',['comment',['../group__lang.html#gga93b0800803a4979d176a9470893ab868a06d4cd63bde972fc66a0aed41d2f5c51',1,'sen::lang']]],
-  ['commit_74',['commit',['../classsen_1_1_native_object.html#af4c5c4636521403845052830a3234781',1,'sen::NativeObject::commit()'],['../classsen_1_1kernel_1_1_run_api.html#a0a8228f00560f70ad9b6754f5aa46dd9',1,'sen::kernel::RunApi::commit()']]],
+  ['commit_74',['commit',['../classsen_1_1_native_object.html#af4c5c4636521403845052830a3234781',1,'sen::NativeObject::commit()'],['../classsen_1_1kernel_1_1_run_api.html#a0a8228f00560f70ad9b6754f5aa46dd9',1,'sen::kernel::RunApi::commit()'],['../classsen_1_1kernel_1_1_run_api.html#a22937862e710e800eb1c72c8e596ab23',1,'sen::kernel::RunApi::commit(TimeStamp time)']]],
   ['compatible_75',['compatible',['../group__type__utils.html#ggafd213372bab1c5f96f95eba9eaf17a15adca2cad203c5597e105c9bea028554c2',1,'sen']]],
   ['compile_76',['compile',['../classsen_1_1lang_1_1_v_m.html#ac866729ee7bc343c3d6b2728bc86ce39',1,'sen::lang::VM']]],
   ['compileerror_77',['CompileError',['../classsen_1_1lang_1_1_v_m.html#structsen_1_1lang_1_1_v_m_1_1_compile_error',1,'sen::lang::VM']]],

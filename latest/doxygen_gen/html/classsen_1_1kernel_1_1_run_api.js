@@ -7,6 +7,7 @@ var classsen_1_1kernel_1_1_run_api =
     [ "drainInputs", "classsen_1_1kernel_1_1_run_api.html#a108e64a9bb8c92359aeb42904ba04fa8", null ],
     [ "update", "classsen_1_1kernel_1_1_run_api.html#adf4f8d46b7792dbab76fe1de676f1195", null ],
     [ "commit", "classsen_1_1kernel_1_1_run_api.html#a0a8228f00560f70ad9b6754f5aa46dd9", null ],
+    [ "commit", "classsen_1_1kernel_1_1_run_api.html#a22937862e710e800eb1c72c8e596ab23", null ],
     [ "execLoop", "classsen_1_1kernel_1_1_run_api.html#a913c56440c08af4db87ecb4996ee5d44", null ],
     [ "getStartTime", "classsen_1_1kernel_1_1_run_api.html#a0719c5ccf817c65950d3bb775346426a", null ],
     [ "getTime", "classsen_1_1kernel_1_1_run_api.html#af88ecc473e1a083867eb7365b28ce39c", null ],

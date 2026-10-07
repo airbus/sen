@@ -74,16 +74,16 @@ var NAVTREEINDEX =
 "classsen_1_1kernel_1_1_test_kernel.html#aeef0ff427c9637eb545e7f83aa416c54",
 "classsen_1_1test_1_1_process_terminator_impl.html#afb54df76a6284631b7a6fc6d7871bb61",
 "classsen_1_1test_1_1type__clash_1_1_app3_class_impl.html",
-"classsen_1_1util_1_1_settable_dead_reckoner.html#a063686e3dc92e9686e63acdb044a1624",
-"every__kind__model_8h.html",
-"group__dr.html#gacd7fedcbefbff2a1a86f818f0195aab5",
-"group__lang.html#gae0d63c4e041503eb3ec72d8ff2512032",
-"group__type__utils.html#ggafd213372bab1c5f96f95eba9eaf17a15adca2cad203c5597e105c9bea028554c2",
-"namespacepybind11_1_1detail.html",
-"namespacesen_1_1lang_1_1fom.html#a9958864dc59480832d6a18e6596b6e74",
-"strong__type_8h.html",
-"structsen_1_1_subscription.html",
-"work__queue_8h.html"
+"classsen_1_1util_1_1_settable_dead_reckoner.html#a061ad9f8705ef1c9b6dc91e7c5367cb5",
+"event__buffer_8h_source.html",
+"group__dr.html#gac819a4b2d275f9441c8cf8c9034bc498",
+"group__lang.html#gadaba2431bbf18b6f69e8511fe4bb9e11",
+"group__type__utils.html#ggafd213372bab1c5f96f95eba9eaf17a15a751528fe0c20cde5ffe1fa15d503a222",
+"namespacepybind11.html",
+"namespacesen_1_1lang_1_1fom.html#a960afc244f570045fa2585df39438fa6",
+"string__utils_8h_source.html",
+"structsen_1_1_struct_traits_base.html",
+"vm_8h_source.html"
 ];
 
 const SYNCONMSG = 'click to disable panel synchronization';

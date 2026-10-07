@@ -163,6 +163,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:adf4f8d46b7792dbab76fe1de676f1195"><td class="mdescLeft">&#160;</td><td class="mdescRight">This calls <a class="el" href="#adf4f8d46b7792dbab76fe1de676f1195" title="This calls update() on all the objects registered by the component.">update()</a> on all the objects registered by the component.  <br /></td></tr>
 <tr class="memitem:a0a8228f00560f70ad9b6754f5aa46dd9" id="r_a0a8228f00560f70ad9b6754f5aa46dd9"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a0a8228f00560f70ad9b6754f5aa46dd9">commit</a> ()</td></tr>
 <tr class="memdesc:a0a8228f00560f70ad9b6754f5aa46dd9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send changes, so that they become visible to other participants. This includes object additions and removals, property changes and emitted events that others might have interest in. This method is thread-safe.  <br /></td></tr>
+<tr class="memitem:a22937862e710e800eb1c72c8e596ab23" id="r_a22937862e710e800eb1c72c8e596ab23"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a22937862e710e800eb1c72c8e596ab23">commit</a> (<a class="el" href="classsen_1_1_time_stamp.html">TimeStamp</a> time)</td></tr>
+<tr class="memdesc:a22937862e710e800eb1c72c8e596ab23"><td class="mdescLeft">&#160;</td><td class="mdescRight">The same, tagging what is sent with <span class="tt">time</span> instead of the time Sen would stamp, for a component that runs its own cycle and bridges a system keeping its own clock. The time applies to every object this component owns. <a class="el" href="#af88ecc473e1a083867eb7365b28ce39c" title="The (potentially virtualized) time.">getTime()</a> still reports Sen's time, because the rest of the kernel keeps running on its own clock. This method is thread-safe.  <br /></td></tr>
 <tr class="memitem:a913c56440c08af4db87ecb4996ee5d44" id="r_a913c56440c08af4db87ecb4996ee5d44"><td class="memItemLeft"><a class="el" href="namespacesen_1_1kernel.html#a5c544f6448e7b5b484f3b6053e5e7019">FuncResult</a>&#160;</td><td class="memItemRight"><a class="el" href="#a913c56440c08af4db87ecb4996ee5d44">execLoop</a> (<a class="el" href="classsen_1_1_duration.html">Duration</a> cycleTime, std::function&lt; void()&gt; &amp;&amp;func=nullptr, bool logOverruns=true)</td></tr>
 <tr class="memdesc:a913c56440c08af4db87ecb4996ee5d44"><td class="mdescLeft">&#160;</td><td class="mdescRight">A basic execution loop. Func is an optional callback that will be invoked on each cycle. logOverruns keeps the log lines for a missed deadline: an execution time overrun and the two ways a cycle is lost. The Tracy messages are emitted either way.  <br /></td></tr>
 <tr class="memitem:a0719c5ccf817c65950d3bb775346426a" id="r_a0719c5ccf817c65950d3bb775346426a"><td class="memItemLeft"><a class="el" href="classsen_1_1_time_stamp.html">TimeStamp</a>&#160;</td><td class="memItemRight"><a class="el" href="#a0719c5ccf817c65950d3bb775346426a">getStartTime</a> () const noexcept</td></tr>
@@ -409,7 +411,7 @@ Friends</h2></td></tr>
 </div>
 </div>
 <a id="a0a8228f00560f70ad9b6754f5aa46dd9" name="a0a8228f00560f70ad9b6754f5aa46dd9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0a8228f00560f70ad9b6754f5aa46dd9">&#9670;&#160;</a></span>commit()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a0a8228f00560f70ad9b6754f5aa46dd9">&#9670;&#160;</a></span>commit() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -424,6 +426,25 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Send changes, so that they become visible to other participants. This includes object additions and removals, property changes and emitted events that others might have interest in. This method is thread-safe. </p>
+
+</div>
+</div>
+<a id="a22937862e710e800eb1c72c8e596ab23" name="a22937862e710e800eb1c72c8e596ab23"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a22937862e710e800eb1c72c8e596ab23">&#9670;&#160;</a></span>commit() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void sen::kernel::RunApi::commit </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classsen_1_1_time_stamp.html">TimeStamp</a></td>          <td class="paramname"><span class="paramname"><em>time</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The same, tagging what is sent with <span class="tt">time</span> instead of the time Sen would stamp, for a component that runs its own cycle and bridges a system keeping its own clock. The time applies to every object this component owns. <a class="el" href="#af88ecc473e1a083867eb7365b28ce39c" title="The (potentially virtualized) time.">getTime()</a> still reports Sen's time, because the rest of the kernel keeps running on its own clock. This method is thread-safe. </p>
 
 </div>
 </div>
