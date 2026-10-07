@@ -132,7 +132,7 @@ public:
       sigset_t pending;
       sigemptyset(&pending);
 
-      if (::sigpending(&pending) == 0 && ::sigismember(&pending, SIGPIPE))
+      if (::sigpending(&pending) == 0 && (::sigismember(&pending, SIGPIPE) != 0))
       {
         sigset_t waitSet;
         sigemptyset(&waitSet);
