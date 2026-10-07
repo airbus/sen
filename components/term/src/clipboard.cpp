@@ -253,7 +253,7 @@ public:
     std::unique_lock lock(mutex_);
     if (!worker_.joinable())
     {
-      stopping_ = true;
+      // Already stopped, detached, or never started. Returning early preserves the state
       return;
     }
     stopping_ = true;
@@ -266,6 +266,9 @@ public:
       auto worker = std::move(worker_);
       lock.unlock();
       worker.join();
+
+      lock.lock();
+      stopping_ = false;
     }
     else
     {
