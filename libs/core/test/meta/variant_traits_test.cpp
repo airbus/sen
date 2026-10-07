@@ -27,6 +27,7 @@
 // std
 #include <array>
 #include <cstdint>
+#include <sstream>
 #include <stdexcept>
 #include <tuple>
 #include <variant>
@@ -250,6 +251,17 @@ TYPED_TEST(TestVariantTraitsBaseViaSerializationTraits, IsWritableToOutputStream
   // assert
   ASSERT_TRUE(std::holds_alternative<TypeParam>(mockVariant));
   ASSERT_EQ(mockVariant, makeMockVariant<TypeParam>());
+}
+
+/// @test
+/// The printed form of a variant, pinned exactly. The indentation comes from stream width
+/// manipulation, which is easy to change by accident and which nothing else here asserts.
+TEST(AVariantBeingPrinted, keepsItsFieldIndentation)
+{
+  std::ostringstream out;
+  out << makeMockVariant<u32>();
+
+  EXPECT_EQ(out.str(), "  type:  u32\n  value: 32");
 }
 
 }  // namespace

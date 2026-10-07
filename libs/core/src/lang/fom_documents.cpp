@@ -234,6 +234,13 @@ void refuseHeaderClash(const std::string& kind,
 /// Records that a mapping pulled a document in, so the type set imports it.
 void tryToAppendMappingDepToDoc(Document& document, Document* dep)
 {
+  // A mapping that reaches a type in its own document must not make the document import itself:
+  // the generated header would include itself.
+  if (dep == &document)
+  {
+    return;
+  }
+
   auto& imports = document.mappingImports;
   if (std::find(imports.begin(), imports.end(), dep) == imports.end())
   {
