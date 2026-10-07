@@ -680,6 +680,22 @@ TEST_F(AFomParser, leavesANonModuleXmlInAModuleDirectoryAlone)
 //--------------------------------------------------------------------------------------------------------------
 
 /// @test
+/// A mapping that reaches a type in its own document must not make that document import itself.
+/// The generated header would otherwise include itself.
+TEST_F(AFomParser, doesNotMakeAModuleImportItself)
+{
+  readWithMapping("mapped", "mapped_map.xml");
+
+  for (const auto& typeSet: context)
+  {
+    for (const auto* imported: typeSet.importedSets)
+    {
+      EXPECT_NE(imported, &typeSet) << "'" << typeSet.fileName << "' imports itself";
+    }
+  }
+}
+
+/// @test
 /// A mapped event becomes an event on the class, without the parameters the mapping ignores.
 TEST_F(AFomParser, bindsAMappedEventToTheClass)
 {
