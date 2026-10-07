@@ -8,6 +8,7 @@
 #ifndef SEN_KERNEL_DETAIL_KERNEL_FDW_H
 #define SEN_KERNEL_DETAIL_KERNEL_FDW_H
 
+#include "sen/core/base/timestamp.h"
 #include "sen/core/meta/type_registry.h"
 #include "sen/core/obj/native_object.h"
 
@@ -38,6 +39,8 @@ void drainInputs(Runner* runner);
 void update(Runner* runner);
 
 void commit(Runner* runner);
+
+void commit(Runner* runner, TimeStamp time);
 
 }  // namespace impl
 

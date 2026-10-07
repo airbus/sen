@@ -230,6 +230,42 @@ tells it, so `RunApi::getTargetCycleTime()` gives its objects nothing. Objects b
 always have a cycle time, because the kernel's pipeline calls `execLoop` for them. If you drive the
 loop yourself and your objects need the period, pass it to them.
 
+### Publishing with the time the data came from
+
+`commit()` tags everything it publishes with Sen's execution time. For a component that bridges a
+system keeping its own clock, that is the wrong time. The state was captured when that other system
+captured it, which is earlier than the moment your component sends it on. Pass the time you want
+instead:
+
+```cpp title="stamping a commit with the time of origin"
+api.drainInputs();
+api.update();
+// ... read the other system, which also tells you when its snapshot was taken ...
+api.commit(snapshotTime);
+```
+
+A subscriber then sees the time the data came from.
+
+The time applies to every object your component publishes in that commit, which suits a snapshot of
+a whole system. It also applies to the objects your component publishes itself, not only the ones
+carrying the bridged data. If your component works those out from the snapshot, that is correct,
+because they describe the same instant.
+
+`getTime()` still reports Sen's time. Your component keeps its own cycle, and the other components
+and the run mode are unaffected. Only the tag on the data changes.
+
+Keep the time advancing, and use one clock to do it. `commit()` and `commit(time)` read their stamps
+from different places. A component that alternates between them tags the same objects from two
+clocks, and the times it publishes can then go backwards.
+
+That matters because the stamp travels with the data. Sen compares it in one place. When the bus
+replays buffered updates to a subscriber that joined late, an update no newer than the state that
+subscriber already has is skipped. If your source clock pauses and its state has not changed either,
+that update has nothing new in it.
+
+This is for a component that owns its loop. `execLoop` commits at the end of every cycle, so a stamp
+set inside its work function is replaced by the one that cycle's own commit applies.
+
 ## Finding other objects
 
 A component discovers objects exactly the way an object does. `RunApi` inherits `KernelApi`, so

@@ -154,6 +154,11 @@ public:
   /// emitted events that others might have interest in.
   void commit();
 
+  /// The same, stamping the objects with `time` instead of this runner's own, for a component
+  /// bridging a system that keeps its own clock. The runner's time, its cycle counters and
+  /// getTime() are left untouched.
+  void commit(TimeStamp time);
+
   /// Structured helper for executing in cycles.
   FuncResult execLoop(Duration cycleTime, std::function<void()>&& workFunction = {}, bool logOverruns = true);
 
@@ -414,7 +419,9 @@ inline void Runner::update()
   }
 }
 
-inline void Runner::commit()
+inline void Runner::commit() { commit(time_); }
+
+inline void Runner::commit(TimeStamp time)
 {
   SEN_TRACE_ZONE(*tracer_);
 
@@ -435,7 +442,7 @@ inline void Runner::commit()
 
     for (auto* obj: objectsList_)
     {
-      obj->commit(time_);
+      obj->commit(time);
     }
   }
 
