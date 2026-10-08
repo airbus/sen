@@ -55,7 +55,7 @@ describe("event_store", () => {
       expect(__getObjectEventsForTests("i", "b")).toHaveLength(1);
     });
 
-    it("seq order in the global log reflects append order", () => {
+    it("preserves append order in the global log", () => {
       __appendEventForTests(delivery({ seq: 1, eventName: "a" }));
       __appendEventForTests(delivery({ seq: 2, eventName: "b" }));
       __appendEventForTests(delivery({ seq: 3, eventName: "c" }));
@@ -65,7 +65,7 @@ describe("event_store", () => {
   });
 
   describe("freeze-snapshot semantics", () => {
-    it(".slice() at capture time freezes the snapshot; the live array keeps appending", () => {
+    it("keeps a copied snapshot unchanged while later events append to the live log", () => {
       __appendEventForTests(delivery({ seq: 1 }));
       __appendEventForTests(delivery({ seq: 2 }));
       // Consumer captures a frozen view (matches EventsWorkspace's pause behavior).
@@ -78,7 +78,7 @@ describe("event_store", () => {
       expect(__getAllEventsForTests()).toHaveLength(4);
     });
 
-    it("a held reference to the live array WITHOUT .slice() observes later mutations", () => {
+    it("lets a held reference to the live log observe later appends", () => {
       // Documents the trap the EventsWorkspace.pause bug fell into.
       __appendEventForTests(delivery({ seq: 1 }));
       const live = __getAllEventsForTests(); // no slice; direct reference to backing
@@ -88,7 +88,7 @@ describe("event_store", () => {
   });
 
   describe("retention trim", () => {
-    it("drops events older than retentionSeconds on trim", () => {
+    it("drops events older than the retention window on trim", () => {
       // trimOnce reads `Date.now()` at the moment it runs, so `at` values must be anchored
       // to wall-clock time for the comparison to be meaningful.
       setEventRetentionSeconds(1);
@@ -103,7 +103,7 @@ describe("event_store", () => {
       expect(remaining).toContain(3);
     });
 
-    it("trim empties a per-object buffer and drops the bucket", () => {
+    it("empties a per-object buffer once all of its events expire", () => {
       setEventRetentionSeconds(1);
       // `at: 0` is the epoch: older than any reasonable Date.now()-1s cutoff.
       __appendEventForTests(delivery({ seq: 1, at: 0 }));

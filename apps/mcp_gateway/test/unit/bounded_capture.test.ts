@@ -37,7 +37,7 @@ describe("BoundedCapture", () => {
     expect(Buffer.byteLength(text, "utf8")).toBe(total);
   });
 
-  it("truncates without partial-chunk slice when the content cap is hit on a chunk boundary", () => {
+  it("drops the next chunk whole when the cap is reached exactly at a chunk boundary", () => {
     const total = 50;
     const contentCap = total - SENTINEL_LEN;
     const cap = new BoundedCapture(total);

@@ -40,7 +40,7 @@ describe("__selectorMemoStep", () => {
     expect(result.selected).toBe(42);
   });
 
-  it("keeps the cached `selected` ref when state changes but selector output is Object.is-equal", () => {
+  it("keeps the cached selected ref when state changes but the selector output is Object.is-equal", () => {
     const stateA = { a: 1, b: 2 };
     const stateB = { a: 1, b: 99 }; // `a` unchanged; selector sees same value
     const selector = (s: typeof stateA) => s.a;
@@ -77,7 +77,7 @@ describe("__selectorMemoStep", () => {
     expect(second.selected).toBe(setA);
   });
 
-  it("handles selectors returning primitive false/0/'' correctly (does not treat as null)", () => {
+  it("does not mistake a false selector result for a missing memo", () => {
     // Guard against accidental `!memo.selected` treatment of falsy values.
     let state = { ready: false };
     const memo = __selectorMemoStep(state, (s) => s.ready, null);

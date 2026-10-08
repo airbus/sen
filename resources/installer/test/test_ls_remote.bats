@@ -13,7 +13,7 @@
 
 load test_helpers
 
-@test "ls_remote: one line per release, newest first, each with its stability" {
+@test "lists one release per line, newest first, each with its stability" {
     load_install
     mock_curl_with_listing "${BATS_TEST_DIRNAME}/fixtures/releases-listing.json"
     run ls_remote
@@ -24,7 +24,7 @@ load test_helpers
     [ "${#lines[@]}" -eq 3 ]
 }
 
-@test "ls_remote: a key added between tag_name and prerelease cannot shift the pairing" {
+@test "keeps each version paired with its stability when the response gains a new key" {
     # GitHub has inserted one there already.
     load_install
     local fixture="$SEN_TEST_TMPDIR/with-new-key.json"
@@ -37,7 +37,7 @@ load test_helpers
     [ "${lines[1]}" = "$(printf '0.6.0\tstable')" ]
 }
 
-@test "ls_remote: a response it cannot read is refused, not printed empty" {
+@test "refuses a release list it cannot read instead of printing it empty" {
     # A minified response is how this breaks in practice. Printing nothing would read as
     # "no releases"; a partial list would offer tags somebody then types.
     load_install
@@ -49,7 +49,7 @@ load test_helpers
     [[ "$output" == *"could not read the release list"* ]]
 }
 
-@test "ls_remote: asks for a full page so older releases cannot drop off" {
+@test "asks for a full page of releases so older ones cannot drop off" {
     # The endpoint pages at 30 and nothing reads the Link header.
     load_install
     local seen="$SEN_TEST_TMPDIR/url"
@@ -63,7 +63,7 @@ load test_helpers
     [[ "$(cat "$seen")" == *"per_page=100"* ]]
 }
 
-@test "ls_remote: a failed query reports it and returns non-zero" {
+@test "reports a failed release query and returns non-zero" {
     load_install
     curl() { return 22; }
     run ls_remote
@@ -71,7 +71,7 @@ load test_helpers
     [[ "$output" == *"could not query"* ]]
 }
 
-@test "ls_remote: a response with no releases prints nothing and succeeds" {
+@test "prints nothing and succeeds when the repository has no releases" {
     # What an unreleased repository returns, and it must not read as a failure.
     load_install
     eval "curl() { printf '[]'; }"
