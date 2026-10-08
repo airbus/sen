@@ -9,10 +9,12 @@
 import hashlib
 from pathlib import Path
 
+import pytest
 from render_test_document import (
     DETAIL_LIMIT,
     SPEC_NAME_LIMIT,
     Leg,
+    LegError,
     combined_criteria_prose,
     conformance,
     coverage_section,
@@ -25,11 +27,13 @@ from render_test_document import (
     match_key,
     read_coverage,
     read_descriptions,
+    read_manifest,
     run_started,
     short_version,
     shorten,
     split_name,
     typst_string,
+    union_cases,
 )
 from test_report import Case
 
@@ -668,3 +672,53 @@ def test_the_summary_says_the_floor_was_not_tested_when_nothing_measured():
     """A floor nothing measured against was not met; it was not tested."""
     said = combined_criteria_prose([a_leg("gcc-x86-Debug"), a_leg("msvc-x86-Release")], None, "80")
     assert "No configuration measured coverage, so the floor was not tested." in said
+
+
+def test_a_case_that_failed_anywhere_counts_as_failed():
+    """A test that passes on four configurations and fails on one has not passed."""
+    passing = Case("suite", "a", "passed", 0.2, "")
+    failing = Case("suite", "a", "failed", 0.1, "boom")
+    united = union_cases([a_leg("one", cases=[passing]), a_leg("two", cases=[failing])])
+    assert [c.status for c in united] == ["failed"]
+
+
+def test_the_union_keeps_the_longest_time_a_case_took():
+    """Reporting the fastest machine's figure would hide the slow configuration."""
+    quick = Case("suite", "a", "passed", 0.1, "")
+    slow = Case("suite", "a", "passed", 9.5, "")
+    united = union_cases([a_leg("one", cases=[quick]), a_leg("two", cases=[slow])])
+    assert united[0].seconds == 9.5
+
+
+def test_a_case_is_skipped_only_where_no_configuration_ran_it():
+    """Skipped on one configuration and run on another is not a skipped test."""
+    skipped = Case("suite", "a", "skipped", 0.0, "")
+    ran = Case("suite", "a", "passed", 0.1, "")
+    assert [c.status for c in union_cases([a_leg("one", cases=[skipped]), a_leg("two", cases=[ran])])] == ["passed"]
+    both = [a_leg("one", cases=[skipped]), a_leg("two", cases=[skipped])]
+    assert [c.status for c in union_cases(both)] == ["skipped"]
+
+
+def test_a_manifest_naming_a_report_that_is_not_there_stops_the_document(tmp_path):
+    """A configuration the release ships that silently vanished would read as nothing wrong."""
+    manifest = tmp_path / "legs.tsv"
+    manifest.write_text("gcc-x86-Debug\t/nowhere/testReport.xml\t\t\t\n", encoding="utf-8")
+    with pytest.raises(LegError, match="no test report"):
+        read_manifest(manifest, "80", False)
+
+
+def test_a_manifest_with_no_configurations_is_refused(tmp_path):
+    """An empty manifest would otherwise render a document covering nothing."""
+    manifest = tmp_path / "legs.tsv"
+    manifest.write_text("# only a comment\n\n", encoding="utf-8")
+    with pytest.raises(LegError, match="lists no configurations"):
+        read_manifest(manifest, "80", False)
+
+
+def test_a_manifest_line_missing_its_report_names_the_line(tmp_path):
+    """The message has to say which line, or a long manifest cannot be fixed."""
+    good = write(tmp_path)
+    manifest = tmp_path / "legs.tsv"
+    manifest.write_text(f"first\t{good}\t\t\t\nsecond\t\t\t\t\n", encoding="utf-8")
+    with pytest.raises(LegError, match=":2"):
+        read_manifest(manifest, "80", False)
