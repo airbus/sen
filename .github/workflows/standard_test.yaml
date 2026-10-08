@@ -368,8 +368,13 @@ jobs:
           seen = []
           for test in json.load(open("coverage_data/tests.json")).get("tests", []):
               command = test.get("command") or []
-              if command and command[0].lower().endswith(".exe") and command[0] not in seen:
-                  seen.append(command[0])
+              if not command or not command[0].lower().endswith(".exe"):
+                  continue
+              # ctest writes these with forward slashes and OpenCppCoverage refuses them with
+              # "Cannot find path", so they go back to the separator Windows gave them.
+              binary = command[0].replace("/", "\\")
+              if binary not in seen:
+                  seen.append(binary)
           print("\n".join(seen))
           PICK
 
@@ -387,10 +392,11 @@ jobs:
             started=$(date +%s)
             # The exit status is the binary's own; a failing suite has already failed above, so
             # this pass reports rather than gates and keeps going to measure the rest.
+            status=ok
             OpenCppCoverage.exe --quiet --config_file="$workspace/opencppcoverage.cfg" \
-              --export_type="binary:coverage_data/unit-$index.cov" -- "$binary" || true
+              --export_type="binary:coverage_data/unit-$index.cov" -- "$binary" || status=failed
             # basename does not split a backslash path, and these come from ctest as native.
-            echo "  $(( $(date +%s) - started ))s  ${binary##*\\}"
+            echo "  $(( $(date +%s) - started ))s  $status  ${binary##*\\}"
           done < coverage_data/binaries.txt
 
           set --
