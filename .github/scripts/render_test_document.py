@@ -125,8 +125,46 @@ ZERO_WIDTH_SPACE = "\u200b"
 PARAMETER_DUMP = "  # GetParam()"
 NAME_LIMIT = 90
 # A matrix row is one line, so the name is cut to what the column holds and the whole name
-# is in the description the row links to.
+# is in the description the row links to. The configuration columns take a fixed width out of
+# the 17cm text block and the name takes the rest, so the cut depends on how many there are:
+# a name wider than its column prints over the first configuration's cell.
+MATRIX_TEXT_WIDTH_CM = 17.0
+MATRIX_INSET_CM = 0.282
+# One character of the 7.5pt monospace the names are set in, measured off a rendered page.
+MATRIX_CHARACTER_CM = 0.149
+MATRIX_WIDE_COLUMN_CM, MATRIX_NARROW_COLUMN_CM = 1.75, 1.3
+MATRIX_WIDE_UNTIL = 5
+# What five configurations allowed. A longer name buys nothing: the whole one is in the
+# description the row links to.
 MATRIX_NAME_LIMIT = 44
+MATRIX_NAME_FLOOR = 24
+
+
+def matrix_name_space(configurations: int, column: float) -> float:
+    """What the 17cm text block leaves the name column, in centimetres."""
+    return MATRIX_TEXT_WIDTH_CM - configurations * column - (configurations + 1) * MATRIX_INSET_CM
+
+
+def matrix_shape(configurations: int) -> tuple[float, int]:
+    """The width of a configuration column and the name limit that fits beside it."""
+    column = MATRIX_WIDE_COLUMN_CM if configurations <= MATRIX_WIDE_UNTIL else MATRIX_NARROW_COLUMN_CM
+    spare = matrix_name_space(configurations, column)
+    return column, max(MATRIX_NAME_FLOOR, min(MATRIX_NAME_LIMIT, int(spare / MATRIX_CHARACTER_CM)))
+
+
+def matrix_fits(configurations: int) -> bool:
+    """Whether a name of the floor length still fits beside this many configurations.
+
+    Past the capacity the floor wins over the arithmetic and names print across the first
+    configuration's cell. typst reports nothing for that, so the count is refused here instead.
+    """
+    column, limit = matrix_shape(configurations)
+    return limit * MATRIX_CHARACTER_CM <= matrix_name_space(configurations, column)
+
+
+def matrix_capacity() -> int:
+    """The most configurations the results matrix holds."""
+    return max(count for count in range(1, 32) if matrix_fits(count))
 
 
 def display_name(name: str, limit: int = NAME_LIMIT) -> str:
@@ -218,6 +256,7 @@ def case_data(
     document has four outcomes and not three, because an absence that renders like a pass is the
     failure this table exists to avoid.
     """
+    _, name_limit = matrix_shape(len(per_leg) if per_leg else 0)
     rows = []
     for number, case in enumerate(cases):
         suite, name, full = split_name(case.classname, case.name)
@@ -261,7 +300,7 @@ def case_data(
                 (
                     f"per: {per}",
                     f"id: {number}",
-                    f"short: {typst_string(elide(name, MATRIX_NAME_LIMIT))}",
+                    f"short: {typst_string(elide(name, name_limit))}",
                 )
                 if per
                 else ()
@@ -1224,6 +1263,7 @@ def render(
     parts = clause or {}
     # With no mark the stack holds the name alone.
     mark = f"align(center, {logo}),\n    " if logo else ""
+    matrix_column, _ = matrix_shape(len(per_leg) if per_leg else 0)
     meta_rows = "\n".join(f"  ({typst_string(k)}, {typst_string(v)})," for k, v in meta)
     described = annotations or {}
 
@@ -1360,7 +1400,7 @@ def render(
 // document that compiles has no broken link: typst refuses a label that does not resolve.
 #let resultsOf(wanted) = block(below: 1.1em)[
   #table(
-    columns: (1fr, ..configurations.map(_ => 1.75cm)),
+    columns: (1fr, ..configurations.map(_ => {matrix_column}cm)),
     align: (left + horizon, ..configurations.map(_ => center + horizon)),
     inset: (x: 4pt, y: 2.5pt),
     stroke: none,
@@ -2087,6 +2127,12 @@ def read_manifest(path: Path, coverage_floor: str, stopped_at_first_failure: boo
         )
     if not legs:
         raise LegError(f"{path} lists no configurations")
+
+    if not matrix_fits(len(legs)):
+        raise LegError(
+            f"{len(legs)} configurations do not fit the results matrix, which holds "
+            f"{matrix_capacity()}. Widen the page or drop the per-configuration durations."
+        )
     return legs
 
 

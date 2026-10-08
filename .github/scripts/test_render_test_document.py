@@ -10,8 +10,12 @@ import hashlib
 from pathlib import Path
 
 import pytest
+from generate_matrix_jobs import compute_jobs
 from render_test_document import (
     DETAIL_LIMIT,
+    MATRIX_CHARACTER_CM,
+    MATRIX_NAME_LIMIT,
+    MATRIX_WIDE_COLUMN_CM,
     SPEC_NAME_LIMIT,
     Leg,
     LegError,
@@ -25,6 +29,9 @@ from render_test_document import (
     is_spec,
     main,
     match_key,
+    matrix_capacity,
+    matrix_name_space,
+    matrix_shape,
     read_coverage,
     read_descriptions,
     read_manifest,
@@ -697,6 +704,44 @@ def test_a_case_is_skipped_only_where_no_configuration_ran_it():
     assert [c.status for c in union_cases([a_leg("one", cases=[skipped]), a_leg("two", cases=[ran])])] == ["passed"]
     both = [a_leg("one", cases=[skipped]), a_leg("two", cases=[skipped])]
     assert [c.status for c in union_cases(both)] == ["skipped"]
+
+
+def test_five_configurations_keep_the_layout_they_had():
+    """The width model must leave a document that already rendered correctly exactly as it was."""
+    assert matrix_shape(5) == (MATRIX_WIDE_COLUMN_CM, MATRIX_NAME_LIMIT)
+
+
+def test_a_name_fits_beside_however_many_configurations_there_are():
+    """A name wider than its column prints over the first configuration's cell.
+
+    Seven configurations found this: the limit was a constant measured against five, so the two
+    added columns took their width out of the name and every name in the matrix overflowed.
+    typst reports nothing for that, and a five-configuration document still looked right.
+    """
+    for count in range(1, matrix_capacity() + 1):
+        column, limit = matrix_shape(count)
+        assert limit * MATRIX_CHARACTER_CM <= matrix_name_space(count, column), f"{count} configurations"
+
+
+def test_the_matrix_holds_every_configuration_the_pipeline_runs():
+    """The capacity above is derived from the width model, so on its own it proves nothing.
+
+    This is the half that bites: the model may be self-consistent and still too small for the
+    matrix the pipeline actually produces, which is how seven legs came to overflow a limit
+    measured against five.
+    """
+    legs = compute_jobs(release=False, conan=False, standard_test=True, target_main=False)
+    assert matrix_capacity() >= len(legs), f"the pipeline runs {len(legs)} configurations"
+
+
+def test_more_configurations_than_the_matrix_holds_are_refused(tmp_path):
+    """Past the capacity the names overflow in silence, so the manifest is refused instead."""
+    report = write(tmp_path)
+    manifest = tmp_path / "legs.tsv"
+    too_many = matrix_capacity() + 1
+    manifest.write_text("".join(f"configuration-{n}\t{report}\t\t\t\n" for n in range(too_many)), encoding="utf-8")
+    with pytest.raises(LegError, match="do not fit the results matrix"):
+        read_manifest(manifest, "80", False)
 
 
 def test_a_manifest_naming_a_report_that_is_not_there_stops_the_document(tmp_path):
