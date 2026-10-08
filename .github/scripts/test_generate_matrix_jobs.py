@@ -16,7 +16,7 @@ from generate_matrix_jobs import SPECIFIED_JOBS, Compiler, JobSpecification, com
 
 GCC_DEBUG = ("Basic GCC", "gcc-12", "Debug", "ubuntu-22.04", "x86")
 GCC_RELEASE = ("Basic GCC", "gcc-12", "Release", "ubuntu-22.04", "x86")
-CLANG_COVERAGE = ("Basic Clang", "clang-20", "Debug", "ubuntu-24.04", "x86")
+CLANG_DEBUG = ("Basic Clang", "clang-20", "Debug", "ubuntu-24.04", "x86")
 MSVC_RELEASE = ("Basic Windows", "cl", "Release", "windows-2022", "x86")
 GCC_RELWITHDEBINFO = ("Basic GCC (debug information)", "gcc-12", "RelWithDebInfo", "ubuntu-22.04", "x86")
 GCC_DEBUG_BUILD = ("Basic GCC (debug build)", "gcc-12", "Debug", "ubuntu-22.04", "x86")
@@ -33,7 +33,7 @@ def test_standard_test_job_set():
     """Standard tests run the three Linux x86 legs plus the arm leg."""
     jobs = compute_jobs(release=False, conan=False, standard_test=True, target_main=False)
     assert job_keys(jobs) == [
-        CLANG_COVERAGE,
+        CLANG_DEBUG,
         GCC_DEBUG,
         GCC_RELEASE,
         GCC_RELWITHDEBINFO,
@@ -80,7 +80,7 @@ def test_every_shipped_configuration_is_tested():
 def test_conan_job_set():
     """Packaging runs the Linux legs plus the MSVC Release leg."""
     jobs = compute_jobs(release=False, conan=True, standard_test=False, target_main=False)
-    assert job_keys(jobs) == [CLANG_COVERAGE, GCC_DEBUG, GCC_RELEASE, MSVC_RELEASE]
+    assert job_keys(jobs) == [CLANG_DEBUG, GCC_DEBUG, GCC_RELEASE, MSVC_RELEASE]
 
 
 def test_release_job_set():
@@ -115,10 +115,20 @@ def test_a_release_and_its_debug_information_share_a_toolchain():
     }
 
 
-def test_only_coverage_leg_enables_coverage():
-    """Exactly one leg collects coverage."""
-    jobs = compute_jobs(release=False, conan=False, standard_test=True, target_main=False)
-    assert [job.name for job in jobs if job.enable_coverage] == ["Basic Clang"]
+def test_every_released_configuration_measures_coverage():
+    """Equality both ways: every shipped build is measured, and nothing else is instrumented.
+
+    Coverage was measured on clang x86 Debug alone until 2026-10-08, which is a build no release
+    publishes, so the single figure in the document described a binary nobody receives. A leg
+    outside the document that instruments anyway pays for it and reports to no one.
+    """
+
+    def built(job):
+        return (job.compiler.cc, job.arch, job.build_type, job.runner)
+
+    shipped = compute_jobs(release=True, conan=False, standard_test=False, target_main=False)
+    tested = compute_jobs(release=False, conan=False, standard_test=True, target_main=False)
+    assert {built(job) for job in tested if job.enable_coverage} == {built(job) for job in shipped}
 
 
 def test_no_flag_selection_fails_loudly():
@@ -205,7 +215,7 @@ def test_standard_test_specs_in_full():
             "arch": "x86",
             "std": 17,
             "build_type": "Debug",
-            "enable_coverage": True,
+            "enable_coverage": False,
             "enable_examples": True,
             "runtime_base": "",
             "check_package": False,
@@ -218,7 +228,7 @@ def test_standard_test_specs_in_full():
             "arch": "x86",
             "std": 17,
             "build_type": "Debug",
-            "enable_coverage": False,
+            "enable_coverage": True,
             "enable_examples": True,
             "runtime_base": "ubuntu:22.04",
             "check_package": False,
@@ -231,7 +241,7 @@ def test_standard_test_specs_in_full():
             "arch": "x86",
             "std": 17,
             "build_type": "Release",
-            "enable_coverage": False,
+            "enable_coverage": True,
             "enable_examples": True,
             "runtime_base": "ubuntu:22.04",
             "check_package": True,
@@ -244,7 +254,7 @@ def test_standard_test_specs_in_full():
             "arch": "x86",
             "std": 17,
             "build_type": "RelWithDebInfo",
-            "enable_coverage": False,
+            "enable_coverage": True,
             "enable_examples": True,
             "runtime_base": "",
             "check_package": True,
@@ -270,7 +280,7 @@ def test_standard_test_specs_in_full():
             "arch": "x86",
             "std": 17,
             "build_type": "Release",
-            "enable_coverage": False,
+            "enable_coverage": True,
             "enable_examples": True,
             "runtime_base": "",
             "check_package": True,
@@ -283,7 +293,7 @@ def test_standard_test_specs_in_full():
             "arch": "x86",
             "std": 17,
             "build_type": "RelWithDebInfo",
-            "enable_coverage": False,
+            "enable_coverage": True,
             "enable_examples": True,
             "runtime_base": "",
             "check_package": True,

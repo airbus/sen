@@ -183,14 +183,21 @@ jobs:
             -s "&:compiler.cppstd=${{ matrix.std }}" --build=missing \
             -o "sen/*:with_tests=True" \
             -o "sen/*:with_examples=${{ matrix.enable_examples && 'True' || 'False' }}" \
-            -o "sen/*:with_coverage=${{ matrix.enable_coverage && 'True' || 'False' }}"
+            -o "sen/*:with_coverage=${{ matrix.enable_coverage && matrix.compiler.name != 'msvc' && 'True' || 'False' }}" \
+            -o "sen/*:with_release_symbols=${{ matrix.enable_coverage && matrix.compiler.name == 'msvc' && 'True' || 'False' }}"
           # The same options go to both commands: conan build regenerates the toolchain,
           # and without them it would do so from the defaults, which build no tests.
+          #
+          # with_coverage instruments, which MSVC has no path for; OpenCppCoverage reads the
+          # program database instead, and only with_release_symbols makes a Release leg produce
+          # one. /Z7 puts that information in the objects, so the compiler cache still stores
+          # them -- see the note beside the flag in sen_misc_utils.cmake.
           conan build . --lockfile=.conan/conan.lock -s "&:build_type=${{ matrix.build_type }}" \
             -s "&:compiler.cppstd=${{ matrix.std }}" \
             -o "sen/*:with_tests=True" \
             -o "sen/*:with_examples=${{ matrix.enable_examples && 'True' || 'False' }}" \
-            -o "sen/*:with_coverage=${{ matrix.enable_coverage && 'True' || 'False' }}"
+            -o "sen/*:with_coverage=${{ matrix.enable_coverage && matrix.compiler.name != 'msvc' && 'True' || 'False' }}" \
+            -o "sen/*:with_release_symbols=${{ matrix.enable_coverage && matrix.compiler.name == 'msvc' && 'True' || 'False' }}"
           IN
 
       # The suite is registered only if the image reached CMake, and its tests
@@ -252,8 +259,16 @@ jobs:
           python3 .github/scripts/check_container_capabilities.py
           IN
 
+      # Chocolatey is on the Windows runners already. OpenCppCoverage needs no instrumentation,
+      # so it is installed rather than built into the image the Linux legs use.
+      - name: Install OpenCppCoverage
+        if: ${{ matrix.enable_coverage && matrix.compiler.name == 'msvc' }}
+        shell: bash
+        run: |
+          choco install OpenCppCoverage -y --no-progress
+          echo "C:\Program Files\OpenCppCoverage" >> "$GITHUB_PATH"
+
       - name: Run tests
-        if: ${{ !matrix.enable_coverage }}
         # The suite runs in minutes. The bound is for what happens after it: a
         # process outliving ctest holds the pipes, and the step then waits in
         # silence for the whole job budget.
@@ -263,6 +278,9 @@ jobs:
           # The suites start sibling containers, so this step needs the daemon.
           # Only the legs that register them ask for it.
           SEN_IN_IMAGE_DOCKER: ${{ matrix.runtime_base != '' && '1' || '' }}
+          # MSVC is not instrumented: OpenCppCoverage reads the program database while the suite
+          # runs, so it has to be the parent of the test processes rather than follow them.
+          SEN_WINDOWS_COVERAGE: ${{ matrix.enable_coverage && matrix.compiler.name == 'msvc' && '1' || '' }}
         run: |
           bash .github/scripts/in_environment.sh <<'IN'
           # The runner is discarded when the job ends, so the testcontainers
@@ -280,14 +298,39 @@ jobs:
           if [ -f build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh ]; then
             source build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh
           fi
+          # What OpenCppCoverage measures and what it leaves out, taken from the list the
+          # other compilers read too. Written before the cd below, so both paths are absolute.
+          settings="$PWD/opencppcoverage.cfg"
+          if [ -n "${SEN_WINDOWS_COVERAGE:-}" ]; then
+            {
+              echo "sources=$PWD"
+              sed -e 's/[[:space:]]*$//' -e '/^#/d' -e '/^$/d' \
+                  -e 's|^|excluded_sources=|' cmake/util/coverage-exclusions.txt
+            } > "$settings"
+          fi
+
+          # OpenCppCoverage returns the exit code of what it ran, so a failing suite still fails
+          # this step. Every other leg runs the command unwrapped.
+          cover() {
+            name="$1"
+            shift
+            if [ -z "${SEN_WINDOWS_COVERAGE:-}" ]; then
+              "$@"
+              return
+            fi
+            OpenCppCoverage.exe --quiet --cover_children --config_file="$settings" \
+              --export_type="binary:coverage_data/${name}.cov" -- "$@"
+          }
+
           # ctest directly rather than through the run_tests target, which runs
           # these same three commands: on Windows cmake --build does not return
           # once they finish. Keep in step with CMAKE_CTEST_ARGUMENTS in
           # cmake/util/test.cmake.
           cd build/${{ matrix.compiler.name }}/${{ matrix.build_type }}
-          ctest --parallel 1 --output-junit ctestParallelReport.xml --no-tests=error \
+          mkdir -p coverage_data
+          cover parallel ctest --parallel 1 --output-junit ctestParallelReport.xml --no-tests=error \
             --stop-on-failure --output-on-failure --timeout 20 --schedule-random -LE flaky
-          ctest --repeat until-pass:5 --output-junit ctestFlakyReport.xml --no-tests=ignore \
+          cover flaky ctest --repeat until-pass:5 --output-junit ctestFlakyReport.xml --no-tests=ignore \
             --stop-on-failure --output-on-failure --timeout 20 --schedule-random -L flaky
           IN
 
@@ -295,7 +338,7 @@ jobs:
       # merge never happened, leaving the publish step below nothing to render exactly
       # when the list of failures is wanted. Merges whichever reports exist.
       - name: Merge the test reports
-        if: ${{ always() && !matrix.enable_coverage }}
+        if: ${{ always() }}
         shell: bash
         run: |
           bash .github/scripts/in_environment.sh <<'IN'
@@ -310,21 +353,33 @@ jobs:
           junitparser merge "$@" ctestReport.xml
           IN
 
-      # The report target runs the suite itself, so this replaces the step above
-      # rather than following it. Without it the leg pays for instrumentation
-      # and produces no report.
-      - name: Run tests and report coverage
-        if: matrix.enable_coverage
-        # Same reason as the step above.
-        timeout-minutes: 20
+      # The suite has already run, so these read what it left rather than running it again.
+      - name: Collect the coverage the run produced
+        if: ${{ matrix.enable_coverage && matrix.compiler.name != 'msvc' }}
         shell: bash
         run: |
           bash .github/scripts/in_environment.sh <<'IN'
           # Same reason as the first of these, in standard_test.yaml.
           source build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh
-          cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ \
-            --target generate-coverage-report
+          cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ --target collect-coverage
           IN
+
+      # OpenCppCoverage writes one file per process tree it followed, and the document reads one
+      # report per configuration.
+      - name: Merge what OpenCppCoverage recorded
+        if: ${{ matrix.enable_coverage && matrix.compiler.name == 'msvc' }}
+        shell: bash
+        run: |
+          set --
+          for recorded in build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/coverage_data/*.cov; do
+            [ -e "$recorded" ] || continue
+            set -- "$@" "--input_coverage=$recorded"
+          done
+          if [ "$#" -eq 0 ]; then
+            echo "the suite left no coverage behind, so the leg would report none"
+            exit 1
+          fi
+          OpenCppCoverage.exe --quiet "$@" --export_type="cobertura:build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/coverage_data/coverage.xml"
 
       # ctest sees one test per vitest package, so without this the document would carry five
       # entries for the hundreds of cases behind them. The runners write their own JUnit into
@@ -401,50 +456,7 @@ jobs:
             build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/test-descriptions.tsv
             build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/test-environment.tsv
             build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/coverage_reports/coverage.txt
-
-      - name: Publish the coverage report
-        if: matrix.enable_coverage
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
-        with:
-          name: coverage-report
-          if-no-files-found: error
-          path: build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/coverage_reports/
-
-      # The floor is a point or so below what the suite measured on 2026-10-03
-      # (81.17% of lines), so ordinary movement does not fail a pull request while
-      # a real drop does. Raise it when coverage rises. That figure was measured on
-      # arm64 clang Debug and this lane is x86_64, so the first green run after the
-      # exclusions land is what confirms the headroom.
-      - name: Show the coverage total and hold the floor
-        if: matrix.enable_coverage
-        shell: bash
-        env:
-          MINIMUM_LINE_COVERAGE: "80"
-        run: |
-          summary="build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/coverage_reports/coverage.txt"
-          {
-            echo "### Coverage"
-            echo '```'
-            tail -2 "$summary"
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
-
-          # llvm-cov's TOTAL row: regions, then functions, then lines, then
-          # branches, each as count, missed and percentage.
-          lines=$(awk '$1 == "TOTAL" { gsub("%", "", $10); print $10 }' "$summary")
-          case "$lines" in
-            "" | *[!0-9.]*)
-              echo "Could not read the line coverage from $summary; the report format changed."
-              exit 1
-              ;;
-          esac
-          echo "line coverage: $lines% (floor $MINIMUM_LINE_COVERAGE%)"
-          # Compared as whole percent, so no locale can reinterpret the
-          # decimal separator; dropping the fraction only makes it stricter.
-          if [ "${lines%%.*}" -lt "$MINIMUM_LINE_COVERAGE" ]; then
-              echo "line coverage $lines% is below the $MINIMUM_LINE_COVERAGE% floor"
-              exit 1
-          fi
+            build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/coverage_data/coverage.xml
 
       # The release workflow attaches this archive and the installer unpacks
       # it, so its layout is a contract. Building it here keeps a dropped
@@ -547,37 +559,62 @@ jobs:
           # What the matrix said it would run, to check against what arrived.
           SEN_MATRIX: ${{ needs.compute-matrix-jobs.outputs.jobs }}
         run: |
-          # One line per configuration: its name, the report it wrote, and the records a figure
-          # in the document can be checked against. A leg that reported nothing stops this,
-          # rather than leaving the document a build short without saying so.
           shopt -s nullglob
           mkdir -p combined
-          manifest=combined/legs.tsv
-          : > "$manifest"
+
+          # Every configuration the matrix ran has to have reported. The upload ignores a leg
+          # that produced no files, so one can go missing without failing anything, and a
+          # document a build short reads exactly like a complete one.
+          found=0
+          reported=""
           for leg in test-reports/*/; do
               name=$(basename "$leg")
               name=${name#test-report-}
-              report="${leg}testReport.xml"
-              [ -f "$report" ] || report="${leg}ctestReport.xml"
-              if [ ! -f "$report" ]; then
+              if [ ! -f "${leg}testReport.xml" ] && [ ! -f "${leg}ctestReport.xml" ]; then
                   echo "$name produced no test report"
                   exit 1
               fi
-              coverage="${leg}coverage_reports/coverage.txt"
+              reported="$reported  $name"$'\n'
+              found=$((found + 1))
+          done
+          expected=$(python -c 'import json, os; print(len(json.loads(os.environ["SEN_MATRIX"])))')
+          if [ "$found" -ne "$expected" ]; then
+              echo "the matrix ran $expected configurations and $found reported:"
+              printf '%s' "$reported"
+              exit 1
+          fi
+
+          # The document reports on what a release publishes, which is a subset of what the
+          # matrix tests: clang and arm are run for what they catch, not for what they ship.
+          # The release matrix is asked for rather than written down, so the two cannot drift.
+          python - <<'PICK' > combined/released.txt
+          import sys
+          sys.path.insert(0, ".github/scripts")
+          from generate_matrix_jobs import compute_jobs
+          for job in compute_jobs(release=True, conan=False, standard_test=False, target_main=False):
+              print(f"{job.compiler.name}-{job.compiler.version}-{job.arch}-cxx{job.std}-{job.build_type}")
+          PICK
+
+          # One line per configuration: its name, the report it wrote, and the records a figure
+          # in the document can be checked against.
+          manifest=combined/legs.tsv
+          : > "$manifest"
+          while read -r name; do
+              leg="test-reports/test-report-${name}/"
+              if [ ! -d "$leg" ]; then
+                  echo "$name is published by a release and did not report"
+                  exit 1
+              fi
+              report="${leg}testReport.xml"
+              [ -f "$report" ] || report="${leg}ctestReport.xml"
+              # cobertura from gcovr and OpenCppCoverage, llvm-cov's table from clang; the
+              # renderer reads either and tells them apart by their first character.
+              coverage="${leg}coverage_data/coverage.xml"
+              [ -f "$coverage" ] || coverage="${leg}coverage_reports/coverage.txt"
               [ -f "$coverage" ] || coverage=""
               printf '%s\t%s\t%s\t%s\t%s\n' "$name" "$report" "$coverage" \
                   "${leg}test-environment.tsv" "${leg}test-descriptions.tsv" >> "$manifest"
-          done
-          # Every configuration the matrix ran has to be here. The upload ignores a leg that
-          # produced no files, so one can go missing without failing, and a report covering
-          # four of five builds reads exactly like a report covering all of them.
-          expected=$(python -c 'import json, os; print(len(json.loads(os.environ["SEN_MATRIX"])))')
-          found=$(wc -l < "$manifest" | tr -d ' ')
-          if [ "$found" -ne "$expected" ]; then
-              echo "the matrix ran $expected configurations and $found reported:"
-              cut -f1 "$manifest" | sed 's/^/  /'
-              exit 1
-          fi
+          done < combined/released.txt
           python .github/scripts/render_test_document.py \
               "--legs=$manifest" combined/testReport.typ "${{ github.sha }}" . \
               --coverage-floor=80 \
@@ -608,3 +645,4 @@ jobs:
             combined/testReport.typ
             combined/testReport.pdf
             combined/legs.tsv
+            combined/released.txt
