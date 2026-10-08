@@ -257,6 +257,10 @@ void LocalParticipant::remove(const Span<std::shared_ptr<NativeObject>>& instanc
 
   for (const auto& instance: instances)
   {
+    // add() inside a listener callback lands the object in tempNewObjects_, so erasing only from
+    // newObjects would leave it queued as new. This sits here rather than in removeSingleObject
+    // because the rejection path reaches that one from the dispatcher thread.
+    tempNewObjects_.erase(instance->getId());
     removeSingleObject(instance.get());
   }
 

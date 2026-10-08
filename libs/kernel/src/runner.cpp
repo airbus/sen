@@ -535,7 +535,9 @@ void Runner::registerObjects(Span<std::shared_ptr<NativeObject>> instances)
   for (const auto& object: instances)
   {
     objectsList_.emplace_back(object.get());
-    objectsMap_.emplace(object, std::prev(objectsList_.end()));
+    const auto serial = ++registrationSerial_;
+    objectsMap_.emplace(object, ObjectRegistration {std::prev(objectsList_.end()), serial});
+    ++objectCount_;
 
     object->setQueues(&workQueue_, &serializableEvents_);
 
@@ -545,6 +547,15 @@ void Runner::registerObjects(Span<std::shared_ptr<NativeObject>> instances)
 
     // notify the user (this can trigger property changes, events, additions, removals, etc.)
     object->registered(registrationApi_);
+
+    // registered() can remove this object, or remove and add it again. A second add registers it
+    // in full, so carrying on would commit it twice. The serial identifies our own registration:
+    // a removal erases the list node, so an iterator to it could match a reused address. The
+    // count is raised at the insert above so both paths balance.
+    if (const auto itr = objectsMap_.find(object); itr == objectsMap_.end() || itr->second.serial != serial)
+    {
+      continue;
+    }
 
     // ensure all properties are current
     object->commit(time_);
@@ -556,8 +567,6 @@ void Runner::registerObjects(Span<std::shared_ptr<NativeObject>> instances)
     {
       objectsThatNeedPreAndPostUpdateCalls_.push_back(object.get());
     }
-
-    ++objectCount_;
   }
 }
 
@@ -571,7 +580,7 @@ void Runner::unregisterObjects(Span<std::shared_ptr<NativeObject>> instances)
       object->setQueues(nullptr, nullptr);
       object->unregistered(registrationApi_);
       object->setRegistrationTime({});
-      objectsList_.erase(it->second);
+      objectsList_.erase(it->second.node);
       objectsMap_.erase(it);
 
       if (object->needsPreDrainOrPreCommit())

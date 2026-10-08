@@ -291,6 +291,16 @@ private:
     xenium::harris_michael_list_based_set<std::weak_ptr<LocalParticipant>,
                                           xenium::policy::reclaimer<xenium::reclamation::epoch_based<>>,
                                           xenium::policy::compare<std::owner_less<std::weak_ptr<LocalParticipant>>>>;
+
+  /// One registration of one object. The serial tells two registrations of the same object
+  /// apart, which an iterator cannot: removing an object erases its list node, and a
+  /// re-registration can land a new node at the same address.
+  struct ObjectRegistration
+  {
+    NativeObjectPtrList::iterator node;
+    std::uint64_t serial;
+  };
+
   KernelImpl& kernel_;
   OperatingSystem& os_;
   ComponentContext component_;
@@ -304,9 +314,10 @@ private:
   ::sen::impl::SerializableEventQueue serializableEvents_;
   std::mutex serializableEventsMutex_;  // TODO: needed for clear and participants
   ConcurrentLocalParticipantList localParticipants_;
-  std::unordered_map<std::shared_ptr<NativeObject>, NativeObjectPtrList::iterator> objectsMap_;
+  std::unordered_map<std::shared_ptr<NativeObject>, ObjectRegistration> objectsMap_;
   NativeObjectPtrList objectsList_;
   NativeObjectPtrList objectsThatNeedPreAndPostUpdateCalls_;
+  std::uint64_t registrationSerial_ {0U};
   Guarded<TimeStamp> time_;
   TimeStamp startTime_;
   RunApi runApi_;
