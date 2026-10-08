@@ -812,9 +812,9 @@ TEST(ClassType, makeInvalid)
 }
 
 /// @test
-/// Builds class types and compares them: two instances from the same spec are equal by value,
-/// and each differing-spec case, along with the native types, compares distinct shared pointer
-/// instances as unequal.
+/// Builds class types and compares them by value through their handles: two instances from the
+/// same spec are equal, and each differing-spec case, along with the native types, compares
+/// unequal.
 /// @requirements(SEN-355)
 TEST(ClassType, comparison)
 {
