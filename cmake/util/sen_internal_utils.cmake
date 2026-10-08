@@ -540,18 +540,23 @@ endmacro()
 # gained one would report hits of zero and give no reason. The flags are not in the build log
 # either -- Ninja prints the object it is building, never the command line.
 #
-# A function called after project(), not a check up here: MSVC and CMAKE_CXX_FLAGS_RELEASE are
-# both empty until the compiler has been detected, so an if(MSVC) at this point never runs and
-# reports nothing while looking like a check that passed.
+# A function called after project(), not a check up here: MSVC and the per-configuration flags
+# are both empty until the compiler has been detected, so an if(MSVC) at this point never runs
+# and reports nothing while looking like a check that passed.
 function(sen_warn_if_the_compiler_cache_cannot_work)
   if(NOT SEN_COMPILER_CACHE OR NOT MSVC)
     return()
   endif()
 
-  message(NOTICE "-- MSVC release flags seen by the compiler cache: ${CMAKE_CXX_FLAGS_RELEASE}")
-  if(CMAKE_CXX_FLAGS_RELEASE MATCHES "/Zi" OR CMAKE_MSVC_DEBUG_INFORMATION_FORMAT MATCHES "ProgramDatabase")
-    message(WARNING "MSVC is producing a program database, so the compiler cache stores nothing. "
-                    "Set CMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded with CMP0141 NEW."
+  # The configuration being built, not Release: RelWithDebInfo asked for a program database too
+  # and this read past it, so the lane it actually broke was the one it did not look at. The
+  # format set in the root CMakeLists is a generator expression and says nothing here.
+  string(TOUPPER "${CMAKE_BUILD_TYPE}" _sen_config)
+  message(NOTICE "-- MSVC flags seen by the compiler cache: ${CMAKE_CXX_FLAGS_${_sen_config}}")
+  if(CMAKE_CXX_FLAGS_${_sen_config} MATCHES "/Zi" OR CMAKE_BUILD_TYPE STREQUAL "Debug")
+    message(WARNING "MSVC is producing a program database for ${CMAKE_BUILD_TYPE}, so the compiler "
+                    "cache stores nothing, and parallel compiles can fail with C1041. Give this "
+                    "configuration Embedded in CMAKE_MSVC_DEBUG_INFORMATION_FORMAT."
     )
   endif()
 endfunction()

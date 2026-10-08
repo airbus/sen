@@ -52,6 +52,22 @@ include(util/git_info)
 set(SEN_VERSION)
 get_version_from_git(SEN_VERSION)
 
+# MSVC keeps debug information in one program database per target directory, and every parallel
+# cl.exe contends for it. /FS is meant to serialise that through mspdbsrv and does not when the
+# compile runs under a compiler-cache launcher: building the test suite for RelWithDebInfo stops
+# with C1041. Embedded puts the information in the objects instead, which is what Release already
+# asks for with /Z7 and for the second reason as well -- a cache stores nothing against a program
+# database. Debug keeps one: nothing builds it on MSVC, and it is the cheaper format to step in.
+#
+# Before project(), which is where the per-configuration flags are decided, and guarded because
+# the policy arrived in 3.25 and the minimum above is 3.21.
+if(POLICY CMP0141)
+  cmake_policy(SET CMP0141 NEW)
+  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT
+      "$<$<CONFIG:Debug>:ProgramDatabase>$<$<CONFIG:RelWithDebInfo>:Embedded>"
+  )
+endif()
+
 # project info
 project(
   sen
