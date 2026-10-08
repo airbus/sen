@@ -1,0 +1,26 @@
+# What no coverage figure counts, one pattern per line, '*' matching any characters.
+#
+# Read by coverage.cmake, which turns each into a regular expression for gcovr and llvm-cov, and
+# by standard_test.yaml, which passes them to OpenCppCoverage as they are. OpenCppCoverage takes
+# wildcards and the other two take regular expressions, so the list is kept in the form that
+# translates upward rather than in the one that does not. One list, so the compilers measure the
+# same code and their figures can be compared.
+#
+# The generator emits <name>.stl.{h,cpp} and <name>.xml.{h,cpp}, a *_build_info.cpp per target
+# and a sen_exported_types.cpp per package. No file of those names exists in the source tree,
+# so matching them cannot hide anything written by hand.
+*generated*
+*.stl.h
+*.stl.cpp
+*.xml.h
+*.xml.cpp
+*_build_info.cpp
+*sen_exported_types.cpp
+# explorer, shell and rest are deprecated in 0.8.0: their lines would sit in the denominator as
+# permanently uncovered and hide movement everywhere else. Drop each when its code goes, so the
+# pattern never outlives the directory it names. cli_remote_shell goes with them: it builds only
+# under SEN_BUILD_SHELL and links the shell's terminal_lib.
+*components/explorer/*
+*components/shell/*
+*components/rest/*
+*apps/cli_remote_shell/*

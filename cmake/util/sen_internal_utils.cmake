@@ -452,14 +452,18 @@ endif()
 
 # configure coverage as an interface target so flags apply only to sen targets,
 # not to every target in the directory tree (e.g. third-party add_subdirectory targets).
+#
+# -O0 and -fno-inline are scoped to Debug. Unscoped they turn a Release leg into an unoptimised
+# build, which then measures a binary no release ships; the document says instead that an
+# optimised build's total is sound while its per-line attribution is not.
 add_library(sen_coverage_flags INTERFACE)
 if(SEN_COVERAGE_ENABLE)
   if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(
       sen_coverage_flags
       INTERFACE -g
-                -O0
-                -fno-inline
+                $<$<CONFIG:Debug>:-O0>
+                $<$<CONFIG:Debug>:-fno-inline>
                 --coverage
     )
     target_link_options(sen_coverage_flags INTERFACE --coverage)
@@ -468,8 +472,8 @@ if(SEN_COVERAGE_ENABLE)
     target_compile_options(
       sen_coverage_flags
       INTERFACE -g
-                -O0
-                -fno-inline
+                $<$<CONFIG:Debug>:-O0>
+                $<$<CONFIG:Debug>:-fno-inline>
                 -fprofile-instr-generate=${SEN_COVERAGE_DATA_DIR}
                 -fcoverage-mapping
     )

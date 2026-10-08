@@ -32,7 +32,9 @@ from render_test_document import (
     matrix_capacity,
     matrix_name_space,
     matrix_shape,
+    read_cobertura,
     read_coverage,
+    read_coverage_report,
     read_descriptions,
     read_manifest,
     run_started,
@@ -320,7 +322,17 @@ def test_the_area_index_ends_with_a_total(tmp_path, monkeypatch):
     out = tmp_path / "out.typ"
     monkeypatch.setattr(
         "sys.argv",
-        ["render_test_document.py", str(report), str(out), "x", "y", ".", f"--coverage={coverage}"],
+        # The fixture measures 40%, and the floor is what this test is not about.
+        [
+            "render_test_document.py",
+            str(report),
+            str(out),
+            "x",
+            "y",
+            ".",
+            f"--coverage={coverage}",
+            "--coverage-floor=40",
+        ],
     )
     assert main() == 0
     body = out.read_text()
@@ -355,7 +367,17 @@ def test_the_cover_names_each_document_with_its_digest(tmp_path, monkeypatch):
     out = tmp_path / "out.typ"
     monkeypatch.setattr(
         "sys.argv",
-        ["render_test_document.py", str(report), str(out), "x", "y", ".", f"--coverage={coverage}"],
+        # The fixture measures 40%, and the floor is what this test is not about.
+        [
+            "render_test_document.py",
+            str(report),
+            str(out),
+            "x",
+            "y",
+            ".",
+            f"--coverage={coverage}",
+            "--coverage-floor=40",
+        ],
     )
     assert main() == 0
     body = out.read_text()
@@ -704,6 +726,140 @@ def test_a_case_is_skipped_only_where_no_configuration_ran_it():
     assert [c.status for c in union_cases([a_leg("one", cases=[skipped]), a_leg("two", cases=[ran])])] == ["passed"]
     both = [a_leg("one", cases=[skipped]), a_leg("two", cases=[skipped])]
     assert [c.status for c in union_cases(both)] == ["skipped"]
+
+
+# gcovr's shape: one package per directory, a line element per measured line.
+GCOVR_COBERTURA = """<?xml version="1.0" ?>
+<coverage line-rate="0.75" lines-covered="3" lines-valid="4" version="gcovr 5.0">
+  <sources><source>.</source></sources>
+  <packages>
+    <package name="libs.core" line-rate="0.75">
+      <classes>
+        <class name="quantity.cpp" filename="libs/core/quantity.cpp" line-rate="0.5">
+          <methods/>
+          <lines>
+            <line number="10" hits="4"/>
+            <line number="11" hits="0"/>
+          </lines>
+        </class>
+        <class name="vm.cpp" filename="libs/core/vm.cpp" line-rate="1.0">
+          <methods/>
+          <lines>
+            <line number="7" hits="1"/>
+            <line number="8" hits="2"/>
+          </lines>
+        </class>
+      </classes>
+    </package>
+  </packages>
+</coverage>
+"""
+
+# OpenCppCoverage's shape: a package per module, so one source file appears under each test
+# binary it was linked into. Here the same two lines are covered by one binary each.
+OPENCPP_COBERTURA = """<?xml version="1.0" ?>
+<coverage line-rate="0.5" lines-covered="2" lines-valid="4" version="OpenCppCoverage">
+  <sources><source>C:\\src</source></sources>
+  <packages>
+    <package name="core_test.exe" line-rate="0.5">
+      <classes>
+        <class name="quantity.cpp" filename="libs/core/quantity.cpp" line-rate="0.5">
+          <methods/>
+          <lines><line number="10" hits="1"/><line number="11" hits="0"/></lines>
+        </class>
+      </classes>
+    </package>
+    <package name="kernel_test.exe" line-rate="0.5">
+      <classes>
+        <class name="quantity.cpp" filename="libs/core/quantity.cpp" line-rate="0.5">
+          <methods/>
+          <lines><line number="10" hits="0"/><line number="11" hits="3"/></lines>
+        </class>
+      </classes>
+    </package>
+  </packages>
+</coverage>
+"""
+
+
+def test_a_cobertura_report_reads_into_the_same_shape(tmp_path):
+    """The document's coverage section is written against llvm-cov's two return values."""
+    report = tmp_path / "coverage.xml"
+    report.write_text(GCOVR_COBERTURA, encoding="utf-8")
+    totals, files = read_cobertura(report)
+    assert [(one.name, one.lines, one.lines_missed) for one in files] == [
+        ("libs/core/quantity.cpp", 2, 1),
+        ("libs/core/vm.cpp", 2, 0),
+    ]
+    assert totals["Lines"] == "75.00%"
+    assert (totals["Lines measured"], totals["Lines uncovered"]) == ("4", "1")
+    # Neither producer counts these, and a build that did not look found no zero.
+    assert totals["Functions"] == totals["Regions"] == "not measured"
+
+
+def test_one_file_in_two_modules_is_merged_not_counted_twice(tmp_path):
+    """OpenCppCoverage emits a package per module, so a shared source file is listed per binary.
+
+    Summing the listings would count every line of it once per test binary it was linked into,
+    and report a file every run covered as half covered.
+    """
+    report = tmp_path / "coverage.xml"
+    report.write_text(OPENCPP_COBERTURA, encoding="utf-8")
+    totals, files = read_cobertura(report)
+    assert [(one.name, one.lines, one.lines_missed) for one in files] == [("libs/core/quantity.cpp", 2, 0)]
+    assert totals["Lines"] == "100.00%"
+
+
+def test_the_reader_picks_the_format_the_leg_produced(tmp_path):
+    """Legs ship llvm-cov text or cobertura xml, and the manifest names one column for both."""
+    cobertura = tmp_path / "coverage.xml"
+    cobertura.write_text(GCOVR_COBERTURA, encoding="utf-8")
+    assert read_coverage_report(cobertura) == read_cobertura(cobertura)
+
+    table = tmp_path / "coverage.txt"
+    table.write_text(COVERAGE, encoding="utf-8")
+    assert read_coverage_report(table) == read_coverage(table)
+
+
+def test_a_figure_under_the_floor_fails_the_run_and_still_writes_the_document(tmp_path, monkeypatch):
+    """The document says the criterion was not met; without this the job said it was.
+
+    It is written before the exit code is decided, because the figure that fell short is the one
+    a reader wants to look at.
+    """
+    report = tmp_path / "r.xml"
+    report.write_text(
+        '<?xml version="1.0"?><testsuite name="sen" tests="1">'
+        '<testcase classname="libs/core/test/a_test.cpp" name="A.ok"/>'
+        "</testsuite>"
+    )
+    coverage = tmp_path / "coverage.txt"
+    coverage.write_text(COVERAGE)
+    out = tmp_path / "out.typ"
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "render_test_document.py",
+            str(report),
+            str(out),
+            "x",
+            "y",
+            ".",
+            f"--coverage={coverage}",
+            "--coverage-floor=80",
+        ],
+    )
+    assert main() == 1
+    assert out.is_file() and out.read_text()
+
+
+def test_a_run_that_measured_nothing_does_not_fail_the_floor(tmp_path, monkeypatch):
+    """Most legs instrument nothing, and a build that did not look has not fallen short."""
+    out = tmp_path / "report.typ"
+    monkeypatch.setattr(
+        "sys.argv", ["render_test_document.py", str(write(tmp_path)), str(out), "clang Debug", "abc123"]
+    )
+    assert main() == 0
 
 
 def test_five_configurations_keep_the_layout_they_had():

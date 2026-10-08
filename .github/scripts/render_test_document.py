@@ -604,6 +604,89 @@ def read_coverage(path: Path) -> tuple[dict[str, str], list[FileCoverage]]:
     return totals, files
 
 
+# Neither gcovr nor OpenCppCoverage counts regions or functions, which llvm-cov does. They read
+# as not measured rather than as zero: a build that did not look is not a build that found none.
+COBERTURA_UNMEASURED = (("Functions", None), ("Regions", None))
+
+
+def described_by(cases: list[Case], matched: list[Annotation | None], descriptions: dict[str, str]) -> str:
+    """How many cases say what they check, and where each says it, for the line main prints."""
+    annotated = sum(1 for annotation in matched if annotation and annotation.description)
+    # A test registered in CMake is described by the build, not by an annotation.
+    declared = sum(
+        1
+        for case, annotation in zip(cases, matched, strict=True)
+        if annotation is None and split_name(case.classname, case.name)[1] in descriptions
+    )
+    # A spec case is its own description.
+    spoken = sum(1 for case in cases if is_spec(split_name(case.classname, case.name)[0]))
+    traced = sum(1 for annotation in matched if annotation and annotation.requirements)
+    return (
+        f"{annotated + spoken + declared} describe what they check ({spoken} by their own"
+        f" sentence, {declared} by the build), {traced} name a requirement"
+    )
+
+
+def floor_held(line_coverage: float | None, floor: str) -> bool:
+    """Whether the figure clears the floor. A run that measured nothing has not fallen short."""
+    return line_coverage is None or line_coverage >= float(floor)
+
+
+def floor_outcome(line_coverage: float | None, floor: str) -> int:
+    """The exit status the floor decides, after naming the figure that fell short."""
+    if floor_held(line_coverage, floor):
+        return 0
+    print(f"line coverage {line_coverage:.2f}% is below the {floor}% floor", file=sys.stderr)
+    return 1
+
+
+def read_cobertura(path: Path) -> tuple[dict[str, str], list[FileCoverage]]:
+    """Reads a cobertura report into its total row and a row per file.
+
+    gcovr writes this for the gcc legs and OpenCppCoverage for the MSVC ones, so one reader
+    serves both. OpenCppCoverage emits a package per module, so a source file linked into two
+    test binaries is listed twice; the lines are merged by filename and a line any run covered
+    counts as covered. The totals are summed from those merged rows rather than read off the
+    root element, which counts the duplicates and would disagree with the rows beneath it.
+    """
+    hits_by_file: dict[str, dict[int, int]] = {}
+    for element in ElementTree.parse(path).getroot().iter("class"):
+        name = element.get("filename") or element.get("name") or ""
+        if not name:
+            continue
+        lines = hits_by_file.setdefault(name, {})
+        for line in element.iter("line"):
+            try:
+                number, hits = int(line.get("number") or 0), int(line.get("hits") or 0)
+            except ValueError:
+                continue
+            lines[number] = max(lines.get(number, 0), hits)
+
+    files = []
+    for name, lines in sorted(hits_by_file.items()):
+        if not lines:
+            continue
+        missed = sum(1 for hits in lines.values() if hits == 0)
+        files.append(FileCoverage(name, len(lines), missed, 100.0 * (len(lines) - missed) / len(lines)))
+
+    if not files:
+        return {}, []
+
+    measured = sum(one.lines for one in files)
+    uncovered = sum(one.lines_missed for one in files)
+    totals = {"Lines": shown(100.0 * (measured - uncovered) / measured)}
+    totals.update({key: shown(value) for key, value in COBERTURA_UNMEASURED})
+    totals["Lines measured"] = f"{measured}"
+    totals["Lines uncovered"] = f"{uncovered}"
+    return totals, files
+
+
+def read_coverage_report(path: Path) -> tuple[dict[str, str], list[FileCoverage]]:
+    """Reads whichever summary the leg produced: llvm-cov's table or a cobertura document."""
+    head = path.read_text(encoding="utf-8", errors="replace")[:200].lstrip()
+    return read_cobertura(path) if head.startswith("<") else read_coverage(path)
+
+
 FOLDER_DEPTH = 2
 
 
@@ -1677,7 +1760,7 @@ def coverage_parts(report: Path | None, floor: str) -> tuple[str, dict[str, floa
         print(f"no coverage report at {report}; the document omits that section")
         return "", {}, {}, None
 
-    totals, files = read_coverage(report)
+    totals, files = read_coverage_report(report)
     if not totals:
         return "", {}, {}, None
 
@@ -2820,22 +2903,11 @@ def main() -> int:
         ),
         encoding="utf-8",
     )
-    annotated = sum(1 for annotation in matched if annotation and annotation.description)
-    # A test registered in CMake is described by the build, not by an annotation.
-    declared = sum(
-        1
-        for case, annotation in zip(cases, matched, strict=True)
-        if annotation is None and split_name(case.classname, case.name)[1] in descriptions
-    )
-    # A spec case is its own description.
-    spoken = sum(1 for case in cases if is_spec(split_name(case.classname, case.name)[0]))
-    traced = sum(1 for annotation in matched if annotation and annotation.requirements)
-    print(
-        f"wrote {out} for {len(cases)} cases: {annotated + spoken + declared} describe what they"
-        f" check ({spoken} by their own sentence, {declared} by the build), {traced} name a"
-        " requirement"
-    )
-    return 0
+    print(f"wrote {out} for {len(cases)} cases: {described_by(cases, matched, descriptions)}")
+
+    # Decided after the document is written, not instead of it: the figure that fell short is
+    # the one a reader wants to look at.
+    return floor_outcome(line_coverage, coverage_floor)
 
 
 if __name__ == "__main__":

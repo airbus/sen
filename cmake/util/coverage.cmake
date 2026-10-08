@@ -11,12 +11,50 @@ if(NOT SEN_COVERAGE_ENABLE)
 endif()
 
 if(MSVC)
-  # Coverage tracking not supported for MSVC
+  # Nothing to configure: OpenCppCoverage reads the .pdb while the suite runs, so it needs no
+  # instrumentation and no target here. The workflow wraps ctest with it. A Release leg still
+  # needs SEN_RELEASE_SYMBOLS for the program database to exist at all.
   return()
 endif()
 
 file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/coverage_reports/" SEN_COVERAGE_REPORT_DIR)
 file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/coverage_data/" SEN_COVERAGE_DATA_DIR)
+
+# What no figure counts, shared with the MSVC legs through a file because they reach it from the
+# workflow rather than from here. The file holds wildcards, which is what OpenCppCoverage takes;
+# gcovr and llvm-cov want regular expressions, so each pattern is translated here. Dots are
+# escaped before the star is expanded, or the escape would be expanded in turn.
+file(STRINGS "${CMAKE_CURRENT_LIST_DIR}/coverage-exclusions.txt" SEN_COVERAGE_IGNORE_WILDCARDS)
+list(
+  FILTER
+  SEN_COVERAGE_IGNORE_WILDCARDS
+  EXCLUDE
+  REGEX
+  "^(#|$)"
+)
+foreach(wildcard IN LISTS SEN_COVERAGE_IGNORE_WILDCARDS)
+  string(
+    REPLACE "."
+            "[.]"
+            _pattern
+            "${wildcard}"
+  )
+  string(
+    REPLACE "*"
+            ".*"
+            _pattern
+            "${_pattern}"
+  )
+  list(APPEND SEN_COVERAGE_IGNORE_PATTERNS "${_pattern}")
+endforeach()
+# Appended here because only this file knows where the build tree is.
+list(APPEND SEN_COVERAGE_IGNORE_PATTERNS "${CMAKE_BINARY_DIR}/.*")
+list(
+  JOIN
+  SEN_COVERAGE_IGNORE_PATTERNS
+  "|"
+  SEN_COVERAGE_IGNORE_REGEX
+)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   find_program(GCOV_PATH gcovr REQUIRED)
@@ -28,9 +66,20 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   add_custom_target(
     generate-coverage-data
     COMMAND ${GCOV_PATH} -r ${CMAKE_SOURCE_DIR} -j 8 --cobertura ${SEN_COVERAGE_DATA_DIR}coverage.xml
-            --print-summary --gcov-ignore-parse-errors
+            --print-summary --gcov-ignore-parse-errors --exclude "${SEN_COVERAGE_IGNORE_REGEX}"
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     DEPENDS run_tests
+  )
+
+  # The same report over a suite that already ran, which is how the workflow uses it: ctest is
+  # invoked there rather than through run_tests, because on Windows cmake --build does not
+  # return once ctest finishes and every leg is kept on one path.
+  add_custom_target(
+    collect-coverage
+    COMMAND ${GCOV_PATH} -r ${CMAKE_SOURCE_DIR} -j 8 --cobertura ${SEN_COVERAGE_DATA_DIR}coverage.xml
+            --print-summary --gcov-ignore-parse-errors --exclude "${SEN_COVERAGE_IGNORE_REGEX}"
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    VERBATIM
   )
 
   add_custom_target(
@@ -106,32 +155,6 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     clean-generate-coverage-data COMMAND ${CMAKE_COMMAND} -E remove_directory ${SEN_COVERAGE_DATA_DIR}
   )
 
-  # Only hand-written code is measured. The generator emits <name>.stl.{h,cpp} and <name>.xml.{h,cpp},
-  # a *_build_info.cpp per target and a sen_exported_types.cpp per package; no file of those names
-  # exists in the source tree, so matching them cannot hide anything written by hand.
-  #
-  # explorer, shell and rest are deprecated in 0.8.0: their lines would sit in the denominator as
-  # permanently uncovered and hide movement everywhere else. Drop each when its code goes, so the
-  # pattern never outlives the directory it names.
-  #
-  # cli_remote_shell goes with them: it builds only under SEN_BUILD_SHELL, links the shell's
-  # terminal_lib and connects to a remote shell, so it is part of what is being withdrawn.
-  set(SEN_COVERAGE_IGNORE_PATTERNS
-      ".*generated.*"
-      ".*[.](stl|xml)[.](h|cpp)"
-      ".*_build_info[.]cpp"
-      "(.*/)?sen_exported_types[.]cpp"
-      "(.*/)?components/(explorer|shell|rest)/.*"
-      "(.*/)?apps/cli_remote_shell/.*"
-      "${CMAKE_BINARY_DIR}/.*"
-  )
-  list(
-    JOIN
-    SEN_COVERAGE_IGNORE_PATTERNS
-    "|"
-    SEN_COVERAGE_IGNORE_REGEX
-  )
-
   add_custom_target(
     generate-coverage-report
     COMMAND
@@ -141,6 +164,17 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     COMMAND echo "Generated coverage overview [see: ${SEN_COVERAGE_REPORT_DIR}index.html]"
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     DEPENDS run_tests
+    VERBATIM
+  )
+
+  # Same report, over a suite that already ran. See the GNU branch for why the workflow needs it.
+  add_custom_target(
+    collect-coverage
+    COMMAND
+      ${Python3_EXECUTABLE} ${GENERATE_COVERAGE_REPORT_SCRIPT} ${LLVM_PROFDATA_PATH} ${LLVM_COV_PATH}
+      ${SEN_COVERAGE_DATA_DIR} ${SEN_COVERAGE_REPORT_DIR} ${coverage_binaries} --ignore-filename-regex
+      "${SEN_COVERAGE_IGNORE_REGEX}"
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     VERBATIM
   )
 else()
