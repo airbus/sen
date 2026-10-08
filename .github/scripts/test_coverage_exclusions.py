@@ -30,6 +30,8 @@ EXCLUDED = (
     "components/shell/src/shell.cpp",
     "components/rest/src/rest.cpp",
     "apps/cli_remote_shell/src/main.cpp",
+    "examples/packages/hello/main.cpp",
+    "examples/packages/kernel_cycle/main.cpp",
 )
 
 MEASURED = (
@@ -65,6 +67,17 @@ def test_the_list_is_not_empty():
 def test_generated_and_withdrawn_code_is_left_out():
     """These are the two reasons the list exists."""
     assert [path for path in EXCLUDED if not excludes(path)] == []
+
+
+def test_the_examples_pattern_stops_at_the_examples_tree():
+    """*examples/* rather than *example*, which would reach a product file carrying the word.
+
+    The path below is hypothetical, unlike the lists above: nothing in libs, components or apps
+    is named that today, and the point is that a file which were would leave the figure without
+    saying so.
+    """
+    assert excludes("examples/packages/school/src/person.h")
+    assert not excludes("libs/core/src/example_runner.cpp")
 
 
 def test_hand_written_code_is_measured():

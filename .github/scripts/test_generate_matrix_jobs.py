@@ -115,20 +115,24 @@ def test_a_release_and_its_debug_information_share_a_toolchain():
     }
 
 
-def test_every_released_configuration_measures_coverage():
-    """Equality both ways: every shipped build is measured, and nothing else is instrumented.
+def test_one_leg_measures_coverage_and_it_is_a_build_we_ship():
+    """Coverage comes from a single configuration, and it has to be one a release publishes.
 
-    Coverage was measured on clang x86 Debug alone until 2026-10-08, which is a build no release
-    publishes, so the single figure in the document described a binary nobody receives. A leg
-    outside the document that instruments anyway pays for it and reports to no one.
+    Optimisation moves which line a hit is counted against, so the leg is a debug build. A leg
+    outside what a release ships would describe a binary nobody receives.
     """
 
     def built(job):
         return (job.compiler.cc, job.arch, job.build_type, job.runner)
 
-    shipped = compute_jobs(release=True, conan=False, standard_test=False, target_main=False)
     tested = compute_jobs(release=False, conan=False, standard_test=True, target_main=False)
-    assert {built(job) for job in tested if job.enable_coverage} == {built(job) for job in shipped}
+    measuring = [job for job in tested if job.enable_coverage]
+    assert len(measuring) == 1, [job.name for job in measuring]
+
+    leg = measuring[0]
+    assert leg.build_type == "Debug", leg.build_type
+    shipped = compute_jobs(release=True, conan=False, standard_test=False, target_main=False)
+    assert built(leg) in {built(job) for job in shipped}, f"{built(leg)} is not published by a release"
 
 
 def test_no_flag_selection_fails_loudly():
@@ -241,7 +245,7 @@ def test_standard_test_specs_in_full():
             "arch": "x86",
             "std": 17,
             "build_type": "Release",
-            "enable_coverage": True,
+            "enable_coverage": False,
             "enable_examples": True,
             "runtime_base": "ubuntu:22.04",
             "check_package": True,
@@ -254,7 +258,7 @@ def test_standard_test_specs_in_full():
             "arch": "x86",
             "std": 17,
             "build_type": "RelWithDebInfo",
-            "enable_coverage": True,
+            "enable_coverage": False,
             "enable_examples": True,
             "runtime_base": "",
             "check_package": True,
@@ -280,7 +284,7 @@ def test_standard_test_specs_in_full():
             "arch": "x86",
             "std": 17,
             "build_type": "Release",
-            "enable_coverage": True,
+            "enable_coverage": False,
             "enable_examples": True,
             "runtime_base": "",
             "check_package": True,
@@ -293,7 +297,7 @@ def test_standard_test_specs_in_full():
             "arch": "x86",
             "std": 17,
             "build_type": "RelWithDebInfo",
-            "enable_coverage": True,
+            "enable_coverage": False,
             "enable_examples": True,
             "runtime_base": "",
             "check_package": True,

@@ -97,13 +97,17 @@ jobs:
       # On a leg that builds in the image the action has nothing to install and
       # nothing to wrap: the image carries ccache, and cmake wires the launcher
       # inside the container, which writes into the directory in_image.sh mounts.
+      # Instrumented objects are not interchangeable with plain ones, and the release workflow
+      # builds this compiler and build type without coverage, so one key has them evicting
+      # each other.
+      #
       # Keeping the directory is all that is left, so that is all this does.
       - name: Restore the compiler cache
         if: matrix.ci_image != ''
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.ccache
-          key: ccache-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}
+          key: ccache-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}${{ matrix.enable_coverage && '-coverage' || '' }}
 
       # Sen's targets reach the cache through CMAKE_<LANG>_COMPILER_LAUNCHER (sen_utils.cmake),
       # so the shims must not also be on PATH while it builds: the launcher would invoke a shim
@@ -115,7 +119,7 @@ jobs:
         uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03  # v1.2.23
         with:
           variant: ${{ runner.os == 'Windows' && 'sccache' || 'ccache' }}
-          key: ${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}
+          key: ${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}${{ matrix.enable_coverage && '-coverage' || '' }}
           max-size: 1G
           verbose: 1
           # Same reasoning as the conan cache above.
@@ -162,15 +166,6 @@ jobs:
             --build-arg "BASE=$BASE" --tag "$tag" tools/ci
           echo "SEN_INTEGRATION_TEST_IMAGE=$tag" >> "$GITHUB_ENV"
 
-      # Chocolatey is on the Windows runners already. OpenCppCoverage needs no instrumentation,
-      # so it is installed rather than built into the image the Linux legs use.
-      - name: Install OpenCppCoverage
-        if: ${{ matrix.enable_coverage && matrix.compiler.name == 'msvc' }}
-        shell: bash
-        run: |
-          choco install OpenCppCoverage -y --no-progress
-          echo "C:\Program Files\OpenCppCoverage" >> "$GITHUB_PATH"
-
       - name: Compile base libraries
         shell: bash
         run: |
@@ -192,21 +187,14 @@ jobs:
             -s "&:compiler.cppstd=${{ matrix.std }}" --build=missing \
             -o "sen/*:with_tests=True" \
             -o "sen/*:with_examples=${{ matrix.enable_examples && 'True' || 'False' }}" \
-            -o "sen/*:with_coverage=${{ matrix.enable_coverage && matrix.compiler.name != 'msvc' && 'True' || 'False' }}" \
-            -o "sen/*:with_release_symbols=${{ matrix.enable_coverage && matrix.compiler.name == 'msvc' && 'True' || 'False' }}"
+            -o "sen/*:with_coverage=${{ matrix.enable_coverage && 'True' || 'False' }}"
           # The same options go to both commands: conan build regenerates the toolchain,
           # and without them it would do so from the defaults, which build no tests.
-          #
-          # with_coverage instruments, which MSVC has no path for; OpenCppCoverage reads the
-          # program database instead, and only with_release_symbols makes a Release leg produce
-          # one. /Z7 puts that information in the objects, so the compiler cache still stores
-          # them -- see the note beside the flag in sen_misc_utils.cmake.
           conan build . --lockfile=.conan/conan.lock -s "&:build_type=${{ matrix.build_type }}" \
             -s "&:compiler.cppstd=${{ matrix.std }}" \
             -o "sen/*:with_tests=True" \
             -o "sen/*:with_examples=${{ matrix.enable_examples && 'True' || 'False' }}" \
-            -o "sen/*:with_coverage=${{ matrix.enable_coverage && matrix.compiler.name != 'msvc' && 'True' || 'False' }}" \
-            -o "sen/*:with_release_symbols=${{ matrix.enable_coverage && matrix.compiler.name == 'msvc' && 'True' || 'False' }}"
+            -o "sen/*:with_coverage=${{ matrix.enable_coverage && 'True' || 'False' }}"
           IN
 
       # The suite is registered only if the image reached CMake, and its tests
@@ -325,9 +313,9 @@ jobs:
           junitparser merge "$@" ctestReport.xml
           IN
 
-      # The suite has already run, so these read what it left rather than running it again.
+      # The suite has already run, so this reads what it left rather than running it again.
       - name: Collect the coverage the run produced
-        if: ${{ matrix.enable_coverage && matrix.compiler.name != 'msvc' }}
+        if: ${{ matrix.enable_coverage }}
         shell: bash
         run: |
           bash .github/scripts/in_environment.sh <<'IN'
@@ -335,80 +323,6 @@ jobs:
           source build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh
           cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ --target collect-coverage
           IN
-
-      # OpenCppCoverage reads a running process's program database, and pays for that once per
-      # process it starts: ctest launches one per test case, and wrapping it timed out after 20
-      # minutes having finished 278 of 2802. The cases behind those live in a handful of gtest
-      # binaries, so this runs each binary once instead, while ctest above keeps producing the
-      # per-test results. Unit suites only for now, which is where the line coverage is.
-      #
-      # Each binary is timed, because what this costs has not been measured before.
-      - name: Measure coverage with OpenCppCoverage
-        if: ${{ matrix.enable_coverage && matrix.compiler.name == 'msvc' }}
-        timeout-minutes: 30
-        shell: bash
-        run: |
-          workspace="${GITHUB_WORKSPACE:?the Windows legs run on the runner, which sets it}"
-          # Native and backslash-separated, which is what the program database records and what
-          # OpenCppCoverage matches against; $PWD here is the POSIX form Git Bash reports.
-          {
-            echo "sources=$workspace"
-            sed -e 's/[[:space:]]*$//' -e '/^#/d' -e '/^$/d' -e 's|/|\\|g' \
-                -e 's|^|excluded_sources=|' cmake/util/coverage-exclusions.txt
-          } > opencppcoverage.cfg
-
-          cd build/${{ matrix.compiler.name }}/${{ matrix.build_type }}
-          mkdir -p coverage_data
-          ctest --show-only=json-v1 -L unit > coverage_data/tests.json
-
-          python - <<'PICK' > coverage_data/binaries.txt
-          import json
-          # One line per binary ctest would launch, in first-seen order and without repeats: the
-          # cases are registered one per gtest test, and they share a handful of executables.
-          seen = []
-          for test in json.load(open("coverage_data/tests.json")).get("tests", []):
-              command = test.get("command") or []
-              if not command or not command[0].lower().endswith(".exe"):
-                  continue
-              # ctest writes these with forward slashes and OpenCppCoverage refuses them with
-              # "Cannot find path", so they go back to the separator Windows gave them.
-              binary = command[0].replace("/", "\\")
-              if binary not in seen:
-                  seen.append(binary)
-          print("\n".join(seen))
-          PICK
-
-          count=$(grep -c . coverage_data/binaries.txt || true)
-          echo "unit test binaries to measure: $count"
-          if [ "$count" -eq 0 ]; then
-            echo "ctest listed no unit test binaries, so there is nothing to measure"
-            exit 1
-          fi
-
-          index=0
-          while read -r binary; do
-            [ -n "$binary" ] || continue
-            index=$((index + 1))
-            started=$(date +%s)
-            # The exit status is the binary's own; a failing suite has already failed above, so
-            # this pass reports rather than gates and keeps going to measure the rest.
-            status=ok
-            OpenCppCoverage.exe --quiet --config_file="$workspace/opencppcoverage.cfg" \
-              --export_type="binary:coverage_data/unit-$index.cov" -- "$binary" || status=failed
-            # basename does not split a backslash path, and these come from ctest as native.
-            echo "  $(( $(date +%s) - started ))s  $status  ${binary##*\\}"
-          done < coverage_data/binaries.txt
-
-          set --
-          for recorded in coverage_data/*.cov; do
-            [ -e "$recorded" ] || continue
-            set -- "$@" "--input_coverage=$recorded"
-          done
-          if [ "$#" -eq 0 ]; then
-            echo "no binary left coverage behind, so the leg would report none"
-            exit 1
-          fi
-          OpenCppCoverage.exe --quiet "$@" --export_type="cobertura:coverage_data/coverage.xml"
 
       # ctest sees one test per vitest package, so without this the document would carry five
       # entries for the hundreds of cases behind them. The runners write their own JUnit into
@@ -544,7 +458,7 @@ jobs:
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.ccache
-          key: ccache-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}
+          key: ccache-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}${{ matrix.enable_coverage && '-coverage' || '' }}
 
       - name: Save conan packages
         if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}

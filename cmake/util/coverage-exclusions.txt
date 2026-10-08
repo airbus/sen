@@ -24,3 +24,7 @@
 *components/shell/*
 *components/rest/*
 *apps/cli_remote_shell/*
+# The examples demonstrate an API rather than covering it, so they are not a shortfall.
+*examples/*
+# Test code runs itself, so counting it measures nothing and flatters the figure.
+*test/*

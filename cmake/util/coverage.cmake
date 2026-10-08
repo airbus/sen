@@ -47,8 +47,20 @@ foreach(wildcard IN LISTS SEN_COVERAGE_IGNORE_WILDCARDS)
   )
   list(APPEND SEN_COVERAGE_IGNORE_PATTERNS "${_pattern}")
 endforeach()
-# Appended here because only this file knows where the build tree is.
-list(APPEND SEN_COVERAGE_IGNORE_PATTERNS "${CMAKE_BINARY_DIR}/.*")
+# Appended here because only this file knows where the build tree is. Also relative: gcovr is
+# given -r CMAKE_SOURCE_DIR, and an absolute pattern matches nothing against what it reports.
+file(
+  RELATIVE_PATH
+  _sen_build_under_source
+  "${CMAKE_SOURCE_DIR}"
+  "${CMAKE_BINARY_DIR}"
+)
+list(
+  APPEND
+  SEN_COVERAGE_IGNORE_PATTERNS
+  "${CMAKE_BINARY_DIR}/.*"
+  "${_sen_build_under_source}/.*"
+)
 list(
   JOIN
   SEN_COVERAGE_IGNORE_PATTERNS

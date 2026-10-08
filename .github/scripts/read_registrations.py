@@ -105,7 +105,11 @@ def scan(root: Path) -> Registrations:
     for path in sorted(root.rglob("CMakeLists.txt")):
         if "build" in path.parts or ".git" in path.parts:
             continue
-        directory = str(path.parent).removeprefix("./")
+        # Relative to the root, as scan_ctest above returns it: the area is read off the
+        # leading segments, and an absolute root would make them the filesystem's.
+        directory = path.parent.resolve().relative_to(root.resolve()).as_posix()
+        if directory == ".":
+            directory = ""
         for call in CALL.finditer(path.read_text(encoding="utf-8", errors="replace")):
             found.add(call.group(2), directory)
     return found

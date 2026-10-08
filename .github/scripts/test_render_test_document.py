@@ -672,6 +672,7 @@ def a_leg(name, cover=None, cases=None):
         coverage="",
         area_coverage={},
         area_missed={},
+        area_lines={},
         line_coverage=cover,
         environment=[],
         descriptions={},
@@ -681,12 +682,18 @@ def a_leg(name, cover=None, cases=None):
     )
 
 
-def test_the_summary_says_when_one_configuration_measured_coverage_alone():
-    """Today only one leg instruments, and a figure from one build is not a figure for five."""
-    legs = [a_leg("gcc-x86-Debug"), a_leg("clang-x86-Debug", 84.59), a_leg("msvc-x86-Release")]
+def test_the_summary_names_the_configuration_the_figure_came_from():
+    """One leg instruments by design, so the sentence states which build rather than lamenting.
+
+    A figure from one build is not a figure for five, and naming it is what lets a reader tell
+    the difference.
+    """
+    legs = [a_leg("gcc-x86-Debug", 84.59), a_leg("clang-x86-Debug"), a_leg("msvc-x86-Release")]
     said = combined_criteria_prose(legs, 84.59, "80")
-    assert "Only clang-x86-Debug measured coverage" in said
+    assert "measured on gcc-x86-Debug" in said
     assert "84.59% of lines" in said
+    # "Only" read as a shortfall rather than as where coverage comes from.
+    assert "Only" not in said
 
 
 def test_the_summary_reports_the_lowest_once_every_configuration_measures():
