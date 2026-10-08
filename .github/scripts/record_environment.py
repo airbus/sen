@@ -44,7 +44,12 @@ def first_line(command: tuple[str, ...]) -> str:
         result = subprocess.run(command, capture_output=True, text=True, timeout=20, check=False)
     except (OSError, subprocess.SubprocessError):
         return ""
-    return result.stdout.strip().splitlines()[0].strip() if result.stdout.strip() else ""
+    # MSVC's cl prints its banner on stderr and nothing on stdout, which left the Windows
+    # compiler recorded as its own name with no version at all.
+    for stream in (result.stdout, result.stderr):
+        if stream.strip():
+            return stream.strip().splitlines()[0].strip()
+    return ""
 
 
 def distribution() -> str:
