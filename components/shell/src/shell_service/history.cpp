@@ -55,7 +55,14 @@ History::History()
     free(pValue);
   }
 #else
-  currentFileName_ = getenv("HOME");
+  if (getenv("HOME") != nullptr)
+  {
+    currentFileName_ = getenv("HOME");
+  }
+  else
+  {
+    currentFileName_ = std::filesystem::current_path();
+  }
 #endif
 
   currentFileName_ = currentFileName_ / ".sen_history.txt";
