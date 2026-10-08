@@ -7,6 +7,7 @@
 """Pins the counting and the empty-report failure."""
 
 import pytest
+from render_test_document import split_name
 from test_report import EmptyReport, main, read_cases, read_report
 
 REPORT = """<?xml version="1.0"?>
@@ -75,3 +76,28 @@ def test_summary_lists_the_failed_cases(tmp_path, monkeypatch, capsys):
     out = capsys.readouterr().out
     assert "| 4 | 1 | 2 | 1 |" in out
     assert "- `core.fails`" in out
+
+
+def test_a_ctest_name_is_not_doubled(tmp_path):
+    """Ctest repeats the whole name in both attributes, which must not be joined into one."""
+    report = (
+        '<?xml version="1.0"?>\n<testsuite name="sen">'
+        '<testcase classname="AssertDeathTest.aborts" name="AssertDeathTest.aborts">'
+        '<failure message="no"/></testcase>'
+        "</testsuite>\n"
+    )
+    total, skipped, passed, failed = read_report(write(tmp_path, report))
+    assert failed == ["AssertDeathTest.aborts"]
+
+
+def test_the_document_and_the_summary_agree_on_a_name(tmp_path):
+    """split_name decides the name for the document; full_name decides it for the job summary."""
+    report = (
+        '<?xml version="1.0"?>\n<testsuite name="sen">'
+        '<testcase classname="core.fails" name="fails"/>'
+        '<testcase classname="AssertDeathTest.aborts" name="AssertDeathTest.aborts"/>'
+        '<testcase classname="" name="loner"/>'
+        "</testsuite>\n"
+    )
+    for case in read_cases(write(tmp_path, report)):
+        assert split_name(case.classname, case.name)[2] == case.full_name, case
