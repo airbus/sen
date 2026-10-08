@@ -52,6 +52,25 @@ def first_line(command: tuple[str, ...]) -> str:
     return ""
 
 
+def compiler_from_build(build_dir: Path | None) -> str:
+    """What the build wrote down about its own compiler, at configure time.
+
+    cl is on PATH only inside a developer shell, so asking the Windows compiler for its version
+    records nothing and the field fell back to the compiler's own name. CMake has already
+    established the version by the time anything is built, and cannot be wrong about it.
+    """
+    if build_dir is None:
+        return ""
+    for record in sorted(build_dir.glob("CMakeFiles/*/CMakeCXXCompiler.cmake")):
+        text = record.read_text(encoding="utf-8", errors="replace")
+        version = re.search(r'set\(CMAKE_CXX_COMPILER_VERSION "([^"]+)"\)', text)
+        if not version:
+            continue
+        name = re.search(r'set\(CMAKE_CXX_COMPILER_ID "([^"]*)"\)', text)
+        return f"{name.group(1)} {version.group(1)}".strip() if name else version.group(1)
+    return ""
+
+
 def distribution() -> str:
     """The name the distribution gives itself."""
     release = Path("/etc/os-release")
@@ -200,7 +219,8 @@ def facts(compiler: str, build_dir: Path | None = None, lockfile: Path | None = 
         ("Host", platform.node()),
     ]
     if compiler:
-        recorded.append(("Compiler", first_line((compiler, "--version")) or compiler))
+        # The build tree before the name: a name alone says nothing about which toolset ran.
+        recorded.append(("Compiler", first_line((compiler, "--version")) or compiler_from_build(build_dir) or compiler))
     recorded.extend((name, first_line(command)) for name, command in TOOLS)
     recorded.append(("Node", node_version(build_dir)))
     if lockfile is not None:
