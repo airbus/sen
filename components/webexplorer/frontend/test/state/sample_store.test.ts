@@ -25,7 +25,7 @@ describe("sample_store", () => {
   beforeEach(__resetSampleStoreForTests);
 
   describe("append + view", () => {
-    it("reports a sample and exposes it via getView", () => {
+    it("exposes a reported sample's value, kind, and unit in the view", () => {
       __reportDeliveryForTests(SOURCE, [["", 42, "m"]], 1000, 950);
       const view = __getSampleViewForTests(SOURCE, "");
       expect(view.size).toBe(1);
@@ -34,7 +34,7 @@ describe("sample_store", () => {
       expect(view.unit).toBe("m");
     });
 
-    it("appending multiple samples increments size with shared typed-array storage", () => {
+    it("accumulates successive samples in append order", () => {
       __reportDeliveryForTests(SOURCE, [["", 1, null]], 100, 90);
       __reportDeliveryForTests(SOURCE, [["", 2, null]], 200, 190);
       __reportDeliveryForTests(SOURCE, [["", 3, null]], 300, 290);
@@ -45,7 +45,7 @@ describe("sample_store", () => {
       expect(view.vNum![2]).toBe(3);
     });
 
-    it("the BufferView is mutable backing - later appends mutate the same typed arrays", () => {
+    it("backs views with live shared storage rather than frozen copies", () => {
       // Documents the same trap the freeze-snapshot bug fell into: holding a BufferView ref
       // does NOT freeze the data.
       __reportDeliveryForTests(SOURCE, [["", 1, null]], 100, null);
@@ -63,7 +63,7 @@ describe("sample_store", () => {
   });
 
   describe("retention trim", () => {
-    it("drops samples older than retentionSeconds, keeping at least one", () => {
+    it("drops samples older than the retention window on trim", () => {
       setSampleRetentionSeconds(1);
       const now = Date.now();
       __reportDeliveryForTests(SOURCE, [["", 1, null]], now - 5000, null); // 5s old
@@ -76,7 +76,7 @@ describe("sample_store", () => {
       expect(view.vNum![0]).not.toBe(1);
     });
 
-    it("evicts the leaf entirely when it has been quiet for 2x retention", () => {
+    it("evicts a leaf entirely once it stays quiet for twice the retention window", () => {
       setSampleRetentionSeconds(1);
       __reportDeliveryForTests(SOURCE, [["", 1, null]], Date.now() - 10_000, null);
       expect(__getLeafCountForTests()).toBe(1);
@@ -86,7 +86,7 @@ describe("sample_store", () => {
   });
 
   describe("multi-leaf state", () => {
-    it("samples are kept independently per (sourceKey, leafPath)", () => {
+    it("keeps an independent sample series for each leaf of a property", () => {
       __reportDeliveryForTests(SOURCE, [["x", 10, null], ["y", 20, null]], 100, null);
       __reportDeliveryForTests(SOURCE, [["x", 11, null]], 200, null);
       const xView = __getSampleViewForTests(SOURCE, "x");
@@ -97,7 +97,7 @@ describe("sample_store", () => {
   });
 
   describe("gap sentinels", () => {
-    it("markDeadLeaf appends a sentinel sample with vGap[i] = 1", () => {
+    it("markDeadLeaf appends a gap sentinel at the given timestamp", () => {
       __reportDeliveryForTests(SOURCE, [["", 42, null]], 100, null);
       markDeadLeaf(SOURCE as PropertyKey, "", 200);
       const view = __getSampleViewForTests(SOURCE, "");
@@ -124,7 +124,7 @@ describe("sample_store", () => {
       expect(view.at[1]).toBe(200); // first sentinel's timestamp wins
     });
 
-    it("a real sample after a sentinel resumes the series; later markDead gaps again", () => {
+    it("accepts new samples after a sentinel and appends another sentinel when the leaf dies again", () => {
       __reportDeliveryForTests(SOURCE, [["", 1, null]], 100, null);
       markDeadLeaf(SOURCE as PropertyKey, "", 200);
       __reportDeliveryForTests(SOURCE, [["", 3, null]], 300, null);
@@ -148,7 +148,7 @@ describe("sample_store", () => {
       expect(yView.vGap![1]).toBe(1);
     });
 
-    it("works for boolean and string-kinded buffers too (gap flag, not value)", () => {
+    it("marks gaps on boolean and string series with the gap flag rather than the value", () => {
       __reportDeliveryForTests(SOURCE, [["b", true, null]], 100, null);
       __reportDeliveryForTests(SOURCE, [["s", "ok", null]], 100, null);
       markDeadLeaf(SOURCE as PropertyKey, "b", 200);

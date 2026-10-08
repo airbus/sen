@@ -39,8 +39,7 @@ using sen::components::jsonrpc::test::request;
 using sen::components::jsonrpc::test::wildcardSelector;
 
 /// @test
-/// `subscribeProperty` against an unknown interest name returns unknownInterest. The lookup
-/// chain stops at the very first step.
+/// Answers subscribeProperty for an unknown interest name with the unknownInterest error.
 TEST(JsonRpc, subscribePropertyUnknownInterestFails)
 {
   DispatcherFixture f;
@@ -58,8 +57,8 @@ TEST(JsonRpc, subscribePropertyUnknownInterestFails)
 }
 
 /// @test
-/// Subscribing against an object not in the match set succeeds and is recorded for sticky rewire
-/// when an object with that name later joins.
+/// Accepts subscribeProperty for an object absent from the match set with a success response,
+/// deferring the subscription for sticky rewire instead of rejecting it.
 TEST(JsonRpc, subscribePropertyOnAbsentObjectIsDeferred)
 {
   DispatcherFixture f;
@@ -77,9 +76,9 @@ TEST(JsonRpc, subscribePropertyOnAbsentObjectIsDeferred)
 }
 
 /// @test
-/// `subscribeProperty` end-to-end: create interest, subscribe to a known property on a known
-/// object, unsubscribe. Exercises the full lookup chain plus the kernel-side callback
-/// registration. Idempotent in both directions.
+/// Round-trips subscribeProperty and unsubscribeProperty against a known property with success
+/// responses, and accepts a repeated subscribe and a repeated unsubscribe as no-op successes
+/// in both directions.
 TEST(JsonRpc, subscribePropertyOnKnownPropertyRoundTrips)
 {
   DispatcherFixture f;
@@ -114,8 +113,8 @@ TEST(JsonRpc, subscribePropertyOnKnownPropertyRoundTrips)
 }
 
 /// @test
-/// `subscribeProperty` against a real (interest, object) but an unknown property name returns
-/// unknownMember. Exercises the property-lookup leg of the chain.
+/// Answers subscribeProperty for a property name the class does not declare with the
+/// unknownMember error, while interest and object both resolve.
 TEST(JsonRpc, subscribePropertyUnknownPropertyFails)
 {
   DispatcherFixture f;
@@ -135,7 +134,7 @@ TEST(JsonRpc, subscribePropertyUnknownPropertyFails)
 }
 
 /// @test
-/// `subscribeEvent` against an unknown interest name returns unknownInterest.
+/// Answers subscribeEvent for an unknown interest name with the unknownInterest error.
 TEST(JsonRpc, subscribeEventUnknownInterestFails)
 {
   DispatcherFixture f;
@@ -152,8 +151,9 @@ TEST(JsonRpc, subscribeEventUnknownInterestFails)
 }
 
 /// @test
-/// Same as the property variant: subscribing to an event on an absent object is recorded as a
-/// deferred request rather than rejected. Confirms the sticky semantic applies symmetrically.
+/// Accepts subscribeEvent for an object absent from the match set with a success response,
+/// deferring the subscription instead of rejecting it, the same sticky semantic the property
+/// side has.
 TEST(JsonRpc, subscribeEventOnAbsentObjectIsDeferred)
 {
   DispatcherFixture f;
@@ -170,8 +170,8 @@ TEST(JsonRpc, subscribeEventOnAbsentObjectIsDeferred)
 }
 
 /// @test
-/// `subscribeEvent` against a real (interest, object) but an unknown event name returns
-/// unknownMember. Exercises the event-lookup leg.
+/// Answers subscribeEvent for an event name the class does not declare with the unknownMember
+/// error, while interest and object both resolve.
 TEST(JsonRpc, subscribeEventUnknownEventFails)
 {
   DispatcherFixture f;
@@ -191,8 +191,8 @@ TEST(JsonRpc, subscribeEventUnknownEventFails)
 }
 
 /// @test
-/// `unsubscribeEvent` is a silent no-op even when the interest is unknown, mirroring
-/// `unsubscribeProperty`.
+/// Treats unsubscribeEvent for an unknown interest as a silent no-op success, mirroring
+/// unsubscribeProperty.
 TEST(JsonRpc, unsubscribeEventOnUnknownIsNoOp)
 {
   DispatcherFixture f;
@@ -208,7 +208,9 @@ TEST(JsonRpc, unsubscribeEventOnUnknownIsNoOp)
 }
 
 /// @test
-/// `subscribeAll` wires every property and every event on the named object in one call.
+/// Wires every property and every event of the named object in one subscribeAll call, a
+/// counter mutation then yields a propertyChanged and a fired chimed event yields an
+/// eventTriggered with its payload.
 TEST(JsonRpc, subscribeAllWiresAllPropertiesAndEvents)
 {
   DispatcherFixture f;
@@ -233,8 +235,8 @@ TEST(JsonRpc, subscribeAllWiresAllPropertiesAndEvents)
 }
 
 /// @test
-/// `subscribeAll`'s `maxRateHz` flows through `applySubscribeBlockToObjectSubs` and coalesces
-/// rapid mutations the same way `subscribeProperty` does.
+/// Accepts subscribeAll's maxRateHz, and five rapid counter writes under the 4 Hz limit still
+/// deliver a propertyChanged carrying the final value, with no new frames after it.
 TEST(JsonRpc, subscribeAllHonorsMaxRateHz)
 {
   DispatcherFixture f;
@@ -263,7 +265,9 @@ TEST(JsonRpc, subscribeAllHonorsMaxRateHz)
 }
 
 /// @test
-/// `unsubscribeAll` drops every guard in one call and is idempotent.
+/// Drops every property and event subscription of the object in one unsubscribeAll call, so
+/// later mutations and fired events stay silent, and accepts a second unsubscribeAll as a
+/// no-op success.
 TEST(JsonRpc, unsubscribeAllDropsBothPropertiesAndEvents)
 {
   DispatcherFixture f;
@@ -292,8 +296,9 @@ TEST(JsonRpc, unsubscribeAllDropsBothPropertiesAndEvents)
 }
 
 /// @test
-/// `subscribeAll` needs the class to expand the wildcard, so an absent object is
-/// objectNotInInterest (vs. `subscribeProperty`, which defers).
+/// Answers subscribeAll for an object absent from the match set with the objectNotInInterest
+/// error, since expanding the wildcard needs the class, unlike the deferring
+/// subscribeProperty.
 TEST(JsonRpc, subscribeAllOnAbsentObjectIsObjectNotInInterest)
 {
   DispatcherFixture f;
@@ -310,9 +315,8 @@ TEST(JsonRpc, subscribeAllOnAbsentObjectIsObjectNotInInterest)
 }
 
 /// @test
-/// @test
-/// Interest names with JSON-significant characters (quote, backslash, control) must
-/// round-trip through `propertyChanged`'s hand-built envelope.
+/// Round-trips an interest name containing a quote, a backslash, and a newline unchanged
+/// through the propertyChanged envelope.
 TEST(JsonRpc, propertyChangedEscapesInterestNameSpecialChars)
 {
   DispatcherFixture f;
@@ -336,7 +340,8 @@ TEST(JsonRpc, propertyChangedEscapesInterestNameSpecialChars)
 }
 
 /// @test
-/// End-to-end `propertyChanged` delivery, with the (interest, object, property) tuple intact.
+/// Delivers a propertyChanged for a subscribed property end to end, the notification names the
+/// interest and object and carries the mutated counter value 42.
 TEST(JsonRpc, propertyChangedNotificationRoundTrips)
 {
   DispatcherFixture f;
@@ -361,8 +366,9 @@ TEST(JsonRpc, propertyChangedNotificationRoundTrips)
 }
 
 /// @test
-/// End-to-end eventTriggered delivery: subscribe to the widget's `chimed` event, fire it from
-/// the test thread, confirm the notification carries the string payload through `args`.
+/// Delivers an eventTriggered for a subscribed event end to end, naming the interest, object,
+/// and event, carrying the single string payload in the JSON-encoded args, and stamping a
+/// non-empty source-side timestamp.
 TEST(JsonRpc, eventTriggeredNotificationRoundTrips)
 {
   DispatcherFixture f;
@@ -397,8 +403,9 @@ TEST(JsonRpc, eventTriggeredNotificationRoundTrips)
 }
 
 /// @test
-/// Sticky end-to-end: on remove the active guards drop but the requested set persists; on re-add
-/// the dispatcher rewires the guard and the next mutation reaches the client.
+/// Keeps a property subscription requested across the object's removal and re-add, the client
+/// sees both interestUpdate transitions and the rewired guard delivers the next mutation's
+/// propertyChanged.
 TEST(JsonRpc, subscribeSurvivesObjectRemoveAndReadd)
 {
   DispatcherFixture f;
@@ -439,8 +446,8 @@ TEST(JsonRpc, subscribeSurvivesObjectRemoveAndReadd)
 }
 
 /// @test
-/// Deferred-subscribe variant: subscribe while the object is absent, then re-add and confirm
-/// the rewire happens against the freshly-arrived instance.
+/// Wires a subscription recorded while the object was absent as soon as an object with that
+/// name arrives, a mutation on the fresh instance delivers its propertyChanged.
 TEST(JsonRpc, subscribeBeforeObjectArrivesThenWiresOnAdd)
 {
   DispatcherFixture f;
@@ -468,11 +475,9 @@ TEST(JsonRpc, subscribeBeforeObjectArrivesThenWiresOnAdd)
 }
 
 /// @test
-/// A second `subscribeProperty` without an explicit `maxRateHz` must preserve the per-object
-/// rate set by the first call - omitting the field means "use the current rate", not "drop the
-/// rate to unlimited". Drives `counter` and `label` rapidly through five distinct kernel ticks
-/// after both subs are wired; the second sub leaving the rate intact means the bundle still
-/// coalesces to a single propertyChanged.
+/// Accepts a second subscribeProperty omitting maxRateHz after a first set 4 Hz on the object,
+/// and five rapid counter writes still deliver a propertyChanged carrying the final value,
+/// with no new frames after it.
 TEST(JsonRpc, subscribePropertyOmittedRatePreservesPriorRate)
 {
   DispatcherFixture f;
@@ -512,8 +517,8 @@ TEST(JsonRpc, subscribePropertyOmittedRatePreservesPriorRate)
 }
 
 /// @test
-/// `maxRateHz` coalesces rapid changes within a throttle window into a single bundle. 250ms
-/// (4Hz) keeps the test robust against virtual-clock jitter while the fixture ticks at 200Hz.
+/// Five rapid counter writes falling inside one maxRateHz throttle window still produce a
+/// propertyChanged carrying the final value, with no new frames after it.
 TEST(JsonRpc, subscribePropertyMaxRateHzCoalescesRapidChanges)
 {
   DispatcherFixture f;
@@ -549,8 +554,8 @@ TEST(JsonRpc, subscribePropertyMaxRateHzCoalescesRapidChanges)
 }
 
 /// @test
-/// Two same-tick writes land in one `propertyChanged` carrying both keys (per-object bundling,
-/// not per-property).
+/// Bundles two same-tick property writes into one propertyChanged carrying both the counter
+/// and label values, bundling per object rather than per property.
 TEST(JsonRpc, propertyChangedBundlesSameTickWritesIntoOneFrame)
 {
   DispatcherFixture f;
@@ -579,8 +584,8 @@ TEST(JsonRpc, propertyChangedBundlesSameTickWritesIntoOneFrame)
 }
 
 /// @test
-/// Each `propertyChanged` carries a `timestamp` (ISO8601 string sourced from the object's
-/// `getLastCommitTime()`); consecutive bundles are non-decreasing.
+/// Stamps every propertyChanged with a non-empty ISO8601 timestamp taken from the object's
+/// last commit time, and consecutive bundles carry non-decreasing timestamps.
 TEST(JsonRpc, propertyChangedCarriesCommitTimestamp)
 {
   DispatcherFixture f;
@@ -613,9 +618,9 @@ TEST(JsonRpc, propertyChangedCarriesCommitTimestamp)
 }
 
 /// @test
-/// `createInterest.subscribe.properties: "*"` auto-wires every property on every matched object's
-/// class. The fixture widget exposes writable `counter` and `label`, so a mutation on either
-/// drives a propertyChanged without any explicit subscribeProperty call.
+/// Auto-wires every property of each matched object when createInterest carries a wildcard
+/// properties selector, a counter mutation then drives a propertyChanged without any explicit
+/// subscribeProperty call.
 TEST(JsonRpc, createInterestSubscribeBlockWildcardWiresAllProperties)
 {
   DispatcherFixture f;
@@ -639,8 +644,8 @@ TEST(JsonRpc, createInterestSubscribeBlockWildcardWiresAllProperties)
 }
 
 /// @test
-/// Named-list variant: missing names are silently skipped (matching sticky-subscription
-/// behavior).
+/// Accepts a named properties selector mixing a known and an unknown name, silently skipping
+/// the unknown one while the known property still delivers its propertyChanged.
 TEST(JsonRpc, createInterestSubscribeBlockNamedListSkipsUnknownProperties)
 {
   DispatcherFixture f;
@@ -662,8 +667,9 @@ TEST(JsonRpc, createInterestSubscribeBlockNamedListSkipsUnknownProperties)
 }
 
 /// @test
-/// `subscribe.events: "*"` auto-wires every event on the class. We fire `chimed` and confirm the
-/// payload arrives without any explicit subscribeEvent call.
+/// Auto-wires every event of the class when createInterest carries a wildcard events selector,
+/// a fired chimed event delivers its eventTriggered payload without any explicit
+/// subscribeEvent call.
 TEST(JsonRpc, createInterestSubscribeBlockEventsWildcardWiresAllEvents)
 {
   DispatcherFixture f;
@@ -686,7 +692,9 @@ TEST(JsonRpc, createInterestSubscribeBlockEventsWildcardWiresAllEvents)
 }
 
 /// @test
-/// `subscribe.maxRateHz` applies to every property the block wires.
+/// Accepts a createInterest subscribe block with maxRateHz, and five rapid counter writes on
+/// the wired widget still deliver a propertyChanged carrying the final value, with no new
+/// frames after it.
 TEST(JsonRpc, createInterestSubscribeBlockMaxRateHzAppliesToWiredProperties)
 {
   DispatcherFixture f;
@@ -717,7 +725,8 @@ TEST(JsonRpc, createInterestSubscribeBlockMaxRateHzAppliesToWiredProperties)
 }
 
 /// @test
-/// The subscribe block also applies to objects that arrive *after* `createInterest`.
+/// Applies the subscribe block to an object that joins the match set after createInterest, a
+/// mutation on the re-added widget delivers its propertyChanged.
 TEST(JsonRpc, createInterestSubscribeBlockAppliesToObjectsArrivingLater)
 {
   DispatcherFixture f;
@@ -744,8 +753,8 @@ TEST(JsonRpc, createInterestSubscribeBlockAppliesToObjectsArrivingLater)
 }
 
 /// @test
-/// The subscribe block bundles `currentValues` into `interestUpdate.added` whenever it
-/// subscribes to any properties (Sen's notifications are delta-only).
+/// Bundles the subscribed properties' current values into the interestUpdate.added entry, a
+/// counter set to 123 before the createInterest appears in the snapshot's currentValues.
 TEST(JsonRpc, createInterestSubscribeBlockSnapshotsInitialPropertyValues)
 {
   DispatcherFixture f;
@@ -776,8 +785,8 @@ TEST(JsonRpc, createInterestSubscribeBlockSnapshotsInitialPropertyValues)
 }
 
 /// @test
-/// A malformed `properties` value is invalidParams - validation surfaces shape errors as
-/// `createInterest` failures rather than silently degrading.
+/// Rejects a createInterest whose subscribe block carries a malformed properties selector with
+/// invalidParams instead of silently degrading.
 TEST(JsonRpc, createInterestSubscribeBlockBadSelectorIsInvalidParams)
 {
   DispatcherFixture f;
@@ -798,8 +807,9 @@ TEST(JsonRpc, createInterestSubscribeBlockBadSelectorIsInvalidParams)
 }
 
 /// @test
-/// `subscribeProperty` against a present object emits a one-shot snapshot with the current
-/// value so the client sees initial state without waiting for the first delta.
+/// Emits a one-shot propertyChanged snapshot with the current value when subscribeProperty
+/// targets a present object, so the client sees the 77 already stored without waiting for the
+/// first delta.
 TEST(JsonRpc, subscribePropertyDeliversInitialSnapshot)
 {
   DispatcherFixture f;
@@ -823,7 +833,7 @@ TEST(JsonRpc, subscribePropertyDeliversInitialSnapshot)
 }
 
 /// @test
-/// `maxRateHz` zero is invalidParams (and so are negatives / non-numerics; same code path).
+/// Rejects a subscribeProperty whose maxRateHz is zero with invalidParams.
 TEST(JsonRpc, subscribePropertyMaxRateHzZeroIsInvalidParams)
 {
   DispatcherFixture f;
@@ -845,9 +855,9 @@ TEST(JsonRpc, subscribePropertyMaxRateHzZeroIsInvalidParams)
 }
 
 /// @test
-/// The block re-applies on every onAdded, so a manual `unsubscribeProperty` against a block-
-/// subscribed property is "for the current incarnation only". A permanent opt-out needs the
-/// interest released and recreated without the block.
+/// Re-applies the subscribe block on every object arrival, a manual unsubscribeProperty
+/// silences only the current incarnation, and after a remove and re-add the block rewires the
+/// property so mutations deliver again.
 TEST(JsonRpc, subscribeBlockReappliesOverManualUnsubscribeAfterReadd)
 {
   DispatcherFixture f;

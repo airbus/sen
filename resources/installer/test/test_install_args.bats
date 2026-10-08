@@ -9,7 +9,7 @@
 
 load test_helpers
 
-@test "parse_args: --compiler=<value> equals form" {
+@test "accepts the --compiler=<value> equals form" {
     load_install
     parse_args 0.5.2 --compiler=gcc-12.4.0
     [ "$SENV_VERSION_ARG" = "0.5.2" ]
@@ -17,13 +17,13 @@ load test_helpers
     [ "$SENV_NON_INTERACTIVE" = "0" ]
 }
 
-@test "parse_args: --compiler with separate value" {
+@test "accepts --compiler with its value as a separate argument" {
     load_install
     parse_args 0.5.2 --compiler clang-16.0.0
     [ "$SENV_COMPILER" = "clang-16.0.0" ]
 }
 
-@test "parse_args: -y / --yes set non-interactive" {
+@test "both -y and --yes make the run non-interactive" {
     load_install
     parse_args 0.5.2 -y
     [ "$SENV_NON_INTERACTIVE" = "1" ]
@@ -31,40 +31,40 @@ load test_helpers
     [ "$SENV_NON_INTERACTIVE" = "1" ]
 }
 
-@test "parse_args: --allow-root sets the flag" {
+@test "accepts the --allow-root flag" {
     load_install
     parse_args 0.5.2 --allow-root
     [ "$SENV_ALLOW_ROOT" = "1" ]
 }
 
-@test "parse_args: unknown flag is rejected with non-zero exit" {
+@test "rejects an unknown flag with an unknown-option error" {
     load_install
     run parse_args 0.5.2 --frobnicate
     [ "$status" -ne 0 ]
     [[ "$output" == *"unknown option"* ]]
 }
 
-@test "parse_args: two positional arguments are rejected" {
+@test "rejects a second positional argument as unexpected" {
     load_install
     run parse_args 0.5.2 0.5.3
     [ "$status" -ne 0 ]
     [[ "$output" == *"unexpected argument"* ]]
 }
 
-@test "parse_args: no version is allowed (triggers ls-remote in main)" {
+@test "accepts an invocation with no version argument" {
     load_install
     parse_args
     [ -z "$SENV_VERSION_ARG" ]
 }
 
-@test "parse_args: --compiler with no value is rejected" {
+@test "rejects --compiler without a value" {
     load_install
     run parse_args 0.5.2 --compiler
     [ "$status" -ne 0 ]
     [[ "$output" == *"--compiler"* ]]
 }
 
-@test "parse_args: --compiler= (empty after equals) is rejected" {
+@test "rejects --compiler= with an empty value" {
     load_install
     run parse_args 0.5.2 --compiler=
     [ "$status" -ne 0 ]

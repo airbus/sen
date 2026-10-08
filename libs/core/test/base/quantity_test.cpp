@@ -34,7 +34,7 @@ SEN_RANGED_QUANTITY(MyCharsQuantity, char, 'A', 'Z')
 SEN_NON_RANGED_QUANTITY(MyNonRangedQuantity, float32_t)
 
 /// @test
-/// Check quantity default constructor
+/// Defaults to zero when zero lies inside the quantity's range.
 /// @requirements(SEN-355)
 TEST(RangeChecked, defaultConstuction)
 {
@@ -43,7 +43,8 @@ TEST(RangeChecked, defaultConstuction)
 }
 
 /// @test
-/// Check quantity default constructor when zero is out of bounds
+/// Defaults to the lower bound when zero lies outside the range, 10 for a 10 to 20 quantity and -20 for a -20
+/// to -10 quantity.
 /// @requirements(SEN-355)
 TEST(RangeChecked, defaultConstuctionOutOfBounds)
 {
@@ -55,7 +56,7 @@ TEST(RangeChecked, defaultConstuctionOutOfBounds)
 }
 
 /// @test
-/// Check a valid value for a specific quantity range
+/// Accepts an in-range assignment without throwing, get returning the assigned 2.0f.
 /// @requirements(SEN-355)
 TEST(RangeChecked, validValue)
 {
@@ -65,7 +66,8 @@ TEST(RangeChecked, validValue)
 }
 
 /// @test
-/// Check invalid values for a specific quantity range and verify strong exception guarantee
+/// Throws on out-of-range assignment and set in both directions while the stored value stays at its previous
+/// 0.0f, giving the strong exception guarantee.
 /// @requirements(SEN-355)
 TEST(RangeChecked, invalidValue)
 {
@@ -85,7 +87,8 @@ TEST(RangeChecked, invalidValue)
 }
 
 /// @test
-/// Check basic comparisons (==, !=, <, <=, >, >=) between quantity and literals
+/// Compares against plain literals on both sides with all six operators, a 4.0f quantity equal to 4.0f, below
+/// 5.0f, and above 3.0f.
 /// @requirements(SEN-355)
 TEST(RangeChecked, comparison)
 {
@@ -109,7 +112,7 @@ TEST(RangeChecked, comparison)
 }
 
 /// @test
-/// Check getters and setters
+/// Stores through both set and assignment, get returning 5.0f then 10.0f.
 /// @requirements(SEN-355)
 TEST(RangeChecked, gettersAndSetters)
 {
@@ -123,7 +126,7 @@ TEST(RangeChecked, gettersAndSetters)
 }
 
 /// @test
-/// Check validity flags and contextual boolean conversion
+/// Starts valid, and setValid(false) turns both isValid and the contextual boolean conversion false.
 /// @requirements(SEN-355)
 TEST(RangeChecked, validity)
 {
@@ -137,7 +140,8 @@ TEST(RangeChecked, validity)
 }
 
 /// @test
-/// Check conversion of a quantity type to smaller memory types
+/// Converts implicitly to int32_t and float32_t and through checkedConversion to float64_t, a 4.0f quantity
+/// reading 4, 4.0f, and 4.0.
 /// @requirements(SEN-355)
 TEST(RangeChecked, conversion)
 {
@@ -153,7 +157,8 @@ TEST(RangeChecked, conversion)
 }
 
 /// @test
-/// Check quantities with small bounds (floating precision check)
+/// Resolves bounds only 0.0001 apart, accepting values up to the 0.0056 boundary exactly and throwing at
+/// 0.00560001 while keeping the last stored value.
 /// @requirements(SEN-355)
 TEST(RangeChecked, SmallBounds)
 {
@@ -171,7 +176,7 @@ TEST(RangeChecked, SmallBounds)
 }
 
 /// @test
-/// Check conversion between floating types
+/// Narrows a float64 quantity to float32 by implicit conversion, the result float-equal to the stored value.
 /// @requirements(SEN-355)
 TEST(RangeChecked, floatConversion)
 {
@@ -183,7 +188,8 @@ TEST(RangeChecked, floatConversion)
 }
 
 /// @test
-/// Check quantities with negative bounds
+/// Enforces a narrow all-negative range, rejecting -20.1f below the minimum, accepting the -20.001f boundary,
+/// and rejecting -20.000001f above the maximum.
 /// @requirements(SEN-355)
 TEST(RangeChecked, NegativeBoundaries)
 {
@@ -196,7 +202,8 @@ TEST(RangeChecked, NegativeBoundaries)
 }
 
 /// @test
-/// Check quantities with matching bounds
+/// Admits exactly one value when the bounds coincide, -11.15f comparing equal, converting to double, and
+/// reassigning without a throw.
 /// @requirements(SEN-355)
 TEST(RangeChecked, matchingBounds)
 {
@@ -211,7 +218,8 @@ TEST(RangeChecked, matchingBounds)
 }
 
 /// @test
-/// Check char-type quantity
+/// Ranges over char, accepting A, N, and Z inside A to Z and throwing for lower case letters, a digit, an
+/// underscore, NUL, and newline.
 /// @requirements(SEN-355)
 TEST(RangeChecked, charValues)
 {
@@ -233,7 +241,8 @@ TEST(RangeChecked, charValues)
 }
 
 /// @test
-/// Check conversion from quantity char type
+/// Converts a char quantity to numeric types, E reading 69 as int32_t and 69.0f as float, and the float
+/// casting back to E.
 /// @requirements(SEN-355)
 TEST(RangeChecked, charConversion)
 {
@@ -249,7 +258,8 @@ TEST(RangeChecked, charConversion)
 }
 
 /// @test
-/// Check non ranged quantity behavior
+/// Defaults to zero and accepts any magnitude without throwing, assignment and set storing 1000.0f and
+/// -1000.0f.
 /// @requirements(SEN-355)
 TEST(NonRangeChecked, basicOperations)
 {
@@ -264,7 +274,9 @@ TEST(NonRangeChecked, basicOperations)
 }
 
 /// @test
-/// Check specific quantities
+/// Covers the util quantity types, LatitudeDegrees and LongitudeDegrees throwing beyond 90 and 180 degrees,
+/// while velocity, acceleration, angular velocity, angular acceleration, angle, and length store the given
+/// values.
 /// @requirements(SEN-355)
 TEST(UtilQuantities, LibraryTypesCoverage)
 {

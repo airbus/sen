@@ -63,7 +63,7 @@ describe("sen-mcp-gateway kernel-disconnect races", () => {
 
   // KernelNotFoundError and KernelDisconnectedError must surface as the same user-visible
   // message so the LLM sees one outcome regardless of which side of the race won.
-  it("post-disconnect getProperty surfaces 'kernel is not connected'", async () => {
+  it("reports the kernel as not connected when getProperty is called after disconnect", async () => {
     await connectFresh("d1");
     await client.callTool({
       name: "declareInterest",
@@ -80,7 +80,7 @@ describe("sen-mcp-gateway kernel-disconnect races", () => {
     expect(textOf(result)).toContain("kernel 'd1' is not connected");
   });
 
-  it("post-disconnect getObjectsState surfaces 'kernel is not connected'", async () => {
+  it("reports the kernel as not connected when getObjectsState is called after disconnect", async () => {
     await connectFresh("d2");
     await client.callTool({
       name: "declareInterest",
@@ -97,7 +97,7 @@ describe("sen-mcp-gateway kernel-disconnect races", () => {
     expect(textOf(result)).toContain("kernel 'd2' is not connected");
   });
 
-  it("disconnect tears down event subscriptions; reconnect under same name starts fresh", async () => {
+  it("tears down event subscriptions on disconnect so a reconnect under the same name starts fresh", async () => {
     await connectFresh("d3");
     await client.callTool({
       name: "declareInterest",
@@ -122,7 +122,7 @@ describe("sen-mcp-gateway kernel-disconnect races", () => {
     expect(textOf(listed)).toBe(JSON.stringify([], null, 2));
   });
 
-  it("concurrent disconnect during an in-flight getProperty either succeeds or fails cleanly", async () => {
+  it("completes or fails cleanly when the kernel is disconnected during an in-flight getProperty", async () => {
     await connectFresh("d4");
     await client.callTool({
       name: "declareInterest",
@@ -151,7 +151,7 @@ describe("sen-mcp-gateway kernel-disconnect races", () => {
     }
   });
 
-  itPosix("gateway SIGTERM during an in-flight tool call rejects the host promise and the process exits", async () => {
+  itPosix("settles the in-flight tool call and exits when the gateway is sent SIGTERM", async () => {
     // Local transport so killing the gateway doesn't affect the shared one.
     const localTransport = new StdioClientTransport({
       command: "node",

@@ -22,7 +22,8 @@
 #include <vector>
 
 /// @test
-/// Check crc32 using empty string and null char
+/// Computes a CRC32 of zero for empty input, both an empty string_view and a "\0" literal whose effective
+/// length is zero.
 /// @requirements(SEN-576)
 TEST(Hash32, empty_string)
 {
@@ -36,7 +37,8 @@ TEST(Hash32, empty_string)
 }
 
 /// @test
-/// Check basic equivalency between strings for the crc32
+/// Hashes test and TEST to different CRC32 values, while an iterator range over the characters t, e, s, t
+/// hashes identically to the string overload.
 /// @requirements(SEN-576)
 TEST(Hash32, basic_equivalency)
 {
@@ -53,7 +55,8 @@ TEST(Hash32, basic_equivalency)
 }
 
 /// @test
-/// Check hash combine function varying upper/lower case in input strings and hash seed
+/// Produces distinct hashCombine results when the argument order changes, when the seed changes, and when a
+/// string argument changes case.
 /// @requirements(SEN-576)
 TEST(Hash32, hash_combine)
 {
@@ -72,7 +75,8 @@ TEST(Hash32, hash_combine)
 }
 
 /// @test
-/// Check file creation failure cases including bad input and restricted output
+/// Returns false from fileToCompressedArrayFile for a nonexistent input file and for an output path whose
+/// directory cannot be written.
 /// @requirements(SEN-576)
 TEST(Hash32, file_creation_failures)
 {
@@ -87,7 +91,8 @@ TEST(Hash32, file_creation_failures)
 }
 
 /// @test
-/// Check successful file compression and decompression cycle with different data sizes
+/// Compresses files of 5, 1000, and 70000 bytes into C++ array source files, fileToCompressedArrayFile
+/// succeeding at each size.
 /// @requirements(SEN-576)
 TEST(Hash32, compression_cycle_variations)
 {
@@ -114,7 +119,8 @@ TEST(Hash32, compression_cycle_variations)
 }
 
 /// @test
-/// Check hash coverage for all supported types in hash32.h
+/// Produces a nonzero hashCombine for i8, bool, float, double, pointer, and enum class values, plus
+/// platformDependentHashCombine on a std::string.
 /// @requirements(SEN-576)
 TEST(Hash32, hash_type_coverage)
 {
@@ -137,7 +143,9 @@ TEST(Hash32, hash_type_coverage)
 }
 
 /// @test
-/// Check decompression robustness against corrupted magic, size and adler
+/// Rejects corrupted compressed blobs, decompressSymbol returning null for a wrong magic number, a zero
+/// original size, and a failing Adler checksum, and decompressSymbolToString returning an empty string for the
+/// wrong magic.
 /// @requirements(SEN-576)
 TEST(Hash32, decompression_validation)
 {
@@ -156,7 +164,8 @@ TEST(Hash32, decompression_validation)
 }
 
 /// @test
-/// Check compression with literal counts exceeding 2048 to trigger stbOut3 and large literal blocks
+/// Compresses a 70000 byte file of bytes cycling through values 0 to 127, fileToCompressedArrayFile
+/// succeeding.
 /// @requirements(SEN-576)
 TEST(Hash32, large_literal_block)
 {

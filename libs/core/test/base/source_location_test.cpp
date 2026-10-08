@@ -17,7 +17,7 @@
 using sen::SourceLocation;
 
 /// @test
-/// Checks default constructor of source location struct
+/// Defaults to placeholder state, fileName and functionName reading as not set and lineNumber as -1.
 /// @requirements(SEN-579)
 TEST(SourceLocation, defaultConstructor)
 {
@@ -28,7 +28,8 @@ TEST(SourceLocation, defaultConstructor)
 }
 
 /// @test
-/// Checks constructor of source location struct with parameters
+/// Stores the file name, line number, and function name given at construction unchanged, keeping the full
+/// path.
 /// @requirements(SEN-579)
 TEST(SourceLocation, parameterConstructor)
 {
@@ -39,7 +40,8 @@ TEST(SourceLocation, parameterConstructor)
 }
 
 /// @test
-/// Checks usage of macro in local scope to construct current file source location
+/// Captures the invocation site through SEN_SL, the file name trimmed to its basename, the line number
+/// matching the invoking line, and the function name containing TestBody.
 /// @requirements(SEN-579)
 TEST(SourceLocation, macro)
 {
@@ -50,7 +52,8 @@ TEST(SourceLocation, macro)
 }
 
 /// @test
-/// Checks the path parsing logic evaluates correctly at runtime and compile-time
+/// Returns the offset where the basename starts for forward and backward slash paths, 0 for a bare name or an
+/// empty string, and 1 for a lone slash, evaluating both at runtime and in constexpr context.
 /// @requirements(SEN-579)
 TEST(SourceLocation, getFilenameOffset)
 {

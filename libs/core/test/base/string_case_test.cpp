@@ -14,7 +14,8 @@ namespace sen
 {
 
 /// @test
-/// toUpperCamelCase strips separators and uppercases the first character.
+/// capitalizeAndRemoveSeparators removes dash and underscore separators and uppercases the first
+/// character, leaving the case of every other character untouched.
 TEST(StringCaseTest, toUpperCamelCaseBasicConversion)
 {
   EXPECT_EQ(capitalizeAndRemoveSeparators(""), "");
@@ -26,7 +27,7 @@ TEST(StringCaseTest, toUpperCamelCaseBasicConversion)
 
 /// @test
 /// snakeCaseToPascalCase treats underscores as word separators and capitalizes each word's first
-/// character, in contrast with toUpperCamelCase which only capitalizes the leading character.
+/// character, in contrast with capitalizeAndRemoveSeparators which only capitalizes the leading one.
 TEST(StringCaseTest, toPascalCaseBasicConversion)
 {
   EXPECT_EQ(snakeCaseToPascalCase(""), "");
@@ -49,8 +50,8 @@ TEST(StringCaseTest, toSnakeCaseBasicConversion)
 }
 
 /// @test
-/// isCapitalizedAndNoSeparators accepts names that start with uppercase and contain no spaces or
-/// underscores, and rejects everything else.
+/// isCapitalizedAndNoSeparators accepts the empty string and names that start with an uppercase letter
+/// and contain no spaces or underscores, and rejects lowercase-first names and names with separators.
 TEST(StringCaseTest, isUpperCamelCaseAcceptance)
 {
   EXPECT_TRUE(isCapitalizedAndNoSeparators(""));

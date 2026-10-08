@@ -122,7 +122,7 @@ describe("sen-mcp-gateway against a real Sen", () => {
     expect(payload.schema).toBeUndefined();
   });
 
-  it("getType with withSchema:true returns both the spec and the parsed JSON-Schema", async () => {
+  it("getType returns both the spec and the parsed JSON schema when withSchema is true", async () => {
     const result = await client.callTool({
       name: "getType",
       arguments: { qualifiedName: "my_package.MyClass", withSchema: true },
@@ -134,7 +134,7 @@ describe("sen-mcp-gateway against a real Sen", () => {
     expect(typeof payload.schema).toBe("object");
   });
 
-  it("declareInterest -> listObjects -> getProperty -> releaseInterest happy path", async () => {
+  it("declares an interest, reads a property of a matched object, and releases the interest", async () => {
     const declared = await declareInterest({ name: "primary", query: "SELECT * FROM test.primary" });
     await waitForObjects("primary", ["instance1"]);
     const declaredPayload = jsonOf<{ name: string; matched: Array<{ name: string; className: string }> }>(declared);
@@ -171,7 +171,7 @@ describe("sen-mcp-gateway against a real Sen", () => {
     expect(textOf(afterRelease)).toContain("no interest open with name");
   });
 
-  it("declareInterest with a name already in use returns isError without disturbing the prior interest", async () => {
+  it("rejects a declareInterest whose name is already in use without disturbing the prior interest", async () => {
     const first = await declareInterest({ name: "dup", query: "SELECT * FROM test.primary" });
     await waitForObjects("dup", ["instance1"]);
 
@@ -190,7 +190,7 @@ describe("sen-mcp-gateway against a real Sen", () => {
     await client.callTool({ name: "releaseInterest", arguments: { name: "dup" } });
   });
 
-  it("listInterests reflects open/release transitions", async () => {
+  it("listInterests reflects interests as they are opened and released", async () => {
     // Delta-based since the shared client gives no ordering guarantees across tests.
     const interestNames = async (): Promise<Set<string>> => {
       const entries = jsonOf<Array<{ kernel: string; name: string }>>(
@@ -233,7 +233,7 @@ describe("sen-mcp-gateway against a real Sen", () => {
     }
   });
 
-  it("setProperty on a static property returns isError without changing state", async () => {
+  it("setProperty on a static property returns an error", async () => {
     await declareInterest({ name: "ro", query: "SELECT * FROM test.primary" });
     await waitForObjects("ro", ["instance1"]);
     try {
@@ -270,7 +270,7 @@ describe("sen-mcp-gateway against a real Sen", () => {
     }
   });
 
-  it("subscribeEvent -> invokeMethod -> pollEvents flow captures the event", async () => {
+  it("captures a subscribed event in pollEvents after invoking the method that fires it", async () => {
     // doSomethingElse(arg) fires somethingElseHappened(arg); invoking keeps delivery
     // deterministic (no tick-driven autonomous emit).
     await client.callTool({
@@ -450,7 +450,7 @@ describe("sen-mcp-gateway against a real Sen", () => {
     expect(textOf(result)).toContain("no interest open with name");
   });
 
-  it("concurrent subscribeEvent on the same key shares the in-flight ack on rejection", async () => {
+  it("returns the same rejection to concurrent subscribeEvent calls for the same event", async () => {
     // Parallel subscribes share one in-flight ack; both rejections come from one response.
     await client.callTool({
       name: "declareInterest",
@@ -502,7 +502,7 @@ describe("sen-mcp-gateway against a real Sen", () => {
     }
   });
 
-  it("releaseInterest tears down event subscriptions and drops the buffer", async () => {
+  it("releaseInterest closes the interest so a later pollEvents reports it as not open", async () => {
     await client.callTool({
       name: "declareInterest",
       arguments: { name: "teardown", query: "SELECT * FROM test.secondary", withSchemas: true },

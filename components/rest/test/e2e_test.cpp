@@ -117,7 +117,8 @@ HttpResponse retryUntil(int statusCode, std::function<HttpResponse()> callback)
 }
 
 /// @test
-/// End-to-end test for the version endpoint
+/// Serves GET /api/version over a live HTTP connection with 200 and a JSON body whose version field equals
+/// the compiled-in Sen version string.
 /// @requirements(SEN-1061)
 TEST_F(RestE2EFixture, version)
 {
@@ -131,7 +132,7 @@ TEST_F(RestE2EFixture, version)
 }
 
 /// @test
-/// End-to-end test for client authentication
+/// Issues a decodable, valid JWT on POST /api/auth with a client id, answering 200.
 /// @requirements(SEN-1061)
 TEST_F(RestE2EFixture, auth)
 {
@@ -147,7 +148,7 @@ TEST_F(RestE2EFixture, auth)
 }
 
 /// @test
-/// End-to-end test for sessions retrieval
+/// Lists the known sessions on GET /api/sessions as a JSON array that includes the local session.
 /// @requirements(SEN-1061)
 TEST_F(RestE2EFixture, sessions)
 {
@@ -166,7 +167,7 @@ TEST_F(RestE2EFixture, sessions)
 }
 
 /// @test
-/// End-to-end test for type introspection endpoint
+/// Serves type introspection on GET /api/types/string, the returned JSON naming the string type.
 /// @requirements(SEN-1061)
 TEST_F(RestE2EFixture, type_introspection)
 {
@@ -182,7 +183,7 @@ TEST_F(RestE2EFixture, type_introspection)
 }
 
 /// @test
-/// End-to-end test for interests retrieval (empty list)
+/// Returns an empty JSON array from GET /api/interests while the client has created no interest.
 /// @requirements(SEN-1061)
 TEST_F(RestE2EFixture, get_interests)
 {
@@ -199,7 +200,8 @@ TEST_F(RestE2EFixture, get_interests)
 }
 
 /// @test
-/// End-to-end test for successful interest creation
+/// Creates an interest on POST /api/interests and echoes its name back with 200, accepting names that mix
+/// underscores, dashes, semicolons, commas, and at characters.
 /// @requirements(SEN-1061)
 TEST_F(RestE2EFixture, create_interest)
 {
@@ -232,7 +234,7 @@ TEST_F(RestE2EFixture, create_interest)
 }
 
 /// @test
-/// End-to-end test for invalid query on interest creation
+/// Rejects interest creation with 400 when the submitted query does not parse.
 /// @requirements(SEN-1061)
 TEST_F(RestE2EFixture, create_interest_invalid_query)
 {
@@ -247,7 +249,7 @@ TEST_F(RestE2EFixture, create_interest_invalid_query)
 }
 
 /// @test
-/// End-to-end test for malformed request to create interest
+/// Rejects interest creation with 400 when the POST carries no JSON body.
 /// @requirements(SEN-1061)
 TEST_F(RestE2EFixture, create_interest_malformed_request)
 {
@@ -260,7 +262,7 @@ TEST_F(RestE2EFixture, create_interest_malformed_request)
 }
 
 /// @test
-/// End-to-end test for getting an existing interest
+/// Serves a created interest on GET /api/interests/test_interest with 200 and a body echoing that name.
 /// @requirements(SEN-1061)
 TEST_F(RestE2EFixture, get_interest_success)
 {
@@ -282,7 +284,7 @@ TEST_F(RestE2EFixture, get_interest_success)
 }
 
 /// @test
-/// End-to-end test for getting an unknown interest
+/// Answers 404 on GET /api/interests/name when no interest of that name has been created.
 /// @requirements(SEN-1061)
 TEST_F(RestE2EFixture, get_interest_unknown_interest)
 {
@@ -295,7 +297,8 @@ TEST_F(RestE2EFixture, get_interest_unknown_interest)
 }
 
 /// @test
-/// End-to-end test for removing an interest
+/// Deletes a created interest on DELETE /api/interests/name with 200, after which GET /api/interests
+/// serves an empty list.
 /// @requirements(SEN-1061)
 TEST_F(RestE2EFixture, remove_interest)
 {
@@ -330,7 +333,8 @@ TEST_F(RestE2EFixture, remove_interest)
 }
 
 /// @test
-/// End-to-end test for getting session details when client has not created any interest on session's buses
+/// Serves session details on GET /api/sessions/local with an empty buses array while the client holds no
+/// interest on any of the session's buses.
 TEST_F(RestE2EFixture, get_session_no_buses)
 {
   Server server;
@@ -351,7 +355,8 @@ TEST_F(RestE2EFixture, get_session_no_buses)
 }
 
 /// @test
-/// End-to-end test for getting session details when client has created an interest on session's bus
+/// Lists the kernel bus in the session details served by GET /api/sessions/local once the client has an
+/// interest on local.kernel.
 TEST_F(RestE2EFixture, get_session_with_buses)
 {
   Server server;
@@ -379,7 +384,7 @@ TEST_F(RestE2EFixture, get_session_with_buses)
 }
 
 /// @test
-/// End-to-end test for getting non-existing session
+/// Answers 404 when a request names a session that does not exist.
 TEST_F(RestE2EFixture, get_non_existing_session)
 {
   Server server;
@@ -391,7 +396,7 @@ TEST_F(RestE2EFixture, get_non_existing_session)
 }
 
 /// @test
-/// End-to-end test for getting objects in an interest
+/// Serves the object list of a created interest on GET /api/interests/name/objects as a JSON array.
 /// @requirements(SEN-1061)
 TEST_F(RestE2EFixture, get_objects)
 {
@@ -413,7 +418,8 @@ TEST_F(RestE2EFixture, get_objects)
 }
 
 /// @test
-/// End-to-end test for getting existing objects
+/// Fills the interest's object list once its query resolves against local.kernel, GET .../objects then
+/// serving a non-empty JSON array.
 /// @requirements(SEN-1061)
 TEST_F(RestE2EFixture, get_existing_objects)
 {
@@ -439,7 +445,8 @@ TEST_F(RestE2EFixture, get_existing_objects)
 }
 
 /// @test
-/// End-to-end test for getting existing object
+/// Serves a single resolved object on GET .../objects/api, the body carrying the fully qualified localName
+/// rest.local.kernel.api.
 /// @requirements(SEN-1061)
 TEST_F(RestE2EFixture, get_existing_object)
 {
@@ -466,7 +473,7 @@ TEST_F(RestE2EFixture, get_existing_object)
 }
 
 /// @test
-/// End-to-end test for getting a non-existing object
+/// Answers 404 on GET for an object name the interest's query did not match.
 /// @requirements(SEN-1061)
 TEST_F(RestE2EFixture, get_non_existing_object)
 {
@@ -485,7 +492,8 @@ TEST_F(RestE2EFixture, get_non_existing_object)
 }
 
 /// @test
-/// End-to-end test for getting an object property and event subscriptions
+/// Serves an object's subscription state on GET .../objects/api/subscription as JSON with properties and
+/// events arrays.
 TEST_F(RestE2EFixture, get_subcriptions)
 {
   Server server;
@@ -514,7 +522,8 @@ TEST_F(RestE2EFixture, get_subcriptions)
 }
 
 /// @test
-/// End-to-end test for updating object subscriptions when body is empty
+/// Accepts a subscription update with an empty body on PUT .../subscription, a subsequent GET showing both
+/// the properties and events lists empty.
 TEST_F(RestE2EFixture, update_subscriptions_empty)
 {
   Server server;
@@ -550,7 +559,8 @@ TEST_F(RestE2EFixture, update_subscriptions_empty)
 }
 
 /// @test
-/// End-to-end test for updating object property subscriptions
+/// Subscribes an object property through PUT .../subscription naming buildInfo, a subsequent GET listing
+/// buildInfo under properties and no events.
 TEST_F(RestE2EFixture, update_subscriptions_property)
 {
   Server server;
@@ -591,7 +601,7 @@ TEST_F(RestE2EFixture, update_subscriptions_property)
 }
 
 /// @test
-/// End-to-end test for updating object subscriptions of non-existing members
+/// Rejects with 404 a subscription update naming a property the object does not have.
 TEST_F(RestE2EFixture, update_subscriptions_non_existing_members)
 {
   Server server;
@@ -612,7 +622,8 @@ TEST_F(RestE2EFixture, update_subscriptions_non_existing_members)
 }
 
 /// @test
-/// End-to-end test getting existing object with its properties when optional query param is true
+/// Includes a properties object in the body served for an object when the includeValues query parameter is
+/// true.
 TEST_F(RestE2EFixture, get_existing_object_including_properties)
 {
   Server server;
@@ -637,7 +648,8 @@ TEST_F(RestE2EFixture, get_existing_object_including_properties)
 }
 
 /// @test
-/// End-to-end test getting existing object without its properties when optional query param is not true
+/// Omits the properties object from the body served for an object when the includeValues query parameter
+/// is false.
 TEST_F(RestE2EFixture, get_existing_object_not_including_properties)
 {
   Server server;
@@ -661,7 +673,8 @@ TEST_F(RestE2EFixture, get_existing_object_not_including_properties)
 }
 
 /// @test
-/// End-to-end test for successful interest creation including auto-subscription
+/// Subscribes object properties automatically when the interest is created with autoSubscribe properties
+/// true, the subscription list arriving non-empty without any explicit subscribe call.
 TEST_F(RestE2EFixture, create_interest_autosubscription)
 {
   Server server;
@@ -690,7 +703,8 @@ TEST_F(RestE2EFixture, create_interest_autosubscription)
 }
 
 /// @test
-/// End-to-end test for successful interest creation without auto-subscription
+/// Leaves both subscription lists empty when the interest is created with autoSubscribe properties and
+/// events false.
 TEST_F(RestE2EFixture, create_interest_no_autosubscription)
 {
   Server server;
@@ -720,7 +734,7 @@ TEST_F(RestE2EFixture, create_interest_no_autosubscription)
 }
 
 /// @test
-/// End-to-end test for malformed request to create interest with auto-subscription
+/// Rejects interest creation with 400 when the autoSubscribe block carries a non-boolean value.
 TEST_F(RestE2EFixture, create_interest_malformed_request_autosubscribe)
 {
   Server server;
@@ -737,7 +751,7 @@ TEST_F(RestE2EFixture, create_interest_malformed_request_autosubscribe)
 }
 
 /// @test
-/// End-to-end test for getting a method definition
+/// Serves a method definition on GET .../objects/api/methods/shutdown, the JSON body naming the method.
 /// @requirements(SEN-1061)
 TEST_F(RestE2EFixture, get_method_definition)
 {
@@ -763,7 +777,8 @@ TEST_F(RestE2EFixture, get_method_definition)
 }
 
 /// @test
-/// End-to-end test to verify all returned definition links are accessible
+/// Fetches an object body and follows every link it carries with rel def, each definition href answering
+/// 200.
 /// @requirements(SEN-1061)
 TEST_F(RestE2EFixture, get_all_method_definitions)
 {
@@ -797,7 +812,7 @@ TEST_F(RestE2EFixture, get_all_method_definitions)
 }
 
 /// @test
-/// End-to-end test for getting property definition
+/// Serves a property definition on GET .../objects/api/properties/buildInfo as a JSON object.
 /// @requirements(SEN-1061)
 TEST_F(RestE2EFixture, get_property_definition)
 {
@@ -822,7 +837,7 @@ TEST_F(RestE2EFixture, get_property_definition)
 }
 
 /// @test
-/// End-to-end test for subscribing and unsubscribing to property updates
+/// Accepts a subscribe and then an unsubscribe POST for an object property, each answering 200.
 /// @requirements(SEN-1061)
 TEST_F(RestE2EFixture, property_subscription)
 {
@@ -855,7 +870,8 @@ TEST_F(RestE2EFixture, property_subscription)
 }
 
 /// @test
-/// Notification immediately received with current value after creating a property subscription
+/// Pushes a property event over the /api/sse stream within five seconds of a property subscription being
+/// created, delivering the current value without waiting for a change.
 /// @requirements(SEN-1061)
 TEST_F(RestE2EFixture, property_subscription_notification)
 {
@@ -896,7 +912,8 @@ TEST_F(RestE2EFixture, property_subscription_notification)
 }
 
 /// @test
-/// End-to-end test for invoking a method
+/// Invokes an object method through POST .../methods/getUnits/invoke, receiving an invocation id with
+/// status pending or finished that can then be polled through GET on the invocation URL.
 /// @requirements(SEN-1061)
 TEST_F(RestE2EFixture, invoke_method)
 {
@@ -939,7 +956,7 @@ TEST_F(RestE2EFixture, invoke_method)
 }
 
 /// @test
-/// End-to-end test for invoking a method with the wrong number of arguments
+/// Rejects a method invocation with 400 when the argument array carries too few or too many entries.
 /// @requirements(SEN-1061)
 TEST_F(RestE2EFixture, invoke_method_wrong_argument_count)
 {
@@ -962,7 +979,8 @@ TEST_F(RestE2EFixture, invoke_method_wrong_argument_count)
 }
 
 /// @test
-/// Regression invoking a method with an argument that cannot be adapted to the expected type must be rejected
+/// Rejects a method invocation with 400 when an argument cannot be adapted to the parameter type, such as
+/// a string or boolean offered for a Duration, and records no invocation for the rejected request.
 /// @requirements(SEN-1061)
 TEST_F(RestE2EFixture, invoke_method_wrong_argument_type)
 {
@@ -994,7 +1012,8 @@ TEST_F(RestE2EFixture, invoke_method_wrong_argument_type)
 }
 
 /// @test
-/// End-to-end test for notification subscription
+/// Streams a notification over the /api/sse channel when a method is invoked, the listening client
+/// receiving its first event within five seconds.
 /// @requirements(SEN-1061)
 TEST_F(RestE2EFixture, notification_subscription)
 {
@@ -1031,7 +1050,8 @@ TEST_F(RestE2EFixture, notification_subscription)
 }
 
 /// @test
-/// Check REST API with a default configuration is correct
+/// Loads the rest component from a YAML kernel config and exposes the configured listen address 127.0.0.1
+/// and port 12345 on the component instance.
 /// @requirements(SEN-1061)
 TEST(Rest, success_default_config)
 {

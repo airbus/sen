@@ -22,7 +22,7 @@ describe("setProperty against my_package.MyClass", () => {
   // prop7 is `i32 [writable]` and is not modified by MyClassImpl::update, so the value we
   // write stays put long enough for the subscription notification to fire. The impl's
   // `prop7AcceptsSet` callback accepts values in [-5, 5]; we pick 3 to stay in-range.
-  it("writes prop7 (i32) and observes the new value via subscription", async () => {
+  it("writes prop7 and observes the new value arrive through the subscription", async () => {
     const interest = await client.declareInterest({
       name: "myclass_for_set",
       query: "SELECT my_package.MyClass FROM test.primary",

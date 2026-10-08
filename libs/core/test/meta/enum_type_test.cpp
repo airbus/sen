@@ -52,7 +52,8 @@ void checkInvalidSpec(const EnumSpec& spec) { EXPECT_THROW(std::ignore = EnumTyp
 }  // namespace
 
 /// @test
-/// Checks enumerator comparison
+/// Compares enumerators: equal for an identical name, key and description, and unequal when the
+/// name or the key differs.
 /// @requirements(SEN-902)
 TEST(EnumType, enumerator)
 {
@@ -91,7 +92,8 @@ TEST(EnumType, enumerator)
 }
 
 /// @test
-/// Checks enum spec comparison
+/// Compares enum specs: equal for identical specs, and unequal when the name, qualified name,
+/// description, enumerator list or storage type differs.
 /// @requirements(SEN-902)
 TEST(EnumType, specComparison)
 {
@@ -157,7 +159,8 @@ TEST(EnumType, specComparison)
 }
 
 /// @test
-/// Checks enum type basic getters
+/// Returns the name, qualified name, description and enumerator list the enum type was built
+/// with.
 /// @requirements(SEN-902)
 TEST(EnumType, basicGetters)
 {
@@ -171,7 +174,8 @@ TEST(EnumType, basicGetters)
 }
 
 /// @test
-/// Checks enum type visitor method
+/// Answers the type predicates for an enum: isCustomType and isEnumType are true and every other
+/// kind predicate sampled, from isNativeType to isAliasType, is false.
 /// @requirements(SEN-902)
 TEST(EnumType, basicsBoolConversion)
 {
@@ -206,7 +210,8 @@ TEST(EnumType, basicsBoolConversion)
 }
 
 /// @test
-/// Checks enum type visitor method
+/// Converts an enum through the as-type conversions: asCustomType and asEnumType are non-null and
+/// every other kind conversion sampled, from asNativeType to asAliasType, returns null.
 /// @requirements(SEN-902)
 TEST(EnumType, basicsConversion)
 {
@@ -241,7 +246,8 @@ TEST(EnumType, basicsConversion)
 }
 
 /// @test
-/// Checks correct enum type instance from spec
+/// Builds an enum type whose getters expose the spec's name, qualified name, description, storage
+/// type and enumerators.
 /// @requirements(SEN-902)
 TEST(EnumType, makeBasic)
 {
@@ -251,7 +257,8 @@ TEST(EnumType, makeBasic)
 }
 
 /// @test
-/// Checks invalid enumerator creation
+/// Refuses to build an enum whose spec has a missing or malformed name or qualified name, no
+/// enumerators at all, or enumerators with repeated names or keys.
 /// @requirements(SEN-902)
 TEST(EnumType, makeInvalid)
 {
@@ -341,7 +348,9 @@ TEST(EnumType, makeInvalid)
 }
 
 /// @test
-/// Checks comparison between shared ptr enum type
+/// Compares built enum types by value: an enum differs from every native type, two built from the
+/// same spec are equal, and a changed name, qualified name, description, enumerator list or
+/// storage type makes them unequal.
 /// @requirements(SEN-902)
 TEST(EnumType, comparison)
 {
@@ -440,7 +449,8 @@ TEST(EnumType, comparison)
 }
 
 /// @test
-/// Checks enumerator getters
+/// Finds every declared enumerator by key and by name, and returns null for a key or name no
+/// enumerator has.
 /// @requirements(SEN-902)
 TEST(EnumType, getEnumFrom)
 {
@@ -465,7 +475,8 @@ TEST(EnumType, getEnumFrom)
 }
 
 /// @test
-/// Checks hash combine
+/// Hashes an enumerator as the hash combine of the seed with its name and key, for every
+/// enumerator of the type.
 /// @requirements(SEN-902)
 TEST(EnumType, hashCombine)
 {

@@ -195,7 +195,10 @@ public:
 }  // namespace
 
 /// @test
-/// Checks native-to-native and native-to-string type match conversions
+/// Accepts conversion between any two non-void native types, from any native type and an
+/// optional to String, and from Timestamp to Duration. Refuses String to a native, any pairing
+/// with void other than void to void and void to String, and a struct to a native, each flagged
+/// incompatible.
 /// @requirements(SEN-355)
 TEST(TypeMatch, NativeConversions)
 {
@@ -243,7 +246,9 @@ TEST(TypeMatch, NativeConversions)
 }
 
 /// @test
-/// Checks struct-to-struct type match conversions including field and parent mismatches
+/// Accepts struct to struct conversion for an identical struct and for structs sharing the same
+/// parent. A field count or parent mismatch reports missing, a field or parent whose type does
+/// not line up reports incompatible, and a struct to a sequence is incompatible.
 /// @requirements(SEN-355)
 TEST(TypeMatch, StructConversions)
 {
@@ -295,7 +300,9 @@ TEST(TypeMatch, StructConversions)
 }
 
 /// @test
-/// Checks variant-to-variant type match conversions
+/// Accepts variant to variant conversion when the target carries every source field, extra
+/// fields in the target are fine. A target lacking a source field reports missing, and a
+/// variant to a sequence is incompatible.
 /// @requirements(SEN-355)
 TEST(TypeMatch, VariantConversions)
 {
@@ -320,7 +327,9 @@ TEST(TypeMatch, VariantConversions)
 }
 
 /// @test
-/// Checks sequence-to-sequence type match conversions including bounds and element compatibility
+/// Accepts sequence to sequence conversion regardless of bounds, bounded to bounded of any
+/// sizes and unbounded to bounded all pass. An element type mismatch reports incompatible, as
+/// does a sequence to a struct.
 /// @requirements(SEN-355)
 TEST(TypeMatch, SequenceConversions)
 {
@@ -349,7 +358,9 @@ TEST(TypeMatch, SequenceConversions)
 }
 
 /// @test
-/// Checks enum-to-enum type match conversions including storage, name and key mismatches
+/// Accepts enum to enum conversion when every source key exists in the target, a renamed
+/// enumerator with the same key still passes. A missing key reports missing, an enum converts
+/// to its storage type, and an enum to a struct is incompatible.
 /// @requirements(SEN-355)
 TEST(TypeMatch, EnumConversions)
 {
@@ -375,7 +386,9 @@ TEST(TypeMatch, EnumConversions)
 }
 
 /// @test
-/// Checks quantity-to-quantity type match conversions
+/// Accepts quantity to quantity conversion when units match, value ranges never block it even
+/// when disjoint. Mismatched unit categories or a unit on only one side report incompatible,
+/// and a quantity converts to a plain numeric type.
 /// @requirements(SEN-355)
 TEST(TypeMatch, QuantityConversions)
 {
@@ -417,7 +430,10 @@ TEST(TypeMatch, QuantityConversions)
 }
 
 /// @test
-/// Checks alias, optional, void, and class type match conversions
+/// Accepts an alias of Float32 and an optional of Float64 converting to Float64, void to void,
+/// class to itself, and a derived class to its base. An unrelated or base-to-derived class
+/// pairing and a class to a native are incompatible, and canConvert on an unknown type subclass
+/// throws logic_error.
 /// @requirements(SEN-355)
 TEST(TypeMatch, OtherConversions)
 {

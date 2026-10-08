@@ -87,7 +87,8 @@ TEST_F(AnEnvPattern, expandsAPatternThatIsPartOfALargerValue)
 }
 
 /// @test
-/// The shape users ask for: a pattern with a default, inside a quoted scalar, with text after it.
+/// Expands the shape users ask for, a pattern with a default inside a quoted scalar with text after it: the
+/// set variable yields its value, the unset one its default, and the text around the pattern survives.
 TEST_F(AnEnvPattern, expandsInsideAQuotedScalarWithADefault)
 {
   EXPECT_EQ(replaceEnvPattern(R"(query: "SELECT * FROM @env(SEN_TEST_VAR, fallback).myBus")"),
@@ -118,8 +119,8 @@ TEST_F(AnEnvPattern, prefersTheVariableOverTheDefault)
 }
 
 /// @test
-/// Whitespace around the comma is accepted: this is the form the documentation shows,
-/// and it used to leave the pattern in the configuration with no diagnostic.
+/// Whitespace around the comma and before the closing parenthesis is accepted: this is the form the
+/// documentation shows, and it used to leave the pattern in the configuration with no diagnostic.
 TEST_F(AnEnvPattern, acceptsSpacesAroundTheComma)
 {
   EXPECT_EQ(replaceEnvPattern("value: @env(SEN_TEST_UNSET, fallback)"), "value: fallback");
@@ -129,8 +130,8 @@ TEST_F(AnEnvPattern, acceptsSpacesAroundTheComma)
 }
 
 /// @test
-/// An unset variable with no default stops the load rather than substituting nothing.
-/// The type is only std::exception: throwRuntimeError throws cpptrace::runtime_error
+/// An unset variable with no default stops the load rather than substituting nothing, and the error
+/// names the variable. The type is only std::exception: throwRuntimeError throws cpptrace::runtime_error
 /// in Debug and std::runtime_error otherwise, and those share no closer base.
 TEST_F(AnEnvPattern, throwsWhenTheVariableIsUnsetAndHasNoDefault)
 {
@@ -183,7 +184,7 @@ TEST_F(AnEnvPattern, expandsEveryOccurrence)
 }
 
 /// @test
-/// A pattern cannot span lines, so a newline before the comma is not a match.
+/// A pattern cannot span lines, so a newline after the comma is not a match.
 TEST_F(AnEnvPattern, doesNotMatchAcrossLines)
 {
   const std::string text = "value: @env(SEN_TEST_VAR,\nfallback)";
@@ -217,7 +218,7 @@ TEST_F(AnEnvPattern, expandsPatternsInsideAnIncludedFile)
 }
 
 /// @test
-/// `include` takes a sequence as well as a single file, and every file in it gets the same
+/// The include key takes a sequence as well as a single file, and every file in it gets the same
 /// expansion. Only the single-file form was covered, so a pattern in a sequence could have
 /// stopped resolving with nothing to notice.
 TEST_F(AnEnvPattern, expandsPatternsInsideFilesIncludedAsASequence)

@@ -91,8 +91,10 @@ struct RunResult
 }
 
 /// @test
-/// The step must never run past the end of the window. Oversleeping is the failure the whole
-/// class exists to avoid, and it only shows up across many cycles.
+/// The step never runs meaningfully past the end of the window: across thousands of cycles, for
+/// several overheads and windows, the worst overshoot stays under five percent of the window.
+/// Oversleeping is the failure the whole class exists to avoid, and it only shows up across many
+/// cycles.
 TEST(SleepStepping, NeverStepsPastTheWindow)
 {
   for (const auto overhead: {us(55), us(105), ms(1)})
@@ -164,8 +166,8 @@ TEST(SleepOverheadModel, DecaysAwayOneStalledSleep)
 }
 
 /// @test
-/// A sleep cannot return early, so a measurement saying it did is the clock moving. Not learned
-/// from.
+/// A sleep cannot return early, so a measurement saying it did is the clock moving and is not
+/// learned from.
 TEST(SleepOverheadModel, IgnoresASleepThatAppearsToHaveReturnedEarly)
 {
   SleepOverhead cost {ms(1)};

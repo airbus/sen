@@ -21,7 +21,7 @@ setup_two_builds() {
 # Generation: file presence and parseability
 #---------------------------------------------------------------------------------------------------------------
 
-@test "activate: write_activate_scripts writes both activate and activate.fish" {
+@test "writes both an activate and an activate.fish into the build prefix" {
     load_install
     make_fake_build "$BUILD_A" >/dev/null
     write_activate_scripts "$SEN_INSTALL_HOME/$BUILD_A"
@@ -29,14 +29,14 @@ setup_two_builds() {
     [ -f "$SEN_INSTALL_HOME/$BUILD_A/activate.fish" ]
 }
 
-@test "activate: generated activate parses under bash" {
+@test "the generated activate script parses under bash" {
     load_install
     make_fake_build "$BUILD_A" >/dev/null
     write_activate_scripts "$SEN_INSTALL_HOME/$BUILD_A"
     bash -n "$SEN_INSTALL_HOME/$BUILD_A/activate"
 }
 
-@test "activate: generated activate parses under dash" {
+@test "the generated activate script parses under dash" {
     if ! command -v dash >/dev/null 2>&1; then skip "dash not installed"; fi
     load_install
     make_fake_build "$BUILD_A" >/dev/null
@@ -44,7 +44,7 @@ setup_two_builds() {
     dash -n "$SEN_INSTALL_HOME/$BUILD_A/activate"
 }
 
-@test "activate: generated activate.fish parses under fish" {
+@test "the generated activate.fish script parses under fish" {
     require_fish
     load_install
     make_fake_build "$BUILD_A" >/dev/null
@@ -56,7 +56,7 @@ setup_two_builds() {
 # Sourcing: env-var setup, idempotence, build switching
 #---------------------------------------------------------------------------------------------------------------
 
-@test "activate: source sets SEN_PREFIX, PATH, CMAKE_PREFIX_PATH, LD_LIBRARY_PATH" {
+@test "sourcing activate sets SEN_PREFIX, PATH, CMAKE_PREFIX_PATH and LD_LIBRARY_PATH" {
     load_install
     make_fake_build "$BUILD_A" >/dev/null
     write_activate_scripts "$SEN_INSTALL_HOME/$BUILD_A"
@@ -76,7 +76,7 @@ setup_two_builds() {
     [ "$LD_LIBRARY_PATH" = "$SEN_INSTALL_HOME/$BUILD_A/lib:$SEN_INSTALL_HOME/$BUILD_A/bin" ]
 }
 
-@test "activate: find_package(sen) resolves through the generated CMAKE_PREFIX_PATH" {
+@test "find_package(sen) resolves through the CMAKE_PREFIX_PATH set by activate" {
     if ! command -v cmake >/dev/null 2>&1; then skip "cmake not installed"; fi
     load_install
     local prefix
@@ -102,7 +102,7 @@ CM
     [ "$status" -eq 0 ]
 }
 
-@test "activate: re-sourcing the same activate doesn't accumulate entries" {
+@test "re-sourcing the same activate leaves PATH unchanged" {
     load_install
     make_fake_build "$BUILD_A" >/dev/null
     write_activate_scripts "$SEN_INSTALL_HOME/$BUILD_A"
@@ -115,7 +115,7 @@ CM
     [ "$PATH" = "$once" ]
 }
 
-@test "activate: switching builds drops the previous build's bin/ from PATH" {
+@test "switching builds drops the previous build's bin/ from PATH" {
     load_install
     setup_two_builds
     PATH="/usr/bin"
@@ -128,7 +128,7 @@ CM
     [[ "$PATH" == *"$SEN_INSTALL_HOME/$BUILD_B/bin"* ]]
 }
 
-@test "activate: non-Sen entries in PATH are preserved across activations" {
+@test "preserves non-Sen PATH entries across activations" {
     load_install
     setup_two_builds
     PATH="/usr/local/bin:/usr/bin:/bin"
@@ -144,7 +144,7 @@ CM
 # fish-native activate (only run when fish is installed)
 #---------------------------------------------------------------------------------------------------------------
 
-@test "activate.fish: source sets SEN_PREFIX (under fish)" {
+@test "sourcing activate.fish under fish sets SEN_PREFIX" {
     require_fish
     load_install
     make_fake_build "$BUILD_A" >/dev/null
@@ -154,7 +154,7 @@ CM
     [ "$output" = "$SEN_INSTALL_HOME/$BUILD_A" ]
 }
 
-@test "activate.fish: source prepends prefix/bin to PATH (under fish)" {
+@test "sourcing activate.fish under fish puts the build's bin/ first in PATH" {
     require_fish
     load_install
     make_fake_build "$BUILD_A" >/dev/null
@@ -164,7 +164,7 @@ CM
     [ "$output" = "$SEN_INSTALL_HOME/$BUILD_A/bin" ]
 }
 
-@test "activate.fish: source sets CMAKE_PREFIX_PATH with the /cmake suffix (under fish)" {
+@test "sourcing activate.fish under fish sets CMAKE_PREFIX_PATH with the /cmake suffix" {
     require_fish
     load_install
     make_fake_build "$BUILD_A" >/dev/null
@@ -174,7 +174,7 @@ CM
     [ "$output" = "$SEN_INSTALL_HOME/$BUILD_A/cmake" ]
 }
 
-@test "activate.fish: switching builds drops the previous build's bin/ from PATH (under fish)" {
+@test "switching builds under fish drops the previous build's bin/ from PATH" {
     require_fish
     load_install
     setup_two_builds

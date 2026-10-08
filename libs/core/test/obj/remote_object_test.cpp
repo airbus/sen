@@ -94,8 +94,8 @@ RemoteObjectInfo createTestInfo(WorkQueue* queue, sen::impl::SendCallFunc sendFu
 }  // namespace
 
 /// @test
-/// Validates that remote proxies properly report their identity and cast smoothly
-/// across the polymorphic Object hierarchy
+/// Reports itself as remote with the identity given at construction, casts to both proxy and
+/// remote object, and starts with no participant and no writer schema.
 /// @requirements(SEN-351)
 TEST(RemoteObject, IdentityAndPolymorphicCasts)
 {
@@ -119,8 +119,8 @@ TEST(RemoteObject, IdentityAndPolymorphicCasts)
 }
 
 /// @test
-/// Ensures the object destruction callback is respected and that state
-/// copies correctly migrate data between proxy instances
+/// Copies the last commit time across through copyStateFrom and invokes the destruction callback
+/// when the proxy is destroyed.
 /// @requirements(SEN-351)
 TEST(RemoteObject, StateMigrationAndDestruction)
 {
@@ -144,8 +144,8 @@ TEST(RemoteObject, StateMigrationAndDestruction)
 }
 
 /// @test
-/// Validates the routing mechanism for untyped events and property changes, confirming
-/// that guard disconnection safely stops event emission
+/// Routes emitted property-change and event payloads to untyped subscriptions, stops delivering
+/// once the connection guard is destroyed, and tolerates removing an unknown connection.
 /// @requirements(SEN-351, SEN-574)
 TEST(RemoteObject, UntypedEventSubscriptionAndRouting)
 {
@@ -184,8 +184,8 @@ TEST(RemoteObject, UntypedEventSubscriptionAndRouting)
 }
 
 /// @test
-/// Ensures adding bindings on invalidated or uninitialized callbacks exits early
-/// without corrupting object state or crashing
+/// Survives subscribing to untyped events and property changes with default-constructed, invalid
+/// callbacks.
 /// @requirements(SEN-351)
 TEST(RemoteObject, IgnoresInvalidatedCallbacks)
 {
@@ -203,8 +203,8 @@ TEST(RemoteObject, IgnoresInvalidatedCallbacks)
 }
 
 /// @test
-/// Validates successful parsing of native non-void method responses streaming in
-/// from a remote peer, correctly mapping the byte stream back to the object type
+/// Deserializes a successful non-void method response and delivers the decoded Duration value to
+/// the pending callback.
 /// @requirements(SEN-351, SEN-1051)
 TEST(RemoteObject, ProcessSuccessfulNonVoidMethodResponses)
 {
@@ -242,8 +242,8 @@ TEST(RemoteObject, ProcessSuccessfulNonVoidMethodResponses)
 }
 
 /// @test
-/// Confirms that error codes received from the transport translate back into native C++
-/// exceptions handled in the asynchronous callback
+/// Turns each remote error code, logic error, object not found, runtime error, and unknown
+/// exception, into an error result on the pending callback.
 /// @requirements(SEN-351, SEN-1049)
 TEST(RemoteObject, ProcessErrorMethodResponses)
 {
@@ -284,7 +284,7 @@ TEST(RemoteObject, ProcessErrorMethodResponses)
 }
 
 /// @test
-/// Covers the successful return path specifically for void methods
+/// Completes a void remote call with an ok result when the success response arrives.
 /// @requirements(SEN-351)
 TEST(RemoteObject, MakeRemoteCall_VoidMethodSuccess)
 {
@@ -315,8 +315,8 @@ TEST(RemoteObject, MakeRemoteCall_VoidMethodSuccess)
 }
 
 /// @test
-/// Validates that makeRemoteCall correctly serializes arguments when invoked directly
-/// with a non-empty argument pack, ensuring accurate byte-stream generation
+/// Serializes a string and a uint32 argument into the outgoing call buffer, the transport-side
+/// reader decodes the same values back.
 /// @requirements(SEN-351)
 TEST(RemoteObject, MakeRemoteCall_WithArguments_SerializesCorrectly)
 {
@@ -347,7 +347,7 @@ TEST(RemoteObject, MakeRemoteCall_WithArguments_SerializesCorrectly)
 }
 
 /// @test
-/// Covers makeRemoteCall when the transport fails immediately
+/// Reports an error to the callback right away when the transport send function fails.
 /// @requirements(SEN-351)
 TEST(RemoteObject, MakeRemoteCall_SendCallFails_ReturnsErrorImmediately)
 {
@@ -373,8 +373,8 @@ TEST(RemoteObject, MakeRemoteCall_SendCallFails_ReturnsErrorImmediately)
 }
 
 /// @test
-/// Ensures a remote call simply ignores the incoming response cleanly
-/// if the user provided no callback or an empty invalid one
+/// Dismisses the response of a call made with an empty callback, responseReceived reports it as
+/// unconsumed.
 /// @requirements(SEN-351)
 TEST(RemoteObject, MakeRemoteCall_DismissesResponseIfNoCallback)
 {
@@ -396,8 +396,8 @@ TEST(RemoteObject, MakeRemoteCall_DismissesResponseIfNoCallback)
 }
 
 /// @test
-/// If the transport goes offline, all pending callbacks must be canceled proactively
-/// returning a connection lost error rather than hanging indefinitely
+/// Cancels the pending call when the transport is invalidated, the callback receives an error
+/// instead of waiting forever.
 /// @requirements(SEN-351)
 TEST(RemoteObject, CancelsPendingCallsWhenTransportInvalidated)
 {
@@ -423,7 +423,7 @@ TEST(RemoteObject, CancelsPendingCallsWhenTransportInvalidated)
 }
 
 /// @test
-/// Verifies sendCall fast-fails natively if the remote transport layer is already invalidated
+/// Returns an error from sendCall immediately when the transport has already been invalidated.
 /// @requirements(SEN-351)
 TEST(RemoteObject, FastFailsSendCallOnInvalidTransport)
 {
@@ -438,8 +438,8 @@ TEST(RemoteObject, FastFailsSendCallOnInvalidTransport)
 }
 
 /// @test
-/// Validates that dynamic, untyped method invocations correctly serialize arguments
-/// and process the resulting variants upon success
+/// Carries an untyped method invocation through the remote-call path and delivers an ok variant
+/// result when the success response arrives.
 /// @requirements(SEN-351)
 TEST(RemoteObject, InvokeUntyped_SerializesArgsAndProcessesSuccess)
 {
@@ -475,8 +475,8 @@ TEST(RemoteObject, InvokeUntyped_SerializesArgsAndProcessesSuccess)
 }
 
 /// @test
-/// Verifies that if invokeUntyped is called but the transport is offline,
-/// it gracefully intercepts the failure and alerts the callback immediately
+/// Reports an error to the callback immediately when invokeUntyped runs against an invalidated
+/// transport.
 /// @requirements(SEN-351)
 TEST(RemoteObject, InvokeUntyped_FailsGracefullyOnInvalidTransport)
 {
@@ -503,8 +503,8 @@ TEST(RemoteObject, InvokeUntyped_FailsGracefullyOnInvalidTransport)
 }
 
 /// @test
-/// Tests streaming fallback logic; ensuring that if a remote payload provides properties
-/// structurally different from local schema, it casts dynamically instead of breaking
+/// Adapts a property value written under a writer schema with a different type, a uint64 payload
+/// lands in the local uint32 prop2 during initializeState.
 /// @requirements(SEN-351, SEN-573)
 TEST(RemoteObject, InitializesStateWithWriterSchemaAdaptation)
 {
@@ -535,8 +535,8 @@ TEST(RemoteObject, InitializesStateWithWriterSchemaAdaptation)
 }
 
 /// @test
-/// Validates robust handling against schema drift: safely dropping the call and emitting
-/// an error if a remote writer method expects more arguments than our local instance sends
+/// Fails an adapted call with an error when the writer schema's method expects more arguments
+/// than the local caller supplies.
 /// @requirements(SEN-351, SEN-573)
 TEST(RemoteObject, AdaptRemoteCall_FailsOnArgumentMismatch)
 {
@@ -582,7 +582,7 @@ TEST(RemoteObject, AdaptRemoteCall_FailsOnArgumentMismatch)
 }
 
 /// @test
-/// Ensures that calls aimed at methods missing from the remote schema are rejected entirely
+/// Rejects an adapted call with an error when the writer schema lacks the target method.
 /// @requirements(SEN-351)
 TEST(RemoteObject, FailsCallingMissingMethodInWriterSchema)
 {
@@ -617,8 +617,8 @@ TEST(RemoteObject, FailsCallingMissingMethodInWriterSchema)
 }
 
 /// @test
-/// Tracks the standard success path for schema adaptations when local properties natively
-/// map accurately to remote specifications
+/// Completes an adapted call with an ok result when the writer schema's method matches the local
+/// signature.
 /// @requirements(SEN-351, SEN-573)
 TEST(RemoteObject, AdaptsMethodSuccessfully)
 {
@@ -669,8 +669,8 @@ TEST(RemoteObject, AdaptsMethodSuccessfully)
 }
 
 /// @test
-/// Validates that adaptAndMakeRemoteCall correctly matches arguments by name hash
-/// and serializes them when the writer schema expects arguments
+/// Matches adapted-call arguments to the writer schema's parameter list and completes with an ok
+/// result once the response arrives.
 /// @requirements(SEN-351)
 TEST(RemoteObject, AdaptAndMakeRemoteCall_SerializesArgumentsProperly)
 {
@@ -721,8 +721,8 @@ TEST(RemoteObject, AdaptAndMakeRemoteCall_SerializesArgumentsProperly)
 }
 
 /// @test
-/// Ensures that events originating from a remote peer with an extended schema are safely
-/// adapted, dropping redundant payload values to fit only the arguments the local schema expects
+/// Delivers only the locally expected leading argument when a writer event carries an extra
+/// trailing argument, the surplus payload value is dropped during stream dispatch.
 /// @requirements(SEN-351, SEN-573)
 TEST(RemoteObject, FiltersExtendedEventArgsDuringStreamDispatch)
 {
@@ -784,8 +784,8 @@ TEST(RemoteObject, FiltersExtendedEventArgsDuringStreamDispatch)
 }
 
 /// @test
-/// Ensures that if a remote payload contains a property ID not known to our
-/// local schema, the deserializer safely skips the bytes without corrupting the stream
+/// Skips an unknown property id and its payload during initializeState and still decodes the
+/// following known property.
 /// @requirements(SEN-351)
 TEST(RemoteObject, InitializeState_SafelySkipsUnknownProperties)
 {
@@ -811,7 +811,7 @@ TEST(RemoteObject, InitializeState_SafelySkipsUnknownProperties)
 }
 
 /// @test
-/// Covers readOrAdapt throwing when a property ID is missing from the writer schema
+/// Throws from readOrAdapt when the member id is absent from the writer schema.
 TEST(RemoteObject, ReadOrAdapt_MissingPropertyInWriterSchema_Throws)
 {
   WorkQueue queue(50, false);
@@ -833,8 +833,8 @@ TEST(RemoteObject, ReadOrAdapt_MissingPropertyInWriterSchema_Throws)
 }
 
 /// @test
-/// Tests logic resilience where a remote event is emitted with FEWER arguments than
-/// the local receiver expects, which prevents dangerous out-of-bounds reads
+/// Survives dispatching a writer event that carries fewer arguments than the local receiver
+/// declares, no out-of-bounds read occurs.
 /// @requirements(SEN-351)
 TEST(RemoteObject, EventDispatch_FiltersMismatchArgs)
 {
@@ -872,8 +872,8 @@ TEST(RemoteObject, EventDispatch_FiltersMismatchArgs)
 }
 
 /// @test
-/// If the object gets destroyed while responses are still pending, callbacks should be
-/// safely discarded without triggering a segmentation fault
+/// Discards the pending callback when the object is destroyed before a response arrives, the
+/// callback never fires.
 /// @requirements(SEN-351)
 TEST(RemoteObject, SafelyDropsPendingCallsOnDestruction)
 {

@@ -27,7 +27,7 @@ describe("isEnvFlagSet", () => {
     }
   });
 
-  it("reads an empty value as unset, matching envOrUndefined", () => {
+  it("reads an empty or whitespace-only value as unset", () => {
     expect(isEnvFlagSet(FLAG, { [FLAG]: "" })).toBe(false);
     expect(isEnvFlagSet(FLAG, { [FLAG]: "   " })).toBe(false);
   });

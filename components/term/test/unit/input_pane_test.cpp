@@ -300,7 +300,7 @@ TEST_F(InputPaneHistoryTest, LoadAtExactlyCapDoesNotRewrite)
 }
 
 /// @test
-/// A command identical to the last loaded line is not added, in memory or in the file.
+/// After a load, a command identical to the last loaded line is not appended to the file.
 TEST_F(InputPaneHistoryTest, LoadThenAddDuplicateOfLastLoadedIsSkipped)
 {
   writeFileLines({"first", "second"});
@@ -332,7 +332,7 @@ TEST(InputPaneSearch, EmptyQueryReturnsFalse)
 }
 
 /// @test
-/// A search returns the most recent matching entry.
+/// A search loads the most recent matching entry into the buffer when several entries match.
 TEST(InputPaneSearch, MatchesMostRecentFirst)
 {
   InputPane pane {[](const std::string&) {}};
@@ -346,7 +346,7 @@ TEST(InputPaneSearch, MatchesMostRecentFirst)
 }
 
 /// @test
-/// A search with no match leaves the buffer alone.
+/// A search for text found in no history entry reports no match.
 TEST(InputPaneSearch, NoMatchReturnsFalse)
 {
   InputPane pane {[](const std::string&) {}};
@@ -412,7 +412,7 @@ TEST_F(InputPaneHistoryTest, ALineAtTheLimitSurvivesARestart)
 /// @test
 /// Walking down through history comes back to the line that was being typed.
 ///
-/// Going up is covered; coming back down is the half that has to restore something rather than
+/// Going up is covered. Coming back down is the half that has to restore something rather than
 /// just read it. The unsent line is put aside on the way up and has to reappear at the bottom, or
 /// a user who presses Up to check a previous command loses what they were half way through typing.
 TEST(InputPaneHistory, WalkingDownComesBackToTheUnsentLine)

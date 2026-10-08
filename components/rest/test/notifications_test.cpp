@@ -19,7 +19,8 @@ using sen::components::rest::Notifier;
 using sen::components::rest::ObserverGuard;
 
 /// @test
-/// Check observers consume notifications at the same order than got notified
+/// Delivers queued notifications to an observer in the order they were notified, and yields no value once
+/// the queue is drained.
 /// @requirements(SEN-1061)
 TEST(Rest, notification_order)
 {
@@ -60,7 +61,8 @@ TEST(Rest, notification_order)
 }
 
 /// @test
-/// Check observers RAII
+/// Counts an observer as active only while its ObserverGuard lives, the count returning to zero when the
+/// guards leave scope.
 /// @requirements(SEN-1061)
 TEST(Rest, notification_raii)
 {
@@ -82,7 +84,8 @@ TEST(Rest, notification_raii)
 }
 
 /// @test
-/// Check observers work concurrently
+/// Fans a single notification out to two observers, each consuming its own copy independently until its
+/// queue is empty.
 /// @requirements(SEN-1061)
 TEST(Rest, notification_concurrency)
 {

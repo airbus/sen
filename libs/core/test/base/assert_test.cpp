@@ -164,7 +164,8 @@ protected:
 }  // namespace
 
 /// @test
-/// Check expect type macro triggering
+/// SEN_EXPECT(false) calls the installed failure handler once, reporting the expect check type,
+/// the expression text, and the file and line of the macro.
 /// @requirements(SEN-1049)
 TEST_F(AssertTest, macros_triggering_expect)
 {
@@ -177,7 +178,8 @@ TEST_F(AssertTest, macros_triggering_expect)
 }
 
 /// @test
-/// Check ensure type macro triggering
+/// SEN_ENSURE(false) calls the installed failure handler once, reporting the ensure check type,
+/// the expression text, and the file and line of the macro.
 /// @requirements(SEN-1049)
 TEST_F(AssertTest, macros_triggering_ensure)
 {
@@ -190,7 +192,8 @@ TEST_F(AssertTest, macros_triggering_ensure)
 }
 
 /// @test
-/// Check assert type macro triggering
+/// SEN_ASSERT(false) calls the installed failure handler once, reporting the assert check type,
+/// the expression text, and the file and line of the macro.
 /// @requirements(SEN-1049)
 TEST_F(AssertTest, macros_triggering_assert)
 {
@@ -203,7 +206,8 @@ TEST_F(AssertTest, macros_triggering_assert)
 }
 
 /// @test
-/// Check debug assert macro triggering
+/// SEN_DEBUG_ASSERT(false) calls the failure handler in a DEBUG build, and in any other build is
+/// compiled out and leaves the handler uncalled.
 /// @requirements(SEN-1049)
 TEST_F(AssertTest, macros_triggering_debug_assert)
 {
@@ -219,7 +223,8 @@ TEST_F(AssertTest, macros_triggering_debug_assert)
 }
 
 /// @test
-/// Check not triggering macros
+/// A true condition leaves the failure handler uncalled for SEN_EXPECT, SEN_ENSURE, SEN_ASSERT
+/// and SEN_DEBUG_ASSERT.
 /// @requirements(SEN-1049)
 TEST_F(AssertTest, macros_not_triggering)
 {
@@ -232,7 +237,8 @@ TEST_F(AssertTest, macros_not_triggering)
 }
 
 /// @test
-/// Check default check handler aborts execution
+/// The default failed-check handler aborts the process: a failing SEN_ASSERT raises SIGABRT
+/// rather than letting execution continue.
 /// @requirements(SEN-908)
 TEST(AssertDeathTest, default_handler_aborts)
 {
@@ -240,7 +246,8 @@ TEST(AssertDeathTest, default_handler_aborts)
 }
 
 /// @test
-/// Check terminate handler without an active exception
+/// The registered terminate handler prints "Terminate called without an active exception" when
+/// nothing is in flight, then aborts.
 /// @requirements(SEN-908)
 TEST(AssertDeathTest, terminate_handler_no_active_exception)
 {
@@ -249,7 +256,8 @@ TEST(AssertDeathTest, terminate_handler_no_active_exception)
 }
 
 /// @test
-/// Check terminate handler captures and prints std::logic_error
+/// The registered terminate handler prints the type and message of an in-flight
+/// std::logic_error, then aborts.
 /// @requirements(SEN-908)
 TEST(AssertDeathTest, terminate_handler_logic_error)
 {
@@ -259,7 +267,8 @@ TEST(AssertDeathTest, terminate_handler_logic_error)
 }
 
 /// @test
-/// Check terminate handler captures and prints std::runtime_error
+/// The registered terminate handler prints the type and message of an in-flight
+/// std::runtime_error, then aborts.
 /// @requirements(SEN-908)
 TEST(AssertDeathTest, terminate_handler_runtime_error)
 {
@@ -269,7 +278,8 @@ TEST(AssertDeathTest, terminate_handler_runtime_error)
 }
 
 /// @test
-/// Check terminate handler captures and prints base std::exception
+/// The registered terminate handler prints the type of an in-flight plain std::exception, then
+/// aborts.
 /// @requirements(SEN-908)
 TEST(AssertDeathTest, terminate_handler_standard_exception)
 {
@@ -279,7 +289,8 @@ TEST(AssertDeathTest, terminate_handler_standard_exception)
 }
 
 /// @test
-/// Check terminate handler handles custom cpptrace exception via throwRuntimeError
+/// The registered terminate handler prints the message of an in-flight exception thrown via
+/// throwRuntimeError, then aborts.
 /// @requirements(SEN-908)
 TEST(AssertDeathTest, terminate_handler_cpptrace_exception)
 {
@@ -287,7 +298,8 @@ TEST(AssertDeathTest, terminate_handler_cpptrace_exception)
 }
 
 /// @test
-/// Check terminate handler handles unknown exceptions
+/// The registered terminate handler reports an in-flight exception outside the std::exception
+/// family as an unknown exception, then aborts.
 /// @requirements(SEN-908)
 TEST(AssertDeathTest, terminate_handler_unknown_exception)
 {
@@ -297,7 +309,7 @@ TEST(AssertDeathTest, terminate_handler_unknown_exception)
 }
 
 /// @test
-/// Check trace function outputs data to stderr
+/// sen::trace writes a non-empty report to stderr.
 /// @requirements(SEN-1049)
 TEST_F(AssertTest, trace_outputs_to_stderr)
 {
@@ -311,7 +323,8 @@ TEST_F(AssertTest, trace_outputs_to_stderr)
 }
 
 /// @test
-/// Check CheckInfo string representation for all types
+/// CheckInfo::str names the check type for assert, expect and ensure, and includes the failing
+/// expression.
 /// @requirements(SEN-1049)
 TEST_F(AssertTest, check_info_string_conversion)
 {

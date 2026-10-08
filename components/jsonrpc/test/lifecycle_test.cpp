@@ -31,8 +31,9 @@ using sen::components::jsonrpc::test::primeFixtureInterest;
 using sen::components::jsonrpc::test::request;
 
 /// @test
-/// Exercises the `dlopen`/SEN_COMPONENT path. Requires `LD_LIBRARY_PATH` to include the build's
-/// `bin/` so `libjsonrpc.so` is found.
+/// Loads the jsonrpc component through the kernel's dlopen path from a YAML load entry, yielding
+/// a component context with a live instance. Requires LD_LIBRARY_PATH to include the build's bin
+/// directory so libjsonrpc.so is found.
 TEST(JsonRpc, loadsViaTestKernel)
 {
   const std::string configString = R"(
@@ -50,7 +51,8 @@ TEST(JsonRpc, loadsViaTestKernel)
 }
 
 /// @test
-/// `ping` round-trips via the dispatcher: inbound queue -> method dispatch -> outbound queue.
+/// A ping request round-trips from the inbound queue through method dispatch to the outbound
+/// queue, answering pong with the request id.
 TEST(JsonRpc, pingRoundTrips)
 {
   DispatcherFixture f;
@@ -65,8 +67,9 @@ TEST(JsonRpc, pingRoundTrips)
 }
 
 /// @test
-/// `listTopology` returns a JSON array of `{name, buses}` entries; pins the wiring through
-/// the dispatcher-level `TopologyService` and the kernel's session/bus discovery surface.
+/// listTopology returns a JSON array of session entries, each carrying a name and a buses
+/// array, wired through the dispatcher's TopologyService and the kernel's session and bus
+/// discovery.
 TEST(JsonRpc, listTopologyRoundTrips)
 {
   DispatcherFixture f;
@@ -88,8 +91,8 @@ TEST(JsonRpc, listTopologyRoundTrips)
 }
 
 /// @test
-/// `subscribeTopology` pushes an initial `topologyChanged` carrying the current snapshot,
-/// then leaves the subscription open for the connection's lifetime.
+/// subscribeTopology pushes an initial topologyChanged notification carrying the current
+/// sessions snapshot.
 TEST(JsonRpc, subscribeTopologyPushesInitialSnapshot)
 {
   DispatcherFixture f;
@@ -103,8 +106,8 @@ TEST(JsonRpc, subscribeTopologyPushesInitialSnapshot)
 }
 
 /// @test
-/// `createInterest` returns null and pushes at least one `interestUpdate` carrying objects
-/// already on the bus and a `types` array with each matched class's spec.
+/// createInterest returns null and pushes at least one interestUpdate carrying objects
+/// already on the bus and a types array with each matched class's spec.
 TEST(JsonRpc, createInterestPushesUpdate)
 {
   DispatcherFixture f;
@@ -145,7 +148,7 @@ TEST(JsonRpc, createInterestPushesUpdate)
 }
 
 /// @test
-/// `createInterest` rejects empty `name` with invalidParams (early gate before any kernel work).
+/// createInterest rejects an empty interest name with Invalid params (-32602).
 TEST(JsonRpc, createInterestEmptyNameFails)
 {
   DispatcherFixture f;
@@ -160,8 +163,8 @@ TEST(JsonRpc, createInterestEmptyNameFails)
 }
 
 /// @test
-/// Two `createInterest` calls with the same name on the same connection: the second is rejected
-/// with invalidParams. Forces the client to releaseInterest first if they want to redefine.
+/// A second createInterest with the same name on the same connection is rejected with Invalid
+/// params (-32602), so a client redefines an interest by releasing it first.
 TEST(JsonRpc, createInterestDuplicateNameFails)
 {
   DispatcherFixture f;
@@ -180,10 +183,10 @@ TEST(JsonRpc, createInterestDuplicateNameFails)
 }
 
 /// @test
-/// `createInterest` against a bus nothing has published on yet succeeds (kernel `getSource` is
-/// get-or-create), and the interest resolves via a live `interestUpdate` once a publisher joins
-/// the address. Reconnecting clients that re-declare before the server's domain has rebuilt
-/// depend on this; pinned here so a future "validate the bus" refactor fails loudly.
+/// createInterest against a bus nothing has published on yet succeeds, and the interest
+/// resolves via a live interestUpdate once a publisher joins the address. Reconnecting clients
+/// that re-declare before the server's domain has rebuilt depend on this, and the pin makes a
+/// future validate-the-bus refactor fail loudly.
 TEST(JsonRpc, createInterestOnNotYetExistingBusResolvesWhenBusAppears)
 {
   DispatcherFixture f;
@@ -204,8 +207,8 @@ TEST(JsonRpc, createInterestOnNotYetExistingBusResolvesWhenBusAppears)
 }
 
 /// @test
-/// The per-connection interest ceiling (256): the creation that would exceed it fails with an
-/// actionable invalidParams and existing interests stay usable.
+/// The 257th createInterest on one connection fails with Invalid params (-32602) naming the
+/// limit, and releasing an existing interest frees room for a new creation.
 TEST(JsonRpc, createInterestBeyondPerConnectionCapFails)
 {
   DispatcherFixture f;
@@ -238,8 +241,8 @@ TEST(JsonRpc, createInterestBeyondPerConnectionCapFails)
 }
 
 /// @test
-/// `releaseInterest` returns null and actually erases the entry (a follow-up `invoke` against
-/// the released name fails with unknownInterest).
+/// releaseInterest returns null and erases the entry, so a follow-up invoke against the
+/// released name fails with unknownInterest.
 TEST(JsonRpc, releaseInterestRemovesSubscription)
 {
   DispatcherFixture f;
@@ -263,7 +266,8 @@ TEST(JsonRpc, releaseInterestRemovesSubscription)
 }
 
 /// @test
-/// `releaseInterest` on an unknown name returns unknownInterest (lookup, not shape gate).
+/// releaseInterest on a name that was never created returns unknownInterest, echoing the
+/// request id.
 TEST(JsonRpc, releaseInterestUnknownNameFails)
 {
   DispatcherFixture f;
@@ -279,9 +283,9 @@ TEST(JsonRpc, releaseInterestUnknownNameFails)
 }
 
 /// @test
-/// `ClientConnected` publishes a `client-<id>` server on `local.jsonrpc`; `ClientDisconnected`
-/// removes it. Observed end-to-end through a watcher's interest on `local.jsonrpc` (the watcher
-/// itself appears in its own initial snapshot, hence the second `client-2` add/remove on top).
+/// A ClientConnected message publishes a client-<id> JsonRpcServer object on the local.jsonrpc
+/// bus and ClientDisconnected removes it, observed end to end through a watcher's interest on
+/// that bus, whose initial snapshot carries the watcher itself.
 TEST(JsonRpc, serverLifecycleTracksConnectAndDisconnect)
 {
   DispatcherFixture f;

@@ -45,7 +45,8 @@ void checkWorkQueue(const size_t maxSize, const bool dropOldest) { EXPECT_NO_THR
 }  // namespace
 
 /// @test
-/// Checks creation of queue with different size
+/// Constructs without throwing for any maximum size, including zero, size_t extremes, and
+/// negative values converted to size_t, under either drop policy.
 /// @requirements(SEN-360)
 TEST(WorkQueue, make)
 {
@@ -78,7 +79,8 @@ TEST(WorkQueue, make)
 }
 
 /// @test
-/// Checks creation of queue and basic push operation
+/// Ignores pushes before enable and after disable, executes queued calls in between with
+/// executeAll reporting whether any ran, and clear resets the current size to zero.
 /// @requirements(SEN-360)
 TEST(WorkQueue, basic)
 {
@@ -115,7 +117,8 @@ TEST(WorkQueue, basic)
 }
 
 /// @test
-/// Checks max size argument of queue
+/// Discards an unforced push that meets a full queue when dropOldest is false, firing the
+/// onDropped callback once, and accepts pushes again after the queue drains.
 /// @requirements(SEN-360)
 TEST(WorkQueue, maxSize)
 {
@@ -138,7 +141,8 @@ TEST(WorkQueue, maxSize)
 }
 
 /// @test
-/// Checks max size zero work queue
+/// Ignores a push while disabled without invoking the drop callback, then treats maximum size
+/// zero as unbounded, queueing and executing 2000 unforced pushes with none dropped.
 /// @requirements(SEN-360)
 TEST(WorkQueue, zeroSize)
 {
@@ -167,7 +171,8 @@ TEST(WorkQueue, zeroSize)
 }
 
 /// @test
-/// Checks dropping of oldest call in queue
+/// Evicts the oldest queued call in favor of a new push once the bound is reached with
+/// dropOldest true, firing the drop callback once, so only the newest call executes.
 /// @requirements(SEN-360)
 TEST(WorkQueue, dropOldest)
 {
@@ -186,7 +191,8 @@ TEST(WorkQueue, dropOldest)
 }
 
 /// @test
-/// Checks multiple push operations in queue with no limit
+/// Accumulates 2000 pushes when constructed with maximum size zero, reporting the full count
+/// from getCurrentSize, then executes them all and returns to size zero.
 /// @requirements(SEN-360)
 TEST(WorkQueue, unlimited)
 {
@@ -208,7 +214,8 @@ TEST(WorkQueue, unlimited)
 }
 
 /// @test
-/// Check timeout on wait execution of all calls
+/// Ignores pushes on a never-enabled queue, so waitExecuteAll with a zero timeout returns
+/// without executing any call.
 /// @requirements(SEN-360)
 TEST(WorkQueue, waitExecuteAll)
 {
@@ -230,7 +237,8 @@ TEST(WorkQueue, waitExecuteAll)
 }
 
 /// @test
-/// Checks dropping of an element when no custom drop callback is set
+/// Drops the oldest call silently once the bound is reached and no onDropped callback was set,
+/// leaving only the newest call to execute.
 /// @requirements(SEN-360)
 TEST(WorkQueue, dropOldestDefaultCallback)
 {
@@ -249,7 +257,8 @@ TEST(WorkQueue, dropOldestDefaultCallback)
 }
 
 /// @test
-/// Check wait execution of a single call
+/// Blocks waitExecuteOne on an empty queue until a call is pushed from another thread, then
+/// executes that call and leaves the queue empty.
 /// @requirements(SEN-360)
 TEST(WorkQueue, waitExecuteOne)
 {
@@ -272,7 +281,8 @@ TEST(WorkQueue, waitExecuteOne)
 }
 
 /// @test
-/// Left enabled, which is the widest form: nothing stops a push starting mid-clear.
+/// Survives 100 rounds of clear racing a thread that pushes continuously into an enabled
+/// bounded queue, without freeing storage an in-flight push still uses.
 TEST(WorkQueue, clearDoesNotFreeUnderAConcurrentPush)
 {
   // Bounded, and the clear waits for a push to be observed rather than for a duration: an
@@ -307,8 +317,8 @@ TEST(WorkQueue, clearDoesNotFreeUnderAConcurrentPush)
 }
 
 /// @test
-/// The kernel's sequence: disable() then clear() with other runners still pushing, since
-/// Runner::stopThread() joins only its own thread. Only a push past its check can race.
+/// Survives 100 rounds of disable then clear while four pusher threads stay active, without
+/// freeing storage out from under a push that passed its enabled check before the disable.
 TEST(WorkQueue, clearAfterDisableDoesNotFreeUnderAnInFlightPush)
 {
   for (auto round = 0; round < 100; ++round)

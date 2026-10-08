@@ -333,7 +333,8 @@ const auto& flightStructTypePtr()
 //--------------------------------------------------------------------------------------------------------------
 
 /// @test
-/// Checks correct transformation between custom struct generated in stl and sen var
+/// Converts a populated Flight struct to a sen Var with toVariant and back with toValue,
+/// recovering an equal struct.
 /// @requirements(SEN-903)
 TEST(TestIO, customStructVariantToFromValue)
 {
@@ -358,7 +359,8 @@ TEST(TestIO, customStructVariantToFromValue)
 }
 
 /// @test
-/// Checks basic write and read functions of custom struct type from the generated code
+/// Writes a populated Flight struct through SerializationTraits write and reads back an equal
+/// struct with read.
 /// @requirements(SEN-903)
 TEST(TestIO, customStructReadWriteBasic)
 {
@@ -390,7 +392,8 @@ TEST(TestIO, customStructReadWriteBasic)
 }
 
 /// @test
-/// Checks defined StructSpec and type ptr for the custom stl struct
+/// Exposes the hand-built Flight StructType as a parentless struct named Flight with qualified
+/// name testio.Flight, and resolves all thirteen declared fields by getFieldFromName.
 /// @requirements(SEN-903)
 TEST(TestIO, customStructTypeTraits)
 {
@@ -482,7 +485,8 @@ TEST(TestIO, customStructTypeTraits)
 }
 
 /// @test
-/// Checks reading and writing of alias type
+/// Writes an enum value through its alias type with writeToStream and reads the same value back
+/// with readFromStream.
 /// @requirements(SEN-903)
 TEST(TestIO, aliasWriteRead)
 {
@@ -503,7 +507,8 @@ TEST(TestIO, aliasWriteRead)
 }
 
 /// @test
-/// Checks reading and writing of 3-level inheritance struct type
+/// Round-trips a Hypersphere, a struct at the end of a three-level inheritance chain, through
+/// writeToStream and readFromStream, recovering an equal value.
 /// @requirements(SEN-903)
 TEST(TestIO, inheritedStructWriteRead)
 {
@@ -524,7 +529,8 @@ TEST(TestIO, inheritedStructWriteRead)
 }
 
 /// @test
-/// Checks reading and writing of optional sequence type
+/// Round-trips an engaged optional holding a two-string sequence through writeToStream and
+/// readFromStream, recovering an equal value.
 /// @requirements(SEN-903)
 TEST(TestIO, optionalSequenceWriteRead)
 {
@@ -545,7 +551,8 @@ TEST(TestIO, optionalSequenceWriteRead)
 }
 
 /// @test
-/// Checks reading and writing of optional quantity type
+/// Round-trips an optional quantity through writeToStream and readFromStream in both the engaged
+/// and the empty state, recovering each state intact.
 /// @requirements(SEN-903)
 TEST(TestIO, optionalQuantityWriteRead)
 {
@@ -587,7 +594,8 @@ TEST(TestIO, optionalQuantityWriteRead)
 }
 
 /// @test
-/// Checks reading and writing of sequence of optionals type
+/// Round-trips a sequence of optional quantities through writeToStream and readFromStream, once
+/// with every element engaged and once with engaged and empty elements mixed.
 /// @requirements(SEN-903)
 TEST(TestIO, sequenceOfOptionalsWriteRead)
 {
@@ -629,7 +637,8 @@ TEST(TestIO, sequenceOfOptionalsWriteRead)
 }
 
 /// @test
-/// Checks reading and writing of sequence of sequences
+/// Round-trips a sequence of enum sequences, one inner sequence empty, through writeToStream and
+/// readFromStream, recovering the nested contents.
 /// @requirements(SEN-903)
 TEST(TestIO, sequenceOfSequencesWriteRead)
 {
@@ -655,7 +664,8 @@ TEST(TestIO, sequenceOfSequencesWriteRead)
 }
 
 /// @test
-/// Checks reading and writing of variant that combines structs with enums and native types
+/// Round-trips a variant first holding a struct alternative and then an enum alternative through
+/// writeToStream and readFromStream, recovering each alternative and value.
 /// @requirements(SEN-903)
 TEST(TestIO, variantCombinedTypesWriteRead)
 {
@@ -702,7 +712,8 @@ TEST(TestIO, variantCombinedTypesWriteRead)
 }
 
 /// @test
-/// Checks reading and writing of empty string
+/// Round-trips the string am400b through writeToStream and readFromStream with the StringType,
+/// recovering an equal value.
 /// @requirements(SEN-903)
 TEST(TestIO, emptyString)
 {
@@ -725,7 +736,8 @@ TEST(TestIO, emptyString)
 }
 
 /// @test
-/// Checks reading and writing of empty unbounded sequences
+/// Round-trips an empty unbounded sequence through writeToStream and readFromStream, recovering
+/// an equal empty value.
 /// @requirements(SEN-903)
 TEST(TestIO, emptyUnboundedSequence)
 {
@@ -748,7 +760,8 @@ TEST(TestIO, emptyUnboundedSequence)
 }
 
 /// @test
-/// Checks reading and writing of empty bounded sequences
+/// Round-trips an empty bounded sequence through writeToStream and readFromStream, recovering an
+/// equal empty value.
 /// @requirements(SEN-903)
 TEST(TestIO, emptyBoundedSequence)
 {
@@ -771,7 +784,8 @@ TEST(TestIO, emptyBoundedSequence)
 }
 
 /// @test
-/// Checks reading and writing of empty array
+/// Round-trips a value-initialized three-element fixed-size array type through writeToStream and
+/// readFromStream, recovering equal contents.
 /// @requirements(SEN-903)
 TEST(TestIO, emptyArray)
 {
@@ -794,7 +808,8 @@ TEST(TestIO, emptyArray)
 }
 
 /// @test
-/// Checks reading and writing of empty optional
+/// Round-trips an empty optional through writeToStream and readFromStream, recovering the empty
+/// state.
 /// @requirements(SEN-903)
 TEST(TestIO, emptyOptional)
 {
@@ -817,7 +832,8 @@ TEST(TestIO, emptyOptional)
 }
 
 /// @test
-/// Checks reading and writing of empty struct
+/// Round-trips a value-initialized two-field struct through writeToStream and readFromStream,
+/// recovering an equal value.
 /// @requirements(SEN-903)
 TEST(TestIO, emptyStruct)
 {
@@ -840,7 +856,8 @@ TEST(TestIO, emptyStruct)
 }
 
 /// @test
-/// Checks reading and writing of empty inherited struct
+/// Round-trips a value-initialized struct at the end of a three-level inheritance chain through
+/// writeToStream and readFromStream, recovering an equal value.
 /// @requirements(SEN-903)
 TEST(TestIO, emptyInheritedStruct)
 {
@@ -863,7 +880,8 @@ TEST(TestIO, emptyInheritedStruct)
 }
 
 /// @test
-/// Checks reading and writing of empty variant
+/// Round-trips a default-constructed variant through writeToStream and readFromStream, recovering
+/// the same alternative and value.
 /// @requirements(SEN-903)
 TEST(TestIO, emptyVariant)
 {
@@ -886,7 +904,8 @@ TEST(TestIO, emptyVariant)
 }
 
 /// @test
-/// Checks reading and writing of empty struct that contains fields of non basic types
+/// Round-trips a value-initialized struct whose fields are a variant, an enum, a sequence, and an
+/// optional through writeToStream and readFromStream, recovering an equal value.
 /// @requirements(SEN-903)
 TEST(TestIO, emptyComplexStruct)
 {
@@ -909,8 +928,9 @@ TEST(TestIO, emptyComplexStruct)
 }
 
 /// @test
-/// Checks reading and writing of empty flight struct. The struct contains different types (inheritance struct,
-/// variants, sequences, quantities...)
+/// Writes a value-initialized Flight struct spanning inherited structs, variants, sequences, and
+/// quantities with writeToStream and reads it back with readFromStream, the written and read Vars
+/// comparing equal after both are converted with toValue<SimulationRepresentation>.
 /// @requirements(SEN-903)
 TEST(TestIO, emptyFlightStruct)
 {

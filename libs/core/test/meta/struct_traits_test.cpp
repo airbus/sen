@@ -56,7 +56,8 @@ using GeneratedSenClassesWithFields = ::testing::Types<MyStructWithNativeFieldsO
 TYPED_TEST_SUITE(StructWithFieldsTraitsTest, GeneratedSenClassesWithFields);
 
 /// @test
-/// Asking a struct with no fields for a field getter is refused.
+/// Refuses a field getter request on a struct with no fields and accepts the same request on
+/// structs that have fields.
 TYPED_TEST(StructTraitsBaseTest, ThrowsIfTryingToAccessFieldValueGetterFunctionOnEmptyStruct)
 {
   // arrange
@@ -112,7 +113,8 @@ TYPED_TEST(StructWithFieldsTraitsTest, ThrowsIfAnInvalidFieldIndexIsPassedToFiel
 }
 
 /// @test
-/// A field whose type is not native cannot be read through the field getter.
+/// Refuses a field getter for a field whose type is not native and produces one when the field
+/// at the same index is native.
 TYPED_TEST(StructWithFieldsTraitsTest, ThrowsIfNonNativeFieldIsAccessedViaFieldValueGetterFunction)
 {
   // arrange

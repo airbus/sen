@@ -37,7 +37,7 @@ describe("class_color identity stability", () => {
     `);
   });
 
-  it("empty className returns neutral fallback", () => {
+  it("returns the neutral fallback colors for an empty class name", () => {
     expect(classSwatch("")).toMatchInlineSnapshot(`
       {
         "accent": "var(--fg-muted)",

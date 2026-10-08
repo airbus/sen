@@ -26,7 +26,8 @@ using namespace sen::util;  // NOLINT
 constexpr f64 error = 5 * 1e-3;
 
 /// @test
-/// Check quaternion object initialization
+/// Constructs the default quaternion as the identity rotation, with a zero vector part and a
+/// unit scalar part.
 /// @requirements(SEN-1060)
 TEST(QuaternionTest, initialization)
 {
@@ -40,7 +41,9 @@ TEST(QuaternionTest, initialization)
 }
 
 /// @test
-/// Check quaternion rotation function
+/// Composes makeRotate rotations onto the current quaternion: a half turn about x yields the
+/// pure (1, 0, 0, 0) quaternion, and a following quarter turn about y lands at
+/// (0.707, 0, -0.707, 0).
 /// @requirements(SEN-1060)
 TEST(QuaternionTest, rotation)
 {
@@ -68,7 +71,9 @@ TEST(QuaternionTest, rotation)
 }
 
 /// @test
-/// Check quaternion euler operation functions
+/// Builds quaternions from yaw, pitch and bank angles, reads the angles back through
+/// getRotateInEulerYPB, and composes a further 60 degree rotation about x onto a 30 degree bank,
+/// reading back a 90 degree bank.
 /// @requirements(SEN-1060)
 TEST(QuaternionTest, eulerOperations)
 {
@@ -104,7 +109,7 @@ TEST(QuaternionTest, eulerOperations)
 }
 
 /// @test
-/// Check quaternion length function
+/// Reports unit length and unit squared length for quaternions built from Euler angles.
 /// @requirements(SEN-1060)
 TEST(QuaternionTest, length)
 {
@@ -122,7 +127,8 @@ TEST(QuaternionTest, length)
 }
 
 /// @test
-/// Check quaternion conjugate function
+/// Conjugates a quaternion built from Euler angles, and the conjugate decomposes into the
+/// reference Euler angles of the reversed rotation.
 /// @requirements(SEN-1060)
 TEST(QuaternionTest, conjugate)
 {
@@ -140,7 +146,8 @@ TEST(QuaternionTest, conjugate)
 }
 
 /// @test
-/// Check quaternion inverse function
+/// Inverts a unit quaternion, matching the conjugate: the inverse decomposes into the same
+/// reference Euler angles as the conjugated rotation.
 /// @requirements(SEN-1060)
 TEST(QuaternionTest, inverse)
 {
@@ -158,7 +165,9 @@ TEST(QuaternionTest, inverse)
 }
 
 /// @test
-/// Check quaternion slerp function
+/// Interpolates spherically between two rotations about the same axis, landing at the
+/// proportional angle: one tenth of the way from a 15 to a 55 degree bank gives 19 degrees, two
+/// tenths give 23.
 /// @requirements(SEN-1060)
 TEST(QuaternionTest, slerp)
 {
@@ -187,7 +196,8 @@ TEST(QuaternionTest, slerp)
 }
 
 /// @test
-/// Check quaternion dot function
+/// Computes the four component dot product of two quaternions, matching the hand computed
+/// value.
 TEST(QuaternionTest, dot_product)
 {
   Quat quaternion1 = Quat<f64> {0.44, -0.34, 0.56, -0.8};
@@ -197,7 +207,9 @@ TEST(QuaternionTest, dot_product)
 }
 
 /// @test
-/// Check quaternion getRotate function
+/// Extracts the angle and axis of a rotation: a zero axis builds the identity and reads back as
+/// zero angle about the default z axis, and a 270 degree bank reads back wrapped as minus 90
+/// degrees about x.
 TEST(QuaternionTest, get_rotate)
 {
   Quat quaternion = Quat<f64>(pi, Vec3d {0.0, 0.0, 0.0});
@@ -227,8 +239,9 @@ TEST(QuaternionTest, get_rotate)
 }
 
 /// @test
-/// Check that Euler angles recovered from a quaternion rebuild the same rotation at a right-angle
-/// pitch, where yaw and bank turn about one axis
+/// Recovers Euler angles that rebuild the same rotation at and near a right angle pitch, where
+/// yaw and bank turn about one axis: the rebuilt quaternion stays within 1e-6 radians of the
+/// original and is free of NaN.
 /// @requirements(SEN-1060)
 TEST(QuaternionTest, eulerRecoveryAtThePitchLimit)
 {

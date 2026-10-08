@@ -31,7 +31,8 @@ namespace sen::db::test
 {
 
 /// @test
-/// Verify Snapshot metadata fields from a Creation entry
+/// Exposes the recorded object's id, name, session, bus, and a resolvable type through a
+/// Creation entry's snapshot.
 /// @requirements(SEN-364)
 TEST(SnapshotTest, SnapshotMetadataFromCreation)
 {
@@ -88,7 +89,8 @@ TEST(SnapshotTest, SnapshotMetadataFromCreation)
 }
 
 /// @test
-/// Verify Snapshot getAllPropertiesBuffer() returns non-empty data.
+/// Returns a non-empty buffer from getAllPropertiesBuffer for the snapshot of an object that
+/// has properties.
 /// @requirements(SEN-364)
 TEST(SnapshotTest, SnapshotPropertiesBuffer)
 {
@@ -137,7 +139,8 @@ TEST(SnapshotTest, SnapshotPropertiesBuffer)
 }
 
 /// @test
-/// Verify Snapshot getPropertyValue returns a valid Var for a known property.
+/// Yields a non-empty value from getPropertyAsVariant when a snapshot property is looked up
+/// through the class metadata.
 /// @requirements(SEN-364)
 TEST(SnapshotTest, SnapshotGetPropertyValue)
 {
@@ -195,7 +198,8 @@ TEST(SnapshotTest, SnapshotGetPropertyValue)
 }
 
 /// @test
-/// Verify Snapshots from a Keyframe contain the correct object state.
+/// Carries object snapshots inside a keyframe recorded with the object listed, the snapshot
+/// preserving the object name, session name, and bus name.
 /// @requirements(SEN-364)
 TEST(SnapshotTest, SnapshotFromKeyframe)
 {
@@ -254,7 +258,7 @@ TEST(SnapshotTest, SnapshotFromKeyframe)
 }
 
 /// @test
-/// Verify that multiple snapshots from different creations have distinct objectIds.
+/// Assigns distinct object ids to the snapshots of two different objects recorded by separate creations.
 /// @requirements(SEN-364)
 TEST(SnapshotTest, MultipleSnapshotsHaveDistinctObjectIds)
 {

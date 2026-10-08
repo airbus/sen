@@ -975,7 +975,8 @@ TEST_F(ArgFormEditors, IntegerSpinSaturatesInsteadOfOverflowing)
 }
 
 /// @test
-/// A value too large for a signed 64 bit integer is kept rather than truncated.
+/// Spinning a value too large for a signed 64 bit integer lands on the field type's maximum instead
+/// of collapsing the value to zero.
 TEST_F(ArgFormEditors, IntegerSpinKeepsAValueTooLargeForInt64)
 {
   // Anything above INT64_MAX threw out_of_range and was read as 0, so the first arrow press turned
@@ -1293,7 +1294,8 @@ TEST_F(ArgFormOptional, SubmitEmptyProducesMonostate)
 }
 
 /// @test
-/// A filled optional submits as the value it holds.
+/// A filled optional submits ok as one value, and when that value is a VarMap it carries the
+/// typed x and y.
 TEST_F(ArgFormOptional, SubmitFilledProducesInnerValue)
 {
   auto form = ArgForm::build(anchorMethod(), "obj");
@@ -1396,7 +1398,8 @@ TEST_F(ArgFormOptionalScalar, BuildStartsEmpty)
 }
 
 /// @test
-/// Filling it creates the scalar leaf.
+/// Filling an empty optional of a scalar creates its single scalar leaf, edited with the wrapped
+/// type's editor.
 TEST_F(ArgFormOptionalScalar, ToggleFillsInnerScalarLeaf)
 {
   auto form = ArgForm::build(limitMethod(), "obj");
@@ -1413,7 +1416,7 @@ TEST_F(ArgFormOptionalScalar, ToggleFillsInnerScalarLeaf)
 }
 
 /// @test
-/// Left empty it submits as no value.
+/// An optional scalar argument left empty submits as no value.
 TEST_F(ArgFormOptionalScalar, SubmitEmptyIsMonostate)
 {
   auto form = ArgForm::build(limitMethod(), "obj");
@@ -1424,7 +1427,7 @@ TEST_F(ArgFormOptionalScalar, SubmitEmptyIsMonostate)
 }
 
 /// @test
-/// Filled it submits as the scalar.
+/// An optional scalar argument that has been filled submits as the typed scalar value.
 TEST_F(ArgFormOptionalScalar, SubmitFilledProducesScalar)
 {
   auto form = ArgForm::build(limitMethod(), "obj");
@@ -1440,7 +1443,7 @@ TEST_F(ArgFormOptionalScalar, SubmitFilledProducesScalar)
 }
 
 /// @test
-/// A scalar given on the command line starts it filled.
+/// A scalar given on the command line starts the optional filled, holding that value.
 TEST_F(ArgFormOptionalScalar, PrefillFromScalarInitializesFilled)
 {
   std::vector<Var> prefill = {Var(int32_t {7})};
@@ -1931,7 +1934,8 @@ TEST(ArgFormDuration, TypedMillisecondsRoundTripThroughCommandEngine)
 }
 
 /// @test
-/// A duration formatted into an invocation parses back to the same duration.
+/// A bare number typed in the duration field reaches the inline invocation as that value with the
+/// seconds unit appended, never as the old 0 s fallback.
 TEST(ArgFormDuration, InlineInvocationRoundTripsTypedValue)
 {
   // Bare number "100" in the Duration field round-trips through inline invocation.

@@ -42,7 +42,9 @@ namespace
 }  // namespace
 
 /// @test
-/// Detects a collision and computes its probability over the usable address space.
+/// Allocates two configured buses distinct addresses from a 20-address multicast range, reports
+/// no self-collisions, and computes a collision probability of 1 - exp(-1/20), below the warning
+/// threshold.
 /// @requirements(SEN-909)
 TEST(BusHandler, LowCollisionRisk)
 {
@@ -63,7 +65,9 @@ TEST(BusHandler, LowCollisionRisk)
 }
 
 /// @test
-/// Detects a collision and computes its probability over the usable address space.
+/// Reports the self-collision when a one-address range forces both configured buses onto
+/// 239.192.0.10, computing a collision probability of 1 - exp(-1) and formatting a message that
+/// names both buses, the shared address, and the sessionId and busId fields.
 /// @requirements(SEN-909)
 TEST(BusHandler, DetectsMulticastCollision)
 {

@@ -54,7 +54,8 @@ using BufferTypes =
 TYPED_TEST_SUITE(ResizableBufferWriterTypedTest, BufferTypes);
 
 /// @test
-/// Verifies that BufferWriter advance correctly increments the cursor and returns the previous position
+/// Returns from advance the cursor position before the advance, consecutive advances of four and two
+/// bytes yielding the buffer start and start plus four.
 /// @requirements(SEN-1051)
 TEST(BufferWriterTest, AdvanceIncrementsCursor)
 {
@@ -70,7 +71,8 @@ TEST(BufferWriterTest, AdvanceIncrementsCursor)
 }
 
 /// @test
-/// Verifies that BufferWriter reverse correctly decrements the cursor backwards
+/// Moves the write cursor back through reverse, an advance of five then a reverse of two leaving the
+/// cursor at start plus three.
 /// @requirements(SEN-1051)
 TEST(BufferWriterTest, ReverseDecrementsCursor)
 {
@@ -86,7 +88,8 @@ TEST(BufferWriterTest, ReverseDecrementsCursor)
 }
 
 /// @test
-/// Verifies that ResizableBufferWriter advance resizes the container and returns a pointer to the newly allocated space
+/// Grows the wrapped buffer on each advance so its size matches the total bytes advanced, returning a
+/// pointer to the start of the newly appended space, for every supported buffer type.
 /// @requirements(SEN-1051)
 TYPED_TEST(ResizableBufferWriterTypedTest, AdvanceResizesContainer)
 {
@@ -103,7 +106,8 @@ TYPED_TEST(ResizableBufferWriterTypedTest, AdvanceResizesContainer)
 }
 
 /// @test
-/// Verifies that ResizableBufferWriter reverse correctly shrinks the container size
+/// Shrinks the wrapped buffer through reverse, an advance of five then a reverse of two leaving a size
+/// of three, for every supported buffer type.
 /// @requirements(SEN-1051)
 TYPED_TEST(ResizableBufferWriterTypedTest, ReverseShrinksContainer)
 {
@@ -118,8 +122,8 @@ TYPED_TEST(ResizableBufferWriterTypedTest, ReverseShrinksContainer)
 }
 
 /// @test
-/// Verifies that ResizableBufferWriter triggers an assertion when reversing more than the current size to prevent
-/// size_t underflow
+/// Aborts the process when reverse exceeds the current size, guarding the size against underflow, for
+/// every supported buffer type.
 /// @requirements(SEN-1051)
 TYPED_TEST(ResizableBufferWriterTypedTest, ReverseUnderflowTriggersAssert)
 {
@@ -132,8 +136,8 @@ TYPED_TEST(ResizableBufferWriterTypedTest, ReverseUnderflowTriggersAssert)
 }
 
 /// @test
-/// Verifies that the assertion above is not the only thing standing in front of the subtraction: a
-/// replaced check handler returns, and the size then has to be clamped rather than underflowed
+/// Clamps the size to zero rather than underflowing when reverse exceeds the current size and a
+/// replaced check handler returns instead of aborting, the handler firing exactly once.
 /// @requirements(SEN-1051)
 TYPED_TEST(ResizableBufferWriterTypedTest, ReverseClampsWhenTheCheckHandlerReturns)
 {

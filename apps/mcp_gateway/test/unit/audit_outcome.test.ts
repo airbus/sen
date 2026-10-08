@@ -144,7 +144,7 @@ describe("connectToKernel does not audit the URL verbatim", () => {
     return { tool, registry, entries };
   }
 
-  it("strips userinfo before the entry reaches the sink", async () => {
+  it("strips the URL's embedded credentials before the entry is written", async () => {
     const { tool, registry, entries } = connectHarness();
     await tool.handler(registry, { name: "k1", url: `ws://operator:${SECRET}@host:8080` });
     expect(entries).toHaveLength(1);

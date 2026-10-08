@@ -18,7 +18,7 @@ describe("property subscriptions against inheritance.yaml", () => {
     client?.close();
   });
 
-  it("delivers updates of prop5 (i32) when subscribing to MyClass", async () => {
+  it("delivers updates of prop5 when subscribing to MyClass", async () => {
     const interest = await client.declareInterest({
       name: "myclass_props",
       query: "SELECT my_package.MyClass FROM test.primary",

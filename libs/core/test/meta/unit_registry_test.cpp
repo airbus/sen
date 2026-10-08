@@ -95,7 +95,10 @@ void checkUnitInGroup(UnitRegistry::UnitList list, std::string name)
 }  // namespace
 
 /// @test
-/// Checks builtin unit creation
+/// Finds builtin units by abbreviation and converts sample values to and from SI within
+/// tolerance. Covers base SI units under every metric prefix from femto to peta, identity for
+/// derived SI units, and non-SI time, length, angle, temperature, speed, and mass units such
+/// as hour, ft, deg, degF, kph, and lb.
 /// @requirements(SEN-894)
 TEST(UnitRegistry, builtinUnits)
 {
@@ -220,7 +223,9 @@ TEST(UnitRegistry, builtinUnits)
 }
 
 /// @test
-/// Checks unit conversions
+/// Converts values directly between units of the same category through Unit::convert, ft to
+/// nmi, kph to mph, m to ft, and m_per_s to kn, ft_per_s, and ft_per_min all land on the
+/// expected values.
 /// @requirements(SEN-894)
 TEST(UnitRegistry, conversion)
 {
@@ -235,7 +240,8 @@ TEST(UnitRegistry, conversion)
 }
 
 /// @test
-/// Check that common length units are registered
+/// Lists meter, foot, mile, and nauticalMile among the length units returned by
+/// getUnitsByCategory.
 /// @requirements(SEN-894)
 TEST(UnitRegistry, getLengthUnits)
 {
@@ -248,7 +254,7 @@ TEST(UnitRegistry, getLengthUnits)
 }
 
 /// @test
-/// Check that common mass units are registered
+/// Lists gram and pound among the mass units returned by getUnitsByCategory.
 /// @requirements(SEN-894)
 TEST(UnitRegistry, getMassUnits)
 {
@@ -259,7 +265,8 @@ TEST(UnitRegistry, getMassUnits)
 }
 
 /// @test
-/// Check that common velocity units are registered
+/// Lists meters_per_second, km_per_hour, and miles_per_hour among the velocity units returned
+/// by getUnitsByCategory.
 /// @requirements(SEN-894)
 TEST(UnitRegistry, getVelUnits)
 {
@@ -271,7 +278,8 @@ TEST(UnitRegistry, getVelUnits)
 }
 
 /// @test
-/// Check that common temperature units are registered
+/// Lists fahrenheit, centigrade, and kelvin among the temperature units returned by
+/// getUnitsByCategory.
 /// @requirements(SEN-894)
 TEST(UnitRegistry, getTempUnits)
 {
@@ -283,7 +291,7 @@ TEST(UnitRegistry, getTempUnits)
 }
 
 /// @test
-/// Check that common time units are registered
+/// Lists second, min, hour, and day among the time units returned by getUnitsByCategory.
 /// @requirements(SEN-894)
 TEST(UnitRegistry, getTimeUnits)
 {
@@ -296,7 +304,7 @@ TEST(UnitRegistry, getTimeUnits)
 }
 
 /// @test
-/// Check that common angle units are registered
+/// Lists radian and degree among the angle units returned by getUnitsByCategory.
 /// @requirements(SEN-894)
 TEST(UnitRegistry, getAngleUnits)
 {
@@ -307,7 +315,8 @@ TEST(UnitRegistry, getAngleUnits)
 }
 
 /// @test
-/// Check that common angular vel units are registered
+/// Lists radians_per_second, revolutions_per_min, and degrees_per_second among the angular
+/// velocity units returned by getUnitsByCategory.
 /// @requirements(SEN-894)
 TEST(UnitRegistry, getAngVelUnits)
 {
@@ -319,7 +328,8 @@ TEST(UnitRegistry, getAngVelUnits)
 }
 
 /// @test
-/// Check that common angular accel units are registered
+/// Lists radians_per_second_squared among the angular acceleration units returned by
+/// getUnitsByCategory.
 /// @requirements(SEN-894)
 TEST(UnitRegistry, getAngAccUnits)
 {
@@ -329,7 +339,7 @@ TEST(UnitRegistry, getAngAccUnits)
 }
 
 /// @test
-/// Check that common frequency units are registered
+/// Lists hertz among the frequency units returned by getUnitsByCategory.
 /// @requirements(SEN-894)
 TEST(UnitRegistry, getFrequencyUnits)
 {
@@ -339,7 +349,7 @@ TEST(UnitRegistry, getFrequencyUnits)
 }
 
 /// @test
-/// Check that common torque units are registered
+/// Lists newton_meter among the torque units returned by getUnitsByCategory.
 /// @requirements(SEN-894)
 TEST(UnitRegistry, getTorqueUnits)
 {

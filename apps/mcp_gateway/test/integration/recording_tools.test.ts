@@ -90,7 +90,7 @@ describe("sen-mcp-gateway recording tools (mechanics)", () => {
     expect(arr[0]!.text).toContain("listRecordings failed");
   });
 
-  it("listRecordings drops out-of-bounds symlinks (containment)", async () => {
+  it("listRecordings omits symlinks that point outside the root", async () => {
     const rootDir = mkdtempSync(join(tmpdir(), "sen-mcp-rec-symlink-"));
     const outside = mkdtempSync(join(tmpdir(), "sen-mcp-rec-outside-"));
     const inside = join(rootDir, "real_recording");
@@ -117,7 +117,7 @@ describe("sen-mcp-gateway recording tools (mechanics)", () => {
     expect(payload.exitCode).toBe(0);
   });
 
-  it("runRecordingScript surfaces stderr + non-zero exit on an exception", async () => {
+  it("runRecordingScript reports stderr and a non-zero exit code when the script raises an exception", async () => {
     const res = await client.callTool({
       name: "runRecordingScript",
       arguments: { code: "raise RuntimeError('boom')" },
@@ -129,7 +129,7 @@ describe("sen-mcp-gateway recording tools (mechanics)", () => {
     expect(payload.stderr).toContain("boom");
   });
 
-  it("runRecordingScript caps stdout at 64 KiB and sets the truncation flag + sentinel", async () => {
+  it("runRecordingScript caps stdout at 64 KiB and marks the output as truncated", async () => {
     const res = await client.callTool({
       name: "runRecordingScript",
       arguments: { code: "import sys\nsys.stdout.write('x' * 200000)\n" },
@@ -276,7 +276,7 @@ describe.runIf(haveRealRecording)("sen-mcp-gateway recording tools (with real re
     expect(entries[0]?.mtime).toMatch(/^\d{4}-\d{2}-\d{2}T/);
   });
 
-  it("Tier 1 walk: cursor walk + variant unpack + chrono", async () => {
+  it("walks a real recording entry by entry and counts payload types", async () => {
     const listed = parseTextResult<Array<{ path: string }>>(
       (await client.callTool({ name: "listRecordings", arguments: { root: REAL_RECORDING_ROOT! } })).content,
     );
@@ -299,7 +299,7 @@ describe.runIf(haveRealRecording)("sen-mcp-gateway recording tools (with real re
     expect(payload.stdout).toMatch(/PropertyChange|Event|Keyframe|Creation/);
   });
 
-  it("Tier 2: TypeRegistry cross-reference walks the parent chain", async () => {
+  it("reads the type registry from a real recording and looks up a class type spec", async () => {
     const listed = parseTextResult<Array<{ path: string }>>(
       (await client.callTool({ name: "listRecordings", arguments: { root: REAL_RECORDING_ROOT! } })).content,
     );

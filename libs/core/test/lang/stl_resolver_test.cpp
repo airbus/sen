@@ -678,7 +678,7 @@ class ClassUnderTest
 }
 
 /// @test
-/// A class cannot extend an interface.
+/// A class cannot extend a parent type that is not declared.
 TEST_F(AStlResolver, ThrowsIfClassTypeTriesToExtendParentInterface)
 {
   // arrange

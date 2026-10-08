@@ -24,7 +24,7 @@ describe("Semaphore", () => {
     expect(() => new Semaphore(-1)).toThrow();
   });
 
-  it("never exceeds the cap with synchronous-start admissions", async () => {
+  it("never exceeds the cap when many tasks start at once", async () => {
     const sem = new Semaphore(3);
     let active = 0;
     let peak = 0;
@@ -40,7 +40,7 @@ describe("Semaphore", () => {
     expect(peak).toBeLessThanOrEqual(3);
   });
 
-  it("resists the race we hit in tools.ts: fast-path + queued resume", async () => {
+  it("admits at most the cap even when a new task arrives the instant a slot opens", async () => {
     // Fill cap, queue N more, then fire one fast-path run() the instant a slot opens.
     const sem = new Semaphore(2);
     const gates = [deferred(), deferred()];
@@ -73,7 +73,7 @@ describe("Semaphore", () => {
     expect(inProgress.size).toBe(0);
   });
 
-  it("releases the slot if the fn throws", async () => {
+  it("releases the slot when the task throws", async () => {
     const sem = new Semaphore(1);
     await expect(
       sem.run(async () => {
@@ -128,7 +128,7 @@ describe("Semaphore", () => {
     expect(completion).toEqual([0, 1, 2, 3]);
   });
 
-  it("drops a queued waiter when its signal aborts; the slot is not consumed", async () => {
+  it("drops a queued waiter when its signal aborts without consuming a slot", async () => {
     const sem = new Semaphore(1);
     const holder: { resolve: () => void } = { resolve: () => undefined };
     const held = new Promise<void>((r) => {

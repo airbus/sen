@@ -289,8 +289,8 @@ protected:
 }  // namespace
 
 /// @test
-/// Checks that a single provider adding and removing objects triggers the standard add/remove callbacks
-/// Also verifies that ObjectOwnerId and other data fields are preserved intact.
+/// Forwards a single provider's addition and removal as plain added and removed callbacks,
+/// preserving the owner id carried by the addition.
 /// @requirements(SEN-362)
 TEST_F(ObjectMuxTest, SingleProviderFlow)
 {
@@ -312,7 +312,8 @@ TEST_F(ObjectMuxTest, SingleProviderFlow)
 }
 
 /// @test
-/// Checks that adding the same object from a second provider triggers the re-added callback
+/// Reports the first provider's addition as added and a second provider's addition of the same
+/// object as readded.
 /// @requirements(SEN-362)
 TEST_F(ObjectMuxTest, MultiplexingLogicAddition)
 {
@@ -332,7 +333,8 @@ TEST_F(ObjectMuxTest, MultiplexingLogicAddition)
 }
 
 /// @test
-/// Checks that removing an object available from multiple providers triggers the ref-count-reduced callback
+/// Reports the first removal of a doubly provided object as a ref-count reduction and only the
+/// last removal as removed.
 /// @requirements(SEN-362)
 TEST_F(ObjectMuxTest, MultiplexingLogicRemoval)
 {
@@ -357,7 +359,7 @@ TEST_F(ObjectMuxTest, MultiplexingLogicRemoval)
 }
 
 /// @test
-/// Checks that adding the same object twice in a single batch behaves as an addition followed by a re-addition
+/// Splits a batch adding the same object twice into one added and one readded notification.
 /// @requirements(SEN-362)
 TEST_F(ObjectMuxTest, DuplicateAdditionInSingleBatch)
 {
@@ -372,7 +374,8 @@ TEST_F(ObjectMuxTest, DuplicateAdditionInSingleBatch)
 }
 
 /// @test
-/// Checks that removing the same object twice in a single batch behaves as a ref-reduction followed by removal
+/// Splits a batch removing a doubly referenced object twice into one ref-count reduction and one
+/// removal.
 /// @requirements(SEN-362)
 TEST_F(ObjectMuxTest, DuplicateRemovalInSingleBatch)
 {
@@ -390,7 +393,8 @@ TEST_F(ObjectMuxTest, DuplicateRemovalInSingleBatch)
 }
 
 /// @test
-/// Checks that a batch containing a new object and a known object is split into added and re-added callbacks
+/// Splits a batch holding one new and one already known object into an added callback for the new
+/// one and a readded callback for the known one.
 /// @requirements(SEN-362)
 TEST_F(ObjectMuxTest, MixedBatchAddition)
 {
@@ -413,7 +417,8 @@ TEST_F(ObjectMuxTest, MixedBatchAddition)
 }
 
 /// @test
-/// Checks that adding a listener with notification enabled receives current objects and ref-counts correctly
+/// Replays the current state to a muxed listener attached with notify enabled, one added call per
+/// object plus a readded call for the object held by both providers.
 /// @requirements(SEN-362)
 TEST_F(ObjectMuxTest, ListenerLateAttachmentWithDuplicates)
 {
@@ -435,7 +440,8 @@ TEST_F(ObjectMuxTest, ListenerLateAttachmentWithDuplicates)
 }
 
 /// @test
-/// Checks that removing a listener with notification enabled receives removal and ref-reduced callbacks
+/// Sends a detaching muxed listener a removal per tracked object plus a ref-count reduction for
+/// the doubly provided one when removal notification is enabled.
 /// @requirements(SEN-362)
 TEST_F(ObjectMuxTest, ListenerDetachmentWithNotification)
 {
@@ -455,7 +461,8 @@ TEST_F(ObjectMuxTest, ListenerDetachmentWithNotification)
 }
 
 /// @test
-/// Checks that a standard ObjectProviderListener only receives logical add/remove and no multiplexing details
+/// Collapses multiplexing for a plain ObjectProviderListener, one added on first appearance and
+/// one removed only when the last provider drops the object.
 /// @requirements(SEN-362)
 TEST_F(ObjectMuxTest, StandardListenerCompatibility)
 {
@@ -479,7 +486,8 @@ TEST_F(ObjectMuxTest, StandardListenerCompatibility)
 }
 
 /// @test
-/// Checks that a late-connecting standard listener receives only unique existing objects
+/// Replays each existing object once to a plain listener attached late, and sends one removal
+/// when it detaches with notification.
 /// @requirements(SEN-362)
 TEST_F(ObjectMuxTest, StandardListenerLateAttachment)
 {
@@ -498,7 +506,8 @@ TEST_F(ObjectMuxTest, StandardListenerLateAttachment)
 }
 
 /// @test
-/// Checks that a late-connecting provider triggers addition for new objects on the mux
+/// Propagates the existing objects of a provider that connects to the mux late as added
+/// notifications.
 /// @requirements(SEN-362)
 TEST_F(ObjectMuxTest, LateProviderConnection)
 {
@@ -513,7 +522,8 @@ TEST_F(ObjectMuxTest, LateProviderConnection)
 }
 
 /// @test
-/// Checks that removing an object with a non-matching InterestId is ignored
+/// Ignores a removal whose interest id differs from the one the object was added under, the
+/// matching removal still goes through.
 /// @requirements(SEN-362)
 TEST_F(ObjectMuxTest, RemovalInterestMismatch)
 {
@@ -528,7 +538,7 @@ TEST_F(ObjectMuxTest, RemovalInterestMismatch)
 }
 
 /// @test
-/// Checks that empty input lists do not trigger callbacks
+/// Stays silent for empty addition and removal batches.
 /// @requirements(SEN-362)
 TEST_F(ObjectMuxTest, EmptyInputSafety)
 {
@@ -540,7 +550,8 @@ TEST_F(ObjectMuxTest, EmptyInputSafety)
 }
 
 /// @test
-/// Checks logic for determining if the mux has specific types of listeners attached
+/// Tracks attached muxed and plain listeners through hasListeners, hasMuxedListener, and
+/// hasListener as listeners are added and removed.
 /// @requirements(SEN-362)
 TEST_F(ObjectMuxTest, ListenerQueries)
 {
@@ -564,7 +575,8 @@ TEST_F(ObjectMuxTest, ListenerQueries)
 }
 
 /// @test
-/// Checks that adding or removing the same listener multiple times is safe and ignored
+/// Ignores adding an already attached listener, notifications still arrive once, and tolerates
+/// removing it twice.
 /// @requirements(SEN-362)
 TEST_F(ObjectMuxTest, IdempotencyChecks)
 {
@@ -582,7 +594,8 @@ TEST_F(ObjectMuxTest, IdempotencyChecks)
 }
 
 /// @test
-/// Checks that the mux cleans up internal references when a listener is destroyed externally
+/// Drops its reference to a listener destroyed externally, hasListeners turns false once the
+/// listener's destructor runs.
 /// @requirements(SEN-362)
 TEST_F(ObjectMuxTest, ListenerDestructionCleanup)
 {
@@ -599,7 +612,8 @@ TEST_F(ObjectMuxTest, ListenerDestructionCleanup)
 }
 
 /// @test
-/// Checks that a listener removing itself during a callback does not crash the mux
+/// Survives a listener removing itself from inside its added callback, the listener ends up
+/// detached.
 /// @requirements(SEN-362)
 TEST_F(ObjectMuxTest, ListenerSelfRemoval)
 {
@@ -614,7 +628,8 @@ TEST_F(ObjectMuxTest, ListenerSelfRemoval)
 }
 
 /// @test
-/// Verifies the default implementations of the polymorphic cast methods natively provided by the Object base class
+/// Returns null from the base Object asNativeObject and asProxyObject casts, in both const and
+/// non-const forms.
 /// @requirements(SEN-362)
 TEST_F(ObjectMuxTest, DefaultPolymorphicCasts)
 {

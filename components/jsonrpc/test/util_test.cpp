@@ -30,7 +30,8 @@ namespace
 using sen::components::jsonrpc::varToJson;
 
 /// @test
-/// An integer narrower than 64 bits becomes a JSON number, signed or unsigned as declared.
+/// Serializes an integer narrower than 64 bits as a JSON number, signed or unsigned as
+/// declared.
 TEST(VarToJson, narrowIntsStayAsJsonNumbers)
 {
   EXPECT_TRUE(varToJson(sen::Var {int32_t {42}}).is_number_integer());
@@ -39,7 +40,7 @@ TEST(VarToJson, narrowIntsStayAsJsonNumbers)
 }
 
 /// @test
-/// A float and a double become JSON numbers.
+/// Serializes a float and a double as JSON floating-point numbers.
 TEST(VarToJson, floatsStayAsJsonNumbers)
 {
   EXPECT_TRUE(varToJson(sen::Var {float {3.5F}}).is_number_float());
@@ -47,7 +48,8 @@ TEST(VarToJson, floatsStayAsJsonNumbers)
 }
 
 /// @test
-/// An int64 becomes a JSON string, because a JSON number cannot carry the full range.
+/// Serializes the maximum int64 as a JSON string holding its decimal text, since a JSON
+/// number cannot carry the full range.
 TEST(VarToJson, i64MaxRoundTripsAsString)
 {
   const auto value = std::numeric_limits<int64_t>::max();
@@ -57,7 +59,8 @@ TEST(VarToJson, i64MaxRoundTripsAsString)
 }
 
 /// @test
-/// A uint64 becomes a JSON string, for the same reason.
+/// Serializes the maximum uint64 as a JSON string holding its decimal text, since a JSON
+/// number cannot carry the full range.
 TEST(VarToJson, u64MaxRoundTripsAsString)
 {
   const auto value = std::numeric_limits<uint64_t>::max();
@@ -67,7 +70,7 @@ TEST(VarToJson, u64MaxRoundTripsAsString)
 }
 
 /// @test
-/// A Duration becomes a string holding its nanosecond count.
+/// Serializes a Duration as a JSON string holding its nanosecond count in decimal.
 TEST(VarToJson, durationEmitsNanosecondsAsString)
 {
   const sen::Duration value {std::chrono::milliseconds {1500}};
@@ -77,7 +80,8 @@ TEST(VarToJson, durationEmitsNanosecondsAsString)
 }
 
 /// @test
-/// A TimeStamp becomes an RFC 3339 string in UTC, with nanoseconds.
+/// Serializes a TimeStamp as an RFC 3339 style UTC string containing a T date-time separator
+/// and ending in Z.
 TEST(VarToJson, timeStampEmitsRfc3339UtcWithNs)
 {
   const sen::TimeStamp value {sen::Duration {std::chrono::nanoseconds {1750000000000000001LL}}};
@@ -89,7 +93,7 @@ TEST(VarToJson, timeStampEmitsRfc3339UtcWithNs)
 }
 
 /// @test
-/// A string becomes a JSON string.
+/// Serializes a string as a JSON string with its contents unchanged.
 TEST(VarToJson, stringsStayAsStrings)
 {
   const auto json = varToJson(sen::Var {std::string {"hello"}});

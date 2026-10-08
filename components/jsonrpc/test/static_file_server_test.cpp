@@ -49,7 +49,7 @@ namespace
 //--------------------------------------------------------------------------------------------------------------
 
 /// @test
-/// Ids are handed out in increasing order starting at one.
+/// Hands out bundle ids in increasing order starting at one.
 TEST(BundleRegistry, addReturnsMonotonicIdsStartingAtOne)
 {
   BundleRegistry registry;
@@ -69,7 +69,7 @@ TEST(BundleRegistry, addReturnsMonotonicIdsStartingAtOne)
 }
 
 /// @test
-/// A bundle that was added is found by its id.
+/// Finds an added bundle by the id its registration returned.
 TEST(BundleRegistry, findReturnsAddedBundle)
 {
   BundleRegistry registry;
@@ -86,7 +86,7 @@ TEST(BundleRegistry, findReturnsAddedBundle)
 }
 
 /// @test
-/// An id that was never handed out finds nothing.
+/// Finds nothing for an id that was never handed out.
 TEST(BundleRegistry, findReturnsNullForUnknownId)
 {
   BundleRegistry registry;
@@ -95,7 +95,7 @@ TEST(BundleRegistry, findReturnsNullForUnknownId)
 }
 
 /// @test
-/// A removed bundle is no longer found.
+/// No longer finds a bundle once it has been removed.
 TEST(BundleRegistry, removeClearsSlot)
 {
   BundleRegistry registry;
@@ -110,11 +110,12 @@ TEST(BundleRegistry, removeClearsSlot)
 }
 
 /// @test
-/// Removing an id that was never handed out does nothing.
+/// Does nothing when removing an id that was never handed out.
 TEST(BundleRegistry, removeUnknownIsNoop) { BundleRegistry().remove(99U); }
 
 /// @test
-/// An id is not handed out again after the bundle holding it is removed.
+/// Hands out a strictly greater id for the next add after a removal, never reusing the removed
+/// bundle's id.
 TEST(BundleRegistry, idsArentReusedAfterRemoval)
 {
   BundleRegistry registry;
@@ -136,8 +137,7 @@ TEST(BundleRegistry, idsArentReusedAfterRemoval)
 }
 
 /// @test
-/// A second bundle claiming a url prefix already in use is refused, and the first stays
-/// registered.
+/// Refuses to add a second bundle claiming a url prefix already in use, returning an error.
 TEST(BundleRegistry, addRejectsDuplicateUrlPrefix)
 {
   BundleRegistry registry;
@@ -158,7 +158,7 @@ TEST(BundleRegistry, addRejectsDuplicateUrlPrefix)
 }
 
 /// @test
-/// A url prefix becomes available again once the bundle holding it is removed.
+/// Accepts a new bundle on a url prefix once the bundle previously holding it is removed.
 TEST(BundleRegistry, addAcceptsSamePrefixAfterRemoval)
 {
   BundleRegistry registry;
@@ -185,7 +185,8 @@ TEST(BundleRegistry, addAcceptsSamePrefixAfterRemoval)
 constexpr auto serverName = "static_file_server";
 
 /// @test
-/// Registering stores the bundle under the returned id with its prefix, file count and index.
+/// Stores a registered bundle under the returned id, preserving its url prefix, file count,
+/// and index file with content type, contents, and a computed non-empty etag.
 TEST(StaticFileServer, registerStoresBundleAndReturnsId)
 {
   auto server = std::make_shared<StaticFileServer>(serverName, nullptr);
@@ -205,7 +206,7 @@ TEST(StaticFileServer, registerStoresBundleAndReturnsId)
 }
 
 /// @test
-/// Unregistering removes the bundle from the registry.
+/// Removes the bundle from the registry on unregister, so its id no longer finds anything.
 TEST(StaticFileServer, unregisterClearsRegistrySlot)
 {
   auto server = std::make_shared<StaticFileServer>(serverName, nullptr);
@@ -215,14 +216,15 @@ TEST(StaticFileServer, unregisterClearsRegistrySlot)
 }
 
 /// @test
-/// Unregistering an id that was never registered does nothing.
+/// Does nothing when unregistering an id that was never registered.
 TEST(StaticFileServer, unregisterUnknownIsNoop)
 {
   std::make_shared<StaticFileServer>(serverName, nullptr)->unregisterStaticBundleImpl(999U);
 }
 
 /// @test
-/// A url prefix without a leading slash is refused.
+/// Refuses to register a bundle whose url prefix lacks a leading slash, throwing a runtime
+/// error.
 TEST(StaticFileServer, registerThrowsForInvalidUrlPrefix)
 {
   auto server = std::make_shared<StaticFileServer>(serverName, nullptr);
@@ -231,7 +233,8 @@ TEST(StaticFileServer, registerThrowsForInvalidUrlPrefix)
 }
 
 /// @test
-/// A bundle naming an index that is not among its files is refused.
+/// Refuses to register a bundle whose named index file is not among its files, throwing a
+/// runtime error.
 TEST(StaticFileServer, registerThrowsWhenIndexNotInFiles)
 {
   auto server = std::make_shared<StaticFileServer>(serverName, nullptr);
@@ -240,8 +243,8 @@ TEST(StaticFileServer, registerThrowsWhenIndexNotInFiles)
 }
 
 /// @test
-/// Registering a second bundle on a url prefix already in use is refused, as an error the caller
-/// receives.
+/// Throws a runtime error when registering a second bundle on a url prefix already in use, so
+/// the failure reaches the caller.
 TEST(StaticFileServer, registerThrowsOnDuplicateUrlPrefix)
 {
   auto server = std::make_shared<StaticFileServer>(serverName, nullptr);
@@ -252,8 +255,9 @@ TEST(StaticFileServer, registerThrowsOnDuplicateUrlPrefix)
 }
 
 /// @test
-/// The list of newly registered bundles is empty until a registration, and then names that
-/// bundle's id and prefix.
+/// Reports registered bundles through getNextRegisteredBundles, empty before any registration,
+/// naming the bundle's id, url prefix, and file count after one, and empty again after the
+/// bundle is unregistered.
 TEST(StaticFileServer, nextRegisteredBundlesReflectsRegistration)
 {
   auto server = std::make_shared<StaticFileServer>(serverName, nullptr);

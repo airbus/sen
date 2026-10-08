@@ -18,7 +18,7 @@
 using sen::std_util::bit_cast;
 
 /// @test
-/// Check bitwise cast of same signed type variable
+/// bit_cast to the same signed 32-bit type returns the value unchanged.
 /// @requirements(SEN-1045)
 TEST(BitCast, CastSameTypeSigned)
 {
@@ -31,7 +31,7 @@ TEST(BitCast, CastSameTypeSigned)
 }
 
 /// @test
-/// Check bitwise cast of same unsigned type variable
+/// bit_cast to the same unsigned 32-bit type returns the value unchanged.
 /// @requirements(SEN-1045)
 TEST(BitCast, CastSameTypeUnsigned)
 {
@@ -44,7 +44,7 @@ TEST(BitCast, CastSameTypeUnsigned)
 }
 
 /// @test
-/// Check bitwise cast from signed to unsigned variable
+/// bit_cast from a negative int32_t to uint32_t keeps the bit pattern, so -1431655766 becomes 2863311530.
 /// @requirements(SEN-1045)
 TEST(BitCast, CastInterchangeTypeSigned)
 {
@@ -58,7 +58,7 @@ TEST(BitCast, CastInterchangeTypeSigned)
 }
 
 /// @test
-/// Check bitwise cast from unsigned to signed variable
+/// bit_cast from uint32_t to int32_t keeps the bit pattern, so 1431655765 stays 1431655765.
 /// @requirements(SEN-1045)
 TEST(BitCast, CastInterchangeTypeUnsigned)
 {
@@ -72,7 +72,8 @@ TEST(BitCast, CastInterchangeTypeUnsigned)
 }
 
 /// @test
-/// Check bitwise cast combining values from struct to one variable
+/// bit_cast reads a struct of two uint32_t as one uint64_t, the first member in the low half and
+/// the second in the high half.
 /// @requirements(SEN-1045)
 TEST(BitCast, CastCombineValues)
 {
@@ -96,7 +97,8 @@ TEST(BitCast, CastCombineValues)
 }
 
 /// @test
-/// Check bitwise cast from bitset
+/// bit_cast of a bitset's to_ullong value yields the matching integer in both uint64_t and
+/// int64_t form: 1, 3, 7 and 15 as bits zero to three are set in turn.
 /// @requirements(SEN-1045)
 TEST(BitCast, FromBitSet)
 {

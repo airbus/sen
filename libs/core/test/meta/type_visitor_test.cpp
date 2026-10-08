@@ -168,7 +168,8 @@ void checkNativeSpecificVisit()
 }  // namespace
 
 /// @test
-/// Checks all type visitors
+/// Dispatches each of eleven native and seven custom types through accept to a visitor
+/// overloaded on the base Type, each visit hands over exactly the visited instance.
 /// @requirements(SEN-575)
 TEST(TypeVisitor, allTypes)
 {
@@ -196,7 +197,8 @@ TEST(TypeVisitor, allTypes)
 }
 
 /// @test
-/// Checks native type visitors
+/// Dispatches all native types, numeric, String, and Bool, to a visitor overloaded on
+/// NativeType, while custom types never reach it.
 /// @requirements(SEN-575)
 TEST(TypeVisitor, nativeTypes)
 {
@@ -223,7 +225,8 @@ TEST(TypeVisitor, nativeTypes)
 }
 
 /// @test
-/// Checks numeric type visitors
+/// Dispatches every integer and floating-point type to a visitor overloaded on NumericType,
+/// while String, Bool, and custom types never reach it.
 /// @requirements(SEN-575)
 TEST(TypeVisitor, numericTypes)
 {
@@ -251,7 +254,8 @@ TEST(TypeVisitor, numericTypes)
 }
 
 /// @test
-/// Checks integral type visitors
+/// Dispatches every integer type to a visitor overloaded on IntegralType, while
+/// floating-point, String, Bool, and custom types never reach it.
 /// @requirements(SEN-575)
 TEST(TypeVisitor, integralTypes)
 {
@@ -279,7 +283,8 @@ TEST(TypeVisitor, integralTypes)
 }
 
 /// @test
-/// Checks real type visitors
+/// Dispatches Float32 and Float64 to a visitor overloaded on RealType, while integer, String,
+/// Bool, and custom types never reach it.
 /// @requirements(SEN-575)
 TEST(TypeVisitor, realTypes)
 {
@@ -308,7 +313,8 @@ TEST(TypeVisitor, realTypes)
 }
 
 /// @test
-/// Checks specific type visitors
+/// Dispatches each of eleven native and seven custom concrete types only to the visitor
+/// overloaded on exactly that class, a visitor for any other of the eighteen never sees it.
 /// @requirements(SEN-575)
 TEST(TypeVisitor, specificTypes)
 {
@@ -334,7 +340,8 @@ TEST(TypeVisitor, specificTypes)
 }
 
 /// @test
-/// Checks custom type visitors
+/// Dispatches struct, sequence, enum, variant, quantity, alias, and optional types to a
+/// visitor overloaded on CustomType.
 /// @requirements(SEN-575)
 TEST(TypeVisitor, customTypes)
 {
@@ -349,7 +356,9 @@ TEST(TypeVisitor, customTypes)
 }
 
 /// @test
-/// Checks conversion between different types
+/// Accepts canConvert from each of eighteen types, custom and native alike, to String, from
+/// each of them to itself, and across assorted numeric, enum, alias, optional, and time
+/// pairings. Cross-kind pairings such as optional to struct or struct to a native are refused.
 /// @requirements(SEN-575)
 TEST(TypeMatch, canConvert)
 {

@@ -47,7 +47,8 @@ public:
   using DeadReckonerBase::isSituationCached;
 };
 /// @test
-/// Tests the position extrapolation using the FPW algorithm
+/// Extrapolates the position at constant velocity in the world frame with the FPW algorithm,
+/// placing a situation with velocity (10, -20, 35) at (20, -40, 70) two seconds on.
 /// @requirements(SEN-1058)
 TEST(DeadReckonerTest, drFpw)
 {
@@ -62,7 +63,9 @@ TEST(DeadReckonerTest, drFpw)
 }
 
 /// @test
-/// Tests the position/orientation extrapolation using the RPW algorithm
+/// Extrapolates the position at constant velocity and turns the orientation by the angular
+/// velocity with the RPW algorithm, taking a 45 degree yaw to 5 degrees after two seconds at
+/// minus 20 degrees per second.
 /// @requirements(SEN-1058)
 TEST(DeadReckonerTest, drRpw)
 {
@@ -80,7 +83,9 @@ TEST(DeadReckonerTest, drRpw)
 }
 
 /// @test
-/// Tests the position/orientation extrapolation using the RPW algorithm
+/// Extrapolates the position from velocity plus constant acceleration and turns the orientation
+/// by the angular velocity with the RVW algorithm, reaching (-16, 24, 64) and a 5 degree yaw
+/// after two seconds.
 /// @requirements(SEN-1058)
 TEST(DeadReckonerTest, drRvw)
 {
@@ -98,7 +103,8 @@ TEST(DeadReckonerTest, drRvw)
 }
 
 /// @test
-/// Tests the position extrapolation using the FVW algorithm
+/// Extrapolates the position from velocity plus constant acceleration in the world frame with
+/// the FVW algorithm, reaching (-24, 24, 64) two seconds after leaving the origin.
 /// @requirements(SEN-1058)
 TEST(DeadReckonerTest, drFvw)
 {
@@ -113,7 +119,8 @@ TEST(DeadReckonerTest, drFvw)
 }
 
 /// @test
-/// Tests the position extrapolation using the FPB algorithm
+/// Extrapolates the position at constant body frame velocity with the FPB algorithm, rotating
+/// the velocity through the 90 degree yaw so two seconds of travel land at (-20, -20, 60).
 /// @requirements(SEN-1058)
 TEST(DeadReckonerTest, drFpb)
 {
@@ -128,7 +135,9 @@ TEST(DeadReckonerTest, drFpb)
 }
 
 /// @test
-/// Tests the position extrapolation using the FVB algorithm
+/// Extrapolates the position from body frame velocity plus constant acceleration with the FVB
+/// algorithm, rotating the displacement through the 90 degree bank into (-16, -64, 24) after two
+/// seconds.
 /// @requirements(SEN-1058)
 TEST(DeadReckonerTest, drFvb)
 {
@@ -143,7 +152,9 @@ TEST(DeadReckonerTest, drFvb)
 }
 
 /// @test
-/// Tests the position/orientation extrapolation using the RPB algorithm
+/// Extrapolates body frame velocity under a constant pitch rate with the RPB algorithm, flying
+/// half a loop in two seconds: the entity climbs two turn radii and its attitude flips to the
+/// Euler pair equivalent to a 180 degree pitch.
 /// @requirements(SEN-1058)
 TEST(DeadReckonerTest, drRpb)
 {
@@ -161,7 +172,9 @@ TEST(DeadReckonerTest, drRpb)
 }
 
 /// @test
-/// Tests the position/orientation extrapolation using the RVB algorithm
+/// Extrapolates body frame velocity and acceleration under a constant yaw rate with the RVB
+/// algorithm, bending the accelerating path into an arc that ends at the reference location with
+/// the yaw turned to 90 degrees after two seconds.
 /// @requirements(SEN-1058)
 TEST(DeadReckonerTest, drRvb)
 {
@@ -179,8 +192,8 @@ TEST(DeadReckonerTest, drRvb)
 }
 
 /// @test
-/// Tests the transformation from orientation with respect to ECEF coordinates to orientation with respect to NED
-/// coordinates
+/// Converts an orientation expressed against ECEF axes into one expressed against the local NED
+/// axes, matching the reference Euler angles within 1e-2 at two geodetic locations.
 /// @requirements(SEN-1058)
 TEST(DeadReckonerTest, ecefToNedOrientation)
 {
@@ -207,7 +220,9 @@ TEST(DeadReckonerTest, ecefToNedOrientation)
 }
 
 /// @test
-/// Tests that situation cache contains the correct value after calling the function that populates it
+/// Caches the extrapolated situation under the queried timestamp: nothing is cached before the
+/// first situation() call, the cache then holds exactly the returned world location, and a
+/// repeated query returns the same values.
 /// @requirements(SEN-1058)
 TEST(DeadReckonerTest, situationCachePopulated)
 {
@@ -237,7 +252,8 @@ TEST(DeadReckonerTest, situationCachePopulated)
 }
 
 /// @test
-/// Tests that situation cache is not valid for a different timestamp
+/// Scopes the situation cache to the timestamp it was computed for, reporting it cached for the
+/// queried instant and not cached for a later one.
 /// @requirements(SEN-1058)
 TEST(DeadReckonerTest, situationCacheDifferentTimestamp)
 {
@@ -258,7 +274,9 @@ TEST(DeadReckonerTest, situationCacheDifferentTimestamp)
 }
 
 /// @test
-/// Tests that geodetic situation cache contains the correct value after calling the function that populates it
+/// Caches the extrapolated geodetic situation under the queried timestamp: nothing is cached
+/// before the first geodeticSituation() call, the cache then holds exactly the returned
+/// coordinates, and a repeated query returns the same values.
 /// @requirements(SEN-1058)
 TEST(DeadReckonerTest, geodeticSituationCachePopulated)
 {
@@ -288,7 +306,8 @@ TEST(DeadReckonerTest, geodeticSituationCachePopulated)
 }
 
 /// @test
-/// Tests that geodetic situation cache is not valid for a different timestamp
+/// Scopes the geodetic situation cache to the timestamp it was computed for, reporting it cached
+/// for the queried instant and not cached for a later one.
 /// @requirements(SEN-1058)
 TEST(DeadReckonerTest, geodeticSituationCacheDifferentTimestamp)
 {
@@ -309,7 +328,8 @@ TEST(DeadReckonerTest, geodeticSituationCacheDifferentTimestamp)
 }
 
 /// @test
-/// Tests that situation cache is invalidated when a new situation is updated
+/// Invalidates the situation cache when a new situation update arrives, so the instant that was
+/// cached before the update no longer reports as cached.
 /// @requirements(SEN-1058)
 TEST(DeadReckonerTest, situationCacheInvalidatedOnUpdate)
 {
@@ -332,7 +352,8 @@ TEST(DeadReckonerTest, situationCacheInvalidatedOnUpdate)
 }
 
 /// @test
-/// Tests that geodetic situation cache is invalidated when a new situation is updated
+/// Invalidates the geodetic situation cache when a new geodetic update arrives, so the instant
+/// that was cached before the update no longer reports as cached.
 /// @requirements(SEN-1058)
 TEST(DeadReckonerTest, geodeticSituationCacheInvalidatedOnUpdate)
 {
@@ -494,7 +515,9 @@ void expectSameGeodeticSituation(const GeodeticSituation& expected, const Geodet
 }  // namespace
 
 /// @test
-/// Tests that sharing the rotation leaves every field of the geodetic conversion bit for bit equal
+/// Produces a geodetic conversion bit for bit equal to the per-field reference even though the
+/// position rotation is built once and shared, across samples at the equator, mid latitudes and
+/// both poles beside the date line.
 /// @requirements(SEN-1058)
 TEST(DeadReckonerTest, geodeticConversionUnchangedBySharedRotation)
 {
@@ -506,7 +529,9 @@ TEST(DeadReckonerTest, geodeticConversionUnchangedBySharedRotation)
 }
 
 /// @test
-/// Tests the same for the conversion to ECEF, through both overloads
+/// Produces an ECEF conversion bit for bit equal to the per-field reference through both
+/// toSituation overloads, including the one taking a precomputed position and orientation, for
+/// every geodetic sample.
 /// @requirements(SEN-1058)
 TEST(DeadReckonerTest, ecefConversionUnchangedBySharedRotation)
 {
@@ -522,7 +547,8 @@ TEST(DeadReckonerTest, ecefConversionUnchangedBySharedRotation)
 }
 
 /// @test
-/// Tests that the angular acceleration of a geodetic situation survives the conversion to ECEF
+/// Carries the angular acceleration of a geodetic situation through the conversion to ECEF
+/// exactly, component for component.
 /// @requirements(SEN-1058)
 TEST(DeadReckonerTest, angularAccelerationSurvivesEcefConversion)
 {
@@ -577,8 +603,9 @@ constexpr double orientationTolerance = 1e-6;
 }  // namespace
 
 /// @test
-/// Tests that the quaternion composition reproduces the trihedron construction it replaced, away
-/// from the pitch limit where yaw and bank cannot be separated
+/// Reproduces the trihedron construction that the ECEF to NED quaternion composition replaced,
+/// staying within 1e-6 radians of the reference rotation and free of NaN over a grid of
+/// locations and attitudes away from the pitch limit where yaw and bank cannot be separated.
 /// @requirements(SEN-1058)
 TEST(DeadReckonerTest, orientationConversionMatchesTrihedronConstruction)
 {
@@ -613,7 +640,9 @@ TEST(DeadReckonerTest, orientationConversionMatchesTrihedronConstruction)
 }
 
 /// @test
-/// Tests that the NED to ECEF quaternion composition matches the trihedron construction away from the pitch limit
+/// Reproduces the trihedron construction that the NED to ECEF quaternion composition replaced,
+/// staying within 1e-6 radians of the reference rotation and free of NaN over a grid of
+/// locations and attitudes away from the pitch limit.
 /// @requirements(SEN-1058)
 TEST(DeadReckonerTest, nedToEcefOrientationConversionMatchesTrihedronConstruction)
 {
@@ -648,7 +677,9 @@ TEST(DeadReckonerTest, nedToEcefOrientationConversionMatchesTrihedronConstructio
 }
 
 /// @test
-/// Tests that converting an orientation to NED and back returns the rotation it started from
+/// Returns the rotation it started from when an orientation is converted from ECEF to NED and
+/// back, within 1e-6 radians and free of NaN, over a grid of locations and attitudes that
+/// includes the exact right angle pitch.
 /// @requirements(SEN-1058)
 TEST(DeadReckonerTest, orientationConversionRoundTrips)
 {
@@ -682,7 +713,8 @@ TEST(DeadReckonerTest, orientationConversionRoundTrips)
 }
 
 /// @test
-/// Tests that extrapolating with no rotation to apply returns the orientation it was given
+/// Holds the orientation still when extrapolating with zero angular velocity, staying within
+/// 1e-6 radians of the input and free of NaN, including at the exact right angle pitch.
 /// @requirements(SEN-1058)
 TEST(DeadReckonerTest, orientationExtrapolationHoldsStillAtThePitchLimit)
 {
@@ -806,7 +838,8 @@ TEST(DeadReckonerTest, testSubMicrosecondThresholdGuard)
 }
 
 /// @test
-/// Tests that configuration values changes after setting a new configuration
+/// Returns the documented defaults from getConfig on a freshly built reckoner and reflects every
+/// field of a replacement configuration after setConfig.
 TEST(DeadReckonerTest, setConfig)
 {
   TestDeadReckoner dr {};
@@ -838,7 +871,8 @@ TEST(DeadReckonerTest, setConfig)
 }
 
 /// @test
-/// Tests that situation smoothens when time and distance are not exceeded
+/// Publishes the smoothed result through the cache: with smoothing active and neither the time
+/// nor the distance limit exceeded, a query returns exactly the situation the cache then holds.
 TEST(DeadReckonerTest, stuckInTheAir)
 {
   DrConfig drConfig = {true, 100000.0, std::chrono::seconds(3)};
@@ -860,7 +894,8 @@ TEST(DeadReckonerTest, stuckInTheAir)
 }
 
 /// @test
-/// Tests settable dead reckoner isMoving function
+/// Reports a zero velocity as not moving and a velocity with components above the 0.1 metre per
+/// second floor as moving.
 TEST(DeadReckonerTest, isMoving)
 {
   const Situation zeroVelocity {false, {}, {}, {}, {}};
@@ -873,7 +908,8 @@ TEST(DeadReckonerTest, isMoving)
 }
 
 /// @test
-/// Tests settable dead reckoner isAccelerating function
+/// Reports a zero acceleration as not accelerating and an acceleration with components above
+/// the 0.1 metre per second squared floor as accelerating.
 TEST(DeadReckonerTest, isAccelerating)
 {
   const Situation zeroAcceleration {false, {}, {}, {}, {}, {}, {}};
@@ -886,7 +922,8 @@ TEST(DeadReckonerTest, isAccelerating)
 }
 
 /// @test
-/// Tests settable dead reckoner isRotating function
+/// Reports a zero angular velocity as not rotating and an angular velocity with components
+/// above the 0.001 radian per second floor as rotating.
 TEST(DeadReckonerTest, isRotating)
 {
   const Situation zeroAngularVelocity {false, {}, {}, {}, {}, {}};
@@ -899,7 +936,8 @@ TEST(DeadReckonerTest, isRotating)
 }
 
 /// @test
-/// Tests settable dead reckoner maxDistanceExceeded function
+/// Reports the distance threshold as exceeded when any axis of the separation between two
+/// locations reaches the threshold, and as not exceeded while all three axes stay below it.
 TEST(DeadReckonerTest, maxDistanceExceeded)
 {
   Situation initial {false, initialTimeStamp, {4848.75273e3, -291.95876e3, 4120.47542e3}};
@@ -916,7 +954,9 @@ TEST(DeadReckonerTest, maxDistanceExceeded)
 }
 
 /// @test
-/// Tests settable dead reckoner maxRotationExceeded function
+/// Reports the rotation threshold as exceeded when the quaternion dot product of the two
+/// orientations falls below the threshold: identical orientations never trip a zero threshold,
+/// a widely separated pair does.
 TEST(DeadReckonerTest, maxRotationExceeded)
 {
   Situation initial {false, initialTimeStamp, {}, {}, {10, -20, 35}};

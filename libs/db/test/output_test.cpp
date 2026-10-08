@@ -28,7 +28,8 @@ namespace sen::db::test
 {
 
 /// @test
-/// Creates archive directory and all required files
+/// Creates the archive on disk, leaving summary, types, runtime, and indexes files behind once
+/// the output closes.
 /// @requirements(SEN-364)
 TEST(OutputTest, CreatesArchiveFiles)
 {
@@ -55,7 +56,7 @@ TEST(OutputTest, CreatesArchiveFiles)
 }
 
 /// @test
-/// Keyframe increments summary count
+/// Counts each written keyframe in the summary, three writes reading back as a keyframe count of three.
 /// @requirements(SEN-364)
 TEST(OutputTest, KeyframeIncrementsSummary)
 {
@@ -87,7 +88,7 @@ TEST(OutputTest, KeyframeIncrementsSummary)
 }
 
 /// @test
-/// Types file is created with archive
+/// Writes a types file to the archive directory by the time the output closes.
 /// @requirements(SEN-364)
 TEST(OutputTest, TypesFileIsCreated)
 {
@@ -111,7 +112,8 @@ TEST(OutputTest, TypesFileIsCreated)
 }
 
 /// @test
-/// Write various entry types and fetch stats
+/// Records every entry kind in one archive: an indexed creation, a property change, an event,
+/// an annotation, and a keyframe. Readback lists one indexed object and counts one annotation.
 /// @requirements(SEN-364)
 TEST(OutputTest, WriteAllEntryTypes)
 {

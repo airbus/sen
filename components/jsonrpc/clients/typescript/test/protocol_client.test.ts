@@ -78,7 +78,7 @@ describe("JsonRpcClient -- health + introspection", () => {
     expect(t.call).toHaveBeenCalledWith({ method: "getTypes" });
   });
 
-  it("getType sends qualifiedName + withSchema:null by default and returns TypeLookupResult", async () => {
+  it("getType sends qualifiedName with withSchema defaulted to null and returns the lookup result", async () => {
     const t = makeRecordingTransport();
     const spec: CustomTypeSpec = {
       name: "X",
@@ -98,7 +98,7 @@ describe("JsonRpcClient -- health + introspection", () => {
     });
   });
 
-  it("getType forwards withSchema:true so the wire ships the schema fragment", async () => {
+  it("getType forwards withSchema set to true so the wire ships the schema fragment", async () => {
     const t = makeRecordingTransport();
     const result = {
       spec: {
@@ -122,7 +122,7 @@ describe("JsonRpcClient -- health + introspection", () => {
 });
 
 describe("JsonRpcClient -- interests", () => {
-  it("createInterest sends wire-faithful params and defaults subscribe + withSchemas to null", async () => {
+  it("createInterest sends the declared params and defaults subscribe and withSchemas to null", async () => {
     const t = makeRecordingTransport();
     const client = new JsonRpcClient(t.transport);
     await client.createInterest({ interestName: "i1", query: "SELECT * FROM x" });
@@ -151,7 +151,7 @@ describe("JsonRpcClient -- interests", () => {
     });
   });
 
-  it("createInterest forwards withSchemas:true so the wire opts into schema shipping", async () => {
+  it("createInterest forwards withSchemas set to true so the wire opts into schema shipping", async () => {
     const t = makeRecordingTransport();
     const client = new JsonRpcClient(t.transport);
     await client.createInterest({ interestName: "i1", query: "q", withSchemas: true });
@@ -194,7 +194,7 @@ describe("JsonRpcClient -- interests", () => {
 });
 
 describe("JsonRpcClient -- read/write", () => {
-  it("getProperty returns the string result verbatim (string-contract)", async () => {
+  it("getProperty returns the string result verbatim", async () => {
     const t = makeRecordingTransport();
     t.setResponse("12345.6");
     const client = new JsonRpcClient(t.transport);
@@ -257,7 +257,7 @@ describe("JsonRpcClient -- sticky subscriptions", () => {
     });
   });
 
-  it("unsubscribeProperty sends the wire-faithful params", async () => {
+  it("unsubscribeProperty passes its params through unchanged", async () => {
     const t = makeRecordingTransport();
     const client = new JsonRpcClient(t.transport);
     await client.unsubscribeProperty({ interestName: "i", objectName: "o", propertyName: "p" });
@@ -269,7 +269,7 @@ describe("JsonRpcClient -- sticky subscriptions", () => {
     });
   });
 
-  it("subscribeEvent + unsubscribeEvent send wire-faithful params", async () => {
+  it("subscribeEvent and unsubscribeEvent pass their params through unchanged", async () => {
     const t = makeRecordingTransport();
     const client = new JsonRpcClient(t.transport);
     await client.subscribeEvent({ interestName: "i", objectName: "o", eventName: "e" });
@@ -288,7 +288,7 @@ describe("JsonRpcClient -- sticky subscriptions", () => {
     });
   });
 
-  it("subscribeAll + unsubscribeAll send wire-faithful params", async () => {
+  it("subscribeAll defaults maxRateHz to null and unsubscribeAll passes its params through", async () => {
     const t = makeRecordingTransport();
     const client = new JsonRpcClient(t.transport);
     await client.subscribeAll({ interestName: "i", objectName: "o" });
@@ -357,7 +357,7 @@ describe("JsonRpcClient -- per-call options pass-through", () => {
 });
 
 describe("JsonRpcClient -- notification dispatch", () => {
-  it("onPropertyChanged registers a handler under 'propertyChanged' and casts the payload", () => {
+  it("onPropertyChanged registers under propertyChanged and delivers the payload to the handler", () => {
     const t = makeRecordingTransport();
     const client = new JsonRpcClient(t.transport);
     const userHandler = vi.fn();

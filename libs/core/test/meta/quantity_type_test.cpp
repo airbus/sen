@@ -70,7 +70,9 @@ void checkInvalidSpec(const QuantitySpec& spec)
 }  // namespace
 
 /// @test
-/// Checks quantity spec comparison
+/// Compares quantity specs: equal for identical specs, and unequal when the description, element
+/// type, minimum, maximum or unit differs or is removed, down to a unit differing only in its
+/// conversion factor.
 /// @requirements(SEN-355)
 TEST(QuantityType, specComparison)
 {
@@ -163,7 +165,9 @@ TEST(QuantityType, specComparison)
 }
 
 /// @test
-/// Check quantity correct type
+/// Answers the type predicates for a quantity: isCustomType and isQuantityType are true, the type
+/// is bounded, and every other kind predicate sampled, from isNativeType to isAliasType, is
+/// false.
 /// @requirements(SEN-355)
 TEST(QuantityType, basicsBoolConversion)
 {
@@ -199,7 +203,9 @@ TEST(QuantityType, basicsBoolConversion)
 }
 
 /// @test
-/// Check quantity correct type
+/// Converts a quantity through the as-type conversions: asCustomType and asQuantityType are
+/// non-null and every other kind conversion sampled, from asNativeType to asAliasType, returns
+/// null.
 /// @requirements(SEN-355)
 TEST(QuantityType, basicsConversion)
 {
@@ -235,7 +241,8 @@ TEST(QuantityType, basicsConversion)
 }
 
 /// @test
-/// Checks quantity correct creation
+/// Builds quantities whose getters expose the spec's name, qualified name, description, element
+/// type and bounds, including equal minimum and maximum, absent bounds and an absent unit.
 /// @requirements(SEN-355)
 TEST(QuantityType, makeBasic)
 {
@@ -277,7 +284,8 @@ TEST(QuantityType, makeBasic)
 }
 
 /// @test
-/// Checks quantity invalid creation
+/// Refuses to build a quantity whose spec has a missing or malformed name or qualified name, a
+/// minimum above the maximum, or bounds outside what the element type can represent.
 /// @requirements(SEN-355)
 TEST(QuantityType, makeInvalid)
 {
@@ -362,7 +370,9 @@ TEST(QuantityType, makeInvalid)
 }
 
 /// @test
-/// Checks quantity instance comparison
+/// Compares built quantities by value: a quantity differs from every native type, two from the
+/// same spec are equal, and a changed description, element type, bounds or unit, even a unit
+/// differing only in its conversion factor, makes them unequal.
 /// @requirements(SEN-355)
 TEST(QuantityType, comparison)
 {

@@ -86,7 +86,7 @@ public:
 //--------------------------------------------------------------------------------------------------------------
 
 /// @test
-/// Checks correct creation of kernel class in virtual time mode from an empty yaml file
+/// Creates a virtual-time kernel from an empty yaml string without throwing.
 /// @requirements(SEN-361)
 TEST(TestKernel, emptyConfig) { EXPECT_NO_THROW(auto kernel = sen::kernel::TestKernel::fromYamlString("")); }
 
@@ -121,9 +121,9 @@ TEST(TestKernel, destroyingAKernelLeavesTheProcessTerminateHandlerAlone)
 }
 
 /// @test
-/// Check correctness of a kernel instance that register an object and set up his callback on init, tracking the
-/// simulation time on each kernel iteration (step) and testing the correct behaviour of the callback the event is
-/// emitted.
+/// Steps a one-component kernel in virtual time: each step runs exactly one cycle, the cycle sees the time before
+/// the advance while the kernel ends one period ahead, a property set in a cycle is readable after that step, and
+/// event and property-change callbacks arrive one step later.
 /// @requirements(SEN-363)
 TEST(TestKernel, oneComponent)
 {
@@ -250,7 +250,7 @@ TEST(TestKernel, oneComponent)
 }
 
 /// @test
-/// Checks that Sen can not have repeated object names on the same bus
+/// Refuses a second object whose name an object on the same bus already holds, the add returning false.
 /// @requirements(SEN-580)
 TEST(TestKernel, repeatedNames)
 {
@@ -399,8 +399,8 @@ TEST(TestKernel, execLoopReplacesAStampGivenInsideIt)
 }
 
 /// @test
-/// A pipeline object with one side of `bus` empty (trailing or leading dot) is rejected
-/// at config-validation time.
+/// A pipeline object whose bus address leaves the segment after the dot empty is rejected at
+/// configuration load, and the error names the incomplete bus address.
 TEST(TestKernel, busAddressMustBeFullySpecified)
 {
   const auto* yaml = R"yaml(
@@ -428,7 +428,8 @@ build:
 }
 
 /// @test
-/// Checks that Sen can not have repeated object names on the same bus from different local participants
+/// Refuses a duplicate object name on the same bus across two local participants, both while the first object is
+/// still pending and after it is published.
 /// @requirements(SEN-580)
 TEST(TestKernel, repeatedNamesAcrossLocalParticipants)
 {
@@ -496,7 +497,8 @@ TEST(TestKernel, repeatedNamesAcrossLocalParticipants)
 }
 
 /// @test
-/// Checks that different local participants can publish objects with the same name on different buses
+/// Accepts objects with the same name from different local participants when they sit on different buses, both
+/// adds succeeding.
 /// @requirements(SEN-580)
 TEST(TestKernel, sameNameDifferentBuses)
 {
@@ -550,10 +552,11 @@ TEST(TestKernel, sameNameDifferentBuses)
 }
 
 /// @test
-/// Checks that MessageDispatcher correctly clears pending work before tearing down its internal ByteBufferManager
-/// @requirements(SEN-1613)
+/// Destroying a MessageDispatcher with a buffer-owning work item still queued clears the pending work before the
+/// internal ByteBufferManager is torn down.
 /// IMPORTANT NOTE: This test only fails with Asan enabled in the call to dispatcher.reset(). It does not fail without
 /// sanitizers enabled.
+/// @requirements(SEN-1613)
 TEST(TestKernel, SafeTeardownWithPendingWork)
 {
   auto tracer = [](std::string_view) { return std::unique_ptr<sen::kernel::Tracer>(nullptr); };
@@ -566,7 +569,8 @@ TEST(TestKernel, SafeTeardownWithPendingWork)
 }
 
 /// @test
-/// Verifies that Subscriptions correctly cleaned up before component shutdown do not throw errors
+/// A subscription attached and released during init leaves nothing behind: the kernel step and tear-down that
+/// follow complete without throwing.
 /// @requirements(SEN-362)
 TEST(TestKernel, SafeSubscriptionLifecycle)
 {
@@ -588,8 +592,8 @@ TEST(TestKernel, SafeSubscriptionLifecycle)
 }
 
 /// @test
-/// Verifies the defined late-subscription lifecycle behavior: debug builds assert when a listener is
-/// still attached at shutdown, while release builds complete shutdown and ignore the late cleanup safely.
+/// A listener still attached at shutdown aborts a debug build, while a release build completes shutdown and
+/// ignores the late cleanup.
 /// @requirements(SEN-362)
 TEST(TestKernel, LateSubscriptionDestructionLifecycle)
 {
@@ -615,7 +619,8 @@ TEST(TestKernel, LateSubscriptionDestructionLifecycle)
 }
 
 /// @test
-/// Verifies that explicit release followed by destructor is a safe no-op
+/// An explicit release after the kernel is destroyed throws nothing, and the destructor that follows is a safe
+/// no-op.
 /// @requirements(SEN-362)
 TEST(TestKernel, SubscriptionTornDownTwice)
 {
@@ -639,8 +644,8 @@ TEST(TestKernel, SubscriptionTornDownTwice)
 }
 
 /// @test
-/// Verifies that destroying a subscription concurrently with component shutdown does not cause crashes or undefined
-/// behavior
+/// Releases and destroys a subscription on a second thread while the kernel tears down, and both complete without
+/// a crash.
 /// @requirements(SEN-362)
 TEST(TestKernel, ConcurrentSubscriptionDestruction)
 {

@@ -75,7 +75,7 @@ using test::texts;
 //--------------------------------------------------------------------------------------------------------------
 
 /// @test
-/// No candidates share no prefix.
+/// An empty candidate list has an empty common prefix.
 TEST(CompleterCommonPrefix, EmptyCandidates)
 {
   std::vector<Completion> empty;
@@ -204,7 +204,7 @@ TEST(SplitObjectMethod, DottedPathTrailingDot)
 //--------------------------------------------------------------------------------------------------------------
 
 /// @test
-/// With nothing typed, every command is offered.
+/// With nothing typed, commands are offered, including cd, ls, help, exit and shutdown.
 TEST(CompleterCommand, EmptyPrefix)
 {
   Completer c;
@@ -291,7 +291,7 @@ TEST(CompleterCommand, CommandsNotShownForDottedPrefix)
 //--------------------------------------------------------------------------------------------------------------
 
 /// @test
-/// cd offers the up, root and back targets.
+/// The cd command offers the up, root and back targets.
 TEST(CompleterCd, SpecialTokens)
 {
   Completer c;
@@ -302,7 +302,7 @@ TEST(CompleterCd, SpecialTokens)
 }
 
 /// @test
-/// cd offers the children of the current scope.
+/// The cd command offers the children of the current scope.
 TEST(CompleterCd, ChildNames)
 {
   Completer c;
@@ -313,7 +313,7 @@ TEST(CompleterCd, ChildNames)
 }
 
 /// @test
-/// cd offers every matching child.
+/// The cd command offers every matching child.
 TEST(CompleterCd, MultipleChildren)
 {
   Completer c;
@@ -325,7 +325,7 @@ TEST(CompleterCd, MultipleChildren)
 }
 
 /// @test
-/// cd offers the query scopes.
+/// The cd command offers the query scopes.
 TEST(CompleterCd, QueryScopes)
 {
   Completer c;
@@ -336,7 +336,7 @@ TEST(CompleterCd, QueryScopes)
 }
 
 /// @test
-/// cd offers session names from the sources that are available.
+/// The cd command offers session names from the sources that are available.
 TEST(CompleterCd, AvailableSessionSources)
 {
   // cd shows undotted sources (sessions) only; dotted bus addresses are excluded.
@@ -396,7 +396,8 @@ TEST(CompleterCd, EmptyArgShowsAll)
 }
 
 /// @test
-/// cd offers sessions and children together, and still excludes bus addresses.
+/// With both children and sources populated, the cd command offers the child and still excludes
+/// the dotted bus address.
 TEST(CompleterCd, MixedResults)
 {
   Completer c;
@@ -413,7 +414,7 @@ TEST(CompleterCd, MixedResults)
 //--------------------------------------------------------------------------------------------------------------
 
 /// @test
-/// open offers the sources starting with the typed prefix.
+/// The open command offers the sources starting with the typed prefix.
 TEST(CompleterOpen, FiltersByPrefix)
 {
   Completer c;
@@ -435,7 +436,7 @@ TEST(CompleterOpen, EmptyPrefix)
 }
 
 /// @test
-/// open offers nothing when no source is available.
+/// The open command offers nothing when no source is available.
 TEST(CompleterOpen, NoSources)
 {
   Completer c;
@@ -455,7 +456,7 @@ TEST(CompleterOpen, ReplaceRange)
 }
 
 /// @test
-/// close offers the sources that are open.
+/// The close command offers the sources that are open.
 TEST(CompleterClose, ClosesOpenSources)
 {
   Completer c;
@@ -467,7 +468,7 @@ TEST(CompleterClose, ClosesOpenSources)
 }
 
 /// @test
-/// close offers the open sources starting with the typed prefix.
+/// The close command offers the open sources starting with the typed prefix.
 TEST(CompleterClose, FiltersByPrefix)
 {
   Completer c;
@@ -482,7 +483,7 @@ TEST(CompleterClose, FiltersByPrefix)
 //--------------------------------------------------------------------------------------------------------------
 
 /// @test
-/// units offers the category names the command filters on, so the offer and the filter agree.
+/// The units command offers the category names it filters on, so the offer and the filter agree.
 TEST(CompleterUnits, OffersTheNamesTheFilterMatches)
 {
   // Two hand-written category tables had drifted: the completer offered "angularVelocity" while
@@ -494,7 +495,7 @@ TEST(CompleterUnits, OffersTheNamesTheFilterMatches)
 }
 
 /// @test
-/// units offers torque, which is a registered category.
+/// The units command offers torque, which is a registered category.
 TEST(CompleterUnits, IncludesTorque)
 {
   // Both tables omitted torque, so `units` could never list it though newton_meter is registered.
@@ -504,7 +505,7 @@ TEST(CompleterUnits, IncludesTorque)
 }
 
 /// @test
-/// units offers every category the core defines, with none left out.
+/// The units command offers every category the core defines, with none left out.
 TEST(CompleterUnits, CoversEveryCategoryCoreDefines)
 {
   Completer c;
@@ -513,7 +514,7 @@ TEST(CompleterUnits, CoversEveryCategoryCoreDefines)
 }
 
 /// @test
-/// log offers its level subcommand.
+/// The log command offers its level subcommand.
 TEST(CompleterLog, SubcommandLevel)
 {
   Completer c;
@@ -542,7 +543,7 @@ TEST(CompleterLog, SubcommandNoMatch)
 }
 
 /// @test
-/// log level offers every level name.
+/// After log level, every level name is offered.
 TEST(CompleterLog, LevelNames)
 {
   Completer c;
@@ -567,7 +568,7 @@ TEST(CompleterLog, LevelPrefixFilter)
 }
 
 /// @test
-/// log level offers logger names as well as levels.
+/// After log level, logger names are offered as well as levels.
 TEST(CompleterLog, LevelAndLoggerNames)
 {
   Completer c;
@@ -579,7 +580,7 @@ TEST(CompleterLog, LevelAndLoggerNames)
 }
 
 /// @test
-/// A logger name followed by a prefix offers the levels for that logger.
+/// After a logger name, log level offers the levels for that logger and not the logger again.
 TEST(CompleterLog, PerLoggerLevel)
 {
   Completer c;
@@ -605,7 +606,7 @@ TEST(CompleterLog, ReplaceRange)
 //--------------------------------------------------------------------------------------------------------------
 
 /// @test
-/// query rm offers the names of the queries that exist.
+/// The query rm command offers the names of the queries that exist.
 TEST(CompleterQueryRm, QueryNames)
 {
   Completer c;
@@ -616,7 +617,7 @@ TEST(CompleterQueryRm, QueryNames)
 }
 
 /// @test
-/// query rm offers the queries starting with the typed prefix.
+/// The query rm command offers the queries starting with the typed prefix.
 TEST(CompleterQueryRm, FiltersByPrefix)
 {
   Completer c;
@@ -627,7 +628,7 @@ TEST(CompleterQueryRm, FiltersByPrefix)
 }
 
 /// @test
-/// query rm offers nothing when no query exists.
+/// The query rm command offers nothing when no query exists.
 TEST(CompleterQueryRm, NoQueries)
 {
   Completer c;
@@ -919,7 +920,7 @@ TEST(CompleterPath, MultipleSessionsAtRoot)
 }
 
 /// @test
-/// A path completion replaces the typed path and leaves the command alone.
+/// A path completion replaces the whole typed path, back to the start of the line.
 TEST(CompleterPath, ReplaceRangeForPath)
 {
   Completer c;
@@ -934,7 +935,8 @@ TEST(CompleterPath, ReplaceRangeForPath)
 //--------------------------------------------------------------------------------------------------------------
 
 /// @test
-/// A fully typed object name offers its methods rather than the object again.
+/// A fully typed object name is not offered again, the completer having switched from object
+/// names to method completion.
 TEST(CompleterMethod, ExactObjectMatchShowsMethodsNotObject)
 {
   // Exact object match switches to method completion, not object-name completion.
@@ -945,7 +947,7 @@ TEST(CompleterMethod, ExactObjectMatchShowsMethodsNotObject)
 }
 
 /// @test
-/// A dotted object prefix offers methods.
+/// A trailing dot on a known object name offers neither commands nor the object itself.
 TEST(CompleterMethod, DottedObjectPrefixGoesToMethods)
 {
   // Trailing dot on a known object enters method completion, not path/command.
@@ -957,7 +959,7 @@ TEST(CompleterMethod, DottedObjectPrefixGoesToMethods)
 }
 
 /// @test
-/// A dotted path naming an object offers its methods.
+/// A dot-terminated path naming a known object no longer offers commands.
 TEST(CompleterMethod, DottedPathObjectPrefixGoesToMethods)
 {
   // Dotted path to a known object enters method completion.
@@ -968,7 +970,7 @@ TEST(CompleterMethod, DottedPathObjectPrefixGoesToMethods)
 }
 
 /// @test
-/// A name matching no object falls back to path completion.
+/// A dot-terminated name matching no object offers nothing.
 TEST(CompleterMethod, UnknownObjectFallsToPathCompletion)
 {
   // Unknown object with trailing dot yields no completions.
@@ -1119,7 +1121,7 @@ TEST(CompleterContext, UnknownCommandNoCompletions)
 }
 
 /// @test
-/// After a query name the completer suggests the start of a selection.
+/// After a query name, the SELECT keyword is offered.
 TEST(CompleterContext, QueryAfterNameSuggestsSelect)
 {
   Completer c;
@@ -1163,8 +1165,8 @@ TEST(CompleterQuery, SelectOffersTheAnyTypeStar)
 }
 
 /// @test
-/// After FROM, a star stands for any bus. Reaching this means the keyword scan saw SELECT and then
-/// FROM and moved on: the same prefix with only SELECT behind it offers types instead.
+/// After FROM, a star stands for any bus. The completer offers it even when it knows of no open or
+/// available source.
 TEST(CompleterQuery, FromOffersTheAnyBusStar)
 {
   Completer c;
@@ -1195,8 +1197,8 @@ TEST(CompleterQuery, AHalfTypedKeywordDoesNotChangeTheState)
 }
 
 /// @test
-/// `inspect` takes an object and not a command, so the command names that share the namespace are
-/// taken back out of what it offers.
+/// The inspect command takes an object and not a command, so the command names that share the
+/// namespace are taken back out of what it offers.
 TEST(CompleterInspect, InspectOffersObjectsAndNotCommands)
 {
   Completer c;

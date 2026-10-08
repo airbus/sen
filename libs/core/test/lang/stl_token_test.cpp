@@ -60,7 +60,8 @@ TEST(AnStlToken, ProvidesConsistentViewOfItsMembers)
 }
 
 /// @test
-/// Every token type has a string form, and a type outside the enum converts without faulting.
+/// Round-trips every token type through toString and fromString, and maps a value outside the enum
+/// to the unknown type.
 TEST(AnStlToken, IsConvertibleToString)
 {
   // arrange

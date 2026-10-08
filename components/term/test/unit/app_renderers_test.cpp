@@ -77,9 +77,9 @@ std::size_t focusMarkerLine(const std::string& text)
 }
 
 /// @test
-/// The form names what it is about to call and every argument it needs. This is the whole of what
-/// a user has to go on: the form replaces the input line, so a field whose name never reaches the
-/// screen can only be filled in by counting positions.
+/// Shows the name of the method about to be called and the full target object address in the
+/// rendered form text. The form replaces the input line, so what it does not show the user has no
+/// other way to see.
 TEST(AppRenderers, TheFormNamesTheCallAndItsArguments)
 {
   const auto form = formFor("add");

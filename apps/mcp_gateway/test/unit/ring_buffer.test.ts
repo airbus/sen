@@ -14,7 +14,7 @@ describe("RingBuffer", () => {
     expect(() => new RingBuffer<number>(-1)).toThrow();
   });
 
-  it("drains empty as []", () => {
+  it("drains an empty buffer as an empty array", () => {
     const b = new RingBuffer<number>(4);
     expect(b.size).toBe(0);
     expect(b.drainAll()).toEqual([]);
@@ -56,7 +56,7 @@ describe("RingBuffer", () => {
     expect(b.drainAll()).toEqual([8, 9, 10]);
   });
 
-  it("drain resets head + size so subsequent pushes start fresh", () => {
+  it("resets on drain so subsequent pushes start fresh", () => {
     const b = new RingBuffer<number>(3);
     b.push(1);
     b.push(2);
@@ -80,7 +80,7 @@ describe("RingBuffer", () => {
     expect(drained[0]).toBe(c);
   });
 
-  it("handles cap=1 (degenerate ring)", () => {
+  it("keeps only the newest entry when the cap is one", () => {
     const b = new RingBuffer<number>(1);
     b.push(1);
     b.push(2);

@@ -95,7 +95,8 @@ struct StringConversionTraits<TestEnum8>
 }  // namespace sen
 
 /// @test
-/// Check pure integral types
+/// Reports isPureIntegral true for every fixed-width integer type and unsigned char, and false
+/// for floats, plain char, and bool.
 /// @requirements(SEN-1052)
 TEST(SerializationTraits, pureInts)
 {
@@ -116,7 +117,8 @@ TEST(SerializationTraits, pureInts)
 }
 
 /// @test
-/// Check numeric types
+/// Reports isNumeric true for every fixed-width integer and float type and unsigned char, and
+/// false for plain char and bool.
 /// @requirements(SEN-1052)
 TEST(SerializationTraits, isNumeric)
 {
@@ -137,7 +139,7 @@ TEST(SerializationTraits, isNumeric)
 }
 
 /// @test
-/// Check basic types
+/// Reports isBasic true for the integer, float, and character types, and false for std::string and bool.
 /// @requirements(SEN-1052)
 TEST(SerializationTraits, isBasic)
 {
@@ -159,7 +161,8 @@ TEST(SerializationTraits, isBasic)
 }
 
 /// @test
-/// Check which types can be memcopied in a sequence without gaps
+/// Reports allowsContiguousIO true for integer, float, character, pointer, and byte-backed enum
+/// types, and false for a trivial struct, bool, std::string, and vectors.
 /// @requirements(SEN-1052)
 TEST(SerializationTraits, allowsContiguousIO)
 {
@@ -189,7 +192,9 @@ TEST(SerializationTraits, allowsContiguousIO)
 }
 
 /// @test
-/// Check if std streams can stream different data types
+/// Reports IsStreamable input and output flags matching the stream and payload pair: void streams
+/// neither way, std::string is output-only on an ostream, char is input-only on an istream, and
+/// pointers and numbers stream both ways on an iostream or stringstream.
 /// @requirements(SEN-1052)
 TEST(SerializationTraits, isStreamableStdStreams)
 {
@@ -243,7 +248,7 @@ TEST(SerializationTraits, isStreamableStdStreams)
 }
 
 /// @test
-/// Check getSerializedSize for boolean values
+/// Returns the BoolTransportType size as the serialized size of both true and false.
 /// @requirements(SEN-1052)
 TEST(SerializationTraits, getSerializedSizeBool)
 {
@@ -252,7 +257,7 @@ TEST(SerializationTraits, getSerializedSizeBool)
 }
 
 /// @test
-/// Check getSerializedSize for basic numeric types
+/// Returns each value's own type size as its serialized size, for a uint8, an int32, a float32, and a char.
 /// @requirements(SEN-1052)
 TEST(SerializationTraits, getSerializedSizeBasic)
 {
@@ -263,7 +268,7 @@ TEST(SerializationTraits, getSerializedSizeBasic)
 }
 
 /// @test
-/// Check getSerializedSize for enumerations
+/// Returns the underlying integer width as the serialized size of uint8- and uint32-backed enum values.
 /// @requirements(SEN-1052)
 TEST(SerializationTraits, getSerializedSizeEnum)
 {
@@ -272,7 +277,7 @@ TEST(SerializationTraits, getSerializedSizeEnum)
 }
 
 /// @test
-/// Check getSerializedSize for strings
+/// Returns the length-prefix size for an empty string and prefix plus character count for a non-empty one.
 /// @requirements(SEN-1052)
 TEST(SerializationTraits, getSerializedSizeString)
 {
@@ -285,7 +290,7 @@ TEST(SerializationTraits, getSerializedSizeString)
 }
 
 /// @test
-/// Check getSerializedSize for TimeStamp
+/// Returns the int64 size as the serialized size of a TimeStamp.
 /// @requirements(SEN-1052)
 TEST(SerializationTraits, getSerializedSizeTimeStamp)
 {
@@ -294,7 +299,7 @@ TEST(SerializationTraits, getSerializedSizeTimeStamp)
 }
 
 /// @test
-/// Checks JSON string conversion for native numeric types
+/// Converts a uint32 to a JSON unsigned number and recovers the original 8080 via fromJsonString.
 /// @requirements(SEN-1052)
 TEST(SerializationTraitsJsonTest, NativeTypeConversion)
 {
@@ -311,7 +316,7 @@ TEST(SerializationTraitsJsonTest, NativeTypeConversion)
 }
 
 /// @test
-/// Checks JSON string conversion for string types
+/// Converts a std::string to a JSON string and recovers the original text via fromJsonString.
 /// @requirements(SEN-1052)
 TEST(SerializationTraitsJsonTest, StringTypeConversion)
 {
@@ -328,7 +333,8 @@ TEST(SerializationTraitsJsonTest, StringTypeConversion)
 }
 
 /// @test
-/// Checks JSON string conversion for sequence types
+/// Converts a three-element int vector to a JSON array preserving order and values, and recovers
+/// an equal vector via fromJsonString.
 /// @requirements(SEN-1052)
 TEST(SerializationTraitsJsonTest, SequenceConversion)
 {
@@ -348,7 +354,7 @@ TEST(SerializationTraitsJsonTest, SequenceConversion)
 }
 
 /// @test
-/// Checks JSON string conversion for Duration type
+/// Converts Duration(5000) to the JSON integer 5000 and recovers an equal Duration via fromJsonString.
 /// @requirements(SEN-1052)
 TEST(SerializationTraitsJsonTest, DurationConversion)
 {
@@ -365,7 +371,8 @@ TEST(SerializationTraitsJsonTest, DurationConversion)
 }
 
 /// @test
-/// Checks JSON string conversion for TimeStamp type
+/// Converts the epoch TimeStamp to the JSON string "1970-01-01 00:00:00 000000" and recovers a
+/// TimeStamp within 24 hours of the original, tolerating the timezone offset.
 /// @requirements(SEN-1052)
 TEST(SerializationTraitsJsonTest, TimeStampConversion)
 {
@@ -387,7 +394,8 @@ TEST(SerializationTraitsJsonTest, TimeStampConversion)
 }
 
 /// @test
-/// Checks JSON string conversion for optional types
+/// Converts an engaged optional to its plain JSON value and an empty optional to JSON null,
+/// recovering the engaged and empty states via fromJsonString.
 /// @requirements(SEN-1052)
 TEST(SerializationTraitsJsonTest, OptionalConversion)
 {
@@ -415,7 +423,7 @@ TEST(SerializationTraitsJsonTest, OptionalConversion)
 }
 
 /// @test
-/// Checks JSON string conversion for enum types
+/// Converts an enum to its underlying JSON unsigned number and recovers the same enumerator via fromJsonString.
 /// @requirements(SEN-1052)
 TEST(SerializationTraitsJsonTest, EnumConversion)
 {
@@ -432,7 +440,7 @@ TEST(SerializationTraitsJsonTest, EnumConversion)
 }
 
 /// @test
-/// Checks JSON string conversion for array and sequence types
+/// Converts a three-element std::array to a JSON array and recovers an equal array via fromJsonString.
 /// @requirements(SEN-1052)
 TEST(SerializationTraitsJsonTest, ArrayConversion)
 {
@@ -450,7 +458,8 @@ TEST(SerializationTraitsJsonTest, ArrayConversion)
 }
 
 /// @test
-/// Checks JSON string conversion for structs
+/// Converts a generated struct with native-typed fields to a JSON object keyed by field name and
+/// recovers equal field values via fromJsonString.
 /// @requirements(SEN-1052)
 TEST(SerializationTraitsJsonTest, StructConversion)
 {
@@ -477,7 +486,8 @@ TEST(SerializationTraitsJsonTest, StructConversion)
 }
 
 /// @test
-/// Checks JSON string conversion for variants
+/// Converts a variant holding alternative 2 to a JSON object with type and value members and
+/// recovers the same alternative and value via fromJsonString.
 /// @requirements(SEN-1052)
 TEST(SerializationTraitsJsonTest, VariantConversion)
 {

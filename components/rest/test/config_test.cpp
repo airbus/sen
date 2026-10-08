@@ -18,7 +18,8 @@
 #include <string>
 
 /// @test
-/// Check validation of the REST API configuration
+/// Loads the REST component from a YAML configuration and exposes the configured listen
+/// address 127.0.0.1 and port 12345.
 /// @requirements(SEN-1061)
 TEST(Rest, success_config)
 {
@@ -41,7 +42,8 @@ TEST(Rest, success_config)
 }
 
 /// @test
-/// Check REST API with an invalid configuration results in an error
+/// Aborts kernel construction when the REST configuration carries an unparseable listen
+/// address.
 /// @requirements(SEN-1061)
 TEST(Rest, invalid_config_address)
 {
@@ -58,7 +60,7 @@ TEST(Rest, invalid_config_address)
 }
 
 /// @test
-/// Check REST API runs with default update frequency
+/// Falls back to the default update frequency when the configuration does not set freqHz.
 /// @requirements(SEN-1061)
 TEST(Rest, config_default_update_freq)
 {
@@ -80,7 +82,7 @@ TEST(Rest, config_default_update_freq)
 }
 
 /// @test
-/// Check REST API runs with a configured update frequency
+/// Applies the configured freqHz of 60 as the component's update frequency.
 /// @requirements(SEN-1061)
 TEST(Rest, config_custom_update_freq)
 {

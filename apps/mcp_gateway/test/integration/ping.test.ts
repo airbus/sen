@@ -56,7 +56,7 @@ describe("sen-mcp-gateway over stdio (ping)", () => {
     expect(result.content).toEqual([{ type: "text", text: "pong" }]);
   });
 
-  it("returns isError for an unknown tool", async () => {
+  it("returns an error result for an unknown tool", async () => {
     const result = await client.callTool({ name: "nonexistent", arguments: {} });
     expect(result.isError).toBe(true);
     const content = result.content as Array<{ type: string; text: string }>;

@@ -37,7 +37,7 @@ mock_curl_sums() {
 # Soft-skip outcomes go to $_NOTES_QUEUE (flush_notes drains it later); the match case prints a step_done line.
 # Each test inspects the right surface.
 
-@test "verify_checksum: SHA256SUMS not published queues a note" {
+@test "continues with a deferred note when the release publishes no SHA256SUMS" {
     load_install
     local archive="$SEN_INSTALL_HOME/cache/x.tar.gz"
     mkdir -p "$SEN_INSTALL_HOME/cache" && printf 'x' > "$archive"
@@ -49,7 +49,7 @@ mock_curl_sums() {
     [ -f "$archive" ]
 }
 
-@test "verify_checksum: matching entry prints a step_done and keeps the archive" {
+@test "reports a matching checksum as verified and keeps the archive" {
     load_install
     local fname="x.tar.gz"
     mkdir -p "$SEN_INSTALL_HOME/cache"
@@ -63,7 +63,7 @@ mock_curl_sums() {
     [ -f "$SEN_INSTALL_HOME/cache/$fname" ]
 }
 
-@test "verify_checksum: mismatch returns 1 and deletes the archive" {
+@test "fails on a checksum mismatch and deletes the archive" {
     load_install
     local fname="x.tar.gz"
     mkdir -p "$SEN_INSTALL_HOME/cache"
@@ -75,7 +75,7 @@ mock_curl_sums() {
     [ ! -f "$SEN_INSTALL_HOME/cache/$fname" ]
 }
 
-@test "verify_checksum: matches the BSD-style '*<file>' format too" {
+@test "accepts a SHA256SUMS entry whose filename carries a leading star" {
     load_install
     local fname="x.tar.gz"
     mkdir -p "$SEN_INSTALL_HOME/cache"
@@ -91,7 +91,7 @@ mock_curl_sums() {
 # Already-installed short-circuit
 #---------------------------------------------------------------------------------------------------------------
 
-@test "do_install: short-circuits with 'already installed' when prefix exists" {
+@test "reports an already-installed build and re-points current at it" {
     load_install
     mock_curl_with_fixture "$(fixture_path release-0.5.2.json)"
     detect_compiler() { return 1; }
@@ -151,7 +151,7 @@ SCRIPT
     printf '%s' "$tarball"
 }
 
-@test "do_install: end-to-end installs prefix, manifest, both activate scripts, completion cache" {
+@test "installs a release end to end with manifest, activate scripts and the current symlink" {
     load_install
 
     # Build a real .tar.gz that looks like a Sen release. The fake `sen` responds to `completion <shell>` so
@@ -202,7 +202,7 @@ SCRIPT
 # Cache hit (fetch_archive reuses a previously-downloaded archive)
 #---------------------------------------------------------------------------------------------------------------
 
-@test "fetch_archive: cache hit when the archive already exists; no curl call" {
+@test "reuses an already-downloaded archive without touching the network" {
     load_install
     local fname="sen-0.5.2-x86_64-linux-gnu-12.4.0-release.tar.gz"
     mkdir -p "$SEN_INSTALL_HOME/cache"
@@ -216,7 +216,7 @@ SCRIPT
     [ "$(cat "$SEN_INSTALL_HOME/cache/$fname")" = "pre-staged" ]
 }
 
-@test "fetch_archive: corrupt cache hit is caught by verify_checksum, archive deleted" {
+@test "deletes a cached archive whose checksum no longer matches" {
     # SHA256SUMS published + hash mismatch → verify_checksum removes the cache; a real flow would then re-download.
     load_install
     local fname="sen-0.5.2-x86_64-linux-gnu-12.4.0-release.tar.gz"
@@ -242,7 +242,7 @@ SCRIPT
 # Rollback (failure after unpack must not leave a half-installed prefix)
 #---------------------------------------------------------------------------------------------------------------
 
-@test "do_install: rollback removes the prefix when unpack fails after creating it" {
+@test "removes the half-installed prefix when a step fails after unpack" {
     # Force write_activate_scripts to fail; the EXIT trap should rm -rf the prefix.
     load_install
 
@@ -291,7 +291,7 @@ SCRIPT
 # Install lock
 #---------------------------------------------------------------------------------------------------------------
 
-@test "with_install_lock: refuses to start when another install holds the lock" {
+@test "refuses to start while another install is in progress" {
     if ! command -v flock >/dev/null 2>&1; then
         skip "flock not available"
     fi
@@ -312,7 +312,7 @@ SCRIPT
 # verify_checksum: once the release lists SHA256SUMS, every failure is fatal
 #---------------------------------------------------------------------------------------------------------------
 
-@test "verify_checksum: a draft's untagged asset URL verifies" {
+@test "verifies checksums served from a draft's untagged download URL" {
     # A draft serves its assets under releases/download/untagged-<hash>/, where a URL built from
     # the tag 404s.
     load_install
@@ -328,7 +328,7 @@ SCRIPT
     [[ "$output" == *"Verified"* ]]
 }
 
-@test "verify_checksum: listed but unfetchable is fatal and deletes the archive" {
+@test "fails when the listed SHA256SUMS cannot be fetched and deletes the archive" {
     load_install
     local fname="x.tar.gz"
     mkdir -p "$SEN_INSTALL_HOME/cache"
@@ -341,7 +341,7 @@ SCRIPT
     [ ! -f "$SEN_INSTALL_HOME/cache/$fname" ]
 }
 
-@test "verify_checksum: no entry for our archive is fatal and deletes it" {
+@test "fails when SHA256SUMS has no entry for the archive and deletes it" {
     # What a short artefact set looks like: sums present, our archive missing from them.
     load_install
     local fname="x.tar.gz"
@@ -354,7 +354,7 @@ SCRIPT
     [ ! -f "$SEN_INSTALL_HOME/cache/$fname" ]
 }
 
-@test "do_install: a release candidate installs, with the hyphenated version intact" {
+@test "installs a release candidate with the hyphenated version intact in the prefix name" {
     # The build id is <version>-<arch>-<os>-<compiler>-<compilerver>, so a version containing a
     # hyphen has to survive the naming.
     load_install
@@ -372,7 +372,7 @@ SCRIPT
     [ "$(readlink "$SEN_INSTALL_HOME/current")" = "0.6.0-rc1-x86_64-linux-gnu-12.4.0" ]
 }
 
-@test "do_install: a build type other than the default installs beside the release, not over it" {
+@test "installs a second build type beside the release build, not over it" {
     # Two build types must not collide, or the already-installed check hands back whichever
     # arrived first.
     load_install
@@ -398,7 +398,7 @@ SCRIPT
     [[ "$dirs" != *".tar.gz"* ]]
 }
 
-@test "do_install: installing a candidate says so, and the activate scripts carry it" {
+@test "announces a release candidate install and marks both activate scripts prerelease" {
     # current is retargeted unconditionally and the docs say to source it from a shell rc, so the
     # variable is what a prompt or a bug report can read afterwards.
     load_install
@@ -417,7 +417,7 @@ SCRIPT
     grep -q "SEN_PRERELEASE '1'" "$prefix/activate.fish"
 }
 
-@test "do_install: installing a supported release says nothing about candidates" {
+@test "installs a supported release without the candidate warning" {
     load_install
     mock_curl_full_install "$(fixture_path release-0.5.2.json)" "$(stage_release_tarball)"
     detect_compiler() { return 1; }

@@ -19,7 +19,7 @@
 #include <filesystem>
 
 /// @test
-/// Check sen package init-component fails when no path is provided
+/// Rejects an init-component command line that omits the required component name argument.
 TEST(CliPackageInitComponent, NoPath)
 {
   CLI::App app;
@@ -31,7 +31,7 @@ TEST(CliPackageInitComponent, NoPath)
 }
 
 /// @test
-/// Check sen package init-component shows help information when help flag is provided
+/// Treats init-component --help as a call for help instead of creating a component.
 TEST(CliPackageInitComponent, Help)
 {
   CLI::App app;
@@ -43,7 +43,8 @@ TEST(CliPackageInitComponent, Help)
 }
 
 /// @test
-/// Check sen package init-component fails when path file is not in UpperCamelCase
+/// Rejects the lower-case component name test_component, exiting with code 1 and the message
+/// that component names must be upper camel cased.
 TEST(CliPackageInitComponent, NoUpperCammelCase)
 {
   CLI::App app;
@@ -57,7 +58,8 @@ TEST(CliPackageInitComponent, NoUpperCammelCase)
 }
 
 /// @test
-/// Check sen package init-component fails when the path provided already exists
+/// Exits with code 2 and reports the clash when the snake_case directory derived from the
+/// component name already exists.
 TEST(CliPackageInitComponent, DirectoryAlreadyExists)
 {
   const ScopedWorkDir workDir;
@@ -75,7 +77,8 @@ TEST(CliPackageInitComponent, DirectoryAlreadyExists)
 }
 
 /// @test
-/// Check sen package init-component creates all expected directories and files when no errors occur
+/// Creates the snake_case component directory holding CMakeLists.txt and src/component.cpp,
+/// and no stl directory, when init-component runs without flags.
 TEST(CliPackageInitComponent, NoFlags)
 {
   const ScopedWorkDir workDir;
@@ -96,7 +99,8 @@ TEST(CliPackageInitComponent, NoFlags)
 }
 
 /// @test
-/// Check sen package init-component creates all expected directories and files when --with-config flag is provided
+/// Creates the base component files plus an stl/test_component/config.stl skeleton when
+/// init-component runs with the --with-config flag.
 TEST(CliPackageInitComponent, WithConfigFlag)
 {
   const ScopedWorkDir workDir;
@@ -119,7 +123,8 @@ TEST(CliPackageInitComponent, WithConfigFlag)
 }
 
 /// @test
-/// Check sen package init-component creates all expected directories and files when --full flag is provided
+/// Creates the base component files plus an stl/test_component/config.stl skeleton when
+/// init-component runs with the --full flag.
 TEST(CliPackageInitComponent, FullFlag)
 {
   const ScopedWorkDir workDir;
@@ -142,7 +147,8 @@ TEST(CliPackageInitComponent, FullFlag)
 }
 
 /// @test
-/// Check sen package init-component fails when both flags are provided
+/// Rejects an init-component command line that combines the mutually exclusive --with-config
+/// and --full flags.
 TEST(CliPackageInitComponent, AllFlags)
 {
   CLI::App app;
@@ -154,7 +160,8 @@ TEST(CliPackageInitComponent, AllFlags)
 }
 
 /// @test
-/// Check sen package init-component fails when an extra argument is provided
+/// Rejects an init-component command line that carries an extra positional argument after the
+/// component name.
 TEST(CliPackageInitComponent, ExtraArgument)
 {
   CLI::App app;

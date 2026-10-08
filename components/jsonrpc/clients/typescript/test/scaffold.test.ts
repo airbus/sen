@@ -16,8 +16,8 @@ import {
 } from "../src/index.js";
 import type { MemberSelector, SubscribeBlock } from "../src/generated/index.js";
 
-describe("Stage 1 scaffold", () => {
-  it("Quantity carries value + unit and formats sensibly", () => {
+describe("value types and generated wire types", () => {
+  it("Quantity carries value, unit, and bounds and formats with its unit", () => {
     const meters: UnitInfo = { name: "meter", abbreviation: "m", category: "length" };
     const q = new Quantity(42, meters, 0, 1000);
     expect(q.value).toBe(42);
@@ -42,7 +42,7 @@ describe("Stage 1 scaffold", () => {
     expect(v.value).toEqual({ since: "2026-05-24T12:00:00Z", snortingVolume: 0.3 });
   });
 
-  it("MemberSelector discriminated union narrows on `type`", () => {
+  it("MemberSelector narrows on its type tag", () => {
     const wildcard: MemberSelector = { type: "sen.components.jsonrpc.WildcardSelection", value: {} };
     const named: MemberSelector = {
       type: "sen.components.jsonrpc.NamedSelection",
@@ -81,7 +81,7 @@ describe("Stage 1 scaffold", () => {
     expect(values[0]?.value).toBe("12345.6");
   });
 
-  it("CustomTypeSpec discriminated `data` narrows by arm", () => {
+  it("CustomTypeSpec's data field narrows by arm", () => {
     const spec: CustomTypeSpec = {
       name: "Altitude",
       qualifiedName: "demo.Altitude",
