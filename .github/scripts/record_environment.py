@@ -44,7 +44,31 @@ def first_line(command: tuple[str, ...]) -> str:
         result = subprocess.run(command, capture_output=True, text=True, timeout=20, check=False)
     except (OSError, subprocess.SubprocessError):
         return ""
-    return result.stdout.strip().splitlines()[0].strip() if result.stdout.strip() else ""
+    # MSVC's cl prints its banner on stderr and nothing on stdout, which left the Windows
+    # compiler recorded as its own name with no version at all.
+    for stream in (result.stdout, result.stderr):
+        if stream.strip():
+            return stream.strip().splitlines()[0].strip()
+    return ""
+
+
+def compiler_from_build(build_dir: Path | None) -> str:
+    """What the build wrote down about its own compiler, at configure time.
+
+    cl is on PATH only inside a developer shell, so asking the Windows compiler for its version
+    records nothing and the field fell back to the compiler's own name. CMake has already
+    established the version by the time anything is built, and cannot be wrong about it.
+    """
+    if build_dir is None:
+        return ""
+    for record in sorted(build_dir.glob("CMakeFiles/*/CMakeCXXCompiler.cmake")):
+        text = record.read_text(encoding="utf-8", errors="replace")
+        version = re.search(r'set\(CMAKE_CXX_COMPILER_VERSION "([^"]+)"\)', text)
+        if not version:
+            continue
+        name = re.search(r'set\(CMAKE_CXX_COMPILER_ID "([^"]*)"\)', text)
+        return f"{name.group(1)} {version.group(1)}".strip() if name else version.group(1)
+    return ""
 
 
 def distribution() -> str:
@@ -195,7 +219,8 @@ def facts(compiler: str, build_dir: Path | None = None, lockfile: Path | None = 
         ("Host", platform.node()),
     ]
     if compiler:
-        recorded.append(("Compiler", first_line((compiler, "--version")) or compiler))
+        # The build tree before the name: a name alone says nothing about which toolset ran.
+        recorded.append(("Compiler", first_line((compiler, "--version")) or compiler_from_build(build_dir) or compiler))
     recorded.extend((name, first_line(command)) for name, command in TOOLS)
     recorded.append(("Node", node_version(build_dir)))
     if lockfile is not None:

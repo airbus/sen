@@ -31,8 +31,15 @@ class Case(NamedTuple):
 
     @property
     def full_name(self) -> str:
-        """The name as ctest identifies it, which is what a reader greps for."""
-        return f"{self.classname}.{self.name}".lstrip(".")
+        """The name as ctest identifies it, which is what a reader greps for.
+
+        ctest repeats the whole name in both attributes while gtest's own writer splits them, so
+        joining the two blindly doubles a ctest name. Kept in step with split_name in
+        render_test_document, which decides the same thing for the document.
+        """
+        if self.classname and self.classname != self.name:
+            return f"{self.classname}.{self.name}"
+        return self.name
 
 
 def read_cases(path: Path) -> list[Case]:
