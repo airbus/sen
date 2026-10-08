@@ -306,9 +306,10 @@ jobs:
           if [ -n "${SEN_WINDOWS_COVERAGE:-}" ]; then
             # Inside the guard: the Linux legs run in the image, which is not given
             # GITHUB_WORKSPACE, and the script runs under set -u.
-            settings="$GITHUB_WORKSPACE/opencppcoverage.cfg"
+            workspace="${GITHUB_WORKSPACE:?the Windows legs run on the runner, which sets it}"
+            settings="$workspace/opencppcoverage.cfg"
             {
-              echo "sources=$GITHUB_WORKSPACE"
+              echo "sources=$workspace"
               sed -e 's/[[:space:]]*$//' -e '/^#/d' -e '/^$/d' -e 's|/|\\|g' \
                   -e 's|^|excluded_sources=|' cmake/util/coverage-exclusions.txt
             } > opencppcoverage.cfg
