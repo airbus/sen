@@ -379,64 +379,10 @@ jobs:
             --lockfile .conan/conan.lock
           IN
 
-      - name: Render the test document
-        if: always()
-        shell: bash
-        env:
-          # A branch name is written by whoever opened the pull request, so it reaches the
-          # renderer as a value and never as script text.
-          SEN_DOC_REF: ${{ github.head_ref || github.ref_name }}
-          SEN_DOC_RUN: ${{ github.run_number }} attempt ${{ github.run_attempt }}
-        run: |
-          directory="build/${{ matrix.compiler.name }}/${{ matrix.build_type }}"
-          bash .github/scripts/in_environment.sh <<'IN'
-          directory="build/${{ matrix.compiler.name }}/${{ matrix.build_type }}"
-          report="$directory/testReport.xml"
-          [ -f "$report" ] || report="$directory/ctestReport.xml"
-          if [ ! -f "$report" ]; then
-            echo "no test report to render"
-            exit 0
-          fi
-          # The repository is the fifth argument: without it the document lists the tests and
-          # none of the descriptions they carry, which is most of what it is for. The coverage
-          # report exists only on the leg that instruments, and the renderer says so when it
-          # is not there rather than failing.
-          python .github/scripts/render_test_document.py \
-            "$report" "$directory/testReport.typ" \
-            "${{ matrix.compiler.name }}-${{ matrix.compiler.version }} C++${{ matrix.std }} ${{ matrix.build_type }} ${{ matrix.arch }}" \
-            "${{ github.sha }}" . --stopped-at-first-failure \
-            "--ref=$SEN_DOC_REF" \
-            "--run=$SEN_DOC_RUN" \
-            "--coverage=$directory/coverage_reports/coverage.txt" \
-            --coverage-floor=80 \
-            "--descriptions=$directory/test-descriptions.tsv" \
-            "--environment=$directory/test-environment.tsv" \
-            "--build=$directory" \
-            --logo=docs/assets/images/logo_simple.svg | tee "$directory/render.log"
-          if command -v typst > /dev/null; then
-            typst compile "$directory/testReport.typ" "$directory/testReport.pdf"
-            [ -s "$directory/testReport.pdf" ] || { echo "typst wrote no pdf"; exit 1; }
-          else
-            echo "typst not found: the document stays as .typ"
-          fi
-          # A run that tested something and wrote no document has lost the record of it. The
-          # step above can only fail loudly; this makes a silent one fail too.
-          [ -s "$directory/testReport.typ" ] || { echo "no test document was written"; exit 1; }
-          IN
-
-          # Outside the container, where the summary file lives. A report nobody opens is not a
-          # check, so the figures reach the pull request without downloading the artifact.
-          if [ -s "$directory/render.log" ]; then
-            {
-              echo "### Test document"
-              sed -n 's/^wrote [^ ]* for /- /p' "$directory/render.log"
-              sed -n 's/^the commit under test /- The commit under test /p' "$directory/render.log"
-            } >> "$GITHUB_STEP_SUMMARY"
-          fi
-
-      # Kept rather than rendered and dropped: the enumeration is the QA record, and the
-      # job summary carries only the totals and the failures.
-      - name: Publish the test report
+      # What the combined report is built from. The leg renders nothing: one document over
+      # every configuration is the record, and five more saying the same thing per build is
+      # what it replaced.
+      - name: Publish what this leg measured
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
@@ -452,12 +398,9 @@ jobs:
           path: |
             build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ctestReport.xml
             build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/testReport.xml
-            build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/testReport.typ
-            build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/testReport.pdf
             build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/test-descriptions.tsv
             build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/test-environment.tsv
             build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/coverage_reports/coverage.txt
-            build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/sen-logo.svg
 
       - name: Publish the coverage report
         if: matrix.enable_coverage
