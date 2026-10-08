@@ -2341,11 +2341,10 @@ TEST(StaticVectorCoverageExtra, ComplexInstantiation)
   }
 }
 
-/// Check the ordering operators
-/// @requirements(SEN-355)
 /// @test
 /// Two equal vectors are neither less than nor greater than one another, and the ordering
 /// operators agree with the contents.
+/// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, orderingOperators)
 {
   using Vec = typename TypeParam::Vec;

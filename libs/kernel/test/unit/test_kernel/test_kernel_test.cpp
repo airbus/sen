@@ -554,9 +554,9 @@ TEST(TestKernel, sameNameDifferentBuses)
 /// @test
 /// Destroying a MessageDispatcher with a buffer-owning work item still queued clears the pending work before the
 /// internal ByteBufferManager is torn down.
-/// @requirements(SEN-1613)
 /// IMPORTANT NOTE: This test only fails with Asan enabled in the call to dispatcher.reset(). It does not fail without
 /// sanitizers enabled.
+/// @requirements(SEN-1613)
 TEST(TestKernel, SafeTeardownWithPendingWork)
 {
   auto tracer = [](std::string_view) { return std::unique_ptr<sen::kernel::Tracer>(nullptr); };

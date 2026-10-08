@@ -88,9 +88,6 @@ TEST(NetworkExclusion, KeepsRangesSeparate)
 }
 
 /// @test
-/// Finds the next value that is not excluded.
-/// @requirements(SEN-909)
-/// @test
 /// Treats both ends of an excluded range as excluded and the values just outside both ends as
 /// not excluded.
 /// @requirements(SEN-909)
@@ -134,6 +131,7 @@ TEST(NetworkExclusion, ExcludesNothingBelowTheFirstRange)
 
 /// @test
 /// Returns the first candidate the probe reaches that is not excluded.
+/// @requirements(SEN-909)
 TEST(NetworkExclusion, FindsNextValue)
 {
   ConfiguredPortExclusions exclusions;

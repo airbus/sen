@@ -235,9 +235,6 @@ TEST(PortBinding, BindsEphemeralPort)
   EXPECT_GT(socketUdp.local_endpoint().port(), 0);
 }
 
-/// @test
-/// Checks pin mode configuration
-/// @requirements(SEN-909)
 /// @test Two peers can share one pinned TCP source port, which is why reuse_address is set on it.
 /// Without the option the second bind fails with "address already in use" and that peer is dropped.
 TEST(PortBinding, SharesAPinnedTcpSourcePortBetweenPeers)
@@ -288,6 +285,7 @@ TEST(PortBinding, SharesAPinnedTcpSourcePortBetweenPeers)
 /// @test
 /// A pinned port is bound as configured for a TCP source, a TCP acceptor and a UDP unicast
 /// socket, rather than falling back to an ephemeral port.
+/// @requirements(SEN-909)
 TEST(PortBinding, BindsPinnedPort)
 {
   const auto portTcpSource = pickFreeTcpPort();
