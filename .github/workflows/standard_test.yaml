@@ -517,9 +517,8 @@ jobs:
     # Only when every leg succeeded: a configuration missing from the manifest would render a
     # complete-looking report that quietly covers one fewer build.
     needs: [compute-matrix-jobs, build]
-    # On main only. A pull request runs the same legs, so this would say the same thing at the
-    # cost of two minutes on every review, and the renderer's own tests already run there.
-    if: ${{ inputs.building-main }}
+    # On pull requests as well as main: the sanitizer job outlasts the whole matrix, so this
+    # finishes inside its window and a reviewer can read what a release would ship.
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -541,7 +540,9 @@ jobs:
       - name: Render one document over every configuration
         shell: bash
         env:
-          SEN_DOC_REF: ${{ github.ref_name }}
+          # head_ref is the source branch on a pull request and empty elsewhere; ref_name on a
+          # pull request is the synthetic <number>/merge, which names nothing a reader can fetch.
+          SEN_DOC_REF: ${{ github.head_ref || github.ref_name }}
           SEN_DOC_RUN: ${{ github.run_id }}
           # What the matrix said it would run, to check against what arrived.
           SEN_MATRIX: ${{ needs.compute-matrix-jobs.outputs.jobs }}
