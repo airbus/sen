@@ -61,12 +61,24 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   find_program(LCOV_PATH lcov REQUIRED)
   find_program(GENHTML_PATH genhtml REQUIRED)
 
+  # gcovr defaults to whichever gcov is on the path, which on 22.04 is 11.4 beside a g++-12.
+  # Reading another release's notes it finds nothing and reports 0 of 0 lines, having exited
+  # zero, so the figure is empty rather than the run failed.
+  string(
+    REGEX MATCH
+          "[0-9]+"
+          _gcc_major
+          "${CMAKE_CXX_COMPILER_VERSION}"
+  )
+  find_program(SEN_GCOV_TOOL NAMES "gcov-${_gcc_major}" gcov REQUIRED)
+
   make_directory(${SEN_COVERAGE_DATA_DIR})
 
   add_custom_target(
     generate-coverage-data
-    COMMAND ${GCOV_PATH} -r ${CMAKE_SOURCE_DIR} -j 8 --cobertura ${SEN_COVERAGE_DATA_DIR}coverage.xml
-            --print-summary --gcov-ignore-parse-errors --exclude "${SEN_COVERAGE_IGNORE_REGEX}"
+    COMMAND
+      ${GCOV_PATH} -r ${CMAKE_SOURCE_DIR} -j 8 --xml ${SEN_COVERAGE_DATA_DIR}coverage.xml --gcov-executable
+      ${SEN_GCOV_TOOL} --print-summary --gcov-ignore-parse-errors --exclude "${SEN_COVERAGE_IGNORE_REGEX}"
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     DEPENDS run_tests
   )
@@ -76,8 +88,9 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   # return once ctest finishes and every leg is kept on one path.
   add_custom_target(
     collect-coverage
-    COMMAND ${GCOV_PATH} -r ${CMAKE_SOURCE_DIR} -j 8 --cobertura ${SEN_COVERAGE_DATA_DIR}coverage.xml
-            --print-summary --gcov-ignore-parse-errors --exclude "${SEN_COVERAGE_IGNORE_REGEX}"
+    COMMAND
+      ${GCOV_PATH} -r ${CMAKE_SOURCE_DIR} -j 8 --xml ${SEN_COVERAGE_DATA_DIR}coverage.xml --gcov-executable
+      ${SEN_GCOV_TOOL} --print-summary --gcov-ignore-parse-errors --exclude "${SEN_COVERAGE_IGNORE_REGEX}"
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     VERBATIM
   )

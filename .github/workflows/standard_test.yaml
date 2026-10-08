@@ -278,9 +278,6 @@ jobs:
           # The suites start sibling containers, so this step needs the daemon.
           # Only the legs that register them ask for it.
           SEN_IN_IMAGE_DOCKER: ${{ matrix.runtime_base != '' && '1' || '' }}
-          # MSVC is not instrumented: OpenCppCoverage reads the program database while the suite
-          # runs, so it has to be the parent of the test processes rather than follow them.
-          SEN_WINDOWS_COVERAGE: ${{ matrix.enable_coverage && matrix.compiler.name == 'msvc' && '1' || '' }}
         run: |
           bash .github/scripts/in_environment.sh <<'IN'
           # The runner is discarded when the job ends, so the testcontainers
@@ -298,45 +295,14 @@ jobs:
           if [ -f build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh ]; then
             source build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh
           fi
-          # What OpenCppCoverage measures and what it leaves out, taken from the list the other
-          # compilers read too. It matches against the paths the program database records, which
-          # are native and backslash-separated: $PWD here is the POSIX form Git Bash reports and
-          # would match nothing, so the workspace comes from the environment and the patterns are
-          # rewritten. Written before the cd below, while the list is still a relative path.
-          if [ -n "${SEN_WINDOWS_COVERAGE:-}" ]; then
-            # Inside the guard: the Linux legs run in the image, which is not given
-            # GITHUB_WORKSPACE, and the script runs under set -u.
-            workspace="${GITHUB_WORKSPACE:?the Windows legs run on the runner, which sets it}"
-            settings="$workspace/opencppcoverage.cfg"
-            {
-              echo "sources=$workspace"
-              sed -e 's/[[:space:]]*$//' -e '/^#/d' -e '/^$/d' -e 's|/|\\|g' \
-                  -e 's|^|excluded_sources=|' cmake/util/coverage-exclusions.txt
-            } > opencppcoverage.cfg
-          fi
-
-          # OpenCppCoverage returns the exit code of what it ran, so a failing suite still fails
-          # this step. Every other leg runs the command unwrapped.
-          cover() {
-            name="$1"
-            shift
-            if [ -z "${SEN_WINDOWS_COVERAGE:-}" ]; then
-              "$@"
-              return
-            fi
-            OpenCppCoverage.exe --quiet --cover_children --config_file="$settings" \
-              --export_type="binary:coverage_data/${name}.cov" -- "$@"
-          }
-
           # ctest directly rather than through the run_tests target, which runs
           # these same three commands: on Windows cmake --build does not return
           # once they finish. Keep in step with CMAKE_CTEST_ARGUMENTS in
           # cmake/util/test.cmake.
           cd build/${{ matrix.compiler.name }}/${{ matrix.build_type }}
-          mkdir -p coverage_data
-          cover parallel ctest --parallel 1 --output-junit ctestParallelReport.xml --no-tests=error \
+          ctest --parallel 1 --output-junit ctestParallelReport.xml --no-tests=error \
             --stop-on-failure --output-on-failure --timeout 20 --schedule-random -LE flaky
-          cover flaky ctest --repeat until-pass:5 --output-junit ctestFlakyReport.xml --no-tests=ignore \
+          ctest --repeat until-pass:5 --output-junit ctestFlakyReport.xml --no-tests=ignore \
             --stop-on-failure --output-on-failure --timeout 20 --schedule-random -L flaky
           IN
 
@@ -370,22 +336,73 @@ jobs:
           cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ --target collect-coverage
           IN
 
-      # OpenCppCoverage writes one file per process tree it followed, and the document reads one
-      # report per configuration.
-      - name: Merge what OpenCppCoverage recorded
+      # OpenCppCoverage reads a running process's program database, and pays for that once per
+      # process it starts: ctest launches one per test case, and wrapping it timed out after 20
+      # minutes having finished 278 of 2802. The cases behind those live in a handful of gtest
+      # binaries, so this runs each binary once instead, while ctest above keeps producing the
+      # per-test results. Unit suites only for now, which is where the line coverage is.
+      #
+      # Each binary is timed, because what this costs has not been measured before.
+      - name: Measure coverage with OpenCppCoverage
         if: ${{ matrix.enable_coverage && matrix.compiler.name == 'msvc' }}
+        timeout-minutes: 30
         shell: bash
         run: |
+          workspace="${GITHUB_WORKSPACE:?the Windows legs run on the runner, which sets it}"
+          # Native and backslash-separated, which is what the program database records and what
+          # OpenCppCoverage matches against; $PWD here is the POSIX form Git Bash reports.
+          {
+            echo "sources=$workspace"
+            sed -e 's/[[:space:]]*$//' -e '/^#/d' -e '/^$/d' -e 's|/|\\|g' \
+                -e 's|^|excluded_sources=|' cmake/util/coverage-exclusions.txt
+          } > opencppcoverage.cfg
+
+          cd build/${{ matrix.compiler.name }}/${{ matrix.build_type }}
+          mkdir -p coverage_data
+          ctest --show-only=json-v1 -L unit > coverage_data/tests.json
+
+          python - <<'PICK' > coverage_data/binaries.txt
+          import json
+          # One line per binary ctest would launch, in first-seen order and without repeats: the
+          # cases are registered one per gtest test, and they share a handful of executables.
+          seen = []
+          for test in json.load(open("coverage_data/tests.json")).get("tests", []):
+              command = test.get("command") or []
+              if command and command[0].lower().endswith(".exe") and command[0] not in seen:
+                  seen.append(command[0])
+          print("\n".join(seen))
+          PICK
+
+          count=$(grep -c . coverage_data/binaries.txt || true)
+          echo "unit test binaries to measure: $count"
+          if [ "$count" -eq 0 ]; then
+            echo "ctest listed no unit test binaries, so there is nothing to measure"
+            exit 1
+          fi
+
+          index=0
+          while read -r binary; do
+            [ -n "$binary" ] || continue
+            index=$((index + 1))
+            started=$(date +%s)
+            # The exit status is the binary's own; a failing suite has already failed above, so
+            # this pass reports rather than gates and keeps going to measure the rest.
+            OpenCppCoverage.exe --quiet --config_file="$workspace/opencppcoverage.cfg" \
+              --export_type="binary:coverage_data/unit-$index.cov" -- "$binary" || true
+            # basename does not split a backslash path, and these come from ctest as native.
+            echo "  $(( $(date +%s) - started ))s  ${binary##*\\}"
+          done < coverage_data/binaries.txt
+
           set --
-          for recorded in build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/coverage_data/*.cov; do
+          for recorded in coverage_data/*.cov; do
             [ -e "$recorded" ] || continue
             set -- "$@" "--input_coverage=$recorded"
           done
           if [ "$#" -eq 0 ]; then
-            echo "the suite left no coverage behind, so the leg would report none"
+            echo "no binary left coverage behind, so the leg would report none"
             exit 1
           fi
-          OpenCppCoverage.exe --quiet "$@" --export_type="cobertura:build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/coverage_data/coverage.xml"
+          OpenCppCoverage.exe --quiet "$@" --export_type="cobertura:coverage_data/coverage.xml"
 
       # ctest sees one test per vitest package, so without this the document would carry five
       # entries for the hundreds of cases behind them. The runners write their own JUnit into
