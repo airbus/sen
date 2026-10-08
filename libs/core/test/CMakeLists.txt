@@ -151,7 +151,11 @@ endif()
 # writing SIZE_MAX bytes. Only when optimised, which no leg did until the coverage legs stopped
 # forcing -O0. Scoped to the file, and to be removed with the defect it stands in for.
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  set_source_files_properties(base/static_vector_test.cpp PROPERTIES COMPILE_OPTIONS -Wno-stringop-overflow)
+  # Two flags because gcc reports the same derived bound under both: silencing the first left
+  # array-bounds naming the identical memmove and the identical SIZE_MAX.
+  set_source_files_properties(
+    base/static_vector_test.cpp PROPERTIES COMPILE_OPTIONS "-Wno-stringop-overflow;-Wno-array-bounds"
+  )
 endif()
 
 set_target_properties(
