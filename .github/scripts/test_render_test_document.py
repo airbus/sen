@@ -12,6 +12,8 @@ from pathlib import Path
 from render_test_document import (
     DETAIL_LIMIT,
     SPEC_NAME_LIMIT,
+    Leg,
+    combined_criteria_prose,
     conformance,
     coverage_section,
     coverage_tree,
@@ -20,13 +22,16 @@ from render_test_document import (
     document_information,
     is_spec,
     main,
+    match_key,
     read_coverage,
     read_descriptions,
     run_started,
+    short_version,
     shorten,
     split_name,
     typst_string,
 )
+from test_report import Case
 
 # The third case is the one that matters: every character here is typst markup.
 REPORT = """<?xml version="1.0"?>
@@ -583,3 +588,83 @@ def test_a_document_rendered_outside_ci_says_so(tmp_path, monkeypatch):
 
     assert '("Ref", "not recorded")' in document
     assert '("Build", "not recorded")' in document
+
+
+def test_folding_never_merges_two_tests():
+    """Matching across configurations folds the compiler's spelling, never two distinct tests."""
+    names = [
+        "VectorTestTemplate.assign2<(anonymous namespace)::VectorTestTypes<float,10ul>>",
+        "VectorTestTemplate.assign2<(anonymous namespace)::VectorTestTypes<int,10ul>>",
+        "GuardedTest.Assign<int*>",
+        "GuardedTest.Assign<long*>",
+    ]
+    assert len({match_key(name) for name in names}) == len(names)
+
+
+def test_the_same_test_matches_across_compilers():
+    """MSVC and gcc write the same typed test differently; they have to match all the same."""
+    gcc = "VectorTestTemplate.assign2<(anonymous namespace)::VectorTestTypes<float,10ul>>"
+    msvc = "VectorTestTemplate.assign2<`anonymous namespace'::VectorTestTypes<float,10>>"
+    assert match_key(gcc) == match_key(msvc)
+    assert match_key("GuardedTest.Assign<int * __ptr64>") == match_key("GuardedTest.Assign<int*>")
+
+
+def test_a_version_is_the_number_not_the_whole_line():
+    """A tool's --version line carries a number; the rest identifies nothing."""
+    assert short_version("Compiler", "g++-12 (Ubuntu 12.3.0-1ubuntu1~22.04.3) 12.3.0") == "12.3.0"
+    assert short_version("Compiler", "Ubuntu clang version 20.1.8 (++2025080409)") == "20.1.8"
+    assert short_version("Ninja", "1.13.2.git.kitware.jobserver-pipe-1") == "1.13.2"
+    assert short_version("Python", "Python 3.10.12") == "3.10.12"
+
+
+def test_the_distribution_package_version_is_not_the_compiler_version():
+    """g++ prints its distribution's package version in brackets; only the last one is gcc's."""
+    assert short_version("Compiler", "g++-12 (Ubuntu 12.4.0-2ubuntu1~24.04.1) 12.4.0") == "12.4.0"
+
+
+def test_a_value_holding_no_version_is_left_alone():
+    """MSVC recorded as its own name, and anything that is not a version key, stay as they are."""
+    assert short_version("Compiler", "cl") == "cl"
+    assert short_version("Memory", "15.6 GiB") == "15.6 GiB"
+    assert short_version("Operating system", "Ubuntu 22.04.5 LTS") == "Ubuntu 22.04.5 LTS"
+
+
+def a_leg(name, cover=None, cases=None):
+    """A configuration carrying only what the summary prose reads."""
+    return Leg(
+        configuration=name,
+        report=Path("report.xml"),
+        cases=cases if cases is not None else [Case("suite", "a", "passed", 0.1, "")],
+        measured=None,
+        coverage="",
+        area_coverage={},
+        area_missed={},
+        line_coverage=cover,
+        environment=[],
+        descriptions={},
+        environment_file=None,
+        descriptions_file=None,
+        stopped_at_first_failure=False,
+    )
+
+
+def test_the_summary_says_when_one_configuration_measured_coverage_alone():
+    """Today only one leg instruments, and a figure from one build is not a figure for five."""
+    legs = [a_leg("gcc-x86-Debug"), a_leg("clang-x86-Debug", 84.59), a_leg("msvc-x86-Release")]
+    said = combined_criteria_prose(legs, 84.59, "80")
+    assert "Only clang-x86-Debug measured coverage" in said
+    assert "84.59% of lines" in said
+
+
+def test_the_summary_reports_the_lowest_once_every_configuration_measures():
+    """When they all measure, a floor claimed for the release has to hold for the worst of them."""
+    legs = [a_leg("gcc-x86-Debug", 84.3), a_leg("gcc-x86-Release", 83.9), a_leg("msvc-x86-Release", 79.1)]
+    said = combined_criteria_prose(legs, 79.1, "80")
+    assert "lowest any configuration measured was 79.10% of lines" in said
+    assert "Only" not in said
+
+
+def test_the_summary_says_the_floor_was_not_tested_when_nothing_measured():
+    """A floor nothing measured against was not met; it was not tested."""
+    said = combined_criteria_prose([a_leg("gcc-x86-Debug"), a_leg("msvc-x86-Release")], None, "80")
+    assert "No configuration measured coverage, so the floor was not tested." in said
