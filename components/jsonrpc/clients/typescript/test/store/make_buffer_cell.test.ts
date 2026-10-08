@@ -65,7 +65,7 @@ describe("makeBufferCell", () => {
     expect(listener).not.toHaveBeenCalled();
   });
 
-  it("the wrapper-around-mutable-backing convention works for zero-copy reads", () => {
+  it("a view wrapping a mutable backing array shares it zero-copy and gets a fresh wrapper per invalidate", () => {
     // Pattern from the RFC: producer wraps a live mutable array. The wrapper identity
     // flips per invalidate; the array reference inside is shared (no .slice).
     const backing: number[] = [];

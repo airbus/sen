@@ -26,7 +26,9 @@ namespace sen::util
 constexpr f64 absoluteError = 1e-4;
 
 /// @test
-/// Tests the change from ECEF coordinates to geodetic coordinates
+/// Converts ECEF locations to geodetic latitude, longitude and altitude within 1e-4 of the
+/// reference values, covering points at the surface, on the equator, on the polar axis and far
+/// inside the ellipsoid.
 /// @requirements(SEN-1057)
 TEST(Coordinates, EcefToGeodetic)
 {
@@ -75,7 +77,9 @@ TEST(Coordinates, EcefToGeodetic)
 }
 
 /// @test
-/// Tests the change from geodetic coordinates to ECEF coordinates
+/// Converts geodetic latitude, longitude and altitude to ECEF coordinates within 1e-4 of the
+/// reference values, at a mid latitude point, at the north pole and on the 90 degree east
+/// meridian.
 /// @requirements(SEN-1057)
 TEST(Coordinates, GeodeticToEcef)
 {
@@ -99,7 +103,8 @@ TEST(Coordinates, GeodeticToEcef)
 }
 
 /// @test
-/// Tests the change from body coordinates to NED coordinates
+/// Rotates a body frame vector into NED coordinates using the Euler orientation, mapping the
+/// body forward axis to straight down under a 90 degree yaw and a minus 90 degree pitch.
 /// @requirements(SEN-1057)
 TEST(Coordinates, bodyToNed)
 {
@@ -115,7 +120,8 @@ TEST(Coordinates, bodyToNed)
 }
 
 /// @test
-/// Tests the change of base of a vector from ECEF coordinates to NED coordinates
+/// Re-expresses an ECEF vector in the local NED frame at a geodetic location, matching the
+/// reference components within 1e-4 at one northern and one southern hemisphere location.
 /// @requirements(SEN-1057)
 TEST(Coordinates, ecefToNed)
 {
@@ -140,7 +146,8 @@ TEST(Coordinates, ecefToNed)
 }
 
 /// @test
-/// Tests the change of base of a vector from NED coordinates to ECEF coordinates
+/// Re-expresses a NED vector in ECEF coordinates at a geodetic location, recovering the
+/// reference ECEF components within 1e-4 at one northern and one southern hemisphere location.
 /// @requirements(SEN-1057)
 TEST(Coordinates, nedToEcef)
 {
@@ -165,8 +172,9 @@ TEST(Coordinates, nedToEcef)
 }
 
 /// @test
-/// Tests the change of velocity, acceleration and angular acceleration vectors from body coordinates to NED coordinates
-/// and angular velocity from body to NED coordinates and vice versa
+/// Rotates velocity, acceleration, angular velocity and angular acceleration vectors from the
+/// body frame to NED through the typed overloads, and maps the angular velocity back to the body
+/// frame unchanged through nedToBody.
 TEST(Coordinates, bodyToNedNonDefault)
 {
   const Velocity velocity {1.0f, 0.0f, 0.0f};

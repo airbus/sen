@@ -21,7 +21,7 @@ describe("redactUrlForAudit", () => {
 
   // The two places a browser client can put a credential, since the WebSocket API cannot set
   // request headers and the server reads its credential from one.
-  it("drops userinfo", () => {
+  it("drops credentials placed before the host", () => {
     expect(redactUrlForAudit("ws://user:hunter2@host:8080")).toBe("ws://host:8080 (redacted)");
     expect(redactUrlForAudit("ws://tokenonly@host:8080")).toBe("ws://host:8080 (redacted)");
   });

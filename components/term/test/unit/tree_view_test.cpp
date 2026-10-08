@@ -108,7 +108,7 @@ TEST(TreeView, ParentPointersAreSet)
 }
 
 /// @test
-/// Clearing a node drops its children, its annotation and its kind.
+/// Clearing a node drops its children and its annotation.
 TEST(TreeView, ClearDropsChildrenAndAnnotation)
 {
   TreeNode root;
@@ -177,7 +177,7 @@ TEST(TreeView, RenderUsesBoxDrawingConnectors)
 }
 
 /// @test
-/// Rendering shows a node's annotation beside its name.
+/// Rendering shows a node's annotation as well as its name.
 TEST(TreeView, RenderShowsAnnotations)
 {
   TreeNode root;

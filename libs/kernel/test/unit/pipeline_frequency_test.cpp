@@ -37,7 +37,7 @@ TEST(APipelineFrequency, refusesZero)
 }
 
 /// @test
-/// A negative frequency is refused; it used to give a negative period.
+/// A negative frequency is refused. It used to give a negative period.
 TEST(APipelineFrequency, refusesANegativeValue)
 {
   EXPECT_THROW(static_cast<void>(sen::kernel::Bootloader::fromYamlString(configWith("    freqHz: -5\n"), false)),
@@ -53,7 +53,7 @@ TEST(APipelineFrequency, acceptsLessThanOneHertz)
 }
 
 /// @test
-/// Omitting it gives the default rather than an error.
+/// Omitting the frequency gives the default rather than an error.
 TEST(APipelineFrequency, defaultsWhenOmitted)
 {
   const auto bootloader = sen::kernel::Bootloader::fromYamlString(configWith(""), false);

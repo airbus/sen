@@ -76,7 +76,7 @@ describe("isEventTriggeredNotification", () => {
     ).toBe(true);
   });
 
-  it("rejects when args is not a string (would have been a wire-shape bug)", () => {
+  it("rejects when args is not a string", () => {
     expect(
       isEventTriggeredNotification({
         interestName: "i1",

@@ -36,7 +36,8 @@ using sen::components::jsonrpc::test::primeFixtureInterest;
 using sen::components::jsonrpc::test::request;
 
 /// @test
-/// `invoke` with an unknown method name on a known object returns Method-not-found.
+/// Returns the methodNotFound error when invoke names a method that does not exist on a known
+/// object.
 TEST(JsonRpc, invokeUnknownMethodReturnsMethodNotFound)
 {
   DispatcherFixture f;
@@ -57,7 +58,8 @@ TEST(JsonRpc, invokeUnknownMethodReturnsMethodNotFound)
 }
 
 /// @test
-/// `invoke` happy path through the WorkQueue: `widget.doubled(21)` returns 42.
+/// Invokes the widget's doubled method with argument 21 and returns a JSON-encoded result that
+/// decodes to 42.
 TEST(JsonRpc, invokeReturnsValueFromKernelMethod)
 {
   DispatcherFixture f;
@@ -79,8 +81,8 @@ TEST(JsonRpc, invokeReturnsValueFromKernelMethod)
 }
 
 /// @test
-/// A throwing target method becomes an `internalError` (-32603) with the exception's `what()`
-/// in `data` and a stable `message`.
+/// Converts an exception thrown by the invoked method into an internalError response that
+/// carries a stable handler-threw message and the exception's own text in the data field.
 TEST(JsonRpc, invokeReturnsErrorWhenHandlerThrows)
 {
   DispatcherFixture f;
@@ -104,9 +106,9 @@ TEST(JsonRpc, invokeReturnsErrorWhenHandlerThrows)
 }
 
 /// @test
-/// An arg that fails string-to-number coercion is invalidParams (`parseInvokeArgs` catches the
-/// thrown `std::invalid_argument` so it can't terminate the dispatcher). The coercion text rides
-/// in `data`, not `message`.
+/// Rejects an invoke argument that fails string-to-number coercion with invalidParams instead
+/// of terminating the dispatcher, placing the coercion detail in the error data field and a
+/// fixed invalid-args text in the message.
 TEST(JsonRpc, invokeArgTypeMismatchIsInvalidParams)
 {
   DispatcherFixture f;
@@ -131,8 +133,9 @@ TEST(JsonRpc, invokeArgTypeMismatchIsInvalidParams)
 }
 
 /// @test
-/// `invoke` rejects an `argsJson` that is a string but doesn't parse as JSON, with the dedicated
-/// "is not valid JSON" message (separate from the post-parse coercion error).
+/// Rejects an invoke whose argsJson string does not parse as JSON with invalidParams and a
+/// dedicated message saying argsJson is not valid JSON, distinct from the post-parse coercion
+/// error.
 TEST(JsonRpc, invokeMalformedArgsJsonIsInvalidParams)
 {
   DispatcherFixture f;
@@ -152,8 +155,8 @@ TEST(JsonRpc, invokeMalformedArgsJsonIsInvalidParams)
 }
 
 /// @test
-/// `getTypes` returns the kernel's custom-type registry as a JSON array of qualified names.
-/// FixtureWidget is loaded into this kernel via `sen_generate_cpp`, so it must be present.
+/// Returns the kernel's custom-type registry from getTypes as a JSON array of qualified names
+/// that includes the FixtureWidget type loaded into the test kernel.
 TEST(JsonRpc, getTypesReturnsRegisteredCustomTypes)
 {
   DispatcherFixture f;
@@ -169,8 +172,8 @@ TEST(JsonRpc, getTypesReturnsRegisteredCustomTypes)
 }
 
 /// @test
-/// `getType` returns a `TypeLookupResult` wrapping the `CustomTypeSpec`. `schema` is empty
-/// when `withSchema` is not set.
+/// Returns the registered type's spec from getType, echoing the qualified name with non-empty
+/// spec data, and leaves the schema field empty when withSchema is not set.
 TEST(JsonRpc, getTypeReturnsSpecForRegisteredType)
 {
   DispatcherFixture f;
@@ -187,7 +190,7 @@ TEST(JsonRpc, getTypeReturnsSpecForRegisteredType)
 }
 
 /// @test
-/// `getType` with an unknown qualified name fails with unknownType.
+/// Answers getType for an unregistered qualified name with the unknownType error.
 TEST(JsonRpc, getTypeUnknownNameIsUnknownType)
 {
   DispatcherFixture f;
@@ -201,8 +204,8 @@ TEST(JsonRpc, getTypeUnknownNameIsUnknownType)
 }
 
 /// @test
-/// `listObjects` enumerates the current match set (a snapshot, not a replay of
-/// `interestUpdate` history).
+/// Enumerates the interest's current match set in listObjects as a snapshot, returning the one
+/// matched widget with its object name and qualified class name.
 TEST(JsonRpc, listObjectsReturnsCurrentMatchSet)
 {
   DispatcherFixture f;
@@ -219,8 +222,8 @@ TEST(JsonRpc, listObjectsReturnsCurrentMatchSet)
 }
 
 /// @test
-/// `listObjects` for an interest the connection didn't open returns unknownInterest. Mirrors
-/// the invoke / subscribe / release behavior for unknown interest names.
+/// Answers listObjects for an interest name the connection never opened with the
+/// unknownInterest error.
 TEST(JsonRpc, listObjectsUnknownInterestIsUnknownInterest)
 {
   DispatcherFixture f;
@@ -234,8 +237,8 @@ TEST(JsonRpc, listObjectsUnknownInterestIsUnknownInterest)
 }
 
 /// @test
-/// `getProperty` returns the current value synchronously. Pre-set the counter via the fixture's
-/// kernel-thread mutator, then read it back over JSON-RPC.
+/// Returns the property's current value from getProperty, a counter set to 123 on the kernel
+/// side reads back as a JSON-encoded 123.
 TEST(JsonRpc, getPropertyReturnsCurrentValue)
 {
   DispatcherFixture f;
@@ -254,10 +257,9 @@ TEST(JsonRpc, getPropertyReturnsCurrentValue)
 }
 
 /// @test
-/// `getProperty` against a variant-typed property must encode the variant on the wire as
-/// `{type: "<qualified-name>", value: ...}`, not the binary-protocol's numeric arm key. The
-/// qualified-name form is the documented wire contract and matches what `adaptVariant`
-/// (`useStrings=true`) produces.
+/// Encodes a variant-typed property on the wire as an object whose type field holds the active
+/// arm's qualified name and whose value field holds its payload, not the binary protocol's
+/// numeric arm key.
 TEST(JsonRpc, getPropertyOnVariantEmitsQualifiedNameWireShape)
 {
   DispatcherFixture f;
@@ -280,8 +282,8 @@ TEST(JsonRpc, getPropertyOnVariantEmitsQualifiedNameWireShape)
 }
 
 /// @test
-/// `getProperty` against an unknown property name (typo, not a member of the class) is
-/// unknownMember.
+/// Answers getProperty for a property name that is not a member of the class with the
+/// unknownMember error.
 TEST(JsonRpc, getPropertyUnknownPropertyIsUnknownMember)
 {
   DispatcherFixture f;
@@ -299,8 +301,8 @@ TEST(JsonRpc, getPropertyUnknownPropertyIsUnknownMember)
 }
 
 /// @test
-/// `setProperty` writes via the setter method (async through `invokeUntyped` + WorkQueue);
-/// `getProperty` round-trip confirms the new value landed on the kernel side.
+/// Writes a property value through setProperty so that a follow-up getProperty on the same
+/// connection reads back the 777 just written, proving the write landed on the kernel side.
 TEST(JsonRpc, setPropertyWritesAndIsObservableViaGetProperty)
 {
   DispatcherFixture f;
@@ -325,9 +327,8 @@ TEST(JsonRpc, setPropertyWritesAndIsObservableViaGetProperty)
 }
 
 /// @test
-/// `setProperty` with a value that doesn't fit the property's type (here, a string into an i32
-/// counter) is invalidParams via the same arg-coercion path invoke uses. Pins that the
-/// setProperty / invoke type-check stories don't drift apart.
+/// Rejects a setProperty value that does not fit the property's type with invalidParams, a
+/// string written into the integer counter fails through the same coercion path invoke uses.
 TEST(JsonRpc, setPropertyTypeMismatchIsInvalidParams)
 {
   DispatcherFixture f;
@@ -348,9 +349,8 @@ TEST(JsonRpc, setPropertyTypeMismatchIsInvalidParams)
 }
 
 /// @test
-/// `setProperty` rejects a non-string `value` with invalidParams. Locks in the wire-shape change:
-/// the STL declares `value : string`, so a JSON number like `{"value": 777}` (the legacy shape)
-/// must be rejected, not silently coerced.
+/// Rejects a setProperty whose value field is a bare JSON number instead of the declared
+/// JSON-encoded string with invalidParams rather than silently coercing the legacy shape.
 TEST(JsonRpc, setPropertyNonStringValueIsInvalidParams)
 {
   DispatcherFixture f;
@@ -368,7 +368,8 @@ TEST(JsonRpc, setPropertyNonStringValueIsInvalidParams)
 }
 
 /// @test
-/// `setProperty` rejects a `value` that is a string but doesn't parse as JSON.
+/// Rejects a setProperty whose value string does not parse as JSON with invalidParams and a
+/// message naming the invalid value field.
 TEST(JsonRpc, setPropertyMalformedEncodedValueIsInvalidParams)
 {
   DispatcherFixture f;
@@ -389,8 +390,8 @@ TEST(JsonRpc, setPropertyMalformedEncodedValueIsInvalidParams)
 }
 
 /// @test
-/// `setProperty` on a read-only property is notWritable. Gated up front because invokeUntyped
-/// on the invalid setter handle would `std::terminate`.
+/// Answers setProperty on a read-only property with the notWritable error, gating up front
+/// instead of reaching the invalid setter handle.
 TEST(JsonRpc, setPropertyOnReadOnlyPropertyIsNotWritable)
 {
   DispatcherFixture f;
@@ -410,9 +411,8 @@ TEST(JsonRpc, setPropertyOnReadOnlyPropertyIsNotWritable)
 }
 
 /// @test
-/// `getProperty` after the object leaves the match set is objectNotInInterest. Sticky
-/// subscriptions persist the name in book-keeping, but the read fails early rather than serve
-/// a stale value.
+/// Answers getProperty with the objectNotInInterest error once the object has left the match
+/// set, failing early instead of serving a stale value.
 TEST(JsonRpc, getPropertyAfterObjectRemovedIsObjectNotInInterest)
 {
   DispatcherFixture f;
@@ -432,9 +432,9 @@ TEST(JsonRpc, getPropertyAfterObjectRemovedIsObjectNotInInterest)
 }
 
 /// @test
-/// `getObjectsBatchState` with no filters returns every property of every matched object in
-/// one round-trip. Property values are JSON-encoded SenValue strings, matching `getProperty`'s
-/// encoding so callers don't need a second decoding path.
+/// Returns every property of every matched object in one getObjectsBatchState round-trip when
+/// no filters are given, each value JSON-encoded in the same form getProperty uses, with an
+/// empty per-object errors list.
 TEST(JsonRpc, getObjectsBatchStateReturnsAllPropertiesForAllObjects)
 {
   DispatcherFixture f;
@@ -472,10 +472,9 @@ TEST(JsonRpc, getObjectsBatchStateReturnsAllPropertiesForAllObjects)
 }
 
 /// @test
-/// `propertyNames` restricts the per-object property set; unknown names land in `errors` so the
-/// rest of the batch still returns useful data. Successful reads and failures are split into
-/// separate lists so a property literally named `error` can never collide with the failure
-/// envelope.
+/// Restricts getObjectsBatchState to the requested propertyNames and reports an unknown name
+/// in the per-object errors list while the known property still returns its value, keeping
+/// successful reads and failures in separate lists.
 TEST(JsonRpc, getObjectsBatchStatePropertyFilterAndUnknownNameError)
 {
   DispatcherFixture f;
@@ -502,9 +501,8 @@ TEST(JsonRpc, getObjectsBatchStatePropertyFilterAndUnknownNameError)
 }
 
 /// @test
-/// `objectNames` filters the match set; names that aren't currently matched are silently
-/// dropped so the caller diffs requested vs returned names rather than parsing per-object
-/// error envelopes.
+/// Filters getObjectsBatchState by objectNames and silently drops a requested name that is not
+/// in the match set, returning only the matched object with no error entry for the absent one.
 TEST(JsonRpc, getObjectsBatchStateSilentlySkipsUnmatchedObjectNames)
 {
   DispatcherFixture f;
@@ -524,7 +522,8 @@ TEST(JsonRpc, getObjectsBatchStateSilentlySkipsUnmatchedObjectNames)
 }
 
 /// @test
-/// `getObjectsBatchState` against an interest the connection didn't open is unknownInterest.
+/// Answers getObjectsBatchState for an interest the connection never opened with the
+/// unknownInterest error.
 TEST(JsonRpc, getObjectsBatchStateUnknownInterestIsUnknownInterest)
 {
   DispatcherFixture f;
@@ -538,9 +537,8 @@ TEST(JsonRpc, getObjectsBatchStateUnknownInterestIsUnknownInterest)
 }
 
 /// @test
-/// `getType` is idempotent: every call returns the spec, ignoring the per-connection cache.
-/// The cache-suppression on the implicit `interestUpdate` path lives in the multi-connection
-/// suite.
+/// Returns the full type spec from every getType call, a repeated lookup on the same
+/// connection is not suppressed by the per-connection type cache.
 TEST(JsonRpc, getTypeIsIdempotentRegardlessOfCache)
 {
   DispatcherFixture f;

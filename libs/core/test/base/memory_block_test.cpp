@@ -24,7 +24,8 @@
 #include <vector>
 
 /// @test
-/// Check creation of fixed memory block pools of void pointers and the min block size
+/// Reports minBlockSize as the requested size clamped up to sizeof(void*), sizes 3, 7, and 8 all yielding 8
+/// while 10 stays 10, and a default-made pool hands out a non-null block.
 /// @requirements(SEN-908)
 TEST(MemoryBlock, FixedMemoryBlockPoolDefault)
 {
@@ -39,7 +40,8 @@ TEST(MemoryBlock, FixedMemoryBlockPoolDefault)
 }
 
 /// @test
-/// Check failure when insufficient bucket size in fixed memory pool creation
+/// Dies on construction when asked for fewer than two blocks per bucket, FixedMemoryBlockPool::make(1, 0)
+/// aborting on its assertion.
 /// @requirements(SEN-908)
 TEST(MemoryBlock, FixedMemoryBlockPoolInsufficientBucketSize)
 {
@@ -48,7 +50,8 @@ TEST(MemoryBlock, FixedMemoryBlockPoolInsufficientBucketSize)
 }
 
 /// @test
-/// Check preallocation in fixed memory block pools and post-resize operations
+/// Hands out a preallocated block that starts empty, grows it with resize within the pool's fixed block size,
+/// and throws from resize once the requested size exceeds that block size.
 /// @requirements(SEN-908)
 TEST(MemoryBlock, FixedMemoryBlockPoolPreAlloc)
 {
@@ -77,7 +80,7 @@ TEST(MemoryBlock, FixedMemoryBlockPoolPreAlloc)
 }
 
 /// @test
-/// Check reserve operations and exceptions in fixed memory pools
+/// Accepts reserve up to the pool's fixed block size and throws when the reservation would exceed it.
 /// @requirements(SEN-908)
 TEST(MemoryBlock, FixedMemoryBlockPoolReserve)
 {
@@ -92,7 +95,9 @@ TEST(MemoryBlock, FixedMemoryBlockPoolReserve)
 }
 
 /// @test
-/// Check resize in fixed memory block pools without a previous memory preallocation
+/// Resizes a block from a pool made with no bucket preallocation, growing to 7 bytes, shrinking back to empty
+/// at size 0, consecutive data() calls returning the same pointer, and throwing when the requested size
+/// exceeds the fixed block size.
 /// @requirements(SEN-908)
 TEST(MemoryBlock, FixedMemoryBlockPoolNoPreAlloc)
 {
@@ -118,7 +123,8 @@ TEST(MemoryBlock, FixedMemoryBlockPoolNoPreAlloc)
 }
 
 /// @test
-/// Check bucket capacity expansion inside fixed memory block pools
+/// Allocates a third block from a pool bucketed two blocks at a time, growing a new bucket rather than
+/// returning null.
 /// @requirements(SEN-908)
 TEST(MemoryBlock, FixedMemoryBlockPoolBucketExpansion)
 {
@@ -135,7 +141,9 @@ TEST(MemoryBlock, FixedMemoryBlockPoolBucketExpansion)
 }
 
 /// @test
-/// Check Span method of fixed memory blocks
+/// Exposes the block through spans, a fresh preallocated block spanning size 0 with non-null data, a resized
+/// block spanning its 6 bytes, and getSpan, getConstSpan, and the implicit Span conversions all sharing the
+/// block's data pointer.
 /// @requirements(SEN-908)
 TEST(MemoryBlock, FixedMemoryBlockSpan)
 {
@@ -173,7 +181,9 @@ TEST(MemoryBlock, FixedMemoryBlockSpan)
 }
 
 /// @test
-/// Check move assignment and move construction in fixed memory blocks
+/// Transfers block storage on move, move assignment handing the source's data pointer to the target while the
+/// source ends at size 0 holding the target's former storage, and move construction leaving the source at
+/// size 0 with null data.
 /// @requirements(SEN-908)
 TEST(MemoryBlock, FixedMemoryBlockMoveSemantics)
 {
@@ -204,7 +214,8 @@ TEST(MemoryBlock, FixedMemoryBlockMoveSemantics)
 }
 
 /// @test
-/// Check Resizable heap block (creation, and basic operations)
+/// Starts empty with null data, keeps size 0 while reserve(8) acquires storage, reports size 8 after
+/// resize(8), and serves the same data pointer through getSpan and getConstSpan.
 /// @requirements(SEN-908)
 TEST(MemoryBlock, ResizableHeapBlock)
 {
@@ -231,7 +242,8 @@ TEST(MemoryBlock, ResizableHeapBlock)
 }
 
 /// @test
-/// Check Resizable heap buffer (creation and basic operations)
+/// Grows a ResizableHeapBlock through an OutputStream backed by a ResizableBufferWriter, 6000 single-byte
+/// writes leaving the block at exactly 6000 bytes.
 /// @requirements(SEN-908)
 TEST(MemoryBlock, ResizableHeapBuffer)
 {
@@ -258,7 +270,8 @@ TEST(MemoryBlock, ResizableHeapBuffer)
 }
 
 /// @test
-/// Check Sequential resizable heap operations in buffer
+/// Preserves existing bytes while growing one byte at a time, two ResizableHeapBlocks filled to 6000 bytes by
+/// repeated resize comparing equal span to span.
 /// @requirements(SEN-908)
 TEST(MemoryBlock, SequentialResizableHeap)
 {
@@ -286,7 +299,8 @@ TEST(MemoryBlock, SequentialResizableHeap)
 }
 
 /// @test
-/// Check fixed buffer list with sequential operations
+/// Chains fixed blocks from a 1024 byte pool into a buffer list, appending 256 bytes per step and taking a new
+/// block when the current one is full, 5000 appends consuming exactly 1250 blocks.
 /// @requirements(SEN-908)
 TEST(MemoryBlock, FixedBufferList)
 {

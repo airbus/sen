@@ -43,7 +43,8 @@ bool isHostLittleEndianSlow()
 }  // namespace
 
 /// @test
-/// Check little endian detection in host
+/// Agrees in hostIsLittleEndian with a byte-pointer probe of the host's byte order, and
+/// hostIsBigEndian is its exact negation.
 /// @requirements(SEN-893)
 TEST(Endianness, detection)
 {
@@ -52,7 +53,7 @@ TEST(Endianness, detection)
 }
 
 /// @test
-/// Check bytes swaping in endianess (8bits)
+/// Returns single-byte values unchanged from swapBytes for uint8 and int8, preserving the width.
 /// @requirements(SEN-893)
 TEST(Endianness, swap8)
 {
@@ -72,7 +73,7 @@ TEST(Endianness, swap8)
 }
 
 /// @test
-/// Check bytes swapping in endiannes (16bits)
+/// Reverses the two bytes of signed and unsigned 16-bit values in swapBytes, 0x1122 becoming 0x2211.
 /// @requirements(SEN-893)
 TEST(Endianness, swap16)
 {
@@ -86,7 +87,8 @@ TEST(Endianness, swap16)
 }
 
 /// @test
-/// Check bytes swapping in endiannes (32bits)
+/// Reverses the four bytes of signed and unsigned 32-bit values in swapBytes, 0x11223344 becoming
+/// 0x44332211 and zero staying zero.
 /// @requirements(SEN-893)
 TEST(Endianness, swap32)
 {
@@ -102,7 +104,8 @@ TEST(Endianness, swap32)
 }
 
 /// @test
-/// Check bytes swapping in endiannes (64bits)
+/// Reverses the eight bytes of signed and unsigned 64-bit values in swapBytes, 0x1122334455667788
+/// becoming 0x8877665544332211 and all-ones staying all-ones.
 /// @requirements(SEN-893)
 TEST(Endianness, swap64)
 {
@@ -117,7 +120,8 @@ TEST(Endianness, swap64)
 }
 
 /// @test
-/// Check bytes swapping in floating types
+/// Reverses the byte order of float and double values like integers of the same width, pi's bit
+/// pattern coming back reversed through bit_cast, and swapping twice restores the original value.
 /// @requirements(SEN-893)
 TEST(Endianness, swapFloats)
 {

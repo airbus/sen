@@ -111,7 +111,8 @@ TEST_F(CompleterIncrementalTest, RemoveRetractsChildName)
 }
 
 /// @test
-/// A name shared by two objects survives the removal of one of them.
+/// A name shared by two objects survives the removal of one of them, and is retracted once the
+/// second is removed as well.
 TEST_F(CompleterIncrementalTest, RemoveOnlyDropsChildWhenRefcountReachesZero)
 {
   // Two objects share the same first segment, removing one should keep "foo" in childNames_.
@@ -152,7 +153,7 @@ TEST_F(CompleterIncrementalTest, DoubleAddDoesNotDoubleCount)
 }
 
 /// @test
-/// Names stay in order however they were added.
+/// Child names are kept sorted however the objects were added.
 TEST_F(CompleterIncrementalTest, AddedChildrenStaySorted)
 {
   // Insert out of order, childNames_ should remain sorted.
@@ -262,7 +263,8 @@ TEST_F(CompleterIncrementalTest, MethodCompletionsCarryArgCount)
 }
 
 /// @test
-/// A substring matches every object name holding it.
+/// A suggestion query for a substring returns every object name holding it, both slowLogger and
+/// fastLogger for logger.
 TEST_F(CompleterIncrementalTest, FindObjectSuggestionsFromIncrementalState)
 {
   completer.onObjectAdded(rootScope, makeScopedObject("ses", "bus", "slowLogger"));
@@ -279,7 +281,8 @@ TEST_F(CompleterIncrementalTest, FindObjectSuggestionsFromIncrementalState)
 }
 
 /// @test
-/// listen completes the event names the object declares.
+/// The listen command offers the event names the object declares, thresholdCrossed and tick, and
+/// nothing of command or method kind.
 TEST_F(CompleterIncrementalTest, ListenCompletesEventNames)
 {
   // TestObject declares thresholdCrossed and tick, so this asserts on named candidates. With no events on
@@ -306,7 +309,7 @@ TEST_F(CompleterIncrementalTest, ListenCompletesEventNames)
 }
 
 /// @test
-/// unlisten completes all.
+/// The unlisten command offers the literal all as a candidate for its argument.
 TEST_F(CompleterIncrementalTest, UnlistenAllCompletes)
 {
   auto result = completer.complete("unlisten a", 10);
@@ -314,7 +317,7 @@ TEST_F(CompleterIncrementalTest, UnlistenAllCompletes)
 }
 
 /// @test
-/// help completes command names.
+/// The help command completes command names, offering listen and ls for the prefix l.
 TEST_F(CompleterIncrementalTest, HelpCompletesCommandNames)
 {
   auto result = completer.complete("help l", 6);

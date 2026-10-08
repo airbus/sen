@@ -115,7 +115,8 @@ sen::ObjectRemoval makeRemoval(const std::shared_ptr<sen::Object>& obj)
 }  // namespace
 
 /// @test
-/// Verifies the successful detection and typed casting of added objects, invoking the onAdded callback
+/// Tracks an added object and invokes the onAdded callback with non-empty typed and untyped
+/// iterator ranges.
 /// @requirements(SEN-362)
 TEST(ObjectList, TracksAndInvokesOnAdded)
 {
@@ -140,7 +141,8 @@ TEST(ObjectList, TracksAndInvokesOnAdded)
 }
 
 /// @test
-/// Verifies the successful detection of added objects for the generic Object instantiation
+/// Tracks an added object and invokes the onAdded callback when instantiated for the generic
+/// Object type.
 /// @requirements(SEN-362)
 TEST(ObjectList, TracksAndInvokesOnAdded_GenericObject)
 {
@@ -165,7 +167,7 @@ TEST(ObjectList, TracksAndInvokesOnAdded_GenericObject)
 }
 
 /// @test
-/// Checks that updating the onAdded callback triggers immediately if objects are already registered
+/// Invokes a newly installed onAdded callback immediately for objects the list already tracks.
 /// @requirements(SEN-362)
 TEST(ObjectList, InstallsCallbackAndTriggersForExisting)
 {
@@ -187,7 +189,8 @@ TEST(ObjectList, InstallsCallbackAndTriggersForExisting)
 }
 
 /// @test
-/// Checks that updating the onAdded callback triggers immediately for the generic Object instantiation
+/// Invokes a newly installed onAdded callback immediately for existing objects when instantiated
+/// for the generic Object type.
 /// @requirements(SEN-362)
 TEST(ObjectList, InstallsCallbackAndTriggersForExisting_GenericObject)
 {
@@ -209,7 +212,8 @@ TEST(ObjectList, InstallsCallbackAndTriggersForExisting_GenericObject)
 }
 
 /// @test
-/// Verifies successful detection of removed objects and properly un-tracks them
+/// Invokes the onRemoved callback for a removed object and drops it from the typed and untyped
+/// object sets.
 /// @requirements(SEN-362)
 TEST(ObjectList, TracksAndInvokesOnRemoved)
 {
@@ -237,7 +241,8 @@ TEST(ObjectList, TracksAndInvokesOnRemoved)
 }
 
 /// @test
-/// Verifies successful detection of removed objects for the generic Object instantiation
+/// Invokes the onRemoved callback and drops the removed object when instantiated for the generic
+/// Object type.
 /// @requirements(SEN-362)
 TEST(ObjectList, TracksAndInvokesOnRemoved_GenericObject)
 {
@@ -265,7 +270,7 @@ TEST(ObjectList, TracksAndInvokesOnRemoved_GenericObject)
 }
 
 /// @test
-/// Checks that removing an object without a registered callback safely deletes the object mapping
+/// Drops a removed object from the list even when no onRemoved callback is registered.
 /// @requirements(SEN-362)
 TEST(ObjectList, RemovesWithoutCallbackRegistered)
 {
@@ -283,7 +288,8 @@ TEST(ObjectList, RemovesWithoutCallbackRegistered)
 }
 
 /// @test
-/// Checks that removing an object without a registered callback deletes mapping for generic Object instantiation
+/// Drops a removed object without a registered onRemoved callback when instantiated for the
+/// generic Object type.
 /// @requirements(SEN-362)
 TEST(ObjectList, RemovesWithoutCallbackRegistered_GenericObject)
 {
@@ -301,7 +307,7 @@ TEST(ObjectList, RemovesWithoutCallbackRegistered_GenericObject)
 }
 
 /// @test
-/// Checks that attempting to remove an unknown object ignores it gracefully
+/// Ignores a removal for an object it never tracked, the onRemoved callback stays silent.
 /// @requirements(SEN-362)
 TEST(ObjectList, IgnoresUnknownRemovals)
 {
@@ -319,7 +325,7 @@ TEST(ObjectList, IgnoresUnknownRemovals)
 }
 
 /// @test
-/// Checks that attempting to remove an unknown object ignores it gracefully for generic Object instantiation
+/// Ignores a removal for an untracked object when instantiated for the generic Object type.
 /// @requirements(SEN-362)
 TEST(ObjectList, IgnoresUnknownRemovals_GenericObject)
 {
@@ -337,7 +343,8 @@ TEST(ObjectList, IgnoresUnknownRemovals_GenericObject)
 }
 
 /// @test
-/// Checks that sending empty or null additions does not trigger callbacks or corrupt data
+/// Keeps the onAdded callback silent for an empty addition batch and for a discovery whose
+/// instance pointer is null.
 /// @requirements(SEN-362)
 TEST(ObjectList, IgnoresEmptyOrNullAdditions)
 {
@@ -357,7 +364,8 @@ TEST(ObjectList, IgnoresEmptyOrNullAdditions)
 }
 
 /// @test
-/// Checks that sending empty or null additions does not trigger callbacks for generic Object instantiation
+/// Keeps the onAdded callback silent for empty and null additions when instantiated for the
+/// generic Object type.
 /// @requirements(SEN-362)
 TEST(ObjectList, IgnoresEmptyOrNullAdditions_GenericObject)
 {
@@ -377,7 +385,8 @@ TEST(ObjectList, IgnoresEmptyOrNullAdditions_GenericObject)
 }
 
 /// @test
-/// Checks that using a generic Object template type bypasses dynamic casting
+/// Accepts an object of an unrelated concrete type when instantiated for the generic Object type,
+/// no downcast is attempted.
 /// @requirements(SEN-362)
 TEST(ObjectList, HandlesGenericObjectBypassingCast)
 {
@@ -391,8 +400,7 @@ TEST(ObjectList, HandlesGenericObjectBypassingCast)
 }
 
 /// @test
-/// Confirms an exception is thrown when an incoming object fails the strong typed dynamic cast expected by the
-/// ObjectList
+/// Throws when an added object cannot be cast to the list's typed element type.
 /// @requirements(SEN-362)
 TEST(ObjectList, ThrowsOnInvalidDynamicCast)
 {

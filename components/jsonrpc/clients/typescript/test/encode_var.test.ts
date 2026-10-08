@@ -107,7 +107,7 @@ describe("encodeVar -- Quantity", () => {
     },
   };
 
-  it("unwraps a Quantity instance to its .value", () => {
+  it("unwraps a Quantity instance to its numeric value", () => {
     const q = new Quantity(1234, meters);
     expect(encodeVar("demo.Altitude", q, cacheOf(altSpec))).toBe(1234);
   });
@@ -176,13 +176,13 @@ describe("encodeVar -- Variant", () => {
     },
   };
 
-  it("accepts a Variant instance and writes {type, value}", () => {
+  it("encodes a Variant instance as a tagged type-and-value object", () => {
     const v = new Variant("school.Sleeping", { since: "2026-05-24" });
     const encoded = encodeVar("school.StudentStatus", v, cacheOf(armSpec, statusSpec));
     expect(encoded).toEqual({ type: "school.Sleeping", value: { since: "2026-05-24" } });
   });
 
-  it("accepts a plain {type, value} object", () => {
+  it("accepts a plain tagged object in place of a Variant instance", () => {
     const encoded = encodeVar(
       "school.StudentStatus",
       { type: "school.Sleeping", value: { since: "2026-05-24" } },

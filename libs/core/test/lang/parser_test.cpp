@@ -76,8 +76,8 @@ inline void decode(const std::vector<uint64_t>& buffer, std::string& str)
 }
 
 /// @test
-/// Checks correct parsing with a string containing a stl file with an import package, a large package name and
-/// struct, enum, variant, sequence and quantity types
+/// Recovers the original STL source text after packing it into 64-bit words and unpacking it again
+/// with the file-local encode and decode helpers.
 /// @requirements(SEN-903)
 TEST(Parser, codeDencode)
 {
@@ -117,8 +117,9 @@ TEST(Parser, codeDencode)
 }
 
 /// @test
-/// Checks correct parsing with a string containing a stl file with an import package, a large package name and
-/// complex enum and structs types, optional and array types and different class types
+/// Parses three STL programs covering import and package statements, enums, structs, classes with
+/// properties, methods and events, variants, optionals, sequences, arrays and quantities, and
+/// produces the expected number of top-level statements for each.
 /// @requirements(SEN-903)
 TEST(Parser, basic)
 {
@@ -267,7 +268,7 @@ array<u32, 3> MyArray;
 }
 
 /// @test
-/// Checks the correct tokenization of classes that may look as structures
+/// Throws when parsing a class whose body declares struct-style fields instead of var properties.
 /// @requirements(SEN-363)
 TEST(Parser, classesAsStructures)
 {
@@ -294,7 +295,8 @@ class CPrint
 }
 
 /// @test
-/// Checks correct tokenization of a basic sen query with no condition
+/// Scans a SELECT query with no WHERE clause into nine tokens and parses it into the queried type
+/// name and the session and bus names.
 /// @requirements(SEN-363)
 TEST(Parser, basicQuery)
 {
@@ -313,7 +315,8 @@ TEST(Parser, basicQuery)
 }
 
 /// @test
-/// Check correct tokenization of sen queries with different conditions and operators
+/// Parses SELECT queries whose WHERE clauses combine equality, ordering, AND, OR and parenthesized
+/// subconditions, each yielding the queried type, the bus names and a condition.
 /// @requirements(SEN-363)
 TEST(Parser, queryCondition)
 {
@@ -342,7 +345,9 @@ TEST(Parser, queryCondition)
 }
 
 /// @test
-/// Checks the correct parsing of comments in an STL file
+/// Attaches leading and inline comments to class properties, methods and events as their
+/// descriptions, and throws when a method parameter is documented twice or a documented parameter
+/// does not exist.
 /// @requirements(SEN-903)
 TEST(Parser, commentValidation)
 {
@@ -440,8 +445,8 @@ class Person
 }
 
 /// @test
-/// Checks that the last field of structs, enums and variants can end with a comma.
-/// It also checks that they can have a comment line before the closing brace
+/// Accepts a trailing comma after the last struct field, enumerator and variant element, and keeps
+/// a floating comment before the closing brace out of the members and their descriptions.
 /// @requirements(SEN-903)
 TEST(Parser, trailingCommasAndFloatingComments)
 {
@@ -525,7 +530,8 @@ variant TerminalCommand
 }
 
 /// @test
-/// Checks that structures, enums and variants can be empty with only a comment inside
+/// Parses a struct, an enum and a variant whose bodies hold only a comment, each yielding a
+/// declaration with no members.
 /// @requirements(SEN-903)
 TEST(Parser, emptyBlocksWithFloatingComments)
 {

@@ -110,7 +110,7 @@ describe("Transport whenOpen()", () => {
     await expect(ready).rejects.toBeInstanceOf(TransportError);
   });
 
-  it("subsequent disconnects do not re-fulfill the promise", async () => {
+  it("stays resolved after a later disconnect", async () => {
     const { transport, socket } = await makeOpenTransport();
     // whenOpen already resolved; calling it again returns the same resolved promise
     await expect(transport.whenOpen()).resolves.toBeUndefined();
@@ -313,7 +313,7 @@ describe("Transport malformed input", () => {
 });
 
 describe("Transport reconnection", () => {
-  it("disconnect fires onDisconnect and triggers reconnect; onReconnect fires after success", async () => {
+  it("a dropped socket fires onDisconnect and onReconnect fires after the reconnect succeeds", async () => {
     const factory: WebSocketFactory = (url) => new MockWebSocket(url);
     const transport = new Transport({
       url: "ws://test",
@@ -382,7 +382,7 @@ describe("Transport reconnection", () => {
     expect(MockWebSocket.lastInstance).toBe(firstSocket);
   });
 
-  it("onReconnect does NOT fire on the initial connect", async () => {
+  it("onReconnect does not fire on the initial connect", async () => {
     const factory: WebSocketFactory = (url) => new MockWebSocket(url);
     const transport = new Transport({
       url: "ws://test",
@@ -397,7 +397,7 @@ describe("Transport reconnection", () => {
     transport.close();
   });
 
-  it("onDisconnect does NOT fire on explicit close()", async () => {
+  it("onDisconnect does not fire on an explicit close", async () => {
     const { transport } = await makeOpenTransport();
     const disconnected = vi.fn();
     transport.onDisconnect(disconnected);

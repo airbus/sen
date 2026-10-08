@@ -14,7 +14,7 @@
 using sen::makeScopeGuard;
 
 /// @test
-/// Checks scope guard basic constructor
+/// Runs the stored callable when the guard leaves scope, both guards flipping their flags at block exit.
 /// @requirements(SEN-355)
 TEST(ScopeGuard, basic)
 {

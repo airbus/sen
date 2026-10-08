@@ -115,7 +115,8 @@ sen::ObjectRemoval makeRemoval(const std::shared_ptr<sen::Object>& obj)
 }  // namespace
 
 /// @test
-/// Checks invalid default constructor of ObjectRef
+/// Reports invalid for a default-constructed ObjectRef, both typed and generic, through valid and
+/// the bool conversion.
 /// @requirements(SEN-362)
 TEST(ObjectRef, DefaultConstructorInvalid)
 {
@@ -129,7 +130,8 @@ TEST(ObjectRef, DefaultConstructorInvalid)
 }
 
 /// @test
-/// Checks to add/remove an object to an objectRef
+/// Binds to an object announced by its provider, exposing it through get and operator->, then
+/// invalidates and fires the onRemoved callback when the object is removed.
 /// @requirements(SEN-362)
 TEST(ObjectRef, AddedAndRemovedObject)
 {
@@ -160,7 +162,8 @@ TEST(ObjectRef, AddedAndRemovedObject)
 }
 
 /// @test
-/// Checks ObjectRef<sen::Object> lifecycle
+/// Runs the add and remove lifecycle for the generic Object instantiation, firing onAdded and
+/// onRemoved and tracking validity.
 /// @requirements(SEN-362)
 TEST(ObjectRef, AddedAndRemovedGenericObject)
 {
@@ -187,7 +190,8 @@ TEST(ObjectRef, AddedAndRemovedGenericObject)
 }
 
 /// @test
-/// Checks that ignores null additions, empty removals, and unrelated objects
+/// Ignores empty addition batches, null instances, removals while unbound, and removals of a
+/// different object, callbacks stay silent and the bound object stays valid.
 /// @requirements(SEN-362)
 TEST(ObjectRef, UnrelatedObjects)
 {
@@ -227,7 +231,8 @@ TEST(ObjectRef, UnrelatedObjects)
 }
 
 /// @test
-/// Installing a new callback returns the previous one
+/// Returns null when installing the first onAdded or onRemoved callback and returns the still
+/// callable previous callback when replacing it.
 /// @requirements(SEN-362)
 TEST(ObjectRef, ReplaceCallback)
 {
@@ -252,7 +257,7 @@ TEST(ObjectRef, ReplaceCallback)
 }
 
 /// @test
-/// Checks exception throw when dynamic cast fails
+/// Throws when the announced object cannot be cast to the ref's typed element type.
 /// @requirements(SEN-362)
 TEST(ObjectRef, ThrowsOnInvalidDynamicCast)
 {
@@ -265,7 +270,8 @@ TEST(ObjectRef, ThrowsOnInvalidDynamicCast)
 }
 
 /// @test
-/// Checks that ObjectRef<sen::Object> accepts any Object subclass without performing a dynamic cast
+/// Accepts any Object subclass when instantiated for the generic Object type and binds to it
+/// without a downcast.
 /// @requirements(SEN-362)
 TEST(ObjectRef, GenericObjectWithoutCast)
 {

@@ -34,7 +34,7 @@ function respondToCreateInterest(socket: MockWebSocket, expectedMethod = "create
 }
 
 describe("Client.declareInterest", () => {
-  it("sends createInterest with wire-faithful params and returns a handle", async () => {
+  it("sends createInterest with the declared parameters and returns a handle", async () => {
     const { client, socket } = await makeConnectedClient();
     const pending = client.declareInterest({ name: "i1", query: "SELECT * FROM x" });
     await tick();
@@ -53,7 +53,7 @@ describe("Client.declareInterest", () => {
     client.close();
   });
 
-  it("rejects when the server returns an error and unregisters the handle", async () => {
+  it("rejects when the server returns an error", async () => {
     const { client, socket } = await makeConnectedClient();
     const pending = client.declareInterest({ name: "bad", query: "INVALID" });
     await tick();
@@ -139,7 +139,7 @@ describe("Client.declareInterest", () => {
 });
 
 describe("InterestHandle match-set tracking", () => {
-  it("populates objectsMap from interestUpdate.added", async () => {
+  it("populates the match set from interestUpdate.added", async () => {
     const { client, socket } = await makeConnectedClient();
     const pending = client.declareInterest({ name: "i1", query: "q" });
     await tick();
@@ -192,7 +192,7 @@ describe("InterestHandle match-set tracking", () => {
     client.close();
   });
 
-  it("drops subscriptionsByObject entry on remove when no consumers remain", async () => {
+  it("drops the removed object's subscription entry when no consumers remain", async () => {
     const { client, socket } = await makeConnectedClient();
     const pending = client.declareInterest({ name: "i1", query: "q" });
     await tick();
@@ -369,7 +369,7 @@ describe("InterestHandle match-set tracking", () => {
 });
 
 describe("InterestHandle.release", () => {
-  it("sends releaseInterest, clears the map, and unregisters from routing", async () => {
+  it("sends releaseInterest, clears the match set, and ignores stray updates afterwards", async () => {
     const { client, socket } = await makeConnectedClient();
     const pending = client.declareInterest({ name: "i1", query: "q" });
     await tick();
@@ -488,7 +488,7 @@ describe("InterestHandle state machine", () => {
     client.close();
   });
 
-  it("release-during-pending waits for createInterest to settle, then sends releaseInterest", async () => {
+  it("sends releaseInterest when the handle is released immediately after the declare resolves", async () => {
     const { client, socket } = await makeConnectedClient();
     const declarePending = client.declareInterest({ name: "i1", query: "q" });
     await tick();
@@ -620,7 +620,7 @@ describe("InterestHandle reestablish (via Client.reestablishAll)", () => {
 });
 
 describe("InterestHandle async iteration", () => {
-  it("yields objects already in the match set, then later arrivals, until released", async () => {
+  it("yields objects already in the match set, then later arrivals", async () => {
     const { client, socket } = await makeConnectedClient();
     const pending = client.declareInterest({ name: "i1", query: "q" });
     await tick();
@@ -725,7 +725,7 @@ describe("InterestHandle async iteration", () => {
 });
 
 describe("InterestHandle pending-state interestUpdate race", () => {
-  it("queues an interestUpdate arriving before createInterest's response and drains on markActive", async () => {
+  it("queues an interestUpdate arriving before the createInterest response and drains it once active", async () => {
     const { client, socket } = await makeConnectedClient();
     const declarePending = client.declareInterest({ name: "i1", query: "q" });
     await tick();
@@ -789,7 +789,7 @@ describe("InterestHandle pending-state interestUpdate race", () => {
     client.close();
   });
 
-  it("preserves arrival order when multiple updates queue before markActive", async () => {
+  it("preserves arrival order when multiple updates queue before the interest becomes active", async () => {
     const { client, socket } = await makeConnectedClient();
     const declarePending = client.declareInterest({ name: "i1", query: "q" });
     await tick();

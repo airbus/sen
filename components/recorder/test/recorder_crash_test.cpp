@@ -49,7 +49,8 @@ private:
 };
 
 /// @test
-/// Creates a valid recording that can be opened with db::Input
+/// Produces an archive that db::Input can reopen, a recording of three keyframes reads back
+/// with a keyframe count of three.
 TEST_F(RecorderCrashResilienceTest, RecordingCreatesValidArchive)
 {
   auto kernel = sen::kernel::TestKernel::fromYamlString("");
@@ -74,7 +75,8 @@ TEST_F(RecorderCrashResilienceTest, RecordingCreatesValidArchive)
 }
 
 /// @test
-/// A truncated recording can still be opened and read partially
+/// Opens a recording whose runtime file was truncated to seventy percent of its size and walks
+/// the read cursor to the end without throwing.
 TEST_F(RecorderCrashResilienceTest, TruncatedRecording_CanStillBeOpened)
 {
   auto kernel = sen::kernel::TestKernel::fromYamlString("");
@@ -112,7 +114,8 @@ TEST_F(RecorderCrashResilienceTest, TruncatedRecording_CanStillBeOpened)
 }
 
 /// @test
-/// Types file is created when archive is created
+/// Creates both the types file and the runtime file on disk by the time a recording that
+/// wrote one keyframe has closed.
 TEST_F(RecorderCrashResilienceTest, TypesFileCreatedWithArchive)
 {
   auto kernel = sen::kernel::TestKernel::fromYamlString("");
@@ -133,7 +136,9 @@ TEST_F(RecorderCrashResilienceTest, TypesFileCreatedWithArchive)
 }
 
 /// @test
-/// Real crashed recording can be read and changes are recoverable
+/// Opens a checked-in recording left by a crashed process, reads at least one keyframe, and
+/// recovers the recorded speed property changes from the first value 250 through the last
+/// value 123.
 TEST_F(RecorderCrashResilienceTest, RealCrashedRecording_CanBeOpenedAndReadPartially)
 {
 #ifndef TEST_DATA_DIR

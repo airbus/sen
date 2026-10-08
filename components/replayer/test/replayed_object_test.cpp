@@ -378,8 +378,10 @@ struct ReplayedObjectSetup
 };
 
 /// @test
-/// Builds a replayed object from a snapshot and preserves its initial state
-/// requirements(SEN-364)
+/// Builds a replayed object from a creation snapshot carrying the recorded name, class, and
+/// property values, with the construction time stamped as both the commit time and the
+/// per-property time.
+/// @requirements(SEN-364)
 TEST(ReplayedObjectTest, ConstructionFromSnapshotSetsName)
 {
   ReplayedObjectSetup setup;
@@ -399,8 +401,10 @@ TEST(ReplayedObjectTest, ConstructionFromSnapshotSetsName)
 }
 
 /// @test
-/// Applies injected changes only after flush and commit
-/// requirements(SEN-364)
+/// Keeps an injected property change invisible until flushPendingChanges and commit apply it,
+/// after which the recorded 12.3 is readable and the commit and per-property times advance
+/// with each applied entry.
+/// @requirements(SEN-364)
 TEST(ReplayedObjectTest, FlushAndCommitAppliesPropertyChange)
 {
   ReplayedObjectSetup setup;
@@ -432,8 +436,9 @@ TEST(ReplayedObjectTest, FlushAndCommitAppliesPropertyChange)
 }
 
 /// @test
-/// Rejects mutable operations on replayed objects
-/// requirements(SEN-364)
+/// Throws a logic error when removing a typed connection on a replayed object, and raises
+/// from the next-value property getter and setter as well.
+/// @requirements(SEN-364)
 TEST(ReplayedObjectTest, RemoveTypedConnectionThrowsLogicError)
 {
   ReplayedObjectSetup setup;
@@ -447,8 +452,11 @@ TEST(ReplayedObjectTest, RemoveTypedConnectionThrowsLogicError)
 }
 
 /// @test
-/// Serializes replayed state and processes injected changes
-/// requirements(SEN-364)
+/// Serializes a replayed object's state, the all-properties and dynamic streams come out
+/// non-empty while the static stream stays empty, injected property changes apply and reach
+/// at least one changed-properties destination, and an injected event drains through the work
+/// queue.
+/// @requirements(SEN-364)
 TEST(ReplayedObjectTest, SerializesStateAndProcessesInjectedChanges)
 {
   ReplayedObjectSetup setup;
@@ -537,8 +545,10 @@ TEST(ReplayedObjectTest, SerializesStateAndProcessesInjectedChanges)
 }
 
 /// @test
-/// Allows getter calls and rejects unknown method ids
-/// requirements(SEN-364)
+/// Invokes a property getter through both the stream and variant call paths, each callback
+/// fires and the variant result is non-empty, while an unknown method id makes either path
+/// throw.
+/// @requirements(SEN-364)
 TEST(ReplayedObjectTest, StreamCallToGetterSucceeds)
 {
   ReplayedObjectSetup setup;
@@ -582,8 +592,10 @@ TEST(ReplayedObjectTest, StreamCallToGetterSucceeds)
 }
 
 /// @test
-/// Resolves supported field getters and rejects invalid paths
-/// requirements(SEN-364)
+/// Resolves a field value getter for every supported scalar, string, and time property and
+/// for nested struct and variant paths, accepts enum and distribution properties resolving
+/// or throwing, while sequence properties and out-of-range struct or variant paths all throw.
+/// @requirements(SEN-364)
 TEST(ReplayedObjectTest, FieldGetterHandlesSupportedAndInvalidPaths)
 {
   ReplayedObjectSetup setup;
@@ -667,8 +679,10 @@ TEST(ReplayedObjectTest, FieldGetterHandlesSupportedAndInvalidPaths)
 }
 
 /// @test
-/// Proxy mirrors committed changes and blocks invalid native operations
-/// requirements(SEN-364)
+/// Mirrors the owner's committed property values through the proxy, a drain after a committed
+/// change fires exactly one change callback for that property and a repeated drain fires
+/// none, while the proxy's native write and connection operations throw logic errors.
+/// @requirements(SEN-364)
 TEST(ReplayedObjectTest, ProxyDrainInputsDetectsChanges)
 {
   ReplayedObjectSetup setup;

@@ -124,7 +124,8 @@ TYPED_TEST(TestVariantTraitsBaseViaVariantTraits, ThrowsIfAnInvalidFieldIndexIsP
 }
 
 /// @test
-/// A variant converts to a value carrying its alternative and its contents.
+/// A variant converts to a value carrying its alternative index and contents of that
+/// alternative's type.
 TYPED_TEST(TestVariantTraitsBaseViaVariantTraits, IsConvertibleFromValueToVar)
 {
   // arrange

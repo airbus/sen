@@ -47,7 +47,7 @@ namespace
 {
 
 /// @test
-/// parseLevel accepts trace.
+/// Parses trace to the spdlog trace level.
 TEST(LogRouterParseLevel, Trace)
 {
   spdlog::level::level_enum level {};
@@ -56,7 +56,7 @@ TEST(LogRouterParseLevel, Trace)
 }
 
 /// @test
-/// parseLevel accepts debug.
+/// Parses debug to the spdlog debug level.
 TEST(LogRouterParseLevel, Debug)
 {
   spdlog::level::level_enum level {};
@@ -65,7 +65,7 @@ TEST(LogRouterParseLevel, Debug)
 }
 
 /// @test
-/// parseLevel accepts info.
+/// Parses info to the spdlog info level.
 TEST(LogRouterParseLevel, Info)
 {
   spdlog::level::level_enum level {};
@@ -74,7 +74,7 @@ TEST(LogRouterParseLevel, Info)
 }
 
 /// @test
-/// parseLevel accepts both warn and warning for the same level.
+/// Parses both warn and warning to the same spdlog warn level.
 TEST(LogRouterParseLevel, WarnAndWarning)
 {
   spdlog::level::level_enum level {};
@@ -87,7 +87,7 @@ TEST(LogRouterParseLevel, WarnAndWarning)
 }
 
 /// @test
-/// parseLevel accepts both error and err for the same level.
+/// Parses both error and err to the same spdlog err level.
 TEST(LogRouterParseLevel, ErrorAndErr)
 {
   spdlog::level::level_enum level {};
@@ -100,7 +100,7 @@ TEST(LogRouterParseLevel, ErrorAndErr)
 }
 
 /// @test
-/// parseLevel accepts critical.
+/// Parses critical to the spdlog critical level.
 TEST(LogRouterParseLevel, Critical)
 {
   spdlog::level::level_enum level {};
@@ -109,7 +109,7 @@ TEST(LogRouterParseLevel, Critical)
 }
 
 /// @test
-/// parseLevel accepts off.
+/// Parses off to the spdlog off level.
 TEST(LogRouterParseLevel, Off)
 {
   spdlog::level::level_enum level {};

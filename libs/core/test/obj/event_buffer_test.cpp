@@ -96,7 +96,8 @@ void copyIntoBufferAsBytes(test::BufferedTestReader& reader, const T data)
 }
 
 /// @test
-/// Check creation of serializable event queue
+/// Constructs a serializable event queue without throwing for ordinary, zero, maximum, and
+/// wrapped negative sizes, with and without drop-oldest.
 /// @requirements(SEN-574)
 TEST(SerializableEventQueue, make)
 {
@@ -129,7 +130,8 @@ TEST(SerializableEventQueue, make)
 }
 
 /// @test
-/// Check clear method of serializable event queue
+/// Empties the queue through clear, both when already empty and after a push, on a bounded
+/// and an unlimited queue.
 /// @requirements(SEN-574)
 TEST(SerializableEventQueue, clear)
 {
@@ -159,7 +161,8 @@ TEST(SerializableEventQueue, clear)
 }
 
 /// @test
-/// Check push method of serializable event queue
+/// Caps a bounded no-drop queue at its maximum, pushing one event past size 100 leaves 100
+/// queued. A negative size wraps to a huge limit, so all 31 pushed events stay.
 /// @requirements(SEN-574)
 TEST(SerializableEventQueue, push)
 {
@@ -198,7 +201,8 @@ TEST(SerializableEventQueue, push)
 }
 
 /// @test
-/// Check zero size serializable event queue (no size limit)
+/// Treats size zero as unlimited, 2000 pushed events are all retained whether drop-oldest is
+/// set or not.
 /// @requirements(SEN-574)
 TEST(SerializableEventQueue, zeroSize)
 {
@@ -230,7 +234,8 @@ TEST(SerializableEventQueue, zeroSize)
 }
 
 /// @test
-/// Check no drop oldest serializable event queue type
+/// Refuses new events once a no-drop queue is full, the first queued event stays at the front
+/// and the event pushed past the limit is not queued.
 /// @requirements(SEN-574)
 TEST(SerializableEventQueue, noDropOldest)
 {
@@ -265,7 +270,8 @@ TEST(SerializableEventQueue, noDropOldest)
 }
 
 /// @test
-/// Check drop the oldest serializable event queue type
+/// Evicts the oldest event when a drop-oldest queue is full, the first queued event is gone
+/// and the newly pushed event sits at the back.
 /// @requirements(SEN-574)
 TEST(SerializableEventQueue, dropOldest)
 {
@@ -300,7 +306,8 @@ TEST(SerializableEventQueue, dropOldest)
 }
 
 /// @test
-/// Check add and removal connections in event buffer
+/// Registers an event callback under a connection id and removes it again, removeConnection
+/// returns true for the id just added, for both plain and string-typed callbacks.
 /// @requirements(SEN-574)
 TEST(EventBuffer, addRemoveConnection)
 {
@@ -329,7 +336,9 @@ TEST(EventBuffer, addRemoveConnection)
 }
 
 /// @test
-/// Check produce method of event buffer
+/// Runs the connected callback synchronously when producing with Emit now, and defers it to
+/// the work queue when producing with Emit onCommit, the effect appears only after the queue
+/// executes.
 /// @requirements(SEN-574)
 TEST(EventBuffer, produce)
 {
@@ -393,7 +402,8 @@ TEST(EventBuffer, produce)
 }
 
 /// @test
-/// Check dispatch method of event buffer
+/// Queues the connected callback on the work queue when dispatching, for confirmed and
+/// multicast transports the effect appears only after the queue executes.
 /// @requirements(SEN-574)
 TEST(EventBuffer, dispatch)
 {
@@ -444,7 +454,8 @@ TEST(EventBuffer, dispatch)
 }
 
 /// @test
-/// Check immediate dispatch of event buffer
+/// Runs the connected callback synchronously from immediateDispatch for confirmed, multicast,
+/// and unicast transports.
 /// @requirements(SEN-574)
 TEST(EventBuffer, dispatchImmediate)
 {
@@ -499,7 +510,9 @@ TEST(EventBuffer, dispatchImmediate)
 }
 
 /// @test
-/// Check dispatch from stream of event buffer
+/// Reads the event argument back out of a serialized byte buffer in dispatchFromStream and
+/// queues the connected callback, the deserialized value reaches the callback once the work
+/// queue executes, for a native and a string payload.
 /// @requirements(SEN-574)
 TEST(EventBuffer, dispatchFromStream)
 {
@@ -556,7 +569,9 @@ TEST(EventBuffer, dispatchFromStream)
 }
 
 /// @test
-/// Check dispatch with no arguments
+/// Dispatches an event with no arguments, the callback runs once the work queue executes and
+/// the transport queue holds one event whose serialized size is zero and whose serialize
+/// function writes no bytes.
 /// @requirements(SEN-574)
 TEST(EventBuffer, dispatchNoArguments)
 {
@@ -595,7 +610,9 @@ TEST(EventBuffer, dispatchNoArguments)
 }
 
 /// @test
-/// Check that dispatch correctly serializes events into the transport queue when requested
+/// Serializes a dispatched event into the transport queue on request, the queued entry keeps
+/// the event id and creation time and its serialize function writes exactly the four argument
+/// bytes.
 /// @requirements(SEN-574)
 TEST(EventBuffer, dispatchSerializationToTransportQueue)
 {

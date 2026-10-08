@@ -18,7 +18,8 @@ using sen::TypeHandle;
 using sen::VoidType;
 
 /// @test
-/// Checks that makeNonOwningTypeHandle wraps a raw pointer without taking ownership
+/// Wraps a raw type pointer in a non-owning handle whose type() returns exactly the pointer
+/// given.
 /// @requirements(SEN-355)
 TEST(TypeHandle, createFromNonOwning)
 {
@@ -32,7 +33,8 @@ TEST(TypeHandle, createFromNonOwning)
 }
 
 /// @test
-/// Checks implicit owning conversion from TypeHandle<Derived> to TypeHandle<Base>
+/// Converts a TypeHandle of a derived type implicitly to a TypeHandle of its base, both
+/// handles point at the same type instance.
 /// @requirements(SEN-355)
 TEST(TypeHandle, createFromConvertableType)
 {
@@ -44,7 +46,8 @@ TEST(TypeHandle, createFromConvertableType)
 }
 
 /// @test
-/// Checks implicit non-owning conversion from TypeHandle<Deriver> to TypeHandle<Base>
+/// Converts a non-owning TypeHandle of a derived type implicitly to a TypeHandle of its base,
+/// the base handle points at the same type instance.
 /// @requirements(SEN-355)
 TEST(TypeHandle, createFromConvertableTypeNonOwning)
 {
@@ -57,7 +60,8 @@ TEST(TypeHandle, createFromConvertableTypeNonOwning)
 }
 
 /// @test
-/// Checks implicit owning conversion from temporary TypeHandle<Derived>
+/// Converts a temporary TypeHandle of a derived type into a TypeHandle of its base that keeps
+/// the instance alive, the aliased type is still reachable through it.
 /// @requirements(SEN-355)
 TEST(TypeHandle, createFromConvertableTypeFromTmp)
 {
@@ -68,7 +72,8 @@ TEST(TypeHandle, createFromConvertableTypeFromTmp)
 }
 
 /// @test
-/// Checks that non-owning handle converted to TypeHandle<Base> preserves the raw pointer
+/// Converts a temporary non-owning handle to a TypeHandle of the base type while preserving
+/// the wrapped raw pointer.
 /// @requirements(SEN-355)
 TEST(TypeHandle, createFromConvertableTypeNonOwningFromTmp)
 {
@@ -80,7 +85,9 @@ TEST(TypeHandle, createFromConvertableTypeNonOwningFromTmp)
 }
 
 /// @test
-/// Verifies operator== and operator!=
+/// Compares handles equal exactly when they refer to the same type, in every direction, handle
+/// against handle, handle against Type, and Type against handle, with operator!= always the
+/// negation.
 /// @requirements(SEN-355)
 TEST(TypeHandle, testComparisions)
 {
@@ -128,7 +135,8 @@ TEST(TypeHandle, testComparisions)
 }
 
 /// @test
-/// Verifies type(), operator->() and operator*()
+/// Reaches the wrapped type through type(), operator->, and operator*, each returning the same
+/// underlying instance.
 /// @requirements(SEN-355)
 TEST(TypeHandle, testAccessCapabilities)
 {
@@ -147,7 +155,8 @@ TEST(TypeHandle, testAccessCapabilities)
 }
 
 /// @test
-/// Checks dynamicTypeHandleCast succeeds when the managed type is convertible to the target
+/// Casts a base TypeHandle back to the derived AliasType it holds through
+/// dynamicTypeHandleCast, yielding an engaged optional equal to the original handle.
 /// @requirements(SEN-355)
 TEST(DynamicTypeHandleCast, correctUpwardsCast)
 {
@@ -162,7 +171,8 @@ TEST(DynamicTypeHandleCast, correctUpwardsCast)
 }
 
 /// @test
-/// Checks dynamicTypeHandleCast returns nullopt when the managed type is not convertible
+/// Returns an empty optional from dynamicTypeHandleCast when the handle does not hold the
+/// requested type.
 /// @requirements(SEN-355)
 TEST(DynamicTypeHandleCast, notallowedUpwardsCast)
 {
@@ -176,7 +186,9 @@ TEST(DynamicTypeHandleCast, notallowedUpwardsCast)
 }
 
 /// @test
-/// Checks all validation branches of validateLowerCaseName
+/// Accepts lower-case names such as validName123 and some.name and rejects empty names, names
+/// starting with a digit, an uppercase letter, an underscore, or a dot, and names with
+/// non-alphanumeric characters, each with its own error message.
 /// @requirements(SEN-355)
 TEST(Type, validateLowerCaseName)
 {
@@ -237,7 +249,9 @@ TEST(Type, validateLowerCaseName)
 }
 
 /// @test
-/// Checks all validation branches of validateTypeName
+/// Accepts type names such as ValidName123 and Some.Qualified.Name and rejects empty names,
+/// names starting with a digit, a lowercase letter, an underscore, or a dot, and names with
+/// non-alphanumeric characters, each with its own error message.
 /// @requirements(SEN-355)
 TEST(Type, validateTypeName)
 {

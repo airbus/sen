@@ -158,7 +158,8 @@ void writeAnnotationRecording(std::string_view name,
 }  // namespace
 
 /// @test
-/// Quickly validates that several recordings can be merged by runtime timestamp ordering.
+/// Merges two recordings whose keyframe times interleave, the merged archive reading back all
+/// four keyframes and entries in chronological order, the summary spanning earliest to latest.
 /// @requirements(SEN-364)
 TEST(RecordingMergerTest, RawMergeOrdersRuntimeEntriesChronologically)
 {
@@ -209,7 +210,8 @@ TEST(RecordingMergerTest, RawMergeOrdersRuntimeEntriesChronologically)
 }
 
 /// @test
-/// Verifies that zero-aligned merges move every input recording to its own start time.
+/// Shifts each input recording independently to start at time zero in a zeroAligned merge,
+/// keeping the spacing between its keyframes.
 /// @requirements(SEN-364)
 TEST(RecordingMergerTest, MergeZeroAlignsRuntimeEntries)
 {
@@ -241,7 +243,8 @@ TEST(RecordingMergerTest, MergeZeroAlignsRuntimeEntries)
 }
 
 /// @test
-/// Verifies that offset-aligned merges apply an independent start offset to every input recording.
+/// Rebases each input recording to start at its own offset in an offsetAligned merge,
+/// recordings starting at times 10 and 100 reading back from 5 and 30 with spacing kept.
 /// @requirements(SEN-364)
 TEST(RecordingMergerTest, MergeAppliesRuntimeOffsets)
 {
@@ -273,7 +276,8 @@ TEST(RecordingMergerTest, MergeAppliesRuntimeOffsets)
 }
 
 /// @test
-/// Verifies that offset-aligned merges also shift object creation, property change, and deletion entries.
+/// Shifts creation, property change, and deletion entries by their recording's offset in an
+/// offsetAligned merge, the same set of object ids appearing across all three entry kinds.
 /// @requirements(SEN-364)
 TEST(RecordingMergerTest, MergeAppliesRuntimeOffsetsToObjectEntries)
 {
@@ -356,7 +360,8 @@ TEST(RecordingMergerTest, MergeAppliesRuntimeOffsetsToObjectEntries)
 }
 
 /// @test
-/// Verifies that the merged archive rebuilds object indexes with offsets into the merged runtime file.
+/// Rebuilds per-object indexes in the merged archive, each indexed object's cursor walking its
+/// creation, property change, and deletion at the expected times before reaching the end.
 /// @requirements(SEN-364)
 TEST(RecordingMergerTest, MergeRebuildsObjectIndexes)
 {
@@ -431,7 +436,8 @@ TEST(RecordingMergerTest, MergeRebuildsObjectIndexes)
 }
 
 /// @test
-/// Verifies that object ids from different input recordings are remapped into the merged archive id space.
+/// Remaps object ids into the merged archive's id space, the same source object recorded in two
+/// inputs coming back as two distinct ids with both bus names present.
 /// @requirements(SEN-364)
 TEST(RecordingMergerTest, MergeRemapsObjectIdsFromDifferentRecordings)
 {
@@ -470,7 +476,8 @@ TEST(RecordingMergerTest, MergeRemapsObjectIdsFromDifferentRecordings)
 }
 
 /// @test
-/// Verifies that the merger rejects repeated object names on the same bus.
+/// Throws when two inputs carry the same object name on the same session and bus and no
+/// duplicate resolver is set.
 /// @requirements(SEN-364)
 TEST(RecordingMergerTest, MergeFailsForDuplicateObjectNamesOnSameBus)
 {
@@ -490,7 +497,7 @@ TEST(RecordingMergerTest, MergeFailsForDuplicateObjectNamesOnSameBus)
 }
 
 /// @test
-/// Verifies that equal object names can still be merged when they belong to different buses.
+/// Accepts equal object names that live on different buses, the merge completing without throwing.
 /// @requirements(SEN-364)
 TEST(RecordingMergerTest, MergeAllowsEqualObjectNamesOnDifferentBuses)
 {
@@ -510,7 +517,8 @@ TEST(RecordingMergerTest, MergeAllowsEqualObjectNamesOnDifferentBuses)
 }
 
 /// @test
-/// Verifies that annotations are merged chronologically and included in the output summary.
+/// Merges annotations from two recordings into chronological order, all four reading back
+/// sorted by time with their values intact and counted in the summary.
 /// @requirements(SEN-364)
 TEST(RecordingMergerTest, RawMergeOrdersAnnotationsChronologically)
 {
@@ -566,7 +574,8 @@ TEST(RecordingMergerTest, RawMergeOrdersAnnotationsChronologically)
 }
 
 /// @test
-/// Verifies that aligned merge modes also apply their time shift to annotations.
+/// Shifts annotations by their recording's offset in an offsetAligned merge, the readback
+/// showing rebased times in order and unchanged values.
 /// @requirements(SEN-364)
 TEST(RecordingMergerTest, MergeAppliesAnnotationOffsets)
 {
@@ -620,7 +629,7 @@ TEST(RecordingMergerTest, MergeAppliesAnnotationOffsets)
 }
 
 /// @test
-/// Verifies that a recording object formats its fully qualified name.
+/// Formats a merge object's fully qualified name as session.bus.object.
 /// @requirements(SEN-364)
 TEST(RecordingMergerTest, RecordingFormatsFullName)
 {
@@ -630,7 +639,7 @@ TEST(RecordingMergerTest, RecordingFormatsFullName)
 }
 
 /// @test
-/// Verifies that an output archive which is also one of the inputs is refused.
+/// Throws when the output archive path is also one of the input archives.
 /// @requirements(SEN-364)
 TEST(RecordingMergerTest, MergeFailsWhenTheOutputIsAlsoAnInput)
 {
@@ -646,7 +655,7 @@ TEST(RecordingMergerTest, MergeFailsWhenTheOutputIsAlsoAnInput)
 }
 
 /// @test
-/// Verifies that an output path already holding a recording archive is refused.
+/// Throws when the output path already holds the archive of an earlier merge.
 /// @requirements(SEN-364)
 TEST(RecordingMergerTest, MergeFailsWhenTheOutputAlreadyHoldsAnArchive)
 {
@@ -664,8 +673,9 @@ TEST(RecordingMergerTest, MergeFailsWhenTheOutputAlreadyHoldsAnArchive)
 }
 
 /// @test
-/// Verifies that forcing replaces an archive already present at the output path. Without this the
-/// two checks above would pass on a merger that refused every output.
+/// Replaces an archive already present at the output path when force is set, the remerged
+/// output reading back complete. Without this the two refusal checks above would pass on a
+/// merger that refused every output.
 /// @requirements(SEN-364)
 TEST(RecordingMergerTest, MergeReplacesAnExistingArchiveWhenForced)
 {
@@ -691,7 +701,8 @@ TEST(RecordingMergerTest, MergeReplacesAnExistingArchiveWhenForced)
 }
 
 /// @test
-/// Verifies that progress is reported from nothing done to complete, never going backwards.
+/// Reports progress from zero bytes done to a final complete report, the total staying constant
+/// and the done count never decreasing.
 /// @requirements(SEN-364)
 TEST(RecordingMergerTest, MergeReportsProgressFromZeroToComplete)
 {
@@ -723,7 +734,8 @@ TEST(RecordingMergerTest, MergeReportsProgressFromZeroToComplete)
 }
 
 /// @test
-/// Verifies that the reporter is called at most once per whole percent, so a caller may draw in it.
+/// Calls the progress reporter at least once and at most 101 times, so a caller can
+/// drive a display from it.
 /// @requirements(SEN-364)
 TEST(RecordingMergerTest, MergeThrottlesProgressToWholePercents)
 {
@@ -745,7 +757,8 @@ TEST(RecordingMergerTest, MergeThrottlesProgressToWholePercents)
 }
 
 /// @test
-/// Verifies that a merge without a reporter behaves exactly as one with it.
+/// Produces the same merged archive with and without a progress reporter, the two summaries
+/// agreeing on keyframe count and time span.
 /// @requirements(SEN-364)
 TEST(RecordingMergerTest, MergeWithoutAProgressReporterProducesTheSameArchive)
 {
@@ -796,7 +809,7 @@ TEST(RecordingMergerTest, MergeWithoutAProgressReporterProducesTheSameArchive)
 /// A duplicate object name on one bus is kept rather than rejected when the resolver picks one of them.
 ///
 /// Without a resolver the merge throws, which MergeFailsForDuplicateObjectNamesOnSameBus pins. This is
-/// the other half: the caller decides, and `sen archive merge` asks the user at the terminal.
+/// the other half: the caller decides, and the sen archive merge command asks the user at the terminal.
 TEST(RecordingMergerTest, MergeKeepsTheObjectTheResolverSelects)
 {
   TempDir tempDir;

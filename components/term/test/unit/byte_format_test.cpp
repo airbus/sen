@@ -45,7 +45,7 @@ TEST(ByteFormat, EachUnitTakesOverAtItsBoundary)
 }
 
 /// @test
-/// A part of a unit is kept to one decimal, which is what the transport counters under `inspect`
+/// A part of a unit is kept to one decimal, which is what the transport counters under inspect
 /// are read as: the figure is a size to compare, not an amount to account for.
 TEST(ByteFormat, PartOfAUnitKeepsOneDecimal)
 {

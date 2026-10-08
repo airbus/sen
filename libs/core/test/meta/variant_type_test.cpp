@@ -64,7 +64,8 @@ void checkInvalidSpec(const VariantSpec& spec) { EXPECT_THROW(std::ignore = Vari
 }  // namespace
 
 /// @test
-/// Checks variant field comparisons
+/// Equates two variant fields only when key, description, and type all match. A difference in
+/// any one of them compares unequal.
 /// @requirements(SEN-579)
 TEST(VariantType, field)
 {
@@ -111,7 +112,8 @@ TEST(VariantType, field)
 }
 
 /// @test
-/// Checks variant spec comparison
+/// Equates two variant specs only when name, qualified name, description, and field list all
+/// match. A difference in any of these, including one field's description, compares unequal.
 /// @requirements(SEN-579)
 TEST(VariantSpec, specComparison)
 {
@@ -174,7 +176,9 @@ TEST(VariantSpec, specComparison)
 }
 
 /// @test
-/// Checks variant instance type
+/// Answers true from isCustomType and isVariantType on a variant type and false from every
+/// other type predicate sampled, from isNativeType to isAliasType, and a variant with an
+/// unbounded field reports isBounded false.
 /// @requirements(SEN-579)
 TEST(VariantType, basicsBoolConversion)
 {
@@ -212,7 +216,9 @@ TEST(VariantType, basicsBoolConversion)
 }
 
 /// @test
-/// Checks variant instance type
+/// Returns non-null from asCustomType and asVariantType on a variant type and null from every
+/// other as-conversion sampled, from asNativeType to asAliasType, and a variant with an
+/// unbounded field reports isBounded false.
 /// @requirements(SEN-579)
 TEST(VariantType, basicsConversion)
 {
@@ -250,7 +256,8 @@ TEST(VariantType, basicsConversion)
 }
 
 /// @test
-/// Checks correct variant instance creation from spec
+/// Builds a variant type from a valid spec and exposes its name, qualified name, description,
+/// and fields unchanged, including a variant of variants and keys out of order.
 /// @requirements(SEN-579)
 TEST(VariantType, makeBasic)
 {
@@ -279,7 +286,8 @@ TEST(VariantType, makeBasic)
 }
 
 /// @test
-/// Checks invalid variant creation
+/// Refuses to build a variant type from an invalid spec. Empty or malformed names, an empty
+/// qualified name and fields with repeated keys all throw.
 /// @requirements(SEN-579)
 TEST(VariantType, makeInvalid)
 {
@@ -364,7 +372,9 @@ TEST(VariantType, makeInvalid)
 }
 
 /// @test
-/// Checks comparison of different variant types
+/// Equates variant type instances built from the same spec and distinguishes instances
+/// differing in name, qualified name, description, or fields, including a nested variant
+/// field losing its own fields. A variant type never equals a native type.
 /// @requirements(SEN-579)
 TEST(VariantType, comparison)
 {
@@ -460,7 +470,8 @@ TEST(VariantType, comparison)
 }
 
 /// @test
-/// Checks variant field from key getter
+/// Finds every declared field by key through getFieldFromKey on simple and nested variants
+/// and returns null for keys that are not declared.
 /// @requirements(SEN-579)
 TEST(VariantType, getFieldFromKey)
 {

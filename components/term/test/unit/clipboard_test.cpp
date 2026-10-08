@@ -116,7 +116,8 @@ private:
 //--------------------------------------------------------------------------------------------------------------
 
 /// @test
-/// A copy writes the payload inside the OSC 52 framing the terminal reads.
+/// A copy begins its output with the OSC 52 prefix the terminal reads and ends it with the
+/// terminating BEL.
 TEST(Clipboard, EmitsOsc52WrapperAroundPayload)
 {
   NoDisplayEnv guard;
@@ -169,7 +170,8 @@ TEST(Clipboard, Base64DoublePaddingFor1Byte) { EXPECT_EQ(clipboard::base64Encode
 TEST(Clipboard, Base64EmptyInput) { EXPECT_EQ(clipboard::base64Encode(""), ""); }
 
 /// @test
-/// Bytes above the ASCII range encode correctly, reaching the top of the six bit range.
+/// Encodes bytes above the ASCII range, 0xFF 0xFE 0xFD becoming //79 at the top of the six bit
+/// range.
 TEST(Clipboard, Base64HandlesNonAsciiBytes)
 {
   // 0xFF 0xFE 0xFD -> //79, which exercises the top of the 6-bit range and both alphabet tails.
@@ -177,7 +179,7 @@ TEST(Clipboard, Base64HandlesNonAsciiBytes)
 }
 
 /// @test
-/// A known string encodes to its known base64 form.
+/// Encodes "Hello, World!" to "SGVsbG8sIFdvcmxkIQ==".
 TEST(Clipboard, Base64KnownValueHelloWorld)
 {
   EXPECT_EQ(clipboard::base64Encode("Hello, World!"), "SGVsbG8sIFdvcmxkIQ==");
@@ -270,8 +272,8 @@ TEST(Clipboard, ReadingTheLastFailureClearsIt)
 }
 
 /// @test
-/// Ensure that if there is a fail that closes the pipe before we finish writing,
-/// term component catches the SIGPIPE and survive instead of crashing.
+/// Survives the helper pipe closing before a one megabyte payload is fully written, recording a
+/// failure reason instead of crashing on SIGPIPE.
 TEST(Clipboard, WritingToClosedPipeDoesNotCrash)
 {
   {

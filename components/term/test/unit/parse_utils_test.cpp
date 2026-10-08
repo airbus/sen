@@ -204,7 +204,7 @@ TEST(SplitTopLevelArgs, BracketedContentStaysOneToken)
 }
 
 /// @test
-/// Nested braces stay one token.
+/// A braced group holding quoted text and separators stays one token.
 TEST(SplitTopLevelArgs, NestedBracesStayOneToken)
 {
   auto t = splitTopLevelArgs(R"({"x": 1, "y": 2} "end")");
@@ -334,7 +334,7 @@ TEST(SplitTopLevelArgs, AnUnbalancedCloserDoesNotUnbalanceTheRest)
 //--------------------------------------------------------------------------------------------------------------
 
 /// @test
-/// Text shorter than the bound is returned unchanged.
+/// Text at or under the bound is returned unchanged.
 TEST(TruncateUtf8, ShorterThanTheBoundIsUnchanged)
 {
   EXPECT_EQ(truncateUtf8("hello", 10U), "hello");

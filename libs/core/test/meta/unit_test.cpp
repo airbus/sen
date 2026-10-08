@@ -54,7 +54,8 @@ void checkToFromSI(float64_t val, const Unit& unit, const UnitSpec& spec)
 }  // namespace
 
 /// @test
-/// Checks unit spec comparison
+/// Equates two unit specs built the same and distinguishes specs differing in name, plural
+/// name, category, or abbreviation.
 /// @requirements(SEN-894)
 TEST(Unit, specComparison)
 {
@@ -96,7 +97,8 @@ TEST(Unit, specComparison)
 }
 
 /// @test
-/// Checks comparison between different units
+/// Equates unit instances built from the same spec and distinguishes units differing in name,
+/// plural name, abbreviation, or category.
 /// @requirements(SEN-894)
 TEST(Unit, comparison)
 {
@@ -166,7 +168,9 @@ TEST(Unit, comparison)
 }
 
 /// @test
-/// Checks correct unit conversion from/to international system
+/// Applies the unit's factor and offsets in toSI and fromSI so fromSI inverts toSI exactly
+/// over positive and negative sample values, and exposes the spec's category, names, and
+/// abbreviation.
 /// @requirements(SEN-894)
 TEST(Unit, toAndFromSI)
 {
@@ -183,7 +187,7 @@ TEST(Unit, toAndFromSI)
 }
 
 /// @test
-/// Checks fromString with a numeric-only string
+/// Parses a numeric-only string through fromString into its value, 10.5 comes back as 10.5.
 /// @requirements(SEN-894)
 TEST(Unit, fromStringNumericOnly)
 {
@@ -196,7 +200,8 @@ TEST(Unit, fromStringNumericOnly)
 }
 
 /// @test
-/// Checks fromString with a value that causes out of range
+/// Reports an error from fromString for a 500-digit number, saying the value did not fit the
+/// underlying storage type.
 /// @requirements(SEN-894)
 TEST(Unit, fromStringOutOfRange)
 {
@@ -210,7 +215,8 @@ TEST(Unit, fromStringOutOfRange)
 }
 
 /// @test
-/// Checks getCategoryString for all unit categories
+/// Maps every unit category to its display string through getCategoryString, from length to
+/// torque, multiword categories such as angular velocity include the space.
 /// @requirements(SEN-894)
 TEST(Unit, getCategoryString)
 {

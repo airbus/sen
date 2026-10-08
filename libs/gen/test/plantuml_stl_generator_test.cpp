@@ -128,7 +128,7 @@ class MyDerivedTestClass : extends MyBaseTestClass
 )";
 
 /// @test
-/// Check sen gen uml generates a correct PlantUML from an empty STL file
+/// Produces a PlantUML document that opens with @startuml and closes with @enduml when the STL source is empty.
 TEST_F(APlantUMLGenerator, StlEmpty)
 {
   ASSERT_TRUE(generateStl(empty));
@@ -140,11 +140,11 @@ TEST_F(APlantUMLGenerator, StlEmpty)
 }
 
 /// @test
-/// Check sen gen uml does not generate a PlantUML from an invalid STL file
+/// Throws instead of producing a PlantUML document when the STL source is malformed.
 TEST_F(APlantUMLGenerator, StlErrorFormat) { ASSERT_ANY_THROW(generateStl(errorFormat)); }
 
 /// @test
-/// Check sen gen uml generates a correct PlantUML from STL file with empty class definition
+/// Renders a memberless STL class as a PlantUML class inside its package, with the package stereotyped as a Folder.
 TEST_F(APlantUMLGenerator, StlEmptyClass)
 {
   ASSERT_TRUE(generateStl(emptyClass));
@@ -162,7 +162,8 @@ TEST_F(APlantUMLGenerator, StlEmptyClass)
 }
 
 /// @test
-/// Check sen gen uml generates a correct PlantUML from STL file with basic properties in the class
+/// Renders class properties as public PlantUML attributes with their declared names and types, listed in
+/// declaration order.
 TEST_F(APlantUMLGenerator, StlBasicProperties)
 {
   ASSERT_TRUE(generateStl(basicProperties));
@@ -186,7 +187,8 @@ TEST_F(APlantUMLGenerator, StlBasicProperties)
 }
 
 /// @test
-/// Check the generated PlantUML places a struct, its properties and a class that uses it
+/// Renders a struct as its own PlantUML class listing its fields, and keeps the struct name as the type of the
+/// class property that uses it.
 TEST_F(APlantUMLGenerator, StlStructProperty)
 {
   ASSERT_TRUE(generateStl(structProperty));
@@ -216,7 +218,8 @@ TEST_F(APlantUMLGenerator, StlStructProperty)
 }
 
 /// @test
-/// Check the generated PlantUML places an enumeration, its enumerators and a class that uses it
+/// Renders an enum with its enumerators in declaration order, and keeps the enum name as the type of the class
+/// property that uses it.
 TEST_F(APlantUMLGenerator, StlEnumProperty)
 {
   ASSERT_TRUE(generateStl(enumProperty));
@@ -243,7 +246,8 @@ TEST_F(APlantUMLGenerator, StlEnumProperty)
 }
 
 /// @test
-/// Check sen gen uml generates a correct PlantUML from STL file with a variant property in the class
+/// Renders a variant as a PlantUML class stereotyped Variant listing its alternative types, and keeps the variant
+/// name as the type of the class property that uses it.
 TEST_F(APlantUMLGenerator, StlVariantProperty)
 {
   ASSERT_TRUE(generateStl(variantProperty));
@@ -276,8 +280,8 @@ TEST_F(APlantUMLGenerator, StlVariantProperty)
 }
 
 /// @test
-/// Check sen gen uml generates a correct PlantUML from STL file where the class contains properties with non-templated
-/// types
+/// Keeps properties whose types are sequence and quantity aliases as attributes of the class, typed with the
+/// alias names.
 TEST_F(APlantUMLGenerator, StlNonGenerableProperties)
 {
   ASSERT_TRUE(generateStl(nonGenerableProperties));
@@ -301,7 +305,8 @@ TEST_F(APlantUMLGenerator, StlNonGenerableProperties)
 }
 
 /// @test
-/// Check sen gen uml generates a correct PlantUML from STL file with methods in the class
+/// Renders class methods in a dedicated methods section after the properties, each listing its parameter names
+/// and return type.
 TEST_F(APlantUMLGenerator, StlMethods)
 {
   ASSERT_TRUE(generateStl(methods));
@@ -331,7 +336,7 @@ TEST_F(APlantUMLGenerator, StlMethods)
 }
 
 /// @test
-/// Check sen gen uml generates a correct PlantUML from STL file with events in the class
+/// Renders class events in a dedicated events section placed after the methods section.
 TEST_F(APlantUMLGenerator, StlEvents)
 {
   ASSERT_TRUE(generateStl(events));
@@ -364,7 +369,7 @@ TEST_F(APlantUMLGenerator, StlEvents)
 }
 
 /// @test
-/// Check sen gen uml generates a correct PlantUML from STL file with inheritance
+/// Draws the inheritance relation between a base and a derived class, each rendered with its own properties.
 TEST_F(APlantUMLGenerator, StlInheritance)
 {
   ASSERT_TRUE(generateStl(inheritance));
@@ -394,7 +399,7 @@ TEST_F(APlantUMLGenerator, StlInheritance)
 }
 
 /// @test
-/// Check sen gen uml only generates PlantUML classes when the onlyClasses mode is used
+/// Omits the struct definition in onlyClasses mode while still rendering the class and its struct-typed property.
 TEST_F(APlantUMLGenerator, StlOnlyClasses)
 {
   ASSERT_TRUE(generateStl(structProperty, sen::gen::PlantUMLGenerationMode::onlyClasses));
@@ -419,7 +424,7 @@ TEST_F(APlantUMLGenerator, StlOnlyClasses)
 }
 
 /// @test
-/// Check sen gen uml only generates PlantUML special types definition when the onlyBasicTypes mode is used
+/// Omits the class entirely in onlyBasicTypes mode while still rendering the struct with its fields.
 TEST_F(APlantUMLGenerator, StlOnlyBasicTypes)
 {
   ASSERT_TRUE(generateStl(structProperty, sen::gen::PlantUMLGenerationMode::onlyBasicTypes));
@@ -446,7 +451,7 @@ TEST_F(APlantUMLGenerator, StlOnlyBasicTypes)
 }
 
 /// @test
-/// Check sen gen uml does not generate PlantUML enums when the noEnumerators mode is used
+/// Omits the enum definition entirely in noEnumerators mode while the class keeps its enum-typed property.
 TEST_F(APlantUMLGenerator, StlNoEnumerators)
 {
   ASSERT_TRUE(

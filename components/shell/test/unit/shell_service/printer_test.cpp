@@ -177,8 +177,8 @@ protected:
 }  // namespace
 
 /// @test
-/// Verifies that text exceeding the width limit is wrapped correctly, and extremely long words avoid creating a blank
-/// leading line
+/// Wraps text at the width limit onto indented continuation lines, leaves a word longer than the width unbroken,
+/// and begins with the long word rather than a blank line when normal text follows it.
 /// @requirements(SEN-369)
 TEST_F(PrinterTest, FormatTextForWidthExactness)
 {
@@ -196,7 +196,8 @@ TEST_F(PrinterTest, FormatTextForWidthExactness)
 }
 
 /// @test
-/// Verifies the correct output string generation when an error is printed
+/// Formats printError arguments printf-style and writes the message with a two-space Error: prefix and a
+/// trailing newline.
 /// @requirements(SEN-369, SEN-1049)
 TEST_F(PrinterTest, PrintErrorExactOutput)
 {
@@ -206,7 +207,8 @@ TEST_F(PrinterTest, PrintErrorExactOutput)
 }
 
 /// @test
-/// Verifies method call results handling for void, valid primitive values, and exceptions
+/// Prints nothing for a void method result, the bare value for a numeric result, and an Error: call error
+/// line carrying the exception message for a failed call.
 /// @requirements(SEN-369, SEN-1049)
 TEST_F(PrinterTest, PrintMethodCallResultAllPaths)
 {
@@ -233,7 +235,8 @@ TEST_F(PrinterTest, PrintMethodCallResultAllPaths)
 }
 
 /// @test
-/// Evaluates text representation of struct hierarchies inside an object
+/// Prints an object's properties under a state-at header taken from the commit time, each property as a
+/// dashed line and struct fields nested indented beneath their property.
 /// @requirements(SEN-369, SEN-573)
 TEST_F(PrinterTest, PrintPropertiesExactFormatting)
 {
@@ -248,7 +251,8 @@ TEST_F(PrinterTest, PrintPropertiesExactFormatting)
 }
 
 /// @test
-/// Verifies variant error handling for bad content and out-of-bounds indices
+/// Throws from printValue when a variant is given non-variant content or a key that matches no variant
+/// field.
 /// @requirements(SEN-369, SEN-1053)
 TEST_F(PrinterTest, PrintValueVariantErrorPaths)
 {
@@ -263,7 +267,8 @@ TEST_F(PrinterTest, PrintValueVariantErrorPaths)
 }
 
 /// @test
-/// Verifies sequence hexdump formatting wrapping exactly at 8 bytes
+/// Prints a byte sequence in hexdump style, wrapping onto an indented continuation line after exactly
+/// eight bytes.
 /// @requirements(SEN-369, SEN-577)
 TEST_F(PrinterTest, PrintValueSequenceHexdumpWrapping)
 {
@@ -282,7 +287,8 @@ TEST_F(PrinterTest, PrintValueSequenceHexdumpWrapping)
 }
 
 /// @test
-/// Verifies enumeration description truncations when text exceeds width bounds
+/// Prints an enumerator as its name with the description in parentheses, truncating an over-long
+/// description with a .. marker.
 /// @requirements(SEN-369, SEN-902)
 TEST_F(PrinterTest, PrintValueEnumTruncation)
 {
@@ -297,7 +303,7 @@ TEST_F(PrinterTest, PrintValueEnumTruncation)
 }
 
 /// @test
-/// Verifies that empty variables output exactly '<empty>' string
+/// Prints an empty Var as exactly the literal <empty> marker.
 /// @requirements(SEN-369)
 TEST_F(PrinterTest, PrintEmptyValue)
 {
@@ -306,7 +312,8 @@ TEST_F(PrinterTest, PrintEmptyValue)
 }
 
 /// @test
-/// Validates duration types output seconds properly formatted
+/// Prints a Duration in seconds with six decimal places and the s unit, a 1 Hz period appearing as
+/// 1.000000 s.
 /// @requirements(SEN-369, SEN-575)
 TEST_F(PrinterTest, PrintDurationValue)
 {
@@ -315,7 +322,7 @@ TEST_F(PrinterTest, PrintDurationValue)
 }
 
 /// @test
-/// Validates correct visual generation of tables enforcing truncation limits on the last column
+/// Truncates the last table column with a .. marker so the printed row fits the 80-column terminal width.
 /// @requirements(SEN-369)
 TEST_F(PrinterTest, PrintTableTruncation)
 {
@@ -331,7 +338,7 @@ TEST_F(PrinterTest, PrintTableTruncation)
 }
 
 /// @test
-/// Evaluates the printWelcome logic
+/// Prints a welcome banner that reports the compiler, revision, and branch build details.
 /// @requirements(SEN-369)
 TEST_F(PrinterTest, PrintWelcomeFormatGeneration)
 {
@@ -344,7 +351,7 @@ TEST_F(PrinterTest, PrintWelcomeFormatGeneration)
 }
 
 /// @test
-/// Evaluates text representation of instances in a list
+/// Lists each instance with its object name, its class name in brackets, and the Local origin tag.
 /// @requirements(SEN-369)
 TEST_F(PrinterTest, PrintInstancesLogic)
 {
@@ -360,7 +367,8 @@ TEST_F(PrinterTest, PrintInstancesLogic)
 }
 
 /// @test
-/// Checks that object description generates all sections: ID, properties and methods
+/// Describes an object with OBJECT and CLASS header lines and a PROPERTIES section that names every
+/// property of its class.
 /// @requirements(SEN-369)
 TEST_F(PrinterTest, PrintDescriptionObject)
 {
@@ -376,7 +384,8 @@ TEST_F(PrinterTest, PrintDescriptionObject)
 }
 
 /// @test
-/// Verifies that alias and optional types are correctly unwrapped and printed by TypeWriter
+/// Prints a value typed as an alias or an optional as its plain underlying value, unwrapping the type
+/// before formatting.
 /// @requirements(SEN-369)
 TEST_F(PrinterTest, PrintValueAliasAndOptional)
 {
@@ -396,7 +405,8 @@ TEST_F(PrinterTest, PrintValueAliasAndOptional)
 }
 
 /// @test
-/// Ensures that Native, Integral and Real types output correct descriptive structures
+/// Describes u32 as an INTEGRAL TYPE with its byte size and signedness, and f64 as a REAL TYPE with its
+/// byte size and infinity support.
 /// @requirements(SEN-369)
 TEST_F(PrinterTest, PrintDescriptionNumericTypes)
 {
@@ -416,7 +426,8 @@ TEST_F(PrinterTest, PrintDescriptionNumericTypes)
 }
 
 /// @test
-/// Ensures that sequence type properties are properly described
+/// Describes a bounded sequence with its SEQUENCE TYPE header, element type, boundedness flag, and
+/// maximum size.
 /// @requirements(SEN-369)
 TEST_F(PrinterTest, PrintDescriptionSequenceType)
 {
@@ -432,7 +443,8 @@ TEST_F(PrinterTest, PrintDescriptionSequenceType)
 }
 
 /// @test
-/// Verifies that printing an enum error correctly displays the allowed values in a table format.
+/// Prints an invalid-enumeration error naming the argument when one is given, or a generic allowed-values
+/// heading otherwise, followed by a table of enumerator names, values, and descriptions.
 /// @requirements(SEN-369)
 TEST_F(PrinterTest, PrintEnumErrorFormatting)
 {
@@ -456,7 +468,7 @@ TEST_F(PrinterTest, PrintEnumErrorFormatting)
 }
 
 /// @test
-/// Verifies the string conversion fallback inside TypeWriter for generic native types
+/// Prints boolean values as the words true and false.
 /// @requirements(SEN-369)
 TEST_F(PrinterTest, PrintValueBooleanType)
 {
@@ -470,7 +482,7 @@ TEST_F(PrinterTest, PrintValueBooleanType)
 }
 
 /// @test
-/// Verifies the correct output string generation for quantities with and without units
+/// Prints a quantity value as its numeric text, 9.81 appearing unchanged in the output.
 /// @requirements(SEN-369)
 TEST_F(PrinterTest, PrintValueQuantityType)
 {
@@ -482,7 +494,8 @@ TEST_F(PrinterTest, PrintValueQuantityType)
 }
 
 /// @test
-/// Verifies that a valid variant type is printed correctly, formatting its inner type
+/// Prints a variant holding a known field as two dashed lines, the resolved field type and the contained
+/// value.
 /// @requirements(SEN-369)
 TEST_F(PrinterTest, PrintValueVariantSuccessPath)
 {
@@ -499,7 +512,7 @@ TEST_F(PrinterTest, PrintValueVariantSuccessPath)
 }
 
 /// @test
-/// Verifies that normal sequence types are printed using the standard list format
+/// Prints a non-byte sequence as an indexed list, each element on its own line behind its [index].
 /// @requirements(SEN-369)
 TEST_F(PrinterTest, PrintValueSequenceStandardFormatting)
 {
@@ -516,7 +529,7 @@ TEST_F(PrinterTest, PrintValueSequenceStandardFormatting)
 }
 
 /// @test
-/// Verifies the output when an empty struct is passed to the printer
+/// Prints a struct value with no fields as the literal <empty> marker.
 /// @requirements(SEN-369)
 TEST_F(PrinterTest, PrintValueStructEmpty)
 {
@@ -528,7 +541,8 @@ TEST_F(PrinterTest, PrintValueStructEmpty)
 }
 
 /// @test
-/// Verifies timestamp formatting when local time style is configured
+/// Prints a timestamp through a printer configured with the local time style, producing non-empty output
+/// without error.
 /// @requirements(SEN-369)
 TEST_F(PrinterTest, PrintTimestampLocalStyle)
 {
@@ -541,7 +555,7 @@ TEST_F(PrinterTest, PrintTimestampLocalStyle)
 }
 
 /// @test
-/// Verifies TypeDescriptionPrinter handles AliasType correctly
+/// Describes an alias with its ALIAS TYPE header and the name of the aliased type.
 /// @requirements(SEN-369)
 TEST_F(PrinterTest, PrintDescriptionAliasType)
 {
@@ -555,7 +569,8 @@ TEST_F(PrinterTest, PrintDescriptionAliasType)
 }
 
 /// @test
-/// Verifies that derived struct types print both base and derived fields in the correct order
+/// Prints both the own and the inherited fields of a derived struct, the derived fields appearing before
+/// the base fields.
 /// @requirements(SEN-369)
 TEST_F(PrinterTest, PrintValueDerivedStructType)
 {

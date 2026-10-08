@@ -24,7 +24,7 @@ mock_curl_resolve() {
     detect_compiler() { return 1; }
 }
 
-@test "resolve_url: single-match release auto-picks" {
+@test "picks the only matching build without a menu" {
     load_install
     mock_curl_resolve "$(fixture_path release-0.5.2.json)"
     resolve_url "0.5.2" "" "0"
@@ -32,14 +32,14 @@ mock_curl_resolve() {
     [ "$SENV_RESOLVED_USED_MENU" = "0" ]
 }
 
-@test "resolve_url: multi-build, --compiler match" {
+@test "--compiler picks its build when several are available" {
     load_install
     mock_curl_resolve "$(fixture_path release-multi-build.json)"
     resolve_url "0.6.0" "13.2.0" "0"
     [[ "$SENV_RESOLVED_URL" == *"-13.2.0-release.tar.gz" ]]
 }
 
-@test "resolve_url: multi-build, --compiler does not match: fail and list" {
+@test "fails when --compiler matches no build and lists the compilers that exist" {
     load_install
     mock_curl_resolve "$(fixture_path release-multi-build.json)"
     run resolve_url "0.6.0" "99.99.99" "0"
@@ -50,7 +50,7 @@ mock_curl_resolve() {
     [[ "$output" == *"14.1.0"* ]]
 }
 
-@test "resolve_url: multi-build, non-interactive refuses with toolchain list" {
+@test "refuses to choose among several builds in a non-interactive run" {
     load_install
     mock_curl_resolve "$(fixture_path release-multi-build.json)"
     run resolve_url "0.6.0" "" "1"
@@ -58,28 +58,28 @@ mock_curl_resolve() {
     [[ "$output" == *"multiple builds available"* ]]
 }
 
-@test "resolve_url: multi-compiler, --compiler gcc-X.Y picks the gcc build" {
+@test "--compiler gcc-X.Y picks the gcc build among several compilers" {
     load_install
     mock_curl_resolve "$(fixture_path release-multi-compiler.json)"
     resolve_url "0.7.0" "gcc-13.2.0" "0"
     [[ "$SENV_RESOLVED_URL" == *"-gcc-13.2.0-release.tar.gz" ]]
 }
 
-@test "resolve_url: multi-compiler, --compiler clang-X.Y picks the clang build" {
+@test "--compiler clang-X.Y picks the clang build among several compilers" {
     load_install
     mock_curl_resolve "$(fixture_path release-multi-compiler.json)"
     resolve_url "0.7.0" "clang-16.0.0" "0"
     [[ "$SENV_RESOLVED_URL" == *"-clang-16.0.0-release.tar.gz" ]]
 }
 
-@test "resolve_url: multi-compiler, legacy --compiler X.Y resolves to gcc" {
+@test "a bare --compiler X.Y is treated as gcc" {
     load_install
     mock_curl_resolve "$(fixture_path release-multi-compiler.json)"
     resolve_url "0.7.0" "12.4.0" "0"
     [[ "$SENV_RESOLVED_URL" == *"-gcc-12.4.0-release.tar.gz" ]]
 }
 
-@test "resolve_url: multi-compiler, non-interactive lists name-version pairs" {
+@test "a non-interactive refusal lists the compilers as name-version pairs" {
     load_install
     mock_curl_resolve "$(fixture_path release-multi-compiler.json)"
     run resolve_url "0.7.0" "" "1"
@@ -89,7 +89,7 @@ mock_curl_resolve() {
     [[ "$output" == *"clang-16.0.0"* ]]
 }
 
-@test "resolve_url: aarch64 host filters out x86_64 candidates" {
+@test "an aarch64 host filters out x86_64 builds and picks its own" {
     load_install
     SEN_HOST_ARCH=aarch64
     mock_curl_resolve "$(fixture_path release-multi-compiler.json)"
@@ -97,7 +97,7 @@ mock_curl_resolve() {
     [[ "$SENV_RESOLVED_URL" == *"aarch64-linux-clang-17.0.6"* ]]
 }
 
-@test "resolve_url: x86_64 host with only aarch64 builds reports no match" {
+@test "reports no build for the host when only other architectures exist" {
     load_install
     SEN_HOST_ARCH=x86_64
     cat > "$SEN_TEST_TMPDIR/aarch64-only.json" <<'EOF'
@@ -114,14 +114,14 @@ EOF
     [[ "$output" == *"x86_64-linux"* ]]
 }
 
-@test "resolve_url: rc-tagged version is parsed correctly" {
+@test "resolves an rc-tagged version to its release asset" {
     load_install
     mock_curl_resolve "$(fixture_path release-rc.json)"
     resolve_url "0.6.0-rc1" "" "0"
     [[ "$SENV_RESOLVED_URL" == *"sen-0.6.0-rc1-x86_64-linux-gnu-12.4.0-release.tar.gz" ]]
 }
 
-@test "resolve_url: API failure surfaces clean error" {
+@test "says which release could not be queried when the API call fails" {
     load_install
     curl() { return 22; }
     run resolve_url "9.9.9" "" "0"
@@ -129,7 +129,7 @@ EOF
     [[ "$output" == *"could not query release '9.9.9'"* ]]
 }
 
-@test "resolve_url: empty asset list surfaces clean error" {
+@test "reports no builds for the host when the release has no assets" {
     load_install
     SEN_HOST_OS=linux
     curl() { printf '{}'; return 0; }
@@ -146,7 +146,7 @@ EOF
 # warn_compat_if_needed now queues notes via defer_note; these tests inspect $_NOTES_QUEUE (the buffer flush_notes
 # drains at the end of the install) instead of $output.
 
-@test "warn_compat: suppressed when menu was used" {
+@test "queues no compatibility note after an interactive menu choice" {
     load_install
     detect_compiler() { return 1; }
     SENV_RESOLVED_USED_MENU=1
@@ -155,7 +155,7 @@ EOF
     [ -z "$_NOTES_QUEUE" ]
 }
 
-@test "warn_compat: silent when build's compiler matches the user's" {
+@test "queues no note when the build's compiler matches the host's" {
     load_install
     detect_compiler() { [ "$1" = gcc ] && printf '12.4.0' || return 1; }
     SENV_RESOLVED_USED_MENU=0
@@ -164,7 +164,7 @@ EOF
     [ -z "$_NOTES_QUEUE" ]
 }
 
-@test "warn_compat: queues note when versions differ" {
+@test "queues a note when the host compiler's version differs from the build's" {
     load_install
     detect_compiler() { [ "$1" = gcc ] && printf '13.2.0' || return 1; }
     SENV_RESOLVED_USED_MENU=0
@@ -175,7 +175,7 @@ EOF
     [[ "$_NOTES_QUEUE" == *"13.2.0"* ]]
 }
 
-@test "warn_compat: queues note when compiler is missing (clang build, gcc-only host)" {
+@test "queues a note when the build's compiler is not on the host's PATH" {
     load_install
     detect_compiler() { [ "$1" = gcc ] && printf '12.4.0' || return 1; }
     SENV_RESOLVED_USED_MENU=0
@@ -185,14 +185,14 @@ EOF
     [[ "$_NOTES_QUEUE" == *"not on your PATH"* ]]
 }
 
-@test "resolve_url: the release build is what a plain run picks" {
+@test "a plain run picks the release build" {
     load_install
     mock_curl_resolve "$(fixture_path release-with-debug-symbols.json)"
     resolve_url "0.5.2" "" "0"
     [[ "$SENV_RESOLVED_URL" == *"-release.tar.gz" ]]
 }
 
-@test "resolve_url: --debug-symbols picks the archive carrying them" {
+@test "--debug-symbols picks the archive carrying the debug information" {
     load_install
     mock_curl_resolve "$(fixture_path release-with-debug-symbols.json)"
     SENV_BUILD_TYPE=relwithdebinfo
@@ -200,7 +200,7 @@ EOF
     [[ "$SENV_RESOLVED_URL" == *"-relwithdebinfo.tar.gz" ]]
 }
 
-@test "resolve_url: two archives per platform do not force a menu" {
+@test "two archives for one platform do not force a menu" {
     load_install
     mock_curl_resolve "$(fixture_path release-with-debug-symbols.json)"
     resolve_url "0.5.2" "" "0"
@@ -210,7 +210,7 @@ EOF
 # The fixture here is the asset list a release actually published, so these pin the
 # resolution against the real names and not against names invented for a test.
 
-@test "resolve_url: --symbols picks the release build's own debug information" {
+@test "--symbols picks the release build's own debug information" {
     load_install
     SEN_HOST_ARCH=x86_64
     SEN_HOST_OS=linux
@@ -220,7 +220,7 @@ EOF
     [[ "$SENV_RESOLVED_URL" == *"-symbols.tar.gz" ]]
 }
 
-@test "resolve_url: --debug picks the unoptimised build" {
+@test "--debug picks the unoptimised build" {
     load_install
     SEN_HOST_ARCH=x86_64
     SEN_HOST_OS=linux
@@ -230,7 +230,7 @@ EOF
     [[ "$SENV_RESOLVED_URL" == *"-debug.tar.gz" ]]
 }
 
-@test "resolve_url: a plain run does not pick up the symbols archive" {
+@test "a plain run does not pick up the symbols archive" {
     load_install
     SEN_HOST_ARCH=x86_64
     SEN_HOST_OS=linux
@@ -240,7 +240,7 @@ EOF
     [[ "$SENV_RESOLVED_URL" != *"symbols"* ]]
 }
 
-@test "resolve_url: --debug does not settle for relwithdebinfo" {
+@test "--debug does not settle for the relwithdebinfo build" {
     load_install
     SEN_HOST_ARCH=x86_64
     SEN_HOST_OS=linux
@@ -254,7 +254,7 @@ EOF
 # What resolve_url has to leave behind for do_install
 #---------------------------------------------------------------------------------------------------------------
 
-@test "resolve_url: publishes the release's SHA256SUMS url for the checksum step" {
+@test "leaves the release's SHA256SUMS URL behind for the checksum step" {
     # The verify_checksum tests set SENV_SUMS_URL themselves, so only this covers the path that
     # supplies it. Read inside build_candidates it would not survive the command substitution.
     load_install
@@ -265,7 +265,7 @@ EOF
     [[ "$SENV_SUMS_URL" == *"/SHA256SUMS" ]]
 }
 
-@test "resolve_url: the sums url comes from the response, so a draft's url works" {
+@test "takes the SHA256SUMS URL from the response, so a draft's untagged URL works" {
     # A draft serves assets under releases/download/untagged-<hash>/, where a url built from the
     # tag 404s.
     load_install
@@ -274,7 +274,7 @@ EOF
     [[ "$SENV_SUMS_URL" == *"/untagged-"*"/SHA256SUMS" ]]
 }
 
-@test "resolve_url: a missing flavour says so, and names the ones that exist" {
+@test "says when the requested flavour is missing and names the ones that exist" {
     load_install
     mock_curl_with_fixture "${BATS_TEST_DIRNAME}/fixtures/release-0.5.2.json"
     SENV_BUILD_TYPE=symbols
@@ -284,7 +284,7 @@ EOF
     [[ "$output" == *"it has: release"* ]]
 }
 
-@test "resolve_url: two builds with no way to prompt refuses and lists the toolchains" {
+@test "refuses when it cannot prompt between builds and advises --compiler" {
     # A piped run in CI has no terminal, and the useful answer there is the --compiler list.
     load_install
     mock_curl_with_fixture "${BATS_TEST_DIRNAME}/fixtures/release-multi-compiler.json"
@@ -294,7 +294,7 @@ EOF
     [[ "$output" == *"pass --compiler"* ]]
 }
 
-@test "resolve_url: a terminal being reachable is what allows the menu, not stdin" {
+@test "a reachable terminal enables the menu, not stdin" {
     # stdin is a pipe under `curl | sh`, the documented invocation, so testing stdin refuses the
     # case /dev/tty exists for.
     load_install
@@ -305,7 +305,7 @@ EOF
     [[ "$output" != *"pass --compiler"* ]]
 }
 
-@test "resolve_url: a candidate is recognised from the release, not from its tag" {
+@test "marks a release candidate as prerelease when resolving it" {
     load_install
     mock_curl_with_fixture "${BATS_TEST_DIRNAME}/fixtures/release-rc.json"
     SENV_IS_PRERELEASE=
@@ -313,7 +313,7 @@ EOF
     [ "$SENV_IS_PRERELEASE" = "1" ]
 }
 
-@test "resolve_url: a supported release is not marked as a candidate" {
+@test "does not mark a supported release as prerelease" {
     load_install
     mock_curl_with_fixture "${BATS_TEST_DIRNAME}/fixtures/release-0.5.2.json"
     SENV_IS_PRERELEASE=

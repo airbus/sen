@@ -213,7 +213,8 @@ void checkRealType()  // NOLINT(readability-function-size)
 }  // namespace
 
 /// @test
-/// Checks equality of native types
+/// Compares each of the twelve native types against all twelve, equal exactly when the two share
+/// the same underlying native representation.
 /// @requirements(SEN-575)
 TEST(NativeTypes, comparison)
 {
@@ -232,7 +233,9 @@ TEST(NativeTypes, comparison)
 }
 
 /// @test
-/// Checks integral types
+/// Exercises the seven integral native types: each is bounded with a description, mirrors
+/// numeric_limits for signedness, IEC 559 and infinity, converts as native, numeric and integral,
+/// and only the cast matching its own width and signedness is non-null.
 /// @requirements(SEN-575)
 TEST(NativeTypes, integrals)
 {
@@ -246,7 +249,9 @@ TEST(NativeTypes, integrals)
 }
 
 /// @test
-/// Checks real types
+/// Exercises the two real native types: each is bounded with a description, reports the
+/// numeric_limits signedness, IEC 559, infinity, maximum, lowest and epsilon of its native type,
+/// converts as native, numeric and real, and only its own float width cast is non-null.
 /// @requirements(SEN-575)
 TEST(NativeTypes, reals)
 {
@@ -255,7 +260,8 @@ TEST(NativeTypes, reals)
 }
 
 /// @test
-/// Checks void types
+/// Names the void type void, gives it a description, marks it bounded, and answers false to every
+/// type predicate sampled, isNativeType included.
 /// @requirements(SEN-575)
 TEST(NativeTypes, voidCheck)
 {
@@ -291,7 +297,8 @@ TEST(NativeTypes, voidCheck)
 }
 
 /// @test
-/// The void type converts to nothing: every as<Type> accessor returns null.
+/// The void type converts to none of the types sampled: every as<Type> accessor tried, from
+/// asNativeType to asAliasType, returns null.
 TEST(NativeTypes, voidConversion)
 {
   const auto& type = sen::VoidType::get();
@@ -323,7 +330,8 @@ TEST(NativeTypes, voidConversion)
 }
 
 /// @test
-/// Checks boolean types
+/// Names the bool type bool, marks it bounded, and answers true to isNativeType and isBoolType
+/// and false to every other type predicate sampled, from isNumericType to isAliasType.
 /// @requirements(SEN-575)
 TEST(NativeTypes, booleanCheck)
 {
@@ -361,7 +369,8 @@ TEST(NativeTypes, booleanCheck)
 }
 
 /// @test
-/// The bool type converts to a native type and to a bool type, and to nothing else.
+/// The bool type converts to a native type and to a bool type, while every other as-conversion
+/// sampled, from asNumericType to asAliasType, returns null.
 TEST(NativeTypes, booleanConversion)
 {
   const auto& type = sen::BoolType::get();
@@ -394,7 +403,9 @@ TEST(NativeTypes, booleanConversion)
 }
 
 /// @test
-/// Checks string type
+/// Names the string type string, marks it unbounded, and answers true to isNativeType and
+/// isStringType and false to every other type predicate sampled, from isNumericType to
+/// isAliasType.
 /// @requirements(SEN-575)
 TEST(NativeTypes, string)
 {

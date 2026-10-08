@@ -26,7 +26,8 @@ std::string getAllowCorsHeaders()
 }
 
 /// @test
-/// Check default HTTP message response
+/// Serializes a default-constructed response as 404 Not Found with the CORS headers, a zero Content-Length,
+/// and Connection close.
 /// @requirements(SEN-1061)
 TEST(Rest, default_response)
 {
@@ -38,7 +39,7 @@ TEST(Rest, default_response)
 }
 
 /// @test
-/// Check valid HTTP reason phrases for common status codes
+/// Pairs status codes 200, 403, and 502 with their standard reason phrases OK, Forbidden, and Bad Gateway.
 /// @requirements(SEN-1061)
 TEST(Rest, status_code)
 {
@@ -60,7 +61,8 @@ TEST(Rest, status_code)
 }
 
 /// @test
-/// Check HTTP message headers serialization
+/// Emits each header given at construction after the status line and before the CORS block, preserving
+/// their order when several are supplied.
 /// @requirements(SEN-1061)
 TEST(Rest, serialization_headers)
 {
@@ -89,7 +91,8 @@ TEST(Rest, serialization_headers)
 }
 
 /// @test
-/// Check HTTP message body serialization
+/// Appends the body after the blank line that ends the headers and sets Content-Length to the body's byte
+/// count.
 /// @requirements(SEN-1061)
 TEST(Rest, body)
 {
@@ -103,7 +106,7 @@ TEST(Rest, body)
 }
 
 /// @test
-/// Check HTTP message serialization with CORS disabled
+/// Omits every Access-Control header from the serialized response when constructed with CORS disabled.
 /// @requirements(SEN-1061)
 TEST(Rest, no_cors_headers)
 {

@@ -414,7 +414,8 @@ TEST(DeadReckonerOriginTest, withoutACommitInstantTheFirstReadIsTheOrigin)
 }
 
 /// @test
-/// An object that has never been committed reports the epoch, which is not a usable origin.
+/// An object that has never been committed reports the epoch, which is not a usable origin, so
+/// the extrapolation falls back to the read instant and the position stays put.
 /// @requirements(SEN-1058)
 TEST(DeadReckonerOriginTest, anObjectThatHasNeverCommittedFallsBackToTheReadInstant)
 {
@@ -431,7 +432,9 @@ TEST(DeadReckonerOriginTest, anObjectThatHasNeverCommittedFallsBackToTheReadInst
 }
 
 /// @test
-/// The switch restores the old origin for a producer whose clock is not the caller's.
+/// Setting useCommitTimeAsOrigin to false restores the read instant as the origin for a
+/// producer whose clock is not the caller's, so the commit instant on the object is ignored and
+/// the first read shows no displacement.
 /// @requirements(SEN-1058)
 TEST(DeadReckonerOriginTest, theSwitchRestoresTheReadInstantAsOrigin)
 {
@@ -473,7 +476,8 @@ Situation movingAndAccelerating()
 }  // namespace
 
 /// @test
-/// The configured algorithm defaults to the one the class used before it was configurable.
+/// Defaults the configured algorithm to RVW, matching the extrapolation the class applied
+/// before the algorithm was configurable.
 /// @requirements(SEN-1058)
 TEST(DeadReckonerAlgorithmTest, theDefaultIsRvw)
 {
@@ -489,7 +493,8 @@ TEST(DeadReckonerAlgorithmTest, theDefaultIsRvw)
 }
 
 /// @test
-/// Naming another algorithm makes the class use it.
+/// Applies the algorithm named in the configuration: configured as FPW the returned orientation
+/// stays held, where the default RVW would have turned it by the angular velocity.
 /// @requirements(SEN-1058)
 TEST(DeadReckonerAlgorithmTest, theConfiguredAlgorithmIsTheOneApplied)
 {

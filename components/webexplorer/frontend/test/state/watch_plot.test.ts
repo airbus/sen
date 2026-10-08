@@ -36,7 +36,7 @@ describe("watch_plot", () => {
   beforeEach(__resetWatchPlotForTests);
 
   describe("watch actions", () => {
-    it("addWatch appends a source and updates the derived watchedKeys set", () => {
+    it("addWatch appends the source and marks its key as watched", () => {
       const s = source("altitude");
       watchActions.addWatch(s);
       const state = __getWatchPlotStateForTests();
@@ -55,7 +55,7 @@ describe("watch_plot", () => {
       expect(second.watchSources).toHaveLength(1);
     });
 
-    it("removeWatch drops the entry and updates watchedKeys", () => {
+    it("removeWatch drops the entry and clears its key from the watched set", () => {
       const s = source("altitude");
       watchActions.addWatch(s);
       watchActions.removeWatch(makeWatchKey(s));
@@ -94,7 +94,7 @@ describe("watch_plot", () => {
   });
 
   describe("plot actions", () => {
-    it("togglePlottedLeaf adds the leaf as a new panel and implicit watch", () => {
+    it("togglePlottedLeaf creates a panel for the leaf and adds an implicit watch", () => {
       const s = source("altitude");
       watchActions.togglePlottedLeaf(s, "");
       const state = __getWatchPlotStateForTests();
@@ -111,7 +111,7 @@ describe("watch_plot", () => {
       expect(__getWatchPlotStateForTests().panels).toHaveLength(0);
     });
 
-    it("togglePlottedLeaf on a sub-leaf adds only the per-leaf watch (not whole)", () => {
+    it("togglePlottedLeaf on a sub-leaf adds a watch for that leaf only, not the whole property", () => {
       const s = source("position");
       watchActions.togglePlottedLeaf(s, "x");
       const state = __getWatchPlotStateForTests();
@@ -203,7 +203,7 @@ describe("watch_plot", () => {
   });
 
   describe("derived sets", () => {
-    it("watchedKeys identity is stable across no-op setState calls", () => {
+    it("reuses the same watched-key set instance after a no-op update", () => {
       watchActions.addWatch(source("a"));
       const k1 = __getWatchPlotStateForTests().watchedKeys;
       watchActions.addWatch(source("a")); // duplicate -> no-op
@@ -211,7 +211,7 @@ describe("watch_plot", () => {
       expect(k2).toBe(k1);
     });
 
-    it("plottedLeaves identity flips when panels change, stable when they don't", () => {
+    it("replaces the plotted-leaf set instance only when panels change", () => {
       const s = source("altitude");
       watchActions.togglePlottedLeaf(s, "");
       const p1 = __getWatchPlotStateForTests().plottedLeaves;

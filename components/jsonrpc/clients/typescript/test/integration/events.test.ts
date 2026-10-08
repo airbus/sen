@@ -22,7 +22,7 @@ describe("event subscriptions against inheritance.MySubClass", () => {
   // pre-subscribe to the event in the interest declaration (atomic with interest creation, so
   // the wire subscription is up before any invoke fires) and assert the event lands with the
   // same arg after invoking doSomethingElse.
-  it("delivers somethingElseHappened(arg) after invoking doSomethingElse(arg)", async () => {
+  it("delivers the somethingElseHappened event with the argument passed to doSomethingElse", async () => {
     const interest = await client.declareInterest({
       name: "subclass_for_events",
       query: "SELECT inheritance.MySubClass FROM test.secondary",

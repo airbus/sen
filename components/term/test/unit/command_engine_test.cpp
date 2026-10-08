@@ -140,7 +140,8 @@ const CommandDescriptor* findDescriptor(std::string_view name)
 }
 
 /// @test
-/// The built-in commands a user expects are all registered.
+/// Every built-in is registered: cd, pwd, ls, open, close, query, queries, log, listen, unlisten,
+/// listeners, inspect, types, units, status, version, help, clear, theme, exit and shutdown.
 TEST(CommandTable, ExpectedBuiltInsArePresent)
 {
   for (auto name: {"cd",     "pwd",     "ls",       "open",      "close",   "query", "queries",
@@ -152,7 +153,8 @@ TEST(CommandTable, ExpectedBuiltInsArePresent)
 }
 
 /// @test
-/// exit and shutdown carry the same category and usage, since they differ only in what they stop.
+/// The exit and shutdown commands carry the same category and usage, since they differ only in
+/// what they stop.
 TEST(CommandTable, ExitAndShutdownShareCategoryAndUsage)
 {
   const auto* exitCmd = findDescriptor("exit");
@@ -168,7 +170,7 @@ TEST(CommandTable, ExitAndShutdownShareCategoryAndUsage)
 //--------------------------------------------------------------------------------------------------------------
 
 /// @test
-/// cd and pwd are in the navigation category.
+/// The cd and pwd commands are in the navigation category.
 TEST(CommandTable, NavigationCommandsAreCategorizedCorrectly)
 {
   for (auto name: {"cd", "pwd"})
@@ -180,7 +182,7 @@ TEST(CommandTable, NavigationCommandsAreCategorizedCorrectly)
 }
 
 /// @test
-/// listen, unlisten and listeners are in the monitoring category.
+/// The listen, unlisten and listeners commands are in the monitoring category.
 TEST(CommandTable, MonitoringCommandsAreCategorizedCorrectly)
 {
   for (auto name: {"listen", "unlisten", "listeners"})
@@ -192,7 +194,7 @@ TEST(CommandTable, MonitoringCommandsAreCategorizedCorrectly)
 }
 
 /// @test
-/// The inspection commands are in the inspection category.
+/// The inspect, types and units commands are in the inspection category.
 TEST(CommandTable, InspectionCommandsAreCategorizedCorrectly)
 {
   for (auto name: {"inspect", "types", "units"})

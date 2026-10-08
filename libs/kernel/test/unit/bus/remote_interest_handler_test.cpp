@@ -33,7 +33,8 @@ using sen::kernel::impl::ObjectUpdate;
 using sen::kernel::impl::RemoteParticipant;
 
 /// @test
-/// Check Remote interest subscription when there are no objects
+/// Registers a remote's subscription to a brand-new interest and maps no object update to it, since the
+/// interest has no objects yet.
 /// @requirements(SEN-369)
 TEST(ARemoteInterestHandler, processANewRemoteSubscriptionWhenThereAreNoObjects)
 {
@@ -47,7 +48,8 @@ TEST(ARemoteInterestHandler, processANewRemoteSubscriptionWhenThereAreNoObjects)
 }
 
 /// @test
-/// Check Remote interest object when a subscriber was added
+/// Fans an object added to an interest out to the already-subscribed remote, mapping the update to both the
+/// interest and the remote.
 /// @requirements(SEN-369)
 TEST(ARemoteInterestHandler, processANewObjectWhenASubscriberWasAdded)
 {
@@ -64,7 +66,8 @@ TEST(ARemoteInterestHandler, processANewObjectWhenASubscriberWasAdded)
 }
 
 /// @test
-/// Check Remote interest with two objects when a subscriber was added
+/// Maps each of two objects added to a subscribed interest to both the interest and the remote, so the remote
+/// is due both updates.
 /// @requirements(SEN-369)
 TEST(ARemoteInterestHandler, processTwoObjectWhenASubscriberWasAdded)
 {
@@ -87,7 +90,8 @@ TEST(ARemoteInterestHandler, processTwoObjectWhenASubscriberWasAdded)
 }
 
 /// @test
-/// Check Remote interest subscription when an object was added
+/// Backfills a remote that subscribes to an interest already holding an object with that object's update,
+/// alongside recording the subscription.
 /// @requirements(SEN-369)
 TEST(ARemoteInterestHandler, registersANewRemoteSubscriptionAfterObjectWasAdded)
 {
@@ -103,7 +107,8 @@ TEST(ARemoteInterestHandler, registersANewRemoteSubscriptionAfterObjectWasAdded)
 }
 
 /// @test
-/// Check Remote interest with two subscription when an object was added
+/// Backfills each of two remotes subscribing to the same interest with the object update the interest already
+/// holds.
 /// @requirements(SEN-369)
 TEST(ARemoteInterestHandler, registersTwoSubscriptionsAfterObjectWasAdded)
 {
@@ -121,7 +126,7 @@ TEST(ARemoteInterestHandler, registersTwoSubscriptionsAfterObjectWasAdded)
 }
 
 /// @test
-/// Check the removal of Remote interest object and subscriber
+/// Clears the updates mapped to a remote when its only subscription is removed, leaving no update due to it.
 /// @requirements(SEN-369)
 TEST(ARemoteInterestHandler, removesSubscriptionWithUpdates)
 {
@@ -137,7 +142,8 @@ TEST(ARemoteInterestHandler, removesSubscriptionWithUpdates)
 }
 
 /// @test
-/// Check Remote interest object and subscription when one subscriber is removed
+/// Keeps the remaining remote's subscription and pending update, and the interest's link to the object, when
+/// the other remote's subscription is removed.
 /// @requirements(SEN-369)
 TEST(ARemoteInterestHandler, keepsTheObjectInterestWhenAInterestedSubscriptionRemains)
 {
@@ -159,7 +165,7 @@ TEST(ARemoteInterestHandler, keepsTheObjectInterestWhenAInterestedSubscriptionRe
 }
 
 /// @test
-/// Check Remote interest when an object is removed
+/// Clears a removed object's update from the interest and from every subscribed remote.
 /// @requirements(SEN-369)
 TEST(ARemoteInterestHandler, deregistersObjectAfterObjectRemoval)
 {
@@ -178,7 +184,8 @@ TEST(ARemoteInterestHandler, deregistersObjectAfterObjectRemoval)
 }
 
 /// @test
-/// Check Remote interest deregistration from one object of two
+/// Removes a single update when one of two objects is dropped, leaving both remotes
+/// registered and the interest holding one update.
 /// @requirements(SEN-369)
 TEST(ARemoteInterestHandler, deregistersOneOfTwoObjectFromInterestedRemotes)
 {
@@ -211,7 +218,8 @@ TEST(ARemoteInterestHandler, deregistersOneOfTwoObjectFromInterestedRemotes)
 }
 
 /// @test
-/// Check Remote interest registration of two interests to the same object
+/// Maps an object registered under two interests to the remote subscribing to both, recording both
+/// subscriptions.
 /// @requirements(SEN-369)
 TEST(ARemoteInterestHandler, registerTwoInterestsToTheSameObject)
 {
@@ -230,7 +238,8 @@ TEST(ARemoteInterestHandler, registerTwoInterestsToTheSameObject)
 }
 
 /// @test
-/// Check that Remote interest keeps an object when an interest remains
+/// Keeps the update due to a remote that drops one of two interests covering the same object, since the other
+/// subscription still covers it.
 /// @requirements(SEN-369)
 TEST(ARemoteInterestHandler, keepsObjectForRemoteWhenAInterestRemains)
 {
@@ -249,7 +258,7 @@ TEST(ARemoteInterestHandler, keepsObjectForRemoteWhenAInterestRemains)
 }
 
 /// @test
-/// Check Remote interest deregistration object after no interests remains
+/// Clears every update due to the remote once it has dropped both interests covering the object.
 /// @requirements(SEN-369)
 TEST(ARemoteInterestHandler, deregisterObjectForRemoteAfterNoInterestsRemain)
 {
@@ -268,7 +277,8 @@ TEST(ARemoteInterestHandler, deregisterObjectForRemoteAfterNoInterestsRemain)
 }
 
 /// @test
-/// Check that Remote interest deregistration from a remote has its references empty
+/// Drops all of a removed remote's subscriptions and pending updates while keeping the interest-to-object
+/// links.
 /// @requirements(SEN-369)
 TEST(ARemoteInterestHandler, deregistersRemoteAndItsReferencesWhenRemoved)
 {

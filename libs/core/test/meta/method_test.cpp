@@ -60,7 +60,8 @@ const CallableSpec& callableSpec()
 }  // namespace
 
 /// @test
-/// Checks method spec comparison
+/// Compares method specs: equal for identical specs, and unequal when the constness, return type,
+/// deferred flag, argument list or callable name differs.
 /// @requirements(SEN-573)
 TEST(Method, specComparison)
 {
@@ -156,7 +157,9 @@ TEST(Method, specComparison)
 }
 
 /// @test
-/// Checks correct method instance from spec
+/// Builds methods across constant, non-constant, deferred and non-deferred combinations, each
+/// exposing the spec's callable data, return type, constness, deferred and local-only flags and
+/// property relation through the getters.
 /// @requirements(SEN-573)
 TEST(Method, instanceCheck)
 {
@@ -199,7 +202,8 @@ TEST(Method, instanceCheck)
 }
 
 /// @test
-/// Checks that invalid method instance from spec throws an exception error
+/// Refuses to build a method whose callable spec is empty or whose name is missing, not
+/// lowerCamelCase or made of symbols.
 /// @requirements(SEN-573)
 TEST(Method, invalidInstace)
 {

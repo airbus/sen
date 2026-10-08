@@ -16,7 +16,8 @@
 #include <vector>
 
 /// @test
-/// Check sen gen uml generates a correct PlantUML from a minimal FOM file
+/// Renders a minimal FOM as a PlantUML diagram framed by startuml and enduml, holding the hla
+/// package with class ObjectRoot and its rtiId string property.
 TEST_F(APlantUMLGenerator, FomEmpty)
 {
   const std::vector<std::filesystem::path> paths {dataDirectoryPath() / "plantuml" / "empty"};
@@ -40,7 +41,7 @@ TEST_F(APlantUMLGenerator, FomEmpty)
 }
 
 /// @test
-/// Check sen gen uml does not generate a PlantUML from an invalid FOM file
+/// Throws instead of producing a diagram when the FOM file is malformed.
 TEST_F(APlantUMLGenerator, FomErrorFormat)
 {
   const std::vector<std::filesystem::path> paths {dataDirectoryPath() / "plantuml" / "error_format"};
@@ -50,7 +51,8 @@ TEST_F(APlantUMLGenerator, FomErrorFormat)
 }
 
 /// @test
-/// Check sen gen uml generates a correct PlantUML from FOM file with empty class definition
+/// Renders a FOM class that declares nothing as a PlantUML class in its own package folder,
+/// with an inheritance arrow from ObjectRoot.
 TEST_F(APlantUMLGenerator, FomEmptyClass)
 {
   const std::vector<std::filesystem::path> paths {dataDirectoryPath() / "plantuml" / "empty_class"};
@@ -83,7 +85,8 @@ TEST_F(APlantUMLGenerator, FomEmptyClass)
 }
 
 /// @test
-/// Check sen gen uml generates a correct PlantUML from FOM file with basic properties in the class
+/// Renders a FOM class property as a typed PlantUML member, prop1 of MyTestInt, alongside the
+/// inheritance from ObjectRoot.
 TEST_F(APlantUMLGenerator, FomBasicProperties)
 {
   const std::vector<std::filesystem::path> paths {dataDirectoryPath() / "plantuml" / "basic_properties"};
@@ -119,7 +122,8 @@ TEST_F(APlantUMLGenerator, FomBasicProperties)
 }
 
 /// @test
-/// Check sen gen uml generates a correct PlantUML from FOM file with a struct property in the class
+/// Renders a FOM struct as a stereotyped PlantUML class listing both of its fields, with the
+/// class property typed by the struct and the inheritance from ObjectRoot.
 TEST_F(APlantUMLGenerator, FomStructProperty)
 {
   const std::vector<std::filesystem::path> paths {dataDirectoryPath() / "plantuml" / "struct_property"};
@@ -167,7 +171,8 @@ TEST_F(APlantUMLGenerator, FomStructProperty)
 }
 
 /// @test
-/// Check sen gen uml generates a correct PlantUML from FOM file with an enum property in the class
+/// Renders a FOM enum as a PlantUML enum listing all three enumerators, with the class property
+/// typed by the enum and the inheritance from ObjectRoot.
 TEST_F(APlantUMLGenerator, FomEnumProperty)
 {
   const std::vector<std::filesystem::path> paths {dataDirectoryPath() / "plantuml" / "enum_property"};
