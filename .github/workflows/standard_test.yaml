@@ -298,15 +298,18 @@ jobs:
           if [ -f build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh ]; then
             source build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh
           fi
-          # What OpenCppCoverage measures and what it leaves out, taken from the list the
-          # other compilers read too. Written before the cd below, so both paths are absolute.
-          settings="$PWD/opencppcoverage.cfg"
+          # What OpenCppCoverage measures and what it leaves out, taken from the list the other
+          # compilers read too. It matches against the paths the program database records, which
+          # are native and backslash-separated: $PWD here is the POSIX form Git Bash reports and
+          # would match nothing, so the workspace comes from the environment and the patterns are
+          # rewritten. Written before the cd below, while the list is still a relative path.
+          settings="$GITHUB_WORKSPACE/opencppcoverage.cfg"
           if [ -n "${SEN_WINDOWS_COVERAGE:-}" ]; then
             {
-              echo "sources=$PWD"
-              sed -e 's/[[:space:]]*$//' -e '/^#/d' -e '/^$/d' \
+              echo "sources=$GITHUB_WORKSPACE"
+              sed -e 's/[[:space:]]*$//' -e '/^#/d' -e '/^$/d' -e 's|/|\\|g' \
                   -e 's|^|excluded_sources=|' cmake/util/coverage-exclusions.txt
-            } > "$settings"
+            } > opencppcoverage.cfg
           fi
 
           # OpenCppCoverage returns the exit code of what it ran, so a failing suite still fails
