@@ -10,3 +10,7 @@ add_test(
   COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/sen_collect_export_args_test.cmake
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+# A plain add_test does not get the sanitizer options the suite helpers attach, and the lane's
+# canary refuses any test without a log path: a finding there would be written nowhere.
+add_sanitizer_options(sen_collect_export_args)
