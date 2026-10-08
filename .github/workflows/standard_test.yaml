@@ -162,6 +162,15 @@ jobs:
             --build-arg "BASE=$BASE" --tag "$tag" tools/ci
           echo "SEN_INTEGRATION_TEST_IMAGE=$tag" >> "$GITHUB_ENV"
 
+      # Chocolatey is on the Windows runners already. OpenCppCoverage needs no instrumentation,
+      # so it is installed rather than built into the image the Linux legs use.
+      - name: Install OpenCppCoverage
+        if: ${{ matrix.enable_coverage && matrix.compiler.name == 'msvc' }}
+        shell: bash
+        run: |
+          choco install OpenCppCoverage -y --no-progress
+          echo "C:\Program Files\OpenCppCoverage" >> "$GITHUB_PATH"
+
       - name: Compile base libraries
         shell: bash
         run: |
@@ -259,15 +268,6 @@ jobs:
           python3 .github/scripts/check_container_capabilities.py
           IN
 
-      # Chocolatey is on the Windows runners already. OpenCppCoverage needs no instrumentation,
-      # so it is installed rather than built into the image the Linux legs use.
-      - name: Install OpenCppCoverage
-        if: ${{ matrix.enable_coverage && matrix.compiler.name == 'msvc' }}
-        shell: bash
-        run: |
-          choco install OpenCppCoverage -y --no-progress
-          echo "C:\Program Files\OpenCppCoverage" >> "$GITHUB_PATH"
-
       - name: Run tests
         # The suite runs in minutes. The bound is for what happens after it: a
         # process outliving ctest holds the pipes, and the step then waits in
@@ -303,8 +303,10 @@ jobs:
           # are native and backslash-separated: $PWD here is the POSIX form Git Bash reports and
           # would match nothing, so the workspace comes from the environment and the patterns are
           # rewritten. Written before the cd below, while the list is still a relative path.
-          settings="$GITHUB_WORKSPACE/opencppcoverage.cfg"
           if [ -n "${SEN_WINDOWS_COVERAGE:-}" ]; then
+            # Inside the guard: the Linux legs run in the image, which is not given
+            # GITHUB_WORKSPACE, and the script runs under set -u.
+            settings="$GITHUB_WORKSPACE/opencppcoverage.cfg"
             {
               echo "sources=$GITHUB_WORKSPACE"
               sed -e 's/[[:space:]]*$//' -e '/^#/d' -e '/^$/d' -e 's|/|\\|g' \
