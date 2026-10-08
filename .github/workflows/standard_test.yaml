@@ -446,7 +446,9 @@ jobs:
           # A leg that failed before the merge has nothing here, and the summary says so.
           if-no-files-found: ignore
           # The document travels with what it was made from: the release attaches the pdf, and
-          # the rest is the record a figure in it can be checked against.
+          # the rest is the record a figure in it can be checked against. The mark goes with
+          # them because the .typ names it relatively, so a document typeset anywhere but the
+          # leg that wrote it cannot resolve the image without it.
           path: |
             build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ctestReport.xml
             build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/testReport.xml
@@ -455,6 +457,7 @@ jobs:
             build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/test-descriptions.tsv
             build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/test-environment.tsv
             build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/coverage_reports/coverage.txt
+            build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/sen-logo.svg
 
       - name: Publish the coverage report
         if: matrix.enable_coverage
@@ -565,3 +568,99 @@ jobs:
         with:
           path: ~/.conan2/p
           key: conanp-${{ env.SEN_CACHE_SCOPE }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}
+
+  combined-report:
+    name: "Test report for every configuration"
+    # Only when every leg succeeded: a configuration missing from the manifest would render a
+    # complete-looking report that quietly covers one fewer build.
+    needs: [compute-matrix-jobs, build]
+    # On main only. A pull request runs the same legs, so this would say the same thing at the
+    # cost of two minutes on every review, and the renderer's own tests already run there.
+    if: ${{ inputs.building-main }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      # The image the document is typeset in, which is a private package.
+      packages: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: 3.x
+
+      - name: Take what every leg reported
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          pattern: test-report-*
+          path: test-reports
+
+      - name: Render one document over every configuration
+        shell: bash
+        env:
+          SEN_DOC_REF: ${{ github.ref_name }}
+          SEN_DOC_RUN: ${{ github.run_id }}
+          # What the matrix said it would run, to check against what arrived.
+          SEN_MATRIX: ${{ needs.compute-matrix-jobs.outputs.jobs }}
+        run: |
+          # One line per configuration: its name, the report it wrote, and the records a figure
+          # in the document can be checked against. A leg that reported nothing stops this,
+          # rather than leaving the document a build short without saying so.
+          shopt -s nullglob
+          mkdir -p combined
+          manifest=combined/legs.tsv
+          : > "$manifest"
+          for leg in test-reports/*/; do
+              name=$(basename "$leg")
+              name=${name#test-report-}
+              report="${leg}testReport.xml"
+              [ -f "$report" ] || report="${leg}ctestReport.xml"
+              if [ ! -f "$report" ]; then
+                  echo "$name produced no test report"
+                  exit 1
+              fi
+              coverage="${leg}coverage_reports/coverage.txt"
+              [ -f "$coverage" ] || coverage=""
+              printf '%s\t%s\t%s\t%s\t%s\n' "$name" "$report" "$coverage" \
+                  "${leg}test-environment.tsv" "${leg}test-descriptions.tsv" >> "$manifest"
+          done
+          # Every configuration the matrix ran has to be here. The upload ignores a leg that
+          # produced no files, so one can go missing without failing, and a report covering
+          # four of five builds reads exactly like a report covering all of them.
+          expected=$(python -c 'import json, os; print(len(json.loads(os.environ["SEN_MATRIX"])))')
+          found=$(wc -l < "$manifest" | tr -d ' ')
+          if [ "$found" -ne "$expected" ]; then
+              echo "the matrix ran $expected configurations and $found reported:"
+              cut -f1 "$manifest" | sed 's/^/  /'
+              exit 1
+          fi
+          python .github/scripts/render_test_document.py \
+              "--legs=$manifest" combined/testReport.typ "${{ github.sha }}" . \
+              --coverage-floor=80 \
+              --logo=docs/assets/images/logo_simple.svg \
+              "--ref=$SEN_DOC_REF" \
+              "--run=$SEN_DOC_RUN"
+
+      # Only typst needs the image; the render above is stdlib Python and runs on the runner.
+      - name: Get the image the document is typeset in
+        uses: ./.github/actions/use_ci_image
+        with:
+          ubuntu: "22.04"
+
+      - name: Typeset it
+        run: |
+          bash .github/scripts/in_image.sh <<'IN'
+          typst compile combined/testReport.typ combined/testReport.pdf
+          IN
+          [ -s combined/testReport.pdf ] || { echo "typst wrote no pdf"; exit 1; }
+
+      # Not test-report-*: the release collects the legs by that pattern and would read this
+      # document as a sixth configuration.
+      - name: Publish it
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: combined-test-report
+          path: |
+            combined/testReport.typ
+            combined/testReport.pdf
+            combined/legs.tsv
