@@ -32,7 +32,10 @@ MACRO = re.compile(
 # The ids in the tree are SEN-nnn, written parenthesised and comma separated. REQ-nnnnn is
 # accepted too because the register's own grammar uses it, and a mixed tree should not
 # silently drop half its annotations.
-REQUIREMENTS = re.compile(r"@requirements\(([^)]*)\)")
+# The @ is optional because a line that reads as a requirements annotation without it was
+# being folded into the description instead: the requirement was lost and the description
+# ended with "requirements(SEN-364)" in it.
+REQUIREMENTS = re.compile(r"@?requirements\(([^)]*)\)")
 IDENTIFIER = re.compile(r"\b((?:SEN|REQ)-\d+)\b")
 
 

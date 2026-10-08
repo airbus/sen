@@ -87,3 +87,15 @@ def test_build_directories_are_skipped(tmp_path):
     (tmp_path / "build" / "copy_test.cpp").write_text(SOURCE)
     write(tmp_path)
     assert len(scan(tmp_path)) == 4
+
+
+def test_a_requirements_line_missing_its_at_sign_is_still_an_annotation(tmp_path):
+    """A requirements line without its at sign is an annotation, not description text.
+
+    Without this it joins the description: the requirement is lost and the prose ends with
+    "requirements(SEN-364)", which is what 21 replayer tests rendered as.
+    """
+    body = "/// @test\n/// Opening a missing recording throws.\n/// requirements(SEN-364)\nTEST(Replay, Opens)\n"
+    found = {a.key: a for a in scan_file(write(tmp_path, body))}
+    assert found["Replay.Opens"].requirements == ("SEN-364",)
+    assert found["Replay.Opens"].description == "Opening a missing recording throws."
