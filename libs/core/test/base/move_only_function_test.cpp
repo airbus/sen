@@ -18,7 +18,8 @@
 using sen::std_util::move_only_function;
 
 /// @test
-/// Check requirements (move-constructable, move-assignable, copy-contructable, copy-assignable) for move only functions
+/// Is move constructible and move assignable but neither copy constructible nor copy assignable, asserted at
+/// compile time.
 /// @requirements(SEN-1047)
 TEST(MoveOnlyFunction, ConstAssignRequirements)
 {
@@ -29,7 +30,7 @@ TEST(MoveOnlyFunction, ConstAssignRequirements)
 }
 
 /// @test
-/// Check move only function with an empty lambda
+/// Wraps a captureless void lambda and completes an invocation of it.
 /// @requirements(SEN-1047)
 TEST(MoveOnlyFunction, LambdaEmpty)
 {
@@ -38,7 +39,7 @@ TEST(MoveOnlyFunction, LambdaEmpty)
 }
 
 /// @test
-/// Check move only function with a lambda with a parameter
+/// Wraps a one-parameter lambda and forwards the int argument on invocation.
 /// @requirements(SEN-1047)
 TEST(MoveOnlyFunction, LambdaWithParameter)
 {
@@ -47,7 +48,7 @@ TEST(MoveOnlyFunction, LambdaWithParameter)
 }
 
 /// @test
-/// Check move only function with a lambda with various parameters
+/// Wraps a three-parameter lambda and forwards int, char, and bool arguments on invocation.
 /// @requirements(SEN-1047)
 TEST(MoveOnlyFunction, LambdaWithParameters)
 {
@@ -56,7 +57,7 @@ TEST(MoveOnlyFunction, LambdaWithParameters)
 }
 
 /// @test
-/// Check move only function with a lambda returning a value
+/// Returns the wrapped lambda's value, an invocation yielding 42.
 /// @requirements(SEN-1047)
 TEST(MoveOnlyFunction, LambdaWithReturn)
 {
@@ -66,7 +67,7 @@ TEST(MoveOnlyFunction, LambdaWithReturn)
 }
 
 /// @test
-/// Check move only function with a lambda calculating and returning a value
+/// Forwards both arguments to the wrapped lambda and returns its sum, f(20, 22) yielding 42.
 /// @requirements(SEN-1047)
 TEST(MoveOnlyFunction, LambdaCalculation)
 {
@@ -76,7 +77,7 @@ TEST(MoveOnlyFunction, LambdaCalculation)
 }
 
 /// @test
-/// Check move only function with a lambda capturing a value
+/// Preserves a by-value capture, the wrapped lambda returning the captured 42.
 /// @requirements(SEN-1047)
 TEST(MoveOnlyFunction, LambdaWithCapture)
 {
@@ -87,7 +88,8 @@ TEST(MoveOnlyFunction, LambdaWithCapture)
 }
 
 /// @test
-/// Check move only function with a lambda capturing various values
+/// Stores a lambda carrying 24 bytes of by-value captures, six ints, the invocation summing the captures with
+/// the argument to 42.
 /// @requirements(SEN-1047)
 TEST(MoveOnlyFunction, LambdaWithManyCaptures)
 {
@@ -108,7 +110,8 @@ TEST(MoveOnlyFunction, LambdaWithManyCaptures)
 }
 
 /// @test
-/// Check move only function with an empty construction
+/// Default-constructs an empty function and destroys it without invoking, since calling an empty
+/// move_only_function is undefined.
 /// @requirements(SEN-1047)
 TEST(MoveOnlyFunction, CheckEmptyConstruction)
 {
@@ -117,7 +120,8 @@ TEST(MoveOnlyFunction, CheckEmptyConstruction)
 }
 
 /// @test
-/// Check move only function with a lambda capture moved out of scope
+/// Keeps captured state alive across move assignment, a function assigned from an inner scope still returning
+/// 42 after its source has gone out of scope.
 /// @requirements(SEN-1047)
 TEST(MoveOnlyFunction, MoveOutOfScope)
 {
@@ -136,7 +140,7 @@ TEST(MoveOnlyFunction, MoveOutOfScope)
 
 void fooEmpty() {}
 /// @test
-/// Check move only function with an empty function
+/// Wraps a free function pointer taking and returning nothing and completes an invocation of it.
 /// @requirements(SEN-1047)
 TEST(MoveOnlyFunction, FreeFunctionEmpty)
 {
@@ -146,7 +150,7 @@ TEST(MoveOnlyFunction, FreeFunctionEmpty)
 
 void fooParam(int /* i */) {}
 /// @test
-/// Check move only function with a function with a parameter
+/// Wraps a one-parameter free function and forwards the int argument on invocation.
 /// @requirements(SEN-1047)
 TEST(MoveOnlyFunction, FreeFunctionWithParameter)
 {
@@ -156,7 +160,7 @@ TEST(MoveOnlyFunction, FreeFunctionWithParameter)
 
 void fooParams(int /* i */, char /* c */, bool /* b */) {}
 /// @test
-/// Check move only function with a function with various parameters
+/// Wraps a three-parameter free function and forwards int, char, and bool arguments on invocation.
 /// @requirements(SEN-1047)
 TEST(MoveOnlyFunction, FreeFunctionWithParameters)
 {
@@ -166,7 +170,7 @@ TEST(MoveOnlyFunction, FreeFunctionWithParameters)
 
 int fooReturn() { return 42; }
 /// @test
-/// Check move only function with a function with return
+/// Returns the wrapped free function's value, an invocation yielding 42.
 /// @requirements(SEN-1047)
 TEST(MoveOnlyFunction, FreeFunctionWithReturn)
 {
@@ -177,7 +181,7 @@ TEST(MoveOnlyFunction, FreeFunctionWithReturn)
 
 int fooCalculation(int a, int b) { return a + b; }
 /// @test
-/// Check move only function with a function with parameters and return
+/// Forwards both arguments to the wrapped free function and returns its sum, f(20, 22) yielding 42.
 /// @requirements(SEN-1047)
 TEST(MoveOnlyFunction, FreeFunctionWithCalculation)
 {
@@ -196,7 +200,8 @@ struct Foo
 };
 
 /// @test
-/// Check move only function with an empty class member function
+/// Binds a member function pointer with the object pointer as the leading parameter and invokes it on an
+/// instance.
 /// @requirements(SEN-1047)
 TEST(MoveOnlyFunction, MemberFunctionEmpty)
 {
@@ -206,7 +211,7 @@ TEST(MoveOnlyFunction, MemberFunctionEmpty)
 }
 
 /// @test
-/// Check move only function with a class member function with a parameter
+/// Binds a member function pointer and forwards the object pointer plus an int argument on invocation.
 /// @requirements(SEN-1047)
 TEST(MoveOnlyFunction, MemberFunctionWithParameter)
 {
@@ -216,7 +221,8 @@ TEST(MoveOnlyFunction, MemberFunctionWithParameter)
 }
 
 /// @test
-/// Check move only function with a class member function with various parameters
+/// Binds a member function pointer and forwards the object pointer plus int, char, and bool arguments on
+/// invocation.
 /// @requirements(SEN-1047)
 TEST(MoveOnlyFunction, MemberFunctionWithParameters)
 {
@@ -226,7 +232,7 @@ TEST(MoveOnlyFunction, MemberFunctionWithParameters)
 }
 
 /// @test
-/// Check move only function with a class member function with return
+/// Returns a member function's value through the wrapper, invocation on an instance yielding 42.
 /// @requirements(SEN-1047)
 TEST(MoveOnlyFunction, MemberFunctionWithReturn)
 {
@@ -237,7 +243,7 @@ TEST(MoveOnlyFunction, MemberFunctionWithReturn)
 }
 
 /// @test
-/// Check move only function with a class member function with calculation and return
+/// Forwards arguments to a member function and returns its sum, invocation with 20 and 22 yielding 42.
 /// @requirements(SEN-1047)
 TEST(MoveOnlyFunction, MemberFunctionWithCalculation)
 {

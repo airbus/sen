@@ -27,7 +27,7 @@ describe("parseVar -- built-in primitives", () => {
   it("bool passes through verbatim", () => {
     expect(parseVar("bool", true, new TypeCache())).toBe(true);
   });
-  it("small integers + floats pass through verbatim as number", () => {
+  it("small integers and floats pass through verbatim as numbers", () => {
     expect(parseVar("i32", 42, new TypeCache())).toBe(42);
     expect(parseVar("u32", 999, new TypeCache())).toBe(999);
     expect(parseVar("f64", 3.14, new TypeCache())).toBe(3.14);
@@ -36,7 +36,7 @@ describe("parseVar -- built-in primitives", () => {
     expect(parseVar("i64", "-9007199254740993", new TypeCache())).toBe(-9007199254740993n);
     expect(parseVar("u64", "18446744073709551615", new TypeCache())).toBe(18446744073709551615n);
   });
-  it("i64/u64 reject a JSON number (would silently truncate past 2^53)", () => {
+  it("i64/u64 reject a JSON number rather than silently losing precision", () => {
     expect(() => parseVar("u64", 42, new TypeCache())).toThrow(TransportError);
     expect(() => parseVar("u64", 42, new TypeCache())).toThrow(/decimal string/);
   });
@@ -44,7 +44,7 @@ describe("parseVar -- built-in primitives", () => {
     expect(() => parseVar("i64", "not-a-number", new TypeCache())).toThrow(TransportError);
     expect(() => parseVar("u64", "1.5", new TypeCache())).toThrow(TransportError);
   });
-  it("TimeStamp + Duration are strings on the wire", () => {
+  it("TimeStamp and Duration pass through as strings", () => {
     expect(parseVar("TimeStamp", "2026-05-24T12:00:00Z", new TypeCache())).toBe(
       "2026-05-24T12:00:00Z",
     );
@@ -77,7 +77,7 @@ describe("parseVar -- enum", () => {
     },
   };
 
-  it("returns enum values as bare strings (decision B)", () => {
+  it("returns enum values as bare strings", () => {
     expect(parseVar("demo.Color", "red", cacheOf(colorSpec))).toBe("red");
   });
 

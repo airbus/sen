@@ -59,7 +59,7 @@ constexpr std::int64_t fixedTime = 1'700'000'000'000'000'000;
 [[nodiscard]] std::string timeSuffix() { return " " + std::to_string(fixedTime); }
 
 /// @test
-/// A point with a tag and a field becomes one line of influx line protocol
+/// A point with a tag and a field becomes one line of influx line protocol.
 TEST(InfluxLineProtocolTest, APointBecomesOneLine)
 {
   std::vector<std::string> sent;
@@ -74,7 +74,7 @@ TEST(InfluxLineProtocolTest, APointBecomesOneLine)
 }
 
 /// @test
-/// A point with no tags has no comma after the measurement
+/// A point with no tags has no comma after the measurement.
 TEST(InfluxLineProtocolTest, NoTagsLeavesNoComma)
 {
   std::vector<std::string> sent;
@@ -89,7 +89,7 @@ TEST(InfluxLineProtocolTest, NoTagsLeavesNoComma)
 }
 
 /// @test
-/// A point carrying nothing but a measurement is still a line, not an empty string
+/// A point carrying nothing but a measurement is still a line, not an empty string.
 TEST(InfluxLineProtocolTest, AMeasurementOnPointsOwnIsALine)
 {
   std::vector<std::string> sent;
@@ -102,7 +102,7 @@ TEST(InfluxLineProtocolTest, AMeasurementOnPointsOwnIsALine)
 }
 
 /// @test
-/// Integers carry the suffix that tells influx their signedness
+/// Integers carry the suffix that tells influx their signedness.
 TEST(InfluxLineProtocolTest, IntegerFieldsCarryASignednessSuffix)
 {
   std::vector<std::string> sent;
@@ -123,7 +123,7 @@ TEST(InfluxLineProtocolTest, IntegerFieldsCarryASignednessSuffix)
 }
 
 /// @test
-/// A bool is a bare keyword, a string is quoted, and a time is nanoseconds
+/// A bool is a bare keyword, a string is quoted, and a time is nanoseconds.
 TEST(InfluxLineProtocolTest, TheOtherFieldTypesFormatAsInfluxExpects)
 {
   std::vector<std::string> sent;
@@ -142,7 +142,7 @@ TEST(InfluxLineProtocolTest, TheOtherFieldTypesFormatAsInfluxExpects)
 }
 
 /// @test
-/// A comma or a space in the measurement is escaped, because either would end it
+/// A comma or a space in the measurement is escaped, because either would end it.
 TEST(InfluxLineProtocolTest, TheMeasurementIsEscaped)
 {
   std::vector<std::string> sent;
@@ -157,7 +157,8 @@ TEST(InfluxLineProtocolTest, TheMeasurementIsEscaped)
 }
 
 /// @test
-/// A tag or a field with no name is dropped rather than written as an empty key
+/// A tag with no name, a tag with no value, and a field with no name are all dropped rather
+/// than written as empty keys.
 TEST(InfluxDataPointTest, AnUnnamedTagOrFieldIsDropped)
 {
   DataPoint point = makePoint();
@@ -168,7 +169,7 @@ TEST(InfluxDataPointTest, AnUnnamedTagOrFieldIsDropped)
 }
 
 /// @test
-/// Without batching every point is sent on its own
+/// Without batching every point is sent on its own.
 TEST(InfluxBatchingTest, WithoutBatchingEachPointIsSentAlone)
 {
   std::vector<std::string> sent;
@@ -183,7 +184,7 @@ TEST(InfluxBatchingTest, WithoutBatchingEachPointIsSentAlone)
 }
 
 /// @test
-/// A full batch is sent as one message of newline-separated lines, with no trailing newline
+/// A full batch is sent as one message of newline-separated lines, with no trailing newline.
 TEST(InfluxBatchingTest, AFullBatchIsOneMessage)
 {
   std::vector<std::string> sent;
@@ -201,7 +202,7 @@ TEST(InfluxBatchingTest, AFullBatchIsOneMessage)
 }
 
 /// @test
-/// Flushing sends what has accumulated and leaves the batch empty
+/// Flushing sends what has accumulated and leaves the batch empty.
 TEST(InfluxBatchingTest, FlushingSendsAPartialBatchOnce)
 {
   std::vector<std::string> sent;
@@ -233,8 +234,8 @@ TEST(InfluxBatchingTest, FlushingAnEmptyBatchSendsNothing)
 }
 
 /// @test
-/// Every numeric and time type Sen carries becomes a field, so a value of any shape can be
-/// recorded rather than only the few the line-protocol tests above happen to use.
+/// Each of a sample of the scalar types Sen carries, from bool to TimeStamp, becomes a field,
+/// so more value shapes are covered than the few the line-protocol tests above happen to use.
 TEST(InfluxValueConversionTest, EveryScalarTypeBecomesAField)
 {
   const sen::TimeStamp time {sen::Duration {fixedTime}};

@@ -140,8 +140,8 @@ TEST(RuntimeCompatibility, RefusesWhatCannotBeConverted)
 }
 
 /// @test
-/// Checks that a conversion which is allowed but can drop a value is reported apart from one
-/// that cannot, which is what the compatibility modes decide on.
+/// A conversion that is allowed but can drop a value is reported apart from one that cannot,
+/// which is what the compatibility modes decide on.
 TEST(RuntimeCompatibility, ReportsAConversionThatCanDropAValue)
 {
   const auto lossyBetween = [](const ConstTypeHandle<>& remote, const ConstTypeHandle<>& local)
@@ -178,8 +178,9 @@ TEST(RuntimeCompatibility, ReportsAConversionThatCanDropAValue)
 }
 
 /// @test
-/// Every ordered pair of native types, against an explicit list of the ones that keep every value.
-/// Written out rather than derived, so the test cannot share a mistake with the implementation.
+/// Grades every ordered pair of native types against an explicit list of the ones that keep every
+/// value. Written out rather than derived, so the test cannot share a mistake with the
+/// implementation.
 TEST(RuntimeCompatibility, GradesEveryNativePair)
 {
   const std::vector<std::pair<std::string, ConstTypeHandle<>>> natives = {{"bool", sen::BoolType::get()},
@@ -240,7 +241,8 @@ TEST(RuntimeCompatibility, FindsLossThroughEveryKindOfMember)
 }
 
 /// @test
-/// And wherever it hides inside a value type.
+/// The loss is found wherever it hides inside a value type: a struct field, a sequence element,
+/// an optional value, and a struct nested inside a class property.
 TEST(RuntimeCompatibility, FindsLossThroughNestedTypes)
 {
   const auto structOf = [](const ConstTypeHandle<>& fieldType)
@@ -270,8 +272,9 @@ TEST(RuntimeCompatibility, FindsLossThroughNestedTypes)
 }
 
 /// @test
-/// Every combination the mode decision can be asked about: three modes against a type that is
-/// identical, one that differs harmlessly, and one whose conversion can drop a value.
+/// Every combination the mode decision can be asked about: relaxed accepts an identical type, a
+/// harmless difference and a lossy one alike, strict refuses only the lossy one, and disabled
+/// takes the exact match and nothing else.
 TEST(CompatibilityModes, DecidesEveryCombination)
 {
   using sen::kernel::acceptsUnderCompatibilityMode;
@@ -320,9 +323,10 @@ TEST(CompatibilityModes, DefaultsToRelaxed)
 }
 
 /// @test
-/// The kinds of type the compatibility check handles that nothing else exercises. Written because
-/// the analysis had no unit tests at all, so most of its branches were reached only by two
-/// multi-process tests that assert a log line.
+/// The kinds of type the compatibility check handles that nothing else exercises: enums, variant
+/// alternatives, aliases, time types, strings and void. Written because the analysis had no unit
+/// tests at all, so most of its branches were reached only by two multi-process tests that assert
+/// a log line.
 TEST(RuntimeCompatibility, HandlesEveryKindOfCustomType)
 {
   const auto enumOf = [](const std::vector<Enumerator>& enumerators, auto storage)
@@ -368,8 +372,10 @@ TEST(RuntimeCompatibility, HandlesEveryKindOfCustomType)
 }
 
 /// @test
-/// getRuntimeDifferences is what the kernel logs when it decides to adapt two versions of a type.
-/// It had no tests at all, so nothing said what it is supposed to report.
+/// getRuntimeDifferences, which the kernel logs when it decides to adapt two versions of a type,
+/// says nothing for an identical definition and reports a changed property type and a property
+/// present on one side only. It had no tests at all, so nothing said what it is supposed to
+/// report.
 TEST(RuntimeDifferences, ReportsWhatChangedBetweenTwoVersions)
 {
   // the same definition has nothing to say
@@ -390,7 +396,8 @@ TEST(RuntimeDifferences, ReportsWhatChangedBetweenTwoVersions)
 }
 
 /// @test
-/// Quantities, which the compatibility check treats as a number carrying a unit.
+/// Quantities are treated as a number carrying a unit: a differing unit is refused, the same unit
+/// is usable, and the element narrowing under the unit is a loss like any other.
 TEST(RuntimeCompatibility, HandlesQuantities)
 {
   auto metre = sen::Unit::make(UnitSpec {UnitCategory::length, "metre", "metres", "m", 1.0, 0.0, 0.0});
@@ -422,9 +429,9 @@ TEST(RuntimeCompatibility, HandlesQuantities)
 }
 
 /// @test
-/// getRuntimeDifferences over the kinds of type it handles. It reports what changed between two
-/// versions, which the kernel logs when it decides to adapt them, and only the class case had a
-/// test before this one.
+/// getRuntimeDifferences reports what changed between two versions of a struct, sequence, enum,
+/// variant, optional and alias, which the kernel logs when it decides to adapt them. Only the
+/// class case had a test before this one.
 TEST(RuntimeDifferences, ReportsEveryKindOfChange)
 {
   const auto differs = [](const ConstTypeHandle<>& local, const ConstTypeHandle<>& remote)
@@ -512,9 +519,10 @@ TEST(TypeSpecs, RoundTripsEveryKindOfType)
 }
 
 /// @test
-/// The protocol version migration, which is how a current kernel reads a type definition sent by
-/// an older one. Untested before this, and a mistake here is silent: the type is accepted and
-/// wrong rather than refused.
+/// The V4 protocol migration, which is how a current kernel reads a type definition sent by an
+/// older one: an enum arrives whole and buildable, and a sequence with maxSize zero stays
+/// unbounded. Untested before this, and a mistake here is silent: the type is accepted and wrong
+/// rather than refused.
 TEST(TypeSpecs, MigratesOlderProtocolVersions)
 {
   // an enumeration as protocol V4 described it, with a signed key and no per-enumerator description
@@ -570,9 +578,10 @@ TEST(TypeSpecs, MigratesOlderProtocolVersions)
 }
 
 /// @test
-/// Field-by-field, rather than by hash. The round trip above compares with equivalent(), which is
-/// hash equality, so a field the hash does not cover could be dropped or swapped and still look
-/// identical. These are the fields most easily lost in a copy: bounds, ranges, categories, flags.
+/// Field-by-field, rather than by hash. The plain round-trip test compares with equivalent(),
+/// which is hash equality, so a field the hash does not cover could be dropped or swapped and
+/// still look identical. These are the fields most easily lost in a copy: bounds, ranges,
+/// categories, flags.
 TEST(TypeSpecs, RoundTripKeepsFieldsTheHashDoesNotCover)
 {
   const sen::CustomTypeRegistry natives;
@@ -718,9 +727,9 @@ TEST(TypeSpecs, MigratesProtocolV5)
 }
 
 /// @test
-/// A member that cannot be converted at all, one kind at a time. These are the branches that build
-/// the message an operator reads when two models genuinely clash, and each member kind builds its
-/// own, so a mistake in one is invisible from the others.
+/// A member that cannot be converted at all is refused, one member kind at a time. These are the
+/// branches that build the message an operator reads when two models genuinely clash, and each
+/// member kind builds its own, so a mistake in one is invisible from the others.
 TEST(RuntimeCompatibility, RefusesAnIncompatibleMemberOfEveryKind)
 {
   // a class where a number is expected converts to nothing
@@ -763,9 +772,9 @@ TEST(RuntimeCompatibility, RefusesAnIncompatibleMemberOfEveryKind)
 }
 
 /// @test
-/// A type that is not the kind the other side expects at all, and a quantity that gains or loses
-/// its unit. These are the outright refusals, as opposed to a member that fails inside a matching
-/// pair.
+/// A type that is not the kind the other side expects at all is refused, and so is a quantity
+/// that gains or loses its unit. These are the outright refusals, as opposed to a member that
+/// fails inside a matching pair.
 TEST(RuntimeCompatibility, RefusesAMismatchedKind)
 {
   const auto refuses = [](const ConstTypeHandle<>& local, const ConstTypeHandle<>& remote)
@@ -949,9 +958,9 @@ TEST(RuntimeDifferences, ReportsEveryChangeToAClass)
 }
 
 /// @test
-/// The mappings between a meta type and its wire spec, both directions, for every value. These are
-/// switch statements, so a wrong case is a silent mistranslation rather than a failure, and it
-/// shows up as the wrong type on the far side of a bus.
+/// An enum's integral storage type survives the trip to its wire spec and back, for each integral
+/// storage type. These are switch statements, so a wrong case is a silent mistranslation rather
+/// than a failure, and it shows up as the wrong type on the far side of a bus.
 TEST(TypeSpecs, MapsEveryIntegralStorageTypeBothWays)
 {
   const sen::CustomTypeRegistry natives;
@@ -980,7 +989,8 @@ TEST(TypeSpecs, MapsEveryIntegralStorageTypeBothWays)
 }
 
 /// @test
-/// The same for unit categories, which is a wider switch and the one where a wrong case turns a
+/// A registered unit of each category the registry carries survives the trip to its wire spec and
+/// back, keeping its name and category: the wider switch, and the one where a wrong case turns a
 /// mass into a length.
 TEST(TypeSpecs, MapsEveryUnitCategoryBothWays)
 {
@@ -1206,9 +1216,9 @@ TEST(TypeSpecs, MigratesEveryKindFromV4)
 }
 
 /// @test
-/// The same kinds from V5, whose method carries localOnly where V4 carried deferred, and whose
-/// class gained the parent list. Each version drops what the other has, so what survives a
-/// migration is not symmetric and is worth stating.
+/// Alias, optional, struct, variant and class migrated from V5, whose method carries localOnly
+/// where V4 carried deferred, and whose class gained the parent list. Each version drops what
+/// the other has, so what survives a migration is not symmetric and is worth stating.
 TEST(TypeSpecs, MigratesEveryKindFromV5)
 {
   const auto migrate = [](const sen::kernel::CustomTypeDataV5& data)

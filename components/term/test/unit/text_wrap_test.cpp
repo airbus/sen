@@ -167,7 +167,7 @@ TEST(VisibleLines, CursorNearTheStartShowsTheBeginning)
 
 /// @test
 /// A total of no lines still answers with one. The function's own comment calls this unreachable
-/// from wrapToWidth, which always returns a line; it is here because a caller that got it wrong
+/// from wrapToWidth, which always returns a line. It is here because a caller that got it wrong
 /// should be given a prompt to draw rather than nothing, and that is worth holding to.
 TEST(VisibleLines, NoLinesAtAllStillAnswersWithOne)
 {

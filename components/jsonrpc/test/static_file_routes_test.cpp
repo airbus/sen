@@ -221,8 +221,8 @@ private:
 //--------------------------------------------------------------------------------------------------------------
 
 /// @test
-/// A request for the bundle's index returns it with an HTML content type, an etag and a no-cache
-/// directive.
+/// Serves the bundle's index at its nested path with the text/html content type, a non-empty
+/// etag, and a no-cache cache-control directive.
 TEST(StaticFileRoutes, servesIndexAtNestedPath)
 {
   StaticFileFixture f;
@@ -235,7 +235,7 @@ TEST(StaticFileRoutes, servesIndexAtNestedPath)
 }
 
 /// @test
-/// A request for an asset returns it with the content type for its extension.
+/// Serves a bundled asset byte-for-byte with the content type the bundle declares for it.
 TEST(StaticFileRoutes, servesAsset)
 {
   StaticFileFixture f;
@@ -246,7 +246,7 @@ TEST(StaticFileRoutes, servesAsset)
 }
 
 /// @test
-/// A request for the bundle root returns the index.
+/// Serves the index for a request to the bundle root path ending in a slash.
 TEST(StaticFileRoutes, servesIndexAtBundleRoot)
 {
   StaticFileFixture f;
@@ -256,7 +256,7 @@ TEST(StaticFileRoutes, servesIndexAtBundleRoot)
 }
 
 /// @test
-/// A request for the bare prefix, with no trailing slash, returns the index.
+/// Serves the index for a request to the bare url prefix with no trailing slash.
 TEST(StaticFileRoutes, servesIndexAtBareUrlPrefix)
 {
   StaticFileFixture f;
@@ -266,7 +266,8 @@ TEST(StaticFileRoutes, servesIndexAtBareUrlPrefix)
 }
 
 /// @test
-/// A path the bundle does not hold returns the index, so client-side routes resolve.
+/// Serves the index for a path the bundle does not hold, so client-side application routes
+/// resolve instead of failing with 404.
 TEST(StaticFileRoutes, spaFallbackServesIndexForUnknownPath)
 {
   StaticFileFixture f;
@@ -280,7 +281,8 @@ TEST(StaticFileRoutes, spaFallbackServesIndexForUnknownPath)
 //--------------------------------------------------------------------------------------------------------------
 
 /// @test
-/// A request carrying the etag of a previous response returns 304 with no body and the same etag.
+/// Returns 304 with an empty body and the unchanged etag when a request carries the previous
+/// response's etag in an If-None-Match header.
 TEST(StaticFileRoutes, ifNoneMatchReturns304)
 {
   StaticFileFixture f;
@@ -300,7 +302,7 @@ TEST(StaticFileRoutes, ifNoneMatchReturns304)
 //--------------------------------------------------------------------------------------------------------------
 
 /// @test
-/// After the bundle is unregistered its paths return 404.
+/// Returns 404 for a bundle path once the bundle has been unregistered.
 TEST(StaticFileRoutes, unregisterMakesRouteReturn404)
 {
   StaticFileFixture f;
@@ -311,9 +313,9 @@ TEST(StaticFileRoutes, unregisterMakesRouteReturn404)
 }
 
 /// @test
-/// register -> unregister -> register-with-the-same-urlPrefix succeeds and serves the new bundle.
-/// uWS's `HttpRouter::add` replaces a route at the same pattern, so the inert handler captured
-/// by the first registration is dropped when the second registers.
+/// Serves the replacement bundle's content after an unregister followed by a new registration
+/// under the same url prefix, the re-registered route replaces the inert handler left behind by
+/// the first registration.
 TEST(StaticFileRoutes, registerSamePrefixAfterUnregisterServesNewBundle)
 {
   StaticFileFixture f;

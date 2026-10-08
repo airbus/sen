@@ -14,7 +14,8 @@
 #include <string>
 
 /// @test
-/// Check JWT generation
+/// Round-trips a JSON payload through encodeJWT and decodeJWT, the decoded token reported valid and
+/// carrying the original payload unchanged.
 /// @requirements(SEN-1061)
 TEST(Rest, unsigned_jwt)
 {

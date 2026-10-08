@@ -20,7 +20,10 @@ namespace sen::util
 {
 
 /// @test
-/// Tests the computeWgs84Trajectory helper
+/// Computes the great circle surface distance and the initial heading between two geodetic
+/// locations with the haversine helper on the spherical earth model, matching the reference
+/// distance within 50 metres and the reference heading within a milliradian for a short and a
+/// transoceanic route.
 /// @requirements(SEN-1057)
 TEST(UtilsTest, computeWgs84Trajectory)
 {

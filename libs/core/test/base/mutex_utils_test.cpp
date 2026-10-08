@@ -96,12 +96,13 @@ using TestedTypes = ::testing::Types<int, double, std::string, MyClass, int*>;
 TYPED_TEST_SUITE(GuardedTest, TestedTypes);
 
 /// @test
-/// Check default initialization of a guard object
+/// Default-constructs a Guarded wrapper for each tested value type, int, double, std::string, a user class,
+/// and a pointer.
 /// @requirements(SEN-1048)
 TYPED_TEST(GuardedTest, CreateWrapperDefaultInit) { Guarded<TypeParam> wrappedType; }
 
 /// @test
-/// Check initialization of a guard object with value
+/// Holds the value given at construction, getValue returning it for every tested value type.
 /// @requirements(SEN-1048)
 TYPED_TEST(GuardedTest, CreateWrapperValueInit)
 {
@@ -111,7 +112,7 @@ TYPED_TEST(GuardedTest, CreateWrapperValueInit)
 }
 
 /// @test
-/// Check that a guard object can be assigned to a value
+/// Accepts assignment of a plain value, getValue returning the assigned value for every tested value type.
 /// @requirements(SEN-1048)
 TYPED_TEST(GuardedTest, Assign)
 {
@@ -123,7 +124,8 @@ TYPED_TEST(GuardedTest, Assign)
 }
 
 /// @test
-/// Check that a guard object can be compared with a value
+/// Compares against plain values and other wrappers on both sides of == and !=, equal and unequal cases both
+/// holding for every tested value type.
 /// @requirements(SEN-1048)
 TYPED_TEST(GuardedTest, Comparisions)
 {
@@ -140,7 +142,7 @@ TYPED_TEST(GuardedTest, Comparisions)
 }
 
 /// @test
-/// Check correct underlying value in a guard object
+/// Reaches the underlying object's members through operator->, getAsInt returning the wrapped 42.
 /// @requirements(SEN-1048)
 TEST(GuardedTest, AccessUnderlyingObject)
 {
@@ -151,7 +153,8 @@ TEST(GuardedTest, AccessUnderlyingObject)
 }
 
 /// @test
-/// Check increment from multiple threads of underlying value in a guard object
+/// Serializes operator+= across three threads of ten increments each, the final value being exactly 30 with no
+/// lost update.
 /// @requirements(SEN-1048)
 TEST(GuardedTest, IncrementUnderlyingObjectFromMultipleThreads)
 {
@@ -179,7 +182,8 @@ TEST(GuardedTest, IncrementUnderlyingObjectFromMultipleThreads)
 }
 
 /// @test
-/// Check that local token can set a value and protects from other threads in a guard object
+/// Blocks other threads for the lifetime of an access token, the holder setting 42 and still reading 42 while
+/// three incrementing threads wait, and the value after release being that 42 plus all 30 increments.
 /// @requirements(SEN-1048)
 TEST(GuardedTest, LocalAccessTokenUsageWithThreads)
 {
@@ -225,7 +229,9 @@ TEST(GuardedTest, LocalAccessTokenUsageWithThreads)
 }
 
 /// @test
-/// Check that guard object can invoke a function and protect underlying value
+/// Runs callables under the lock through invoke, a by-value callable observing the initial 0, two by-reference
+/// callables adding 2 and 3 concurrently with three incrementing threads, and the final value being all 30
+/// increments plus 5.
 /// @requirements(SEN-1048)
 TEST(GuardedTest, CallableUsageWithThreads)
 {

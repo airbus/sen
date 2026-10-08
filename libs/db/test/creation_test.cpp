@@ -27,7 +27,8 @@ namespace sen::db::test
 {
 
 /// @test
-/// Write a creation entry and read it back
+/// Records a Creation entry for a live object and reads it back, the snapshot preserving the
+/// object name, session name, bus name, object id, and a resolvable type.
 /// @requirements(SEN-364)
 TEST(CreationTest, WriteAndReadCreationWithRealObject)
 {
@@ -80,7 +81,8 @@ TEST(CreationTest, WriteAndReadCreationWithRealObject)
 }
 
 /// @test
-/// Indexed creation appears in object index definitions
+/// Lists an object recorded with the indexed flag in the archive's object index definitions,
+/// carrying its session and bus names.
 /// @requirements(SEN-364)
 TEST(CreationTest, IndexedCreationAppearsInObjectIndex)
 {
@@ -109,7 +111,8 @@ TEST(CreationTest, IndexedCreationAppearsInObjectIndex)
 }
 
 /// @test
-/// Verify that Non-indexed creation does not appear in the object index definitions
+/// Omits an object recorded without the indexed flag from the archive's object index
+/// definitions, which read back empty.
 /// @requirements(SEN-364)
 TEST(CreationTest, NonIndexedCreationNotInObjectIndex)
 {

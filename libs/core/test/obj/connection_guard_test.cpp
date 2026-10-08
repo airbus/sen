@@ -123,7 +123,8 @@ public:
 }  // namespace
 
 /// @test
-/// Checks that the default constructor creates a safe empty guard that does nothing on destruction
+/// Constructs a default connection guard that is safe to destroy without any connection to
+/// remove.
 /// @requirements(SEN-362)
 TEST(ConnectionGuard, DefaultConstructor)
 {
@@ -132,7 +133,8 @@ TEST(ConnectionGuard, DefaultConstructor)
 }
 
 /// @test
-/// Validates that typed connection guards accurately request removal upon going out of scope
+/// Requests typed connection removal from the owning object when the guard leaves scope,
+/// passing the guarded connection id, and not before.
 /// @requirements(SEN-362)
 TEST(ConnectionGuard, TypedDestruction)
 {
@@ -148,7 +150,8 @@ TEST(ConnectionGuard, TypedDestruction)
 }
 
 /// @test
-/// Validates that untyped connection guards accurately request removal with hashes upon going out of scope
+/// Requests untyped connection removal when the guard leaves scope, handing the object both
+/// the connection id and the member hash, and not before.
 /// @requirements(SEN-362)
 TEST(ConnectionGuard, UntypedDestruction)
 {
@@ -165,7 +168,7 @@ TEST(ConnectionGuard, UntypedDestruction)
 }
 
 /// @test
-/// Ensures that explicitly calling keep() detaches the guard logically and halts destruction routines
+/// Skips connection removal at scope exit after keep() is called on the guard.
 /// @requirements(SEN-362)
 TEST(ConnectionGuard, KeepPreventsDestruction)
 {
@@ -180,7 +183,8 @@ TEST(ConnectionGuard, KeepPreventsDestruction)
 }
 
 /// @test
-/// Verifies move semantics on construction safely transfer the destruction responsibility
+/// A move construction does not itself remove the connection, removal fires after the
+/// move-constructed guard and the moved-from one leave their shared scope.
 /// @requirements(SEN-362)
 TEST(ConnectionGuard, MoveConstructor)
 {
@@ -203,7 +207,9 @@ TEST(ConnectionGuard, MoveConstructor)
 }
 
 /// @test
-/// Ensures move assignment correctly destroys prior state before assuming the new incoming connection state
+/// Releases the previously held connection at move assignment, then removes the newly assumed
+/// connection only when the assigned guard itself is destroyed, the moved-from guard removes
+/// nothing.
 /// @requirements(SEN-362)
 TEST(ConnectionGuard, MoveAssignment)
 {
@@ -234,7 +240,8 @@ TEST(ConnectionGuard, MoveAssignment)
 }
 
 /// @test
-/// Guards against crashes if the underlying weak_ptr target drops before the guard is destroyed
+/// Destroys without crashing when the object behind the guard's weak reference has already
+/// been destroyed.
 /// @requirements(SEN-362)
 TEST(ConnectionGuard, ObjectDestroyedFirst)
 {

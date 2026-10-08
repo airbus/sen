@@ -9,7 +9,7 @@
 
 load test_helpers
 
-@test "no-tools: ensure_tools lists every missing tool and exits non-zero" {
+@test "names every missing required tool with an install hint and exits non-zero" {
     load_install
     local saved_path="$PATH"
     PATH=/nonexistent
@@ -25,7 +25,7 @@ load test_helpers
     [[ "$output" == *"apt install curl"* ]]
 }
 
-@test "no-tools: ensure_tools is silent when everything is on PATH" {
+@test "says nothing when every required tool is on PATH" {
     load_install
     run ensure_tools
     [ "$status" -eq 0 ]

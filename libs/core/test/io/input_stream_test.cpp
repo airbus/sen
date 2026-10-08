@@ -258,7 +258,8 @@ void checkReadNumber()
 }  // namespace
 
 /// @test
-/// Check reading of basic types
+/// Reads a sample value of every integer and float width from a buffer holding the value's
+/// in-memory byte representation, yielding exactly the stored value.
 /// @requirements(SEN-1051)
 TEST(InputStream, basics)
 {
@@ -275,7 +276,8 @@ TEST(InputStream, basics)
 }
 
 /// @test
-/// Check correct reading of basic types numeric limits
+/// Reads zero and the numeric_limits max, min, and lowest of every integer and float type from
+/// their in-memory byte representation, yielding the original values.
 /// @requirements(SEN-1051)
 TEST(InputStream, numberLimits)
 {
@@ -292,7 +294,8 @@ TEST(InputStream, numberLimits)
 }
 
 /// @test
-/// Check reading of string types
+/// Reads back strings serialized by writeString, including the empty string and punctuation
+/// characters.
 /// @requirements(SEN-1051)
 TEST(InputStream, string)
 {
@@ -304,7 +307,8 @@ TEST(InputStream, string)
 }
 
 /// @test
-/// Check reading of timestamps types
+/// Reads TimeStamp values from the eight-byte representation of their nanoseconds since the epoch,
+/// covering zero, negative, large, and extreme Duration values.
 /// @requirements(SEN-1051)
 TEST(InputStream, timestamp)
 {
@@ -322,7 +326,7 @@ TEST(InputStream, timestamp)
 }
 
 /// @test
-/// Check reading of boolean types
+/// Reads true and false from the one-byte transport encoding into variables primed with the opposite value.
 /// @requirements(SEN-1051)
 TEST(InputStream, boolean)
 {
@@ -331,7 +335,8 @@ TEST(InputStream, boolean)
 }
 
 /// @test
-/// Check reading of some types using big endian
+/// Reads a uint32 and a float64 from little-endian host bytes through a BigEndian
+/// InputStreamTemplate, yielding the byte-swapped value.
 /// @requirements(SEN-1051)
 TEST(InputStream, BigEndian)
 {
@@ -365,7 +370,9 @@ TEST(InputStream, BigEndian)
 }
 
 /// @test
-/// Check positioning logic and boundary manipulation
+/// Moves the cursor of a four-byte stream with setPosition, advance, and reverse, with getPosition
+/// reflecting each move, advance returning the byte at the prior position, and atEnd true only at
+/// the final position.
 /// @requirements(SEN-1051)
 TEST(InputStream, positionAndReverse)
 {
@@ -391,7 +398,8 @@ TEST(InputStream, positionAndReverse)
 }
 
 /// @test
-/// Check exception trigger on buffer underflow via advance
+/// Throws from advance when the request exceeds the bytes remaining in the stream, while an
+/// in-bounds advance succeeds.
 /// @requirements(SEN-1051)
 TEST(InputStream, advanceUnderflow)
 {
@@ -403,7 +411,9 @@ TEST(InputStream, advanceUnderflow)
 }
 
 /// @test
-/// Check tryAdvance logic including partial advances and exceptions
+/// Grants tryAdvance up to the bytes remaining: a zero request consumes nothing, an in-bounds
+/// request yields all bytes asked, an oversized request yields just the remainder, and a request
+/// at the end throws.
 /// @requirements(SEN-1051)
 TEST(InputStream, tryAdvance)
 {

@@ -69,8 +69,8 @@ TEST(RunnerSchedule, CountsTheSameCyclesTheOldWalkDid)
 }
 
 /// @test
-/// The same, for the caller that has overslept. It asks about the time beyond one whole cycle, so
-/// the count has to match a walk that stops one cycle short of the one above.
+/// The computed count matches the oversleep walk it replaces, whose caller subtracts one whole
+/// period first, so the count stops one cycle short of the plain walk.
 TEST(RunnerSchedule, CountsTheSameCyclesTheOversleepWalkDid)
 {
   for (const auto period: {ms(1), ms(10), ms(100)})
@@ -97,7 +97,8 @@ TEST(RunnerSchedule, AdvancesNothingWhenTheScheduleIsNotBehind)
 }
 
 /// @test
-/// A period of zero cannot be divided by, and a schedule cannot advance in steps of nothing.
+/// A period of zero or below yields zero cycles, since a schedule cannot advance in steps of
+/// nothing.
 TEST(RunnerSchedule, RefusesAPeriodOfZero)
 {
   EXPECT_EQ(cyclesToCover(ms(10), NanoSecs {0}), 0);
@@ -105,8 +106,8 @@ TEST(RunnerSchedule, RefusesAPeriodOfZero)
 }
 
 /// @test
-/// The schedule lands past the instant it was catching up to, which is the property the caller
-/// relies on: one cycle short would leave the frame still behind.
+/// The schedule lands past the instant it was catching up to, and by less than one whole cycle:
+/// one cycle short would leave the frame still behind.
 TEST(RunnerSchedule, LandsPastTheInstantItChases)
 {
   const auto period = ms(10);

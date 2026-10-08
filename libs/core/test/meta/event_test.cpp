@@ -49,7 +49,8 @@ void checkInvalidSpec(const EventSpec& spec) { EXPECT_THROW(std::ignore = Event:
 }  // namespace
 
 /// @test
-/// Checks comparison between event specs
+/// Compares event specs: equal for identical specs, and unequal when the name, description,
+/// transport mode or argument list differs or the spec is emptied.
 /// @requirements(SEN-574)
 TEST(Event, specComparison)
 {
@@ -121,7 +122,8 @@ TEST(Event, specComparison)
 }
 
 /// @test
-/// Checks correct event instance creation from spec
+/// Builds an event that exposes the spec's name, description, transport mode and arguments
+/// through the getters.
 /// @requirements(SEN-574)
 TEST(Event, makeBasic)
 {
@@ -134,7 +136,8 @@ TEST(Event, makeBasic)
 }
 
 /// @test
-/// Checks invalid creation of event
+/// Refuses to build an event whose spec has a missing, non-lowerCamelCase or symbol-ridden name,
+/// or a repeated argument name.
 /// @requirements(SEN-574)
 TEST(Event, makeInvalid)
 {
@@ -169,7 +172,8 @@ TEST(Event, makeInvalid)
 }
 
 /// @test
-/// Checks correct event type comparison
+/// Compares built events by value: two from the same spec are equal, and a changed name,
+/// description, transport mode or argument list makes them unequal.
 /// @requirements(SEN-574)
 TEST(Event, comparison)
 {

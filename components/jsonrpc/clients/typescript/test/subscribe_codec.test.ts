@@ -21,7 +21,7 @@ describe("toWireSubscribeBlock", () => {
     });
   });
 
-  it("emits named selector for properties: [...]", () => {
+  it("emits a named selector for a list of property names", () => {
     expect(toWireSubscribeBlock({ properties: ["altitude", "speed"] })).toEqual({
       properties: {
         type: "sen.components.jsonrpc.NamedSelection",
@@ -40,7 +40,7 @@ describe("toWireSubscribeBlock", () => {
     });
   });
 
-  it("emits named selector for events: [...]", () => {
+  it("emits a named selector for a list of event names", () => {
     expect(toWireSubscribeBlock({ events: ["landed", "takenOff"] })).toEqual({
       properties: null,
       events: {

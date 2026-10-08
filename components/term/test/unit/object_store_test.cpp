@@ -80,7 +80,7 @@ protected:
 //--------------------------------------------------------------------------------------------------------------
 
 /// @test
-/// A source name with more components than a session, bus and query is refused.
+/// A three part source name is refused, since an openable source is a session or a session.bus.
 TEST_F(ObjectStoreTest, OpenSourceTooManyComponentsFails)
 {
   auto result = store->openSource("a.b.c");
@@ -225,8 +225,8 @@ TEST_F(ObjectStoreTest, OpeningASourceListsItAndSaysSo)
 }
 
 /// @test
-/// The generation counts objects arriving and leaving, not commands, so opening a source does not
-/// move it.
+/// The generation is reserved for object traffic, so neither opening a source nor creating a
+/// query moves it.
 TEST_F(ObjectStoreTest, TheGenerationCountsObjectTrafficAndNotCommands)
 {
   // Two separate signals, and it is worth pinning which is which. generation_ moves when objects arrive
@@ -290,7 +290,8 @@ TEST_F(ObjectStoreTest, TwoQueriesWithTheSameSelectionAreRefused)
 // sources and queries refresh.
 
 /// @test
-/// The completer's update rebuilds its lists from the store.
+/// The completer's update rebuilds its lists from the store, so the open source is offered to
+/// close and the created query to query rm.
 TEST_F(ObjectStoreTest, CompleterUpdateRebuildsFromTheStore)
 {
   App app([](const std::string&) {});
@@ -318,7 +319,7 @@ TEST_F(ObjectStoreTest, CompleterUpdateRebuildsFromTheStore)
 }
 
 /// @test
-/// The completer's update notices a source that has closed.
+/// After a source closes, a refreshed completer stops offering it to close.
 TEST_F(ObjectStoreTest, CompleterUpdateNoticesASourceClosing)
 {
   App app([](const std::string&) {});

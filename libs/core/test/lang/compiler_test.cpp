@@ -57,7 +57,10 @@ void checkCompilationFailure(std::string& program)
 }  // namespace
 
 /// @test
-/// Checks vm compiler with basic condition
+/// Compiles and evaluates SELECT FROM WHERE programs: comparison and string-equality conditions
+/// joined by AND and OR yield the expected truth value, unusual identifiers and a trailing comma
+/// clause are accepted, and a two-query cascade re-interpreted with changed variable values flips
+/// its result.
 /// @requirements(SEN-363)
 TEST(Compiler, basic)
 {
@@ -142,7 +145,8 @@ TEST(Compiler, basic)
 }
 
 /// @test
-/// Checks use of true and false keywords in queries
+/// Evaluates the true and false keywords in WHERE conditions, alone and combined with AND, OR,
+/// NOT, and the bang operator, each program yielding its expected truth value.
 /// @requirements(SEN-363)
 TEST(Compiler, trueFalse)
 {
@@ -192,7 +196,8 @@ TEST(Compiler, trueFalse)
 }
 
 /// @test
-/// Checks vm compiler with variable as condition
+/// Resolves variables in a WHERE condition from the ValueGetter environment at interpret time,
+/// so re-running the same chunk after a variable change flips the result from true to false.
 /// @requirements(SEN-363)
 TEST(Compiler, variables)
 {
@@ -228,7 +233,8 @@ TEST(Compiler, variables)
 }
 
 /// @test
-/// Checks vm compiler with two variables as condition
+/// Compares a string variable from the environment against a string literal, evaluating true for
+/// a matching value and false otherwise.
 /// @requirements(SEN-363)
 TEST(Compiler, variables2)
 {
@@ -272,7 +278,9 @@ TEST(Compiler, variables2)
 }
 
 /// @test
-/// Checks incorrect program definition in vm compiler
+/// Throws at compilation for malformed programs, covering a missing condition, session, bus, or
+/// class name, keyword-only and empty programs, and dangling binary operators, while a bad
+/// BETWEEN form and an undefined variable abort at interpretation.
 /// @requirements(SEN-363)
 TEST(Compiler, failure)
 {  // no condition
@@ -386,7 +394,8 @@ TEST(Compiler, failure)
 }
 
 /// @test
-/// Check use of floating numbers in queries
+/// Evaluates float literals in conditions: equality, inequality, and ordering comparisons across
+/// float and integer operands each yield the expected truth value.
 /// @requirements(SEN-363)
 TEST(Compiler, floatingNumbers)
 {
@@ -431,7 +440,8 @@ TEST(Compiler, floatingNumbers)
 }
 
 /// @test
-/// Checks use of strings in queries
+/// Compares string literals in conditions with case-sensitive equality, including special
+/// characters and empty strings.
 /// @requirements(SEN-363)
 TEST(Compiler, strings)
 {
@@ -472,7 +482,8 @@ TEST(Compiler, strings)
 }
 
 /// @test
-/// Check use of parenthesis in queries
+/// Accepts deeply nested and mixed parenthesis groupings in conditions, and throws at
+/// compilation when one closing parenthesis is missing.
 /// @requirements(SEN-363)
 TEST(Compiler, parenthesis)
 {
@@ -501,7 +512,8 @@ TEST(Compiler, parenthesis)
 }
 
 /// @test
-/// Checks use of bang operator in queries
+/// Applies the bang operator to negate conditions, including double negation, nesting inside
+/// AND and OR groups, and combination with the NOT keyword.
 /// @requirements(SEN-363)
 TEST(Compiler, bang)
 {
@@ -535,7 +547,9 @@ TEST(Compiler, bang)
 }
 
 /// @test
-/// Check use of keyword "between" in queries
+/// Evaluates BETWEEN and NOT BETWEEN range conditions, including equal bounds, several ranges in
+/// one condition, float bounds, and variable operands re-evaluated after a change, while
+/// incomplete forms and descending bounds fail compilation.
 /// @requirements(SEN-363)
 TEST(Compiler, between)
 {
@@ -654,7 +668,9 @@ TEST(Compiler, between)
 }
 
 /// @test
-/// Check use of keyword "in" in queries
+/// Evaluates IN and NOT IN list membership, matching variables case-sensitively against string
+/// lists that may repeat entries and mix quoted and unquoted members, while lists without
+/// parentheses, trailing commas, a bare IN, and an empty list fail compilation.
 /// @requirements(SEN-363)
 TEST(Compiler, in)
 {
@@ -763,7 +779,10 @@ TEST(Compiler, in)
 }
 
 /// @test
-/// Check use of operators (+, -, *, /) in queries
+/// Compiles and interprets arithmetic in conditions: add, subtract, double minus, multiply,
+/// divide, precedence, and grouping cases execute to a boolean, variable and computed BETWEEN
+/// expressions assert their truth value as inputs change, and dangling operators fail
+/// compilation.
 /// @requirements(SEN-363)
 TEST(Compiler, operations)
 {
@@ -949,7 +968,9 @@ TEST(Compiler, operations)
 }
 
 /// @test
-/// Checks comparison against optional types and user defined types
+/// Compares variables against dotted user-defined type literals and optional values from the
+/// environment, matching enum-style values by their numeric representation and evaluating a
+/// comparison against an empty optional to false.
 /// @requirements(SEN-363)
 TEST(Compiler, userDefinedTypesAndOptionals)
 {

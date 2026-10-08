@@ -71,7 +71,8 @@ const PropertySpec& getValidSpec()
 }  // namespace
 
 /// @test
-/// Checks property spec comparison
+/// Compares property specs: equal for identical specs, and unequal when the name, description,
+/// type, category, transport mode or checked-set flag differs or the name or category is emptied.
 /// @requirements(SEN-355)
 TEST(Property, specComparison)
 {
@@ -167,7 +168,8 @@ TEST(Property, specComparison)
 }
 
 /// @test
-/// Checks property getters
+/// Builds a property that exposes the spec's name, description, type, category, tags, checked-set
+/// flag and transport mode through the getters.
 /// @requirements(SEN-355)
 TEST(Property, specCheck)
 {
@@ -184,7 +186,8 @@ TEST(Property, specCheck)
 }
 
 /// @test
-/// Checks creation of properties
+/// Builds a property from a valid spec, refuses a missing, non-lowerCamelCase or symbol-only
+/// name, and accepts out-of-range category and transport values and an empty tag list.
 /// @requirements(SEN-355)
 TEST(Property, make)
 {
@@ -245,7 +248,8 @@ TEST(Property, make)
 }
 
 /// @test
-/// Checks property instance comparison
+/// Compares built properties by value: two from the same spec are equal, and a changed name,
+/// description, type, transport mode, checked-set flag or tag list makes them unequal.
 /// @requirements(SEN-355)
 TEST(Property, comparison)
 {
@@ -335,7 +339,8 @@ TEST(Property, comparison)
 }
 
 /// @test
-/// Checks notification event of a property
+/// Derives the change notification event name, eventTest becomes eventTestChanged, and throws for
+/// an empty property name.
 /// @requirements(SEN-355)
 TEST(Property, event)
 {
@@ -356,7 +361,8 @@ TEST(Property, event)
 }
 
 /// @test
-/// Checks property getter comparison
+/// Derives the getter method name, eventGetter becomes getEventGetter, and throws for an empty
+/// property name.
 /// @requirements(SEN-355)
 TEST(Property, getter)
 {
@@ -376,7 +382,8 @@ TEST(Property, getter)
 }
 
 /// @test
-/// Checks property setter
+/// Derives the setter method name, eventSetter becomes setNextEventSetter, and throws for an
+/// empty property name.
 /// @requirements(SEN-355)
 TEST(Property, setter)
 {
@@ -402,7 +409,7 @@ TEST(Property, setter)
 }
 
 /// @test
-/// Checks rejection of void type property
+/// Refuses to build a property whose type is void.
 /// @requirements(SEN-355)
 TEST(Property, voidTypeProperty)
 {
@@ -412,7 +419,9 @@ TEST(Property, voidTypeProperty)
 }
 
 /// @test
-/// Checks the internal structure, arguments, and return types of the generated getter, setter, and event
+/// Generates the property's accessor trio: a constant getter with no arguments returning the
+/// property type, a non-constant setter taking one argument of that type and returning void, and
+/// a change event with no arguments, each named by the corresponding maker.
 /// @requirements(SEN-355)
 TEST(Property, internalGenerators)
 {

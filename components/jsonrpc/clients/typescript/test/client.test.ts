@@ -81,7 +81,7 @@ describe("Client lifecycle", () => {
     client.close();
   });
 
-  it("onDisconnect does NOT fire on explicit close()", async () => {
+  it("onDisconnect does not fire on an explicit close", async () => {
     const { client } = await makeConnectedClient();
     const disconnected = vi.fn();
     client.onDisconnect(disconnected);
@@ -113,7 +113,7 @@ describe("Client lifecycle", () => {
     client.close();
   });
 
-  it("reestablishAll() resolves (no-op in 4a, no state to replay yet)", async () => {
+  it("reestablishAll resolves when there is nothing to replay", async () => {
     const { client } = await makeConnectedClient();
     await expect(client.reestablishAll()).resolves.toBeUndefined();
     client.close();
@@ -121,7 +121,7 @@ describe("Client lifecycle", () => {
 });
 
 describe("Client.onTopologyChanged", () => {
-  it("first consumer triggers wire subscribeTopology; later consumers don't", async () => {
+  it("sends subscribeTopology for the first consumer only", async () => {
     const { client, socket } = await makeConnectedClient();
     socket.clearFrames();
 
@@ -142,7 +142,7 @@ describe("Client.onTopologyChanged", () => {
     client.close();
   });
 
-  it("delivers initial snapshot + later changes to all consumers; replays cache to new ones", async () => {
+  it("delivers topology changes to every consumer and replays the cached snapshot to a late subscriber", async () => {
     const { client, socket } = await makeConnectedClient();
 
     const h1 = vi.fn();
@@ -434,7 +434,7 @@ describe("Client.reestablishAll while transport not open", () => {
   });
 });
 
-describe("Client.reestablishAll single-flight + epoch idempotence + failure resync", () => {
+describe("Client.reestablishAll: coalescing, repeated calls, and failure recovery", () => {
   /** Connect with reconnect enabled, declare one interest, and settle it. */
   async function makeReconnectingClientWithInterest(errors: string[], autoReestablish: boolean) {
     const factory: WebSocketFactory = (url) => new MockWebSocket(url);
@@ -501,7 +501,7 @@ describe("Client.reestablishAll single-flight + epoch idempotence + failure resy
     client.close();
   });
 
-  it("re-declare rejected but interest alive server-side: resyncs from listObjects", async () => {
+  it("resyncs from listObjects when the re-declare is rejected but the interest is still alive server-side", async () => {
     const errors: string[] = [];
     const { client, interest } = await makeReconnectingClientWithInterest(errors, false);
     const added: string[] = [];
@@ -533,7 +533,7 @@ describe("Client.reestablishAll single-flight + epoch idempotence + failure resy
     client.close();
   });
 
-  it("re-declare rejected and interest gone server-side: surfaces the original error", async () => {
+  it("surfaces the original error when the re-declare is rejected and the interest is gone server-side", async () => {
     const errors: string[] = [];
     const { client, interest } = await makeReconnectingClientWithInterest(errors, false);
 
@@ -583,7 +583,7 @@ describe("Client.onNotificationsDropped", () => {
 
   // The server reports each backpressure window once and never repeats it, so a subscriber
   // that attaches afterwards would otherwise never learn that data was missed.
-  it("keeps the total readable by a handler attached after the drop", async () => {
+  it("keeps the running total readable after the drop", async () => {
     const { client, socket } = await makeConnectedClient();
     socket.simulateMessage({ jsonrpc: "2.0", method: "notificationsDropped", params: { count: 9 } });
     await tick();

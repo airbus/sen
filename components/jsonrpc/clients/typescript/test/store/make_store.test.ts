@@ -25,7 +25,7 @@ describe("makeStore", () => {
     expect(listener).toHaveBeenCalledTimes(1);
   });
 
-  it("setState with an updater function receives prev and applies its return", () => {
+  it("setState with an updater function receives the previous state and applies its return", () => {
     const store = makeStore({ count: 5 });
     store.setState((prev) => ({ count: prev.count + 1 }));
     expect(store.getState()).toEqual({ count: 6 });
@@ -46,7 +46,7 @@ describe("makeStore", () => {
     expect(store.getState()).toBe(initial);
   });
 
-  it("fires every subscribed listener on each non-no-op setState", () => {
+  it("fires every subscribed listener on each setState that changes the state", () => {
     const store = makeStore(0);
     const a = vi.fn();
     const b = vi.fn();

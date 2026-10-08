@@ -140,7 +140,8 @@ public:
 }  // namespace
 
 /// @test
-/// Check struct fields insertion and extraction to/from sen var maps
+/// Inserts struct fields into a VarMap under their key names with structFieldToVarMap and
+/// extracts them back with extractStructFieldFromMap, recovering each field value.
 /// @requirements(SEN-1053)
 TEST(IOUtils, Structs)
 {
@@ -169,7 +170,9 @@ TEST(IOUtils, Structs)
 }
 
 /// @test
-/// Check string split method works ok
+/// Splits a string on a character delimiter: a spaced sentence yields its five words, an absent
+/// or NUL delimiter yields the whole string as one piece, and matching is case-sensitive with
+/// empty pieces kept at the edges.
 /// @requirements(SEN-576)
 TEST(IOUtils, splitString)
 {
@@ -214,7 +217,8 @@ TEST(IOUtils, splitString)
 }
 
 /// @test
-/// Check sequence conversion to/from sen variant
+/// Converts a two-element float vector to a Var with sequenceToVariant and back with
+/// variantToSequence, recovering both elements.
 /// @requirements(SEN-1053)
 TEST(IOUtils, SequenceToFromVariant)
 {
@@ -230,7 +234,8 @@ TEST(IOUtils, SequenceToFromVariant)
 }
 
 /// @test
-/// Check array conversion to/from sen variant
+/// Writes a four-element float vector with writeArray and reads it back with readArray into a
+/// pre-sized vector, recovering equal contents.
 /// @requirements(SEN-1053)
 TEST(IOUtils, Array)
 {
@@ -255,7 +260,7 @@ TEST(IOUtils, Array)
 }
 
 /// @test
-/// Check reading/writing of sequences
+/// Writes a uint32 vector with writeSequence and reads an equal vector back with readSequence.
 /// @requirements(SEN-579)
 TEST(IOUtils, Sequence)
 {
@@ -278,7 +283,8 @@ TEST(IOUtils, Sequence)
 }
 
 /// @test
-/// Check reading/writing of multiple sequences
+/// Writes four float sequences back-to-back into one buffer and reads each back in order with
+/// readSequence, recovering every sequence intact.
 /// @requirements(SEN-579)
 TEST(IOUtils, MultipleSequences)
 {
@@ -310,7 +316,8 @@ TEST(IOUtils, MultipleSequences)
 }
 
 /// @test
-/// Check reading/writing of quantities
+/// Round-trips a ranged float quantity through writeQuantity and readQuantity, recovering an
+/// equal value.
 /// @requirements(SEN-1054)
 TEST(IOUtils, Quantities)
 {
@@ -333,7 +340,8 @@ TEST(IOUtils, Quantities)
 }
 
 /// @test
-/// Check reading/writing of enums
+/// Round-trips a uint8-backed and an int64-backed unscoped enum value through writeEnum and
+/// readEnum, recovering each enumerator.
 /// @requirements(SEN-902)
 TEST(IOUtils, Enums)
 {
@@ -377,7 +385,8 @@ TEST(IOUtils, Enums)
 }
 
 /// @test
-/// Check reading/writing of variants
+/// Reads back a uint32 written with SerializationTraits write through readVariantField,
+/// recovering the same value.
 /// @requirements(SEN-1053)
 TEST(IOUtils, Variants)
 {
@@ -400,7 +409,9 @@ TEST(IOUtils, Variants)
 }
 
 /// @test
-/// Check adaptVariant handles enum errors and useStrings flag
+/// Adapts enum Vars against an EnumType: a known enumerator string or key succeeds, an unknown
+/// string or key reports an error, and with useStrings set a valid key is rewritten to its
+/// enumerator name.
 /// @requirements(SEN-1053)
 TEST(IOUtils, AdaptVariantEnumErrors)
 {
@@ -438,7 +449,8 @@ TEST(IOUtils, AdaptVariantEnumErrors)
 }
 
 /// @test
-/// Check adaptVariant error handling for StructType formatting
+/// Reports an error from adaptVariant when a struct-typed Var is not a map and when the map
+/// lacks the declared field.
 /// @requirements(SEN-1053)
 TEST(IOUtils, AdaptVariantStructErrors)
 {
@@ -457,7 +469,9 @@ TEST(IOUtils, AdaptVariantStructErrors)
 }
 
 /// @test
-/// Check adaptVariant error handling for VariantType formatting
+/// Reports an error from adaptVariant for a variant-typed Var with an unknown KeyedVar key, a
+/// non-map value, a map missing its type or value entry, or an unknown type name or key, and
+/// succeeds for a map naming a valid alternative type.
 /// @requirements(SEN-1053)
 TEST(IOUtils, AdaptVariantVariantTypeErrors)
 {
@@ -510,7 +524,8 @@ TEST(IOUtils, AdaptVariantVariantTypeErrors)
 }
 
 /// @test
-/// Check adaptVariant error handling for SequenceType formatting
+/// Reports an error from adaptVariant when a sequence-typed Var is not a list, and succeeds for
+/// a VarList.
 /// @requirements(SEN-1053)
 TEST(IOUtils, AdaptVariantSequenceErrors)
 {
@@ -529,7 +544,8 @@ TEST(IOUtils, AdaptVariantSequenceErrors)
 }
 
 /// @test
-/// Check adaptVariant saturates quantities out of bounds
+/// Clamps out-of-range quantity Vars to the nearer bound while reporting an error from
+/// adaptVariant, and accepts an empty Var.
 /// @requirements(SEN-1053)
 TEST(IOUtils, AdaptVariantQuantitySaturation)
 {
@@ -563,7 +579,8 @@ TEST(IOUtils, AdaptVariantQuantitySaturation)
 }
 
 /// @test
-/// Check getSerializedSize handles native types and VoidType edge cases
+/// Computes getSerializedSize for an adapted Var of every native type, completing without
+/// throwing.
 /// @requirements(SEN-1053)
 TEST(IOUtils, SerializedSizeNativeAndEdgeCases)
 {
@@ -590,7 +607,8 @@ TEST(IOUtils, SerializedSizeNativeAndEdgeCases)
 }
 
 /// @test
-/// Check streams handling of VoidType
+/// Writes nothing to the stream for a VoidType Var, reads back an empty Var, and reports a
+/// serialized size of zero.
 /// @requirements(SEN-1053)
 TEST(IOUtils, VoidTypeStreamsAndSizes)
 {
@@ -613,7 +631,8 @@ TEST(IOUtils, VoidTypeStreamsAndSizes)
 }
 
 /// @test
-/// Check Variant matching via Qualified Name and handling of KeyedVar errors
+/// Matches a variant alternative by its qualified type name in adaptVariant, and reports an
+/// error for a KeyedVar whose key is not a declared alternative.
 /// @requirements(SEN-1053)
 TEST(IOUtils, VariantAdvancedLogic)
 {
@@ -638,7 +657,8 @@ TEST(IOUtils, VariantAdvancedLogic)
 }
 
 /// @test
-/// Check Recursive SerializedSize calculation for Structs, Sequences, and Duration
+/// Computes serialized sizes recursively: a one-uint32 struct is 4 bytes, a sequence of two such
+/// structs is 12 bytes with its length prefix, and a Duration sizes above zero.
 /// @requirements(SEN-1053)
 TEST(IOUtils, RecursiveSizeCalculation)
 {
@@ -662,7 +682,8 @@ TEST(IOUtils, RecursiveSizeCalculation)
 }
 
 /// @test
-/// Check adaptVariant behavior for VoidType and AliasType
+/// Accepts an empty Var against VoidType in adaptVariant and adapts a numeric Var through an
+/// AliasType to the aliased float32 representation.
 /// @requirements(SEN-1053)
 TEST(IOUtils, MetadataTypeEdgeCases)
 {
@@ -677,7 +698,8 @@ TEST(IOUtils, MetadataTypeEdgeCases)
 }
 
 /// @test
-/// Check StreamWriter handles monostate by writing default values
+/// Writes a default zero value when an empty Var is streamed as an Int32Type, leaving four bytes
+/// in the buffer with the first byte zero.
 /// @requirements(SEN-1053)
 TEST(IOUtils, StreamWriterDefaults)
 {
@@ -693,7 +715,8 @@ TEST(IOUtils, StreamWriterDefaults)
 }
 
 /// @test
-/// Check SerializedSize for Optional and Quantity types
+/// Reports a serialized size of two bytes for an engaged optional of a uint8 and four bytes for
+/// a float32 quantity.
 /// @requirements(SEN-1053)
 TEST(IOUtils, SizeOptionalAndQuantity)
 {
@@ -708,7 +731,8 @@ TEST(IOUtils, SizeOptionalAndQuantity)
 }
 
 /// @test
-/// Check ClassType rejections and unhandled visitors
+/// Throws from writeToStream, readFromStream, and getSerializedSize when the metadata type is a
+/// ClassType.
 /// @requirements(SEN-1053)
 TEST(IOUtils, ClassTypeUnhandled)
 {
@@ -731,7 +755,8 @@ TEST(IOUtils, ClassTypeUnhandled)
 }
 
 /// @test
-/// Check missing keys for Variant types in streams
+/// Throws from readFromStream when the stream carries a variant key that matches no declared
+/// alternative.
 /// @requirements(SEN-1053)
 TEST(IOUtils, VariantStreamBadKey)
 {
@@ -754,7 +779,8 @@ TEST(IOUtils, VariantStreamBadKey)
 }
 
 /// @test
-/// Check writing VarMap representation of variants into streams
+/// Writes a variant Var given in VarMap form with type and value entries, emitting the four-byte
+/// key and one-byte bool payload.
 /// @requirements(SEN-1053)
 TEST(IOUtils, VariantStreamMapWrite)
 {
@@ -777,7 +803,8 @@ TEST(IOUtils, VariantStreamMapWrite)
 }
 
 /// @test
-/// Check streams ignoring length prefix on fixed-size Sequences
+/// Omits the length prefix when streaming a fixed-size sequence, writing exactly the two payload
+/// bytes and reading back both elements.
 /// @requirements(SEN-1053)
 TEST(IOUtils, SequenceFixedSize)
 {
@@ -801,7 +828,8 @@ TEST(IOUtils, SequenceFixedSize)
 }
 
 /// @test
-/// Check sequence and struct adaptations with multiple errors to test error preservation
+/// Reports an error from adaptVariant when every quantity field of a struct and every element of
+/// a sequence is out of bounds.
 /// @requirements(SEN-1053)
 TEST(IOUtils, AdaptVariantMultipleErrors)
 {
@@ -832,7 +860,7 @@ TEST(IOUtils, AdaptVariantMultipleErrors)
 }
 
 /// @test
-/// Check StreamWriter correctly processes DurationType
+/// Writes a Duration Var through writeToStream with the DurationType, leaving a non-empty buffer.
 /// @requirements(SEN-1053)
 TEST(IOUtils, StreamWriterDuration)
 {
@@ -846,7 +874,8 @@ TEST(IOUtils, StreamWriterDuration)
 }
 
 /// @test
-/// Check SerializedSizeGetter processes Enum, Alias, and Variant with KeyedVar
+/// Reports serialized sizes through metadata: one byte for a uint8-backed enum, four for an
+/// aliased uint32, and a positive size for a variant holding a KeyedVar.
 /// @requirements(SEN-1053)
 TEST(IOUtils, SerializedSizeAdvancedTypes)
 {
@@ -870,7 +899,8 @@ TEST(IOUtils, SerializedSizeAdvancedTypes)
 }
 
 /// @test
-/// Check adaptVariant handles multiple errors in a bounded sequence
+/// Reports an error from adaptVariant when both elements of a bounded quantity sequence are out
+/// of bounds.
 /// @requirements(SEN-1053)
 TEST(IOUtils, AdaptVariantBoundedSequenceErrors)
 {
@@ -901,7 +931,8 @@ TEST(IOUtils, AdaptVariantBoundedSequenceErrors)
 }
 
 /// @test
-/// Check unhandled paths asserting in adaptVariant for base types
+/// Aborts when adaptVariant is handed a mock NumericType, IntegralType, or RealType outside the
+/// handled native set.
 /// @requirements(SEN-1053)
 TEST(IOUtils, BaseTypeUnhandledPaths_Death)
 {
@@ -916,7 +947,8 @@ TEST(IOUtils, BaseTypeUnhandledPaths_Death)
 }
 
 /// @test
-/// Check unhandled paths throwing runtime error in visitors for base types
+/// Throws from writeToStream, readFromStream, and getSerializedSize when handed mock base types
+/// outside the handled native set.
 /// @requirements(SEN-1053)
 TEST(IOUtils, BaseTypeUnhandledPaths_Throws)
 {
@@ -951,7 +983,8 @@ TEST(IOUtils, BaseTypeUnhandledPaths_Throws)
 }
 
 /// @test
-/// Check StreamWriter handles monostate for all native and time types
+/// Writes an empty Var through writeToStream for every native type plus DurationType and
+/// TimestampType without throwing.
 /// @requirements(SEN-1053)
 TEST(IOUtils, WriteNativeMonostateAllTypes)
 {
@@ -972,7 +1005,7 @@ TEST(IOUtils, WriteNativeMonostateAllTypes)
 }
 
 /// @test
-/// Check writeSequence explicitly handles size 0
+/// Writes only the four-byte length prefix when writeSequence receives an empty vector.
 /// @requirements(SEN-1053)
 TEST(IOUtils, EmptySequenceWrite)
 {
@@ -986,7 +1019,8 @@ TEST(IOUtils, EmptySequenceWrite)
 }
 
 /// @test
-/// Check that optional fields in structs are automatically initialized to monostate if missing
+/// Fills a missing optional struct field with monostate during adaptVariant, while a map missing
+/// the mandatory field reports an error.
 /// @requirements(SEN-1053)
 TEST(IOUtils, AdaptVariantOptionalStructFields)
 {
@@ -1010,7 +1044,8 @@ TEST(IOUtils, AdaptVariantOptionalStructFields)
 }
 
 /// @test
-/// Check adaptVariant handles empty maps and lists for optional types and maps
+/// Adapts empty maps and lists against optional types: for optional numerics and strings the Var
+/// becomes empty, while for an optional struct or sequence it keeps the map or list shape.
 /// @requirements(SEN-1053)
 TEST(IOUtils, AdaptVariantOptionalEmpty)
 {
@@ -1040,7 +1075,8 @@ TEST(IOUtils, AdaptVariantOptionalEmpty)
 }
 
 /// @test
-/// Check fallback conversions for non-optional using empty map/list
+/// Falls back during adaptVariant for non-optional types: an empty map becomes int32 zero or the
+/// string "{}", and an empty list becomes bool false.
 /// @requirements(SEN-1053)
 TEST(IOUtils, AdaptVariantFallback)
 {

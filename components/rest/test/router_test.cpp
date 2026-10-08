@@ -55,7 +55,8 @@ public:
 };
 
 /// @test
-/// Check REST API valid syntax routes
+/// Registers GET route patterns with static, underscored, and :param segments, then matches a concrete
+/// request path to every one of them.
 /// @requirements(SEN-1061)
 TEST(Rest, simple_routes)
 {
@@ -84,7 +85,8 @@ TEST(Rest, simple_routes)
 }
 
 /// @test
-/// Check REST API invalid syntax routes
+/// Any exception raised when registering a pattern that lacks the leading slash or contains a #
+/// character carries Invalid route path in its message.
 /// @requirements(SEN-1061)
 TEST(Rest, invalid_routes)
 {
@@ -110,7 +112,7 @@ TEST(Rest, invalid_routes)
 }
 
 /// @test
-/// Check REST API failing routes
+/// Returns an empty match, not an error, for GET paths that fit none of the registered routes.
 /// @requirements(SEN-1061)
 TEST(Rest, failing_routes)
 {
@@ -140,7 +142,8 @@ TEST(Rest, failing_routes)
 }
 
 /// @test
-/// Check REST API route with parameters
+/// Captures the concrete value of each :param segment into urlParams in path order, and leaves urlParams
+/// empty for a purely static route.
 /// @requirements(SEN-1061)
 TEST(Rest, router_url_params)
 {
@@ -174,7 +177,8 @@ TEST(Rest, router_url_params)
 }
 
 /// @test
-/// Check REST API route with special chars in path segments
+/// Registers and matches literal path segments containing underscore, dash, tilde, equals, semicolon,
+/// comma, and at characters, doubled for every one and singly for underscore and dash.
 /// @requirements(SEN-1061)
 TEST(Rest, router_url_params_special_path_segments)
 {
@@ -206,7 +210,8 @@ TEST(Rest, router_url_params_special_path_segments)
 }
 
 /// @test
-/// Check Rest API route with query params
+/// Parses the query string of a matched path into a key-value map, empty for a bare or absent question
+/// mark and holding every pair when several are joined with ampersands.
 TEST(Rest, router_query_params)
 {
   std::vector<std::string> routes {"/test", "/test/:id"};
@@ -243,7 +248,8 @@ TEST(Rest, router_query_params)
 }
 
 /// @test
-/// Check Rest API invalid query params
+/// Returns an error from matchPath for malformed query strings such as a key without a value, an empty
+/// key, a doubled equals sign, or stray ampersands.
 TEST(Rest, failing_query_params)
 {
   const std::string route = "/test";

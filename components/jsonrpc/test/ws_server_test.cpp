@@ -70,8 +70,8 @@ bool waitForNonConnectMessage(InboundQueue& queue, InboundMessage& out)
 }  // namespace
 
 /// @test
-/// A text frame received by the server lands on the inbound queue, tagged with a non-zero
-/// connection id and the unmodified payload.
+/// Pushes a received text frame onto the inbound queue tagged with a non-zero connection id
+/// and the unmodified payload.
 TEST(WebSocketServer, pushesInboundOnTextFrame)
 {
   InboundQueue inboundQueue;
@@ -94,8 +94,8 @@ TEST(WebSocketServer, pushesInboundOnTextFrame)
 }
 
 /// @test
-/// Sending a binary frame closes the connection (1003 Unsupported Data) and produces a
-/// `ClientDisconnected` on the inbound queue. No `std::string` payload reaches the dispatcher.
+/// Closes the connection when a client sends a binary frame, producing a ClientDisconnected on
+/// the inbound queue with no text payload ever reaching the dispatcher.
 TEST(WebSocketServer, binaryFrameClosesConnection)
 {
   InboundQueue inboundQueue;
@@ -116,8 +116,8 @@ TEST(WebSocketServer, binaryFrameClosesConnection)
 }
 
 /// @test
-/// Closing a connection produces a ClientDisconnected on the inbound queue with the same
-/// connection id that was tagged on the open.
+/// Pushes a ClientDisconnected onto the inbound queue when the client closes, carrying the
+/// same connection id the client's earlier traffic was tagged with.
 TEST(WebSocketServer, pushesClientDisconnectedOnClose)
 {
   InboundQueue inboundQueue;
@@ -143,7 +143,8 @@ TEST(WebSocketServer, pushesClientDisconnectedOnClose)
 }
 
 /// @test
-/// A message pushed to the outbound queue is delivered to the right client after notifyOutbound().
+/// Delivers a message enqueued on the outbound queue to the client addressed by its connection
+/// id once notifyOutbound is called.
 TEST(WebSocketServer, deliversOutboundOnNotify)
 {
   InboundQueue inboundQueue;
@@ -169,7 +170,8 @@ TEST(WebSocketServer, deliversOutboundOnNotify)
 }
 
 /// @test
-/// Outbound messages addressed to a connection that has already gone away are dropped silently.
+/// Drops an outbound message addressed to a connection id that does not exist, surviving the
+/// notify without a crash.
 TEST(WebSocketServer, dropsOutboundForUnknownConnection)
 {
   InboundQueue inboundQueue;
@@ -185,7 +187,7 @@ TEST(WebSocketServer, dropsOutboundForUnknownConnection)
 }
 
 /// @test
-/// Destruction returns promptly even when a client is still connected.
+/// Returns promptly from destruction even while a client is still connected.
 TEST(WebSocketServer, destroyClosesLiveConnections)
 {
   InboundQueue inboundQueue;
@@ -201,8 +203,9 @@ TEST(WebSocketServer, destroyClosesLiveConnections)
 }
 
 /// @test
-/// `make()` rejects a `ConnectionLimits` where `highBackpressureBytes >= maxBackpressureBytes`:
-/// the soft trigger must fire before the hard ceiling or the application-level signal is dead.
+/// Refuses to construct when the connection limits set highBackpressureBytes at or above
+/// maxBackpressureBytes, naming the offending field in the error, since the soft trigger must
+/// fire before the hard ceiling.
 TEST(WebSocketServer, makeRejectsBackpressureLimitsInversion)
 {
   InboundQueue inboundQueue;
@@ -216,7 +219,7 @@ TEST(WebSocketServer, makeRejectsBackpressureLimitsInversion)
 }
 
 /// @test
-/// Binding a port that is already in use returns an Err describing the failure.
+/// Reports an error naming the failed bind when the requested port is already in use.
 TEST(WebSocketServer, makeReportsBindFailure)
 {
   InboundQueue inboundQueue;
@@ -232,8 +235,8 @@ TEST(WebSocketServer, makeReportsBindFailure)
 }
 
 /// @test
-/// `NoAuth` produces `ClientConnected{identity:"anonymous"}` on every accepted upgrade. The
-/// upgrade callback runs the authenticator and the resulting Identity rides the inbound queue.
+/// Emits a ClientConnected carrying the anonymous identity and a non-zero connection id on an
+/// upgrade accepted under the NoAuth authenticator.
 TEST(WebSocketServer, emitsClientConnectedWithAnonymousIdentityUnderNoAuth)
 {
   InboundQueue inboundQueue;
@@ -270,8 +273,8 @@ public:
 }  // namespace
 
 /// @test
-/// A denying authenticator blocks the upgrade: nothing lands on the inbound queue. uWS responds
-/// 401 without promoting the connection to a WebSocket.
+/// Blocks the upgrade when the authenticator denies the connection, so nothing from that
+/// client ever lands on the inbound queue.
 TEST(WebSocketServer, rejectingAuthenticatorBlocksUpgrade)
 {
   InboundQueue inboundQueue;

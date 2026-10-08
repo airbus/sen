@@ -197,7 +197,8 @@ struct PublicNativeObject final: example_class::ExampleClassBase
 }  // namespace
 
 /// @test
-/// Verifies the default implementations of virtual pipeline hooks and type conversion inside NativeObject
+/// Defaults needsPreDrainOrPreCommit to false, runs preDrain and preCommit as no-ops, and returns
+/// itself from asNativeObject.
 /// @requirements(SEN-351)
 TEST(NativeObject, DefaultVirtualMethods)
 {
@@ -216,7 +217,7 @@ TEST(NativeObject, DefaultVirtualMethods)
 }
 
 /// @test
-/// Confirms the registration time can be correctly set and retrieved by the execution environment
+/// Stores the registration time set through the kernel-side accessor and returns it unchanged.
 /// @requirements(SEN-351)
 TEST(NativeObject, RegistrationTime)
 {
@@ -227,7 +228,8 @@ TEST(NativeObject, RegistrationTime)
 }
 
 /// @test
-/// Validates untyped property change bindings attach properly and trigger on execution
+/// Invokes an untyped property-changed subscription after the property is set and committed and
+/// the work queue runs.
 /// @requirements(SEN-574)
 TEST(NativeObject, OnPropertyChangedUntyped)
 {
@@ -253,7 +255,8 @@ TEST(NativeObject, OnPropertyChangedUntyped)
 }
 
 /// @test
-/// Verifies that untyped event subscriptions securely bind and resolve upon correct payload dispatch
+/// Invokes an untyped event subscription when the subscribed event is emitted and the work queue
+/// runs.
 /// @requirements(SEN-574)
 TEST(NativeObject, UntypedEventSubscription)
 {
@@ -277,7 +280,8 @@ TEST(NativeObject, UntypedEventSubscription)
 }
 
 /// @test
-/// Validates that an untyped connection drops its routing callback faithfully when out of scope
+/// Stops invoking an untyped property-changed callback once its connection guard goes out of
+/// scope.
 /// @requirements(SEN-574)
 TEST(NativeObject, UntypedConnectionRemoval)
 {
@@ -304,7 +308,7 @@ TEST(NativeObject, UntypedConnectionRemoval)
 }
 
 /// @test
-/// Ensures passing an invalidated callback safely aborts connection and maintains clean state
+/// Survives subscribing to property changes with a default-constructed, invalid callback.
 /// @requirements(SEN-574)
 TEST(NativeObject, InvalidatedCallbackConnection)
 {
@@ -318,7 +322,7 @@ TEST(NativeObject, InvalidatedCallbackConnection)
 }
 
 /// @test
-/// Ensures that an invalidated callback on untyped event subscriptions safely exits early
+/// Survives subscribing to an untyped event with a default-constructed, invalid callback.
 /// @requirements(SEN-574)
 TEST(NativeObject, InvalidatedCallbackConnectionEvent)
 {
@@ -332,7 +336,8 @@ TEST(NativeObject, InvalidatedCallbackConnectionEvent)
 }
 
 /// @test
-/// Confirms runtime untyped reads and writes adapt cleanly into native internal structures
+/// Reads back an untyped property write through getNextPropertyUntyped, and through
+/// getPropertyUntyped after a commit.
 /// @requirements(SEN-351)
 TEST(NativeObject, UntypedPropertyGetSet)
 {
@@ -347,8 +352,8 @@ TEST(NativeObject, UntypedPropertyGetSet)
 }
 
 /// @test
-/// Ensures async calls gracefully short-circuit and return an error if the host object is destroyed
-/// before the queued work gets executed
+/// Reports an error to the callback when the target object is destroyed before its queued untyped
+/// invocation executes.
 /// @requirements(SEN-351)
 TEST(NativeObject, AsyncCallObjectDestroyed)
 {
@@ -375,7 +380,8 @@ TEST(NativeObject, AsyncCallObjectDestroyed)
 }
 
 /// @test
-/// Ensures non-const async calls gracefully short-circuit if host object is destroyed
+/// Reports an error to the callback when the object behind a queued void-returning async call is
+/// destroyed before the queue runs.
 /// @requirements(SEN-351)
 TEST(NativeObject, AsyncCallNonConstObjectDestroyed)
 {
@@ -400,7 +406,8 @@ TEST(NativeObject, AsyncCallNonConstObjectDestroyed)
 }
 
 /// @test
-/// Ensures const async calls effectively cancel execution when the parent proxy context has been destroyed
+/// Reports an error to the callback when the object behind a queued const int-returning async call
+/// is destroyed before the queue runs.
 /// @requirements(SEN-351)
 TEST(NativeObject, AsyncCallObjectDestroyedConst)
 {
@@ -425,7 +432,8 @@ TEST(NativeObject, AsyncCallObjectDestroyedConst)
 }
 
 /// @test
-/// Ensures template async calls gracefully short-circuit if host object is destroyed
+/// Reports an error to the callback when the object behind a queued Duration-returning async call
+/// is destroyed before the queue runs.
 /// @requirements(SEN-351)
 TEST(NativeObject, AsyncCallTemplateObjectDestroyed)
 {
@@ -451,7 +459,8 @@ TEST(NativeObject, AsyncCallTemplateObjectDestroyed)
 }
 
 /// @test
-/// Ensures deferred async calls gracefully short-circuit if host object is destroyed
+/// Reports an error to the callback when the object behind a queued deferred async call is
+/// destroyed before the queue runs.
 /// @requirements(SEN-351)
 TEST(NativeObject, DeferredCallObjectDestroyed)
 {
@@ -476,7 +485,8 @@ TEST(NativeObject, DeferredCallObjectDestroyed)
 }
 
 /// @test
-/// Verifies const asynchronous method calls execute successfully when object is alive
+/// Delivers the return value 100 to the callback when a const async call runs with the object
+/// still alive.
 /// @requirements(SEN-351)
 TEST(NativeObject, AsyncCallConstSuccess)
 {
@@ -505,7 +515,8 @@ TEST(NativeObject, AsyncCallConstSuccess)
 }
 
 /// @test
-/// Confirms methods natively returning non-void standard values invoke back effectively
+/// Delivers the Duration return value of an async call to the method callback once the work queue
+/// runs.
 /// @requirements(SEN-351)
 TEST(NativeObject, ExecuteCallWithArgsNonVoid)
 {
@@ -531,7 +542,8 @@ TEST(NativeObject, ExecuteCallWithArgsNonVoid)
 }
 
 /// @test
-/// Confirms exceptions thrown from natively executed methods are safely caught and bubbled up as errors
+/// Converts exceptions thrown by const and non-const async methods into error results on their
+/// callbacks.
 /// @requirements(SEN-351)
 TEST(NativeObject, ExecuteCallWithArgsException)
 {
@@ -559,7 +571,8 @@ TEST(NativeObject, ExecuteCallWithArgsException)
 }
 
 /// @test
-/// Confirms exceptions thrown from natively executed non-void methods are safely caught and bubbled up as errors
+/// Converts an exception thrown by a value-returning async method into an error result on the
+/// callback.
 /// @requirements(SEN-351)
 TEST(NativeObject, ExecuteCallWithArgsNonVoidException)
 {
@@ -581,7 +594,8 @@ TEST(NativeObject, ExecuteCallWithArgsNonVoidException)
 }
 
 /// @test
-/// Verifies deferred async calls appropriately handle immediate exceptions, void resolutions, and future polling
+/// Resolves deferred async calls through their promises, a void call completes, a value call
+/// delivers 42, and an immediately throwing call reports an error.
 /// @requirements(SEN-351)
 TEST(NativeObject, DeferredCalls)
 {
@@ -619,7 +633,8 @@ TEST(NativeObject, DeferredCalls)
 }
 
 /// @test
-/// Verifies variant calls accurately catch parameter exceptions (e.g., out of range or bad conversion)
+/// Reports an error from invokeUntyped both for a missing argument and for an argument of the
+/// wrong type.
 /// @requirements(SEN-351)
 TEST(NativeObject, VariantCallCatchesExceptions)
 {
@@ -650,7 +665,8 @@ TEST(NativeObject, VariantCallCatchesExceptions)
 }
 
 /// @test
-/// Validates that variant calls gracefully catch std::runtime_error and forward it to the callback
+/// Catches a runtime error thrown inside the variant-call forwarder and reports it as an error
+/// result to the callback.
 /// @requirements(SEN-351)
 TEST(NativeObject, VariantCallCatchesRuntimeError)
 {
@@ -673,7 +689,8 @@ TEST(NativeObject, VariantCallCatchesRuntimeError)
 }
 
 /// @test
-/// Evaluates robust VarMap parsing with success, fallback defaults, and validation bounds
+/// Reads typed values out of a VarMap, tryGetFromMap keeps the fallback on a missing key while
+/// getFromMap throws, and validators run only when the key is present.
 /// @requirements(SEN-351)
 TEST(NativeObjectImpl, MapHelpers)
 {
@@ -708,7 +725,8 @@ TEST(NativeObjectImpl, MapHelpers)
 }
 
 /// @test
-/// Validates proper handling of constructor parameters using VarMap and tryGetFromMap/getFromMap templates
+/// Initializes properties from a VarMap passed to the constructor and leaves the map readable
+/// through getFromMap afterwards.
 /// @requirements(SEN-351)
 TEST(NativeObject, ConstructorWithVarMap)
 {
@@ -728,7 +746,8 @@ TEST(NativeObject, ConstructorWithVarMap)
 }
 
 /// @test
-/// Validates inline template wrappers for converting Variants to OutputStreams and back
+/// Round-trips string, TimeStamp, and Duration variants through variantToStream and
+/// variantFromStream.
 /// @requirements(SEN-351)
 TEST(NativeObjectImpl, VariantStreamHelpers)
 {
@@ -757,7 +776,8 @@ TEST(NativeObjectImpl, VariantStreamHelpers)
 }
 
 /// @test
-/// Validates inline template wrappers for explicitly invoking stream deserialization without variant overhead
+/// Reads a plain uint32 value back from a stream through fromStream without going through a
+/// variant.
 /// @requirements(SEN-351)
 TEST(NativeObjectImpl, RawStreamHelpers)
 {
@@ -774,7 +794,7 @@ TEST(NativeObjectImpl, RawStreamHelpers)
 }
 
 /// @test
-/// Ensures writePropertyIfChanged correctly skips unchanged properties and evaluates reliably
+/// Skips the stream write for an unchanged property and writes it once its flags mark a change.
 /// @requirements(SEN-351)
 TEST(NativeObjectImpl, WritePropertyIfChangedStreamHelper)
 {
@@ -796,7 +816,8 @@ TEST(NativeObjectImpl, WritePropertyIfChangedStreamHelper)
 }
 
 /// @test
-/// Verifies that BufferProviders are correctly invoked when changed properties are written to streams
+/// Invokes the buffer provider only when the property is marked changed, shown by a throwing
+/// provider that fires only after the flags advance.
 /// @requirements(SEN-351)
 TEST(NativeObjectImpl, WriteChangedPropertiesToStreamBufferProvider)
 {
@@ -816,7 +837,7 @@ TEST(NativeObjectImpl, WriteChangedPropertiesToStreamBufferProvider)
 }
 
 /// @test
-/// Ensures that creating an object with an empty name fails securely and throws a runtime error
+/// Throws when constructing an object with an empty name.
 /// @requirements(SEN-351)
 TEST(NativeObject, EmptyNameThrowsError)
 {
@@ -824,7 +845,7 @@ TEST(NativeObject, EmptyNameThrowsError)
 }
 
 /// @test
-/// Ensures that creating an object with a name containing spaces fails securely and throws a runtime error
+/// Throws when constructing an object whose name contains a space.
 /// @requirements(SEN-351)
 TEST(NativeObject, NameWithSpacesThrowsError)
 {
@@ -832,7 +853,8 @@ TEST(NativeObject, NameWithSpacesThrowsError)
 }
 
 /// @test
-/// Verifies the internal helper accurately delegates streaming to the polymorphic instance
+/// Writes a committed object's properties to the stream through the writeAllPropertiesToStream
+/// helper, leaving the buffer non-empty.
 /// @requirements(SEN-351)
 TEST(NativeObject, WriteAllPropertiesToStreamDelegation)
 {

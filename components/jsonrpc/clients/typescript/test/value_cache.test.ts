@@ -163,7 +163,7 @@ describe("ObjectHandle.get -- value cache", () => {
     client.close();
   });
 
-  it("{ fresh: true } forces a wire round-trip even when cached", async () => {
+  it("the fresh option forces a wire round-trip even when cached", async () => {
     const { client, socket, interest } = await setup();
     addObject(socket, /* withCurrentValues */ true);
     const obj = interest.objectByName("a1")!;
@@ -183,7 +183,7 @@ describe("ObjectHandle.get -- value cache", () => {
     client.close();
   });
 
-  it("set() invalidates the cache; subsequent get() falls through to wire", async () => {
+  it("set invalidates the cache so the next get falls through to the wire", async () => {
     const { client, socket, interest } = await setup();
     addObject(socket, /* withCurrentValues */ true);
     const obj = interest.objectByName("a1")!;

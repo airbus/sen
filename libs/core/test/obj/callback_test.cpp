@@ -65,7 +65,8 @@ void setCounter(const uint64_t value) { counter = value; }
 void setCustomQualifiedName(const std::string& prefix, std::string& name) { name.insert(0, prefix + "."); }
 
 /// @test
-/// Check constructor with explicit queue and plain function
+/// Builds a callback from an explicit work queue and a free function, the callback reports
+/// valid and the same queue, and invoke runs the function with the passed value.
 /// @requirements(SEN-355)
 TEST(Callback, queuePlainFunctionConstructor)
 {
@@ -83,7 +84,9 @@ TEST(Callback, queuePlainFunctionConstructor)
 }
 
 /// @test
-/// Check constructor with explicit queue and function with meta information
+/// Builds a callback on an explicit work queue around a two-argument function with a reference
+/// parameter, invoke forwards both arguments and the function's change to the referenced
+/// string is visible to the caller.
 /// @requirements(SEN-355)
 TEST(Callback, queueMetaInfoFuncConstructor)
 {
@@ -100,7 +103,8 @@ TEST(Callback, queueMetaInfoFuncConstructor)
 }
 
 /// @test
-/// Check constructor with queue from object and plain function
+/// Builds a callback taking its work queue from a Sen object and wrapping a free function,
+/// the callback reports valid and invoke runs the function with the passed value.
 /// @requirements(SEN-355)
 TEST(Callback, objPlainFunctionConstructor)
 {
@@ -118,7 +122,9 @@ TEST(Callback, objPlainFunctionConstructor)
 }
 
 /// @test
-/// Check constructor with queue from object and function with meta information
+/// Builds a callback taking its work queue from a Sen object around a two-argument function
+/// with a reference parameter, invoke forwards the arguments and the referenced string shows
+/// the change.
 /// @requirements(SEN-355)
 TEST(Callback, objMetaInfoFuncConstructor)
 {
@@ -136,7 +142,8 @@ TEST(Callback, objMetaInfoFuncConstructor)
 }
 
 /// @test
-/// Check cancellation using the cancel() method
+/// Invokes the wrapped function while the callback is valid and stops after
+/// lock().invalidate(), the callback then reports invalid and invoke becomes a no-op.
 /// @requirements(SEN-355)
 TEST(Callback, cancelCheck)
 {
@@ -160,7 +167,8 @@ TEST(Callback, cancelCheck)
 }
 
 /// @test
-/// Check cancellation by deleting the receiver object
+/// Invalidates the callback when the receiver object is destroyed, isValid turns false and
+/// invoke no longer runs the wrapped function.
 /// @requirements(SEN-355)
 TEST(Callback, deletedReceiverCheck)
 {

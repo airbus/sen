@@ -90,7 +90,8 @@ void checkInvalidSpec(const StructSpec& spec) { EXPECT_THROW(std::ignore = Struc
 }  // namespace
 
 /// @test
-/// Checks struct field comparison
+/// Equates two struct fields only when name, description, and type all match. A difference in
+/// any one of them compares unequal.
 /// @requirements(SEN-579)
 TEST(StructType, field)
 {
@@ -129,7 +130,9 @@ TEST(StructType, field)
 }
 
 /// @test
-/// Checks struct spec comparison
+/// Equates two struct specs only when name, qualified name, description, field list, and parent
+/// chain all match. A difference in any of these, including a field changed two inheritance
+/// levels up, compares unequal.
 /// @requirements(SEN-579)
 TEST(StructSpec, specComparison)
 {
@@ -244,7 +247,8 @@ TEST(StructSpec, specComparison)
 }
 
 /// @test
-/// Checks struct instance type
+/// Answers true from isCustomType and isStructType on a struct type, and false from isBounded
+/// and every other type predicate sampled, from isNativeType to isAliasType.
 /// @requirements(SEN-579)
 TEST(StructType, basicsBoolConversion)
 {
@@ -280,7 +284,8 @@ TEST(StructType, basicsBoolConversion)
 }
 
 /// @test
-/// Checks struct instance type
+/// Returns non-null from asCustomType and asStructType on a struct type and null from every
+/// other as-conversion sampled, from asNativeType to asAliasType.
 /// @requirements(SEN-579)
 TEST(StructType, basicsConversion)
 {
@@ -316,7 +321,8 @@ TEST(StructType, basicsConversion)
 }
 
 /// @test
-/// Checks correct struct instance creation
+/// Builds a struct type from a valid spec and exposes the spec's name, qualified name,
+/// description, and fields unchanged.
 /// @requirements(SEN-579)
 TEST(StructType, makeBasic)
 {
@@ -326,7 +332,9 @@ TEST(StructType, makeBasic)
 }
 
 /// @test
-/// Checks invalid struct creation
+/// Refuses to build a struct type from an invalid spec. Empty or malformed names, an empty
+/// qualified name, duplicate, malformed, or empty field names, and a field name already present
+/// in the parent chain, even two levels up, all throw.
 /// @requirements(SEN-579)
 TEST(StructType, makeInvalid)
 {
@@ -457,7 +465,9 @@ TEST(StructType, makeInvalid)
 }
 
 /// @test
-/// Checks struct instance comparison
+/// Equates struct type instances built from the same spec, including deep parent chains, and
+/// distinguishes instances differing in name, qualified name, description, fields, or anywhere
+/// in the parent chain. A struct type never equals any native type.
 /// @requirements(SEN-579)
 TEST(StructType, comparison)
 {
@@ -655,7 +665,9 @@ TEST(StructType, comparison)
 }
 
 /// @test
-/// Checks local field getter
+/// Finds every declared field by name through getFieldFromName and returns null for unknown or
+/// empty names. A child with no local fields reports an empty getFields yet still resolves its
+/// parent's fields by name.
 /// @requirements(SEN-579)
 TEST(StructType, getFieldFromLocal)
 {
@@ -702,7 +714,8 @@ TEST(StructType, getFieldFromLocal)
 }
 
 /// @test
-/// Checks parent field getter
+/// Resolves a parent's fields by name from the child type while getFields on the child lists
+/// only its own fields, and the parent returns null for the child's field names.
 /// @requirements(SEN-579)
 TEST(StructType, getFieldFromParent)
 {

@@ -93,7 +93,10 @@ static void corruptFile(const std::filesystem::path& filePath)
 }
 
 /// @test
-/// Open a recording with one keyframe
+/// Opens a recorded archive and exercises the whole read surface: the summary counts two
+/// keyframes and one object, the entry cursor walks at least three entries, keyframe indexes
+/// resolve by time and position a cursor, the one indexed object yields a per-object cursor,
+/// and the annotation cursor comes back empty.
 /// @requirements(SEN-364)
 TEST(InputTest, OpenRecordingWithOneKeyframe)
 {
@@ -202,7 +205,7 @@ TEST(InputTest, OpenRecordingWithOneKeyframe)
 }
 
 /// @test
-/// Open a recording with multiple keyframes and reads the summary
+/// Reports in the summary exactly the three keyframes written to the archive.
 /// @requirements(SEN-364)
 TEST(InputTest, OpenRecordingWithKeyframes)
 {
@@ -234,7 +237,8 @@ TEST(InputTest, OpenRecordingWithKeyframes)
 }
 
 /// @test
-/// Iterate through entries in a recording using cursor
+/// Starts the entry cursor in its beginning state and advances it across the recording until
+/// atEnd reports true.
 /// @requirements(SEN-364)
 TEST(InputTest, CanIterateThroughEntries)
 {
@@ -276,7 +280,8 @@ TEST(InputTest, CanIterateThroughEntries)
 }
 
 /// @test
-/// Handles truncated runtime gracefully
+/// Opens and iterates to the end of an archive whose runtime file lost its final 20 bytes,
+/// without throwing.
 /// @requirements(SEN-364)
 TEST(InputTest, TruncatedRuntimeHandledGracefully)
 {
@@ -324,7 +329,8 @@ TEST(InputTest, TruncatedRuntimeHandledGracefully)
 }
 
 /// @test
-/// Verifies that a truncated runtime file triggers EOF handling
+/// Reads a runtime file truncated one byte short without throwing, returning nine of the ten
+/// written keyframes and dropping only the entry the cut landed in.
 /// @requirements(SEN-364)
 TEST(InputTest, TruncatedRuntime_EOFProducesFewerEntries)
 {
@@ -377,7 +383,8 @@ TEST(InputTest, TruncatedRuntime_EOFProducesFewerEntries)
 }
 
 /// @test
-/// Add an annotation to an existing archive and read it back
+/// Appends an annotation to an archive recorded without any, so a reopened Input counts
+/// exactly one annotation entry.
 /// @requirements(SEN-364)
 TEST(InputTest, AppendAndReadAnnotations)
 {
@@ -434,7 +441,8 @@ TEST(InputTest, AppendAndReadAnnotations)
 }
 
 /// @test
-/// Verify indexed keys and retrieving particular Object cursors
+/// Retrieves both keyframe indexes, finds one by time, positions a cursor at a chosen
+/// keyframe, and opens a per-object cursor from the single indexed object definition.
 /// @requirements(SEN-364)
 TEST(InputTest, RetrieveIndexedObjectsAndKeyframes)
 {
@@ -499,7 +507,7 @@ TEST(InputTest, RetrieveIndexedObjectsAndKeyframes)
 }
 
 /// @test
-/// Verify opening an invalid archive path throws exception
+/// Throws when constructed on an archive path that does not exist.
 /// @requirements(SEN-364)
 TEST(InputTest, OpenNonExistentArchive)
 {
@@ -508,7 +516,7 @@ TEST(InputTest, OpenNonExistentArchive)
 }
 
 /// @test
-/// Verify opening an empty data file throws exception
+/// Throws when constructed on an archive whose runtime data file is empty.
 /// @requirements(SEN-364)
 TEST(InputTest, OpenArchiveWithEmptyFile)
 {
@@ -583,7 +591,8 @@ TEST(InputTest, CorruptTypesFile)
 }
 
 /// @test
-/// Opening an archive whose indexes file is corrupt is refused.
+/// Opens an archive whose indexes file is corrupt, deferring the refusal until the indexes are
+/// asked for: getAllKeyframeIndexes throws.
 /// @requirements(SEN-364)
 TEST(InputTest, CorruptIndexesFile)
 {
@@ -598,7 +607,8 @@ TEST(InputTest, CorruptIndexesFile)
 }
 
 /// @test
-/// Verify all summary fields are correct
+/// Fills every summary field from a recording, pinning the first and last times, four
+/// keyframes, one object, zero types, one annotation, and one indexed object.
 TEST(InputTest, Summary)
 {
   TempDir tempDir;
@@ -887,7 +897,7 @@ static const std::array<std::string_view, 5> archiveFileNames {runtimeFileName,
 /// One truncation at one offset in one file says little: a reader that walks off the end does it at a
 /// particular offset in a particular parser, and each of these five files has its own. The contract is
 /// deliberately loose about *which* of read-or-refuse happens, because both are defensible for a
-/// half-written entry; what it pins is that a shorter file never produces more entries, so a length
+/// half-written entry. What it pins is that a shorter file never produces more entries, so a length
 /// read out of truncated bytes cannot become a count.
 ///
 /// Its force comes from the nightly sanitizer lanes, which run this suite under the address sanitizer:
@@ -955,7 +965,7 @@ TEST(InputTest, EveryPrefixOfEveryArchiveFileIsReadOrRefused)
 /// than the whole archive does.
 ///
 /// Truncation only ever removes. This changes bytes in place, which is how a length or a count field
-/// comes to claim more than the file holds — the shape that walks a reader past the end rather than
+/// comes to claim more than the file holds -- the shape that walks a reader past the end rather than
 /// stopping it short.
 TEST(InputTest, ASingleFlippedByteIsReadOrRefused)
 {

@@ -131,7 +131,7 @@ describe("ObjectHandle.onPropertyChanged -- wire-side coordination", () => {
     client.close();
   });
 
-  it("multi-consumer fan-out: one wire subscribe; both handlers fire on propertyChanged", async () => {
+  it("sends one wire subscribe for two consumers and fires both handlers on propertyChanged", async () => {
     const { client, socket, obj } = await setup();
 
     const a = vi.fn();
@@ -162,7 +162,7 @@ describe("ObjectHandle.onPropertyChanged -- wire-side coordination", () => {
     client.close();
   });
 
-  it("idempotent cancel: same cancel called twice doesn't unsubscribe twice", async () => {
+  it("calling the same cancel twice does not unsubscribe twice", async () => {
     const { client, socket, obj } = await setup();
     const cancel = obj.onPropertyChanged("altitude", vi.fn());
     await tick();
@@ -220,7 +220,7 @@ describe("ObjectHandle.onPropertyChanged -- wire-side coordination", () => {
     client.close();
   });
 
-  it("multiple properties: each gets its own wire subscribe and dispatch", async () => {
+  it("each subscribed property gets its own wire subscribe and dispatch", async () => {
     const { client, socket, obj } = await setup();
     const altHandler = vi.fn();
     const labelHandler = vi.fn();
@@ -296,7 +296,7 @@ describe("ObjectHandle.onPropertyChanged -- value cache freshness", () => {
     client.close();
   });
 
-  it("subscribeAll keeps the per-property cache alive across per-property unsub+resub", async () => {
+  it("subscribeAll keeps the per-property cache alive across a property unsubscribe and resubscribe", async () => {
     const { client, socket, obj } = await setup();
 
     // onAnyChange keeps a wire subscribeAll active, which keeps valueCache fresh even while
@@ -334,7 +334,7 @@ describe("ObjectHandle.onPropertyChanged -- value cache freshness", () => {
 });
 
 describe("ObjectHandle.onEventTriggered -- wire-side coordination", () => {
-  it("issues subscribeEvent + unsubscribeEvent with idempotent cancel", async () => {
+  it("issues subscribeEvent and unsubscribeEvent with an idempotent cancel", async () => {
     const { client, socket, obj } = await setup();
     const cancel = obj.onEventTriggered("landed", vi.fn());
     await tick();
@@ -348,7 +348,7 @@ describe("ObjectHandle.onEventTriggered -- wire-side coordination", () => {
     client.close();
   });
 
-  it("fan-out: dispatch parses argsJson against the event's arg types", async () => {
+  it("parses argsJson against the event's arg types and fans out to every handler", async () => {
     const { client, socket, obj } = await setup();
     const a = vi.fn();
     const b = vi.fn();
@@ -455,7 +455,7 @@ describe("ObjectHandle.onEventTriggered -- wire-side coordination", () => {
 });
 
 describe("Subscription stickiness across object remove/add", () => {
-  it("a returning object replays the wire subscribe; the handler still fires", async () => {
+  it("a returning object replays the wire subscribe and the handler still fires", async () => {
     const { client, socket, interest, obj } = await setup();
 
     const handler = vi.fn();
@@ -510,7 +510,7 @@ describe("Subscription stickiness across object remove/add", () => {
 });
 
 describe("ObjectHandle.onAnyChange", () => {
-  it("first consumer triggers wire subscribeAll; last cancel triggers unsubscribeAll", async () => {
+  it("the first consumer triggers subscribeAll and the last cancel triggers unsubscribeAll", async () => {
     const { client, socket, obj } = await setup();
     const cancel = obj.onAnyChange(vi.fn());
     await tick();
@@ -525,7 +525,7 @@ describe("ObjectHandle.onAnyChange", () => {
     client.close();
   });
 
-  it("multi-consumer fan-out: one wire subscribeAll; both handlers receive the bundle map", async () => {
+  it("sends one subscribeAll for two consumers and delivers the bundled map to both handlers", async () => {
     const { client, socket, obj } = await setup();
     const a = vi.fn();
     const b = vi.fn();
@@ -560,7 +560,7 @@ describe("ObjectHandle.onAnyChange", () => {
     client.close();
   });
 
-  it("idempotent cancel; AbortSignal cancels too", async () => {
+  it("cancel is idempotent and an AbortSignal cancels too", async () => {
     const { client, socket, obj } = await setup();
     const ctrl = new AbortController();
     const handler = vi.fn();
@@ -631,7 +631,7 @@ describe("ObjectHandle.setMaxRateHz", () => {
     client.close();
   });
 
-  it("setMaxRateHz with no active property subs is a no-op on the wire", async () => {
+  it("setMaxRateHz with no active property subscriptions is a no-op on the wire", async () => {
     const { client, socket, obj } = await setup();
     // Only an event subscription, no property subs.
     obj.onEventTriggered("landed", vi.fn());
@@ -644,7 +644,7 @@ describe("ObjectHandle.setMaxRateHz", () => {
     client.close();
   });
 
-  it("re-issues subscribeProperty for EVERY active property with the new rate", async () => {
+  it("re-issues subscribeProperty for every active property with the new rate", async () => {
     const { client, socket, obj } = await setup();
     obj.onPropertyChanged("altitude", vi.fn());
     obj.onPropertyChanged("speed", vi.fn());
@@ -762,7 +762,7 @@ describe("Client.reestablishAll", () => {
     client.close();
   });
 
-  it("uses allSettled: a single failing interest doesn't block the rest, errors flow to onError", async () => {
+  it("a single failing interest does not block the rest and its error flows to onError", async () => {
     // Set up two interests; one will fail on reestablish, the other will succeed.
     const errors: Error[] = [];
     const factory: WebSocketFactory = (url) => new MockWebSocket(url);

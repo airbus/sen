@@ -35,7 +35,7 @@ using test::renderToText;
 //--------------------------------------------------------------------------------------------------------------
 
 /// @test
-/// A method signature opens with the METHOD header and names the object it belongs to.
+/// A method signature shows the METHOD header, the owning object name, and the method name.
 TEST(SignatureRenderer, MethodHeaderAndObjectName)
 {
   auto* method = findTestMethod("add");
@@ -75,7 +75,7 @@ TEST(SignatureRenderer, MethodSkipsConstMarkerForNonConstMethods)
 }
 
 /// @test
-/// A method with arguments lists them under an ARGUMENTS heading.
+/// A method with arguments lists their names and declared types under an ARGUMENTS heading.
 TEST(SignatureRenderer, MethodArgumentsSection)
 {
   auto* method = findTestMethod("add");
@@ -133,7 +133,7 @@ TEST(SignatureRenderer, MethodVoidReturnOmitsReturnsSection)
 //--------------------------------------------------------------------------------------------------------------
 
 /// @test
-/// A scalar property renders as its name and its value on one line.
+/// A scalar property renders its name and its value.
 TEST(SignatureRenderer, PropertyValueInlineForScalar)
 {
   auto* prop = findTestProperty("counter");
@@ -145,7 +145,7 @@ TEST(SignatureRenderer, PropertyValueInlineForScalar)
 }
 
 /// @test
-/// A property with no value renders as empty rather than blank.
+/// A property with no value renders the <empty> placeholder rather than nothing.
 TEST(SignatureRenderer, PropertyValueEmpty)
 {
   // An empty Var should render inline as <empty> (the formatter's fallback).

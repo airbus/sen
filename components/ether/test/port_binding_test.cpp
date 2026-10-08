@@ -164,7 +164,8 @@ private:
 }  // namespace
 
 /// @test
-/// If there is no configuration, uses ephemeral mode
+/// Passes port 0 to the bind callback when no port configuration is present, so the socket ends
+/// up on an ephemeral port.
 /// @requirements(SEN-909)
 TEST(PortBinding, UsesEphemeralByDefault)
 {
@@ -186,7 +187,8 @@ TEST(PortBinding, UsesEphemeralByDefault)
 }
 
 /// @test
-/// Checks ephemeral mode configuration
+/// Passes port 0 for each of the three port kinds when all are configured ephemeral, leaving
+/// every socket bound to a nonzero port the system chose.
 /// @requirements(SEN-909)
 TEST(PortBinding, BindsEphemeralPort)
 {
@@ -233,9 +235,6 @@ TEST(PortBinding, BindsEphemeralPort)
   EXPECT_GT(socketUdp.local_endpoint().port(), 0);
 }
 
-/// @test
-/// Checks pin mode configuration
-/// @requirements(SEN-909)
 /// @test Two peers can share one pinned TCP source port, which is why reuse_address is set on it.
 /// Without the option the second bind fails with "address already in use" and that peer is dropped.
 TEST(PortBinding, SharesAPinnedTcpSourcePortBetweenPeers)
@@ -286,6 +285,7 @@ TEST(PortBinding, SharesAPinnedTcpSourcePortBetweenPeers)
 /// @test
 /// A pinned port is bound as configured for a TCP source, a TCP acceptor and a UDP unicast
 /// socket, rather than falling back to an ephemeral port.
+/// @requirements(SEN-909)
 TEST(PortBinding, BindsPinnedPort)
 {
   const auto portTcpSource = pickFreeTcpPort();
@@ -321,7 +321,8 @@ TEST(PortBinding, BindsPinnedPort)
 }
 
 /// @test
-/// Checks probe mode configuration
+/// Binds single-port probe ranges for all three port kinds, landing the TCP source on the one
+/// port its range allows.
 /// @requirements(SEN-909)
 TEST(PortBinding, BindsProbePort)
 {
@@ -357,7 +358,8 @@ TEST(PortBinding, BindsProbePort)
 }
 
 /// @test
-/// Makes a pin configuration for tcpAcceptor but check that udpUnicast is in ephemeral mode
+/// Falls back to ephemeral for a port kind the configuration leaves unset, passing port 0 for
+/// the UDP unicast socket while only the TCP acceptor is pinned.
 /// @requirements(SEN-909)
 TEST(PortBinding, UsesEphemeralForUnsetPorts)
 {
@@ -379,7 +381,8 @@ TEST(PortBinding, UsesEphemeralForUnsetPorts)
 }
 
 /// @test
-/// Checks that making a pin configuration in an excluded port fails
+/// Refuses a pinned port that lies in the configured exclusions, throwing an error that names
+/// the port kind and the exclusion source without ever calling the bind callback.
 /// @requirements(SEN-909)
 TEST(PortBinding, RejectsExcludedPinnedPort)
 {
@@ -414,7 +417,8 @@ TEST(PortBinding, RejectsExcludedPinnedPort)
 }
 
 /// @test
-/// Keep a TCP port busy and check that a pinned bind to the same port fails
+/// Throws when the pinned port is already taken by another socket, after exactly one bind
+/// attempt at that port.
 /// @requirements(SEN-909)
 TEST(PortBinding, FailsWhenPinnedPortIsTaken)
 {
@@ -440,7 +444,7 @@ TEST(PortBinding, FailsWhenPinnedPortIsTaken)
 }
 
 /// @test
-/// Checks that probe skips ports excluded by configuration
+/// Skips a probe candidate excluded by configuration and binds the next port in the range.
 /// @requirements(SEN-909)
 TEST(PortBinding, SkipsExcludedProbePort)
 {
@@ -459,7 +463,8 @@ TEST(PortBinding, SkipsExcludedProbePort)
 }
 
 /// @test
-/// Checks that probe tries another port when a candidate is already in use
+/// Retries within the probe range when a candidate reports address in use, ending on the port
+/// that accepts without ever leaving the range.
 /// @requirements(SEN-909)
 TEST(PortBinding, RetriesProbePort)
 {
@@ -487,7 +492,8 @@ TEST(PortBinding, RetriesProbePort)
 }
 
 /// @test
-/// Checks that probe fails when every candidate port is unavailabe
+/// Throws when every port of the probe range is unavailable, after one bind attempt on the
+/// single-port range.
 /// @requirements(SEN-909)
 TEST(PortBinding, FailsProbeRange)
 {
@@ -514,7 +520,8 @@ TEST(PortBinding, FailsProbeRange)
 }
 
 /// @test
-/// Checks that probe diagnostics explain excluded ranges
+/// Reports a fully excluded probe range without attempting a bind, throwing a message that
+/// names the port kind, the range, the excluded ports per source, and the zero bind attempts.
 /// @requirements(SEN-909)
 TEST(PortBinding, ReportsExcludedProbeRange)
 {
@@ -554,7 +561,9 @@ TEST(PortBinding, ReportsExcludedProbeRange)
 }
 
 /// @test
-/// Checks that probe diagnostics explain exhausted bind attempts
+/// Reports an exhausted probe, throwing after both non-excluded candidates fail with a message
+/// that names the range, the attempt count, the excluded port, the last attempted port, and the
+/// last error.
 /// @requirements(SEN-909)
 TEST(PortBinding, ReportsUnavailableProbeRange)
 {
@@ -593,7 +602,7 @@ TEST(PortBinding, ReportsUnavailableProbeRange)
 }
 
 /// @test
-/// Checks that an invalid probe range fails before binding
+/// Rejects a probe range with the limits reversed before calling the bind callback.
 /// @requirements(SEN-909)
 TEST(PortBinding, RejectsInvalidProbeRange)
 {
@@ -616,7 +625,8 @@ TEST(PortBinding, RejectsInvalidProbeRange)
 }
 
 /// @test
-/// Checks that probe stops on errors that are not caused by an occupied port
+/// Throws on a bind error other than an occupied port, after a single attempt on a
+/// one-port probe range.
 /// @requirements(SEN-909)
 TEST(PortBinding, StopsProbeOnError)
 {

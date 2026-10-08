@@ -317,7 +317,8 @@ void checkWriteReadNumber()
 }  // namespace
 
 /// @test
-/// Check correct writing and reading of basic types
+/// Round-trips a sample value of every signed and unsigned integer width and both float widths
+/// through OutputStream and InputStream, reading back exactly the value written.
 /// @requirements(SEN-1051)
 TEST(InputOutputStream, numbers)
 {
@@ -334,7 +335,8 @@ TEST(InputOutputStream, numbers)
 }
 
 /// @test
-/// Check correct writing and reading of basic types numeric limits
+/// Round-trips zero and the numeric_limits max, min, and lowest of every integer and
+/// floating-point type through OutputStream and InputStream unchanged.
 /// @requirements(SEN-1051)
 TEST(InputOutputStream, numberLimits)
 {
@@ -351,7 +353,8 @@ TEST(InputOutputStream, numberLimits)
 }
 
 /// @test
-/// Check correct writing and reading of string types
+/// Round-trips strings through writeString and readString, including empty strings and
+/// punctuation characters.
 /// @requirements(SEN-1051)
 TEST(InputOutputStream, string)
 {
@@ -364,7 +367,7 @@ TEST(InputOutputStream, string)
 }
 
 /// @test
-/// Check correct writing and reading of booleans
+/// Round-trips both false and true through writeBool and readBool unchanged.
 /// @requirements(SEN-1051)
 TEST(InputOutputStream, boolean)
 {
@@ -373,7 +376,8 @@ TEST(InputOutputStream, boolean)
 }
 
 /// @test
-/// Check correct writing and reading of sen timestamps types
+/// Round-trips TimeStamp values through writeTimestamp and readTimeStamp, including zero,
+/// negative, positive, and the extreme Duration values.
 /// @requirements(SEN-1051)
 TEST(InputOutputStream, timestamps)
 {
@@ -389,7 +393,8 @@ TEST(InputOutputStream, timestamps)
 }
 
 /// @test
-/// Check correct writing and reading of some types in big endian
+/// Reads buffers written by the little-endian OutputStream through a BigEndian InputStreamTemplate,
+/// observing the byte-swapped value for an int64 and the unchanged value for a one-byte uint8.
 /// @requirements(SEN-1051)
 TEST(InputOutputStream, bigEndian)
 {

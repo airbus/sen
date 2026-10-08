@@ -110,8 +110,8 @@ struct ReplayerSetup
 };
 
 /// @test
-/// Opening a non-exist recording throws error
-/// requirements(SEN-364)
+/// Throws when asked to open a recording path that does not exist.
+/// @requirements(SEN-364)
 TEST(ReplayerTest, OpeningNonExistentRecordingThrows)
 {
   ReplayerSetup setup;
@@ -126,8 +126,9 @@ TEST(ReplayerTest, OpeningNonExistentRecordingThrows)
 }
 
 /// @test
-/// Opening a valid recording succeeds
-/// requirements(SEN-364)
+/// Opens a valid recording archive without throwing and closes it by its session name without
+/// throwing.
+/// @requirements(SEN-364)
 TEST(ReplayerTest, OpeningValidRecordingSucceeds)
 {
   ReplayerSetup setup;
@@ -140,8 +141,8 @@ TEST(ReplayerTest, OpeningValidRecordingSucceeds)
 }
 
 /// @test
-/// Opening with a duplicate name throws an error
-/// requirements(SEN-364)
+/// Throws when opening a second archive under a session name already in use.
+/// @requirements(SEN-364)
 TEST(ReplayerTest, OpeningWithDuplicateNameThrows)
 {
   ReplayerSetup setup;
@@ -155,8 +156,8 @@ TEST(ReplayerTest, OpeningWithDuplicateNameThrows)
 }
 
 /// @test
-/// Opening the same archive path twice throws an error
-/// requirements(SEN-364)
+/// Throws when opening the same archive path a second time under a different session name.
+/// @requirements(SEN-364)
 TEST(ReplayerTest, OpeningWithDuplicatePathThrows)
 {
   ReplayerSetup setup;
@@ -169,8 +170,8 @@ TEST(ReplayerTest, OpeningWithDuplicatePathThrows)
 }
 
 /// @test
-/// Closing a non-existent replay throws an error
-/// requirements(SEN-364)
+/// Throws when closing a replay name that was never opened.
+/// @requirements(SEN-364)
 TEST(ReplayerTest, ClosingNonExistentReplayThrows)
 {
   ReplayerSetup setup;
@@ -180,8 +181,9 @@ TEST(ReplayerTest, ClosingNonExistentReplayThrows)
 }
 
 /// @test
-/// CloseAll completely clears all managed replays
-/// requirements(SEN-364)
+/// Clears every managed replay on closeAll, closing the old names afterwards throws and the
+/// same name and path can be reopened without duplicate errors.
+/// @requirements(SEN-364)
 TEST(ReplayerTest, CloseAllClearsReplays)
 {
   ReplayerSetup setup;
@@ -204,8 +206,8 @@ TEST(ReplayerTest, CloseAllClearsReplays)
 }
 
 /// @test
-/// AutoPlay configuration does not crash when opening an archive
-/// requirements(SEN-364)
+/// Opens an archive without throwing when the replayer is configured with auto-play.
+/// @requirements(SEN-364)
 TEST(ReplayerTest, AutoPlayDoesNotCrash)
 {
   ReplayerSetup setup(true);

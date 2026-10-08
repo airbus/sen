@@ -146,7 +146,7 @@ describe("Kernel.subscribeToEvent", () => {
     expect(await first).toBe(true);
   });
 
-  it("fails the waiter too when shutdown wins the race", async () => {
+  it("fails both concurrent subscribes with a disconnect error when the kernel shuts down mid-subscribe", async () => {
     const { kernel, obj } = makeKernel();
     const first = outcome(kernel.subscribeToEvent(INTEREST, OBJECT, EVENT));
     const rider = outcome(kernel.subscribeToEvent(INTEREST, OBJECT, EVENT));
@@ -188,7 +188,7 @@ describe("Kernel.subscribeToEvent", () => {
     expect(obj.live).toHaveLength(1);
   });
 
-  it("keeps the entries of a resubscribe that replaced a cancelled one", async () => {
+  it("keeps the replacement subscription intact when the subscribe it replaced later fails", async () => {
     const { kernel, obj } = makeKernel();
     const first = outcome(kernel.subscribeToEvent(INTEREST, OBJECT, EVENT));
     kernel.unsubscribeFromEvent(INTEREST, OBJECT, EVENT);
@@ -228,7 +228,7 @@ describe("Kernel abort listeners", () => {
     expect(abortListenerCount(kernel)).toBe(0);
   });
 
-  it("sets a finite ceiling: quiet under healthy traffic, still loud on a leak", async () => {
+  it("sets a finite listener ceiling that stays quiet under healthy traffic and still warns on a leak", async () => {
     const ceiling = getMaxListeners(makeKernel().kernel.signal);
     expect(Number.isFinite(ceiling) && ceiling > 0).toBe(true);
     // Subscriptions are per interest per event name, so clearing the interest cap is not

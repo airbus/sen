@@ -221,7 +221,8 @@ void checkWriteNumber()
 }  // namespace
 
 /// @test
-/// Check write of basic types
+/// Writes a sample value of every integer and float width, the buffer afterward holding exactly
+/// the value's in-memory bytes and nothing more.
 /// @requirements(SEN-1051)
 TEST(OutputStream, basics)
 {
@@ -238,7 +239,8 @@ TEST(OutputStream, basics)
 }
 
 /// @test
-/// Check correct writing of basic types numeric limits
+/// Writes zero and the numeric_limits max, min, and lowest of every integer and float type, each
+/// leaving exactly the value's in-memory bytes in the buffer.
 /// @requirements(SEN-1051)
 TEST(OutputStream, numberLimits)
 {
@@ -255,7 +257,8 @@ TEST(OutputStream, numberLimits)
 }
 
 /// @test
-/// Check write of chars
+/// Writes single characters with writeChar and writeUChar, including NUL, newline, space, and
+/// underscore, each leaving exactly that one byte in the buffer.
 /// @requirements(SEN-1051)
 TEST(OutputStream, chars)
 {
@@ -272,7 +275,8 @@ TEST(OutputStream, chars)
 }
 
 /// @test
-/// Check write of strings
+/// Writes ordinary, empty, and punctuation strings with writeString, leaving a non-empty buffer
+/// in every case, the empty string included.
 /// @requirements(SEN-1051)
 TEST(OutputStream, string)
 {
@@ -284,7 +288,8 @@ TEST(OutputStream, string)
 }
 
 /// @test
-/// Check write of sen timestamps types
+/// Writes TimeStamp values spanning zero, negative, positive, and the Duration extremes, each
+/// serialized as the eight in-memory bytes of its nanoseconds since the epoch.
 /// @requirements(SEN-1051)
 TEST(OutputStream, timestamp)
 {
@@ -302,7 +307,8 @@ TEST(OutputStream, timestamp)
 }
 
 /// @test
-/// Check write of bool types
+/// Writes true and false with writeBool, each leaving exactly the value's single in-memory byte
+/// in the buffer.
 /// @requirements(SEN-1051)
 TEST(OutputStream, boolean)
 {
@@ -311,7 +317,8 @@ TEST(OutputStream, boolean)
 }
 
 /// @test
-/// Check writing of some types using big endian
+/// Writes an int16 and a float32 through a BigEndian OutputStreamTemplate, the buffer receiving
+/// the byte-swapped image of each value.
 /// @requirements(SEN-1051)
 TEST(OutputStream, BigEndian)
 {

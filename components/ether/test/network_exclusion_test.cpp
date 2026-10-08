@@ -44,7 +44,8 @@ namespace
 }  // namespace
 
 /// @test
-/// Merges overlapping and adjacent ranges.
+/// Merges overlapping and adjacent port ranges into a single covering range, including ranges
+/// that meet at the top of the port space.
 /// @requirements(SEN-909)
 TEST(NetworkExclusion, MergesRanges)
 {
@@ -68,7 +69,8 @@ TEST(NetworkExclusion, MergesRanges)
 }
 
 /// @test
-/// Keeps separate ranges sorted.
+/// Stores ranges that do not touch as separate entries in sorted order, excluding a value inside
+/// one of them and not a value in a gap between them.
 /// @requirements(SEN-909)
 TEST(NetworkExclusion, KeepsRangesSeparate)
 {
@@ -86,11 +88,8 @@ TEST(NetworkExclusion, KeepsRangesSeparate)
 }
 
 /// @test
-/// Finds the next value that is not excluded.
-/// @requirements(SEN-909)
-/// @test
-/// isExcluded at the edges: both ends of a range are inside it, an empty set excludes nothing,
-/// and a value below every range takes the branch where the search lands on the first element.
+/// Treats both ends of an excluded range as excluded and the values just outside both ends as
+/// not excluded.
 /// @requirements(SEN-909)
 TEST(NetworkExclusion, ExcludesRangeBoundaries)
 {
@@ -132,6 +131,7 @@ TEST(NetworkExclusion, ExcludesNothingBelowTheFirstRange)
 
 /// @test
 /// Returns the first candidate the probe reaches that is not excluded.
+/// @requirements(SEN-909)
 TEST(NetworkExclusion, FindsNextValue)
 {
   ConfiguredPortExclusions exclusions;
@@ -159,7 +159,8 @@ TEST(NetworkExclusion, ReturnsNoValueWhenExhausted)
 }
 
 /// @test
-/// Loads built-in and configured exclusions.
+/// Loads built-in and configured exclusions together, so built-in multicast addresses and port
+/// 443 are excluded alongside the configured multicast range and port range.
 /// @requirements(SEN-909)
 TEST(NetworkExclusion, LoadsExclusions)
 {
@@ -210,7 +211,8 @@ TEST(NetworkExclusion, ExcludesTheAddressesThatMisbehaveOnTheSegment)
 }
 
 /// @test
-/// Loads port ranges reported by the operating system.
+/// Loads the port ranges the operating system reports, yielding at least one well-formed range
+/// whose two bounds are both excluded.
 /// @requirements(SEN-909)
 TEST(NetworkExclusion, LoadsOsPortExclusions)
 {
@@ -232,7 +234,8 @@ TEST(NetworkExclusion, LoadsOsPortExclusions)
 }
 
 /// @test
-/// Rejects invalid multicast exclusion ranges.
+/// Rejects a multicast exclusion outside 239.0.0.0/8, an unparseable exclusion address, and a
+/// range with min above max, each with an error naming the fault.
 /// @requirements(SEN-909)
 TEST(NetworkExclusion, RejectsInvalidMulticastRanges)
 {
@@ -282,7 +285,8 @@ TEST(NetworkExclusion, RejectsInvalidPortRange)
 }
 
 /// @test
-/// Finds a usable multicast address across the configured range.
+/// Skips an excluded address to the next usable one, continues into the next byte block at a
+/// block boundary, and wraps from the end of the range back to its beginning.
 /// @requirements(SEN-909)
 TEST(NetworkExclusion, FindsUsableMulticastAddress)
 {
@@ -327,7 +331,8 @@ TEST(NetworkExclusion, FindsUsableMulticastAddress)
 }
 
 /// @test
-/// Counts usable multicast addresses by intersecting ranges.
+/// Counts the addresses of the range left usable after exclusions, ignoring an exclusion that
+/// lies entirely outside the range.
 /// @requirements(SEN-909)
 TEST(NetworkExclusion, CountsUsableMulticastAddresses)
 {
@@ -344,7 +349,8 @@ TEST(NetworkExclusion, CountsUsableMulticastAddresses)
 }
 
 /// @test
-/// Selects usable multicast addresses by their index.
+/// Maps indexes 0 to 2 onto the usable addresses in order, skipping an excluded address, and
+/// returns no value for an index past the last usable address.
 /// @requirements(SEN-909)
 TEST(NetworkExclusion, SelectsAddressByIndex)
 {
@@ -360,7 +366,8 @@ TEST(NetworkExclusion, SelectsAddressByIndex)
 }
 
 /// @test
-/// Selects indexed addresses correctly across gaps in the multicast range
+/// Maps consecutive indexes onto usable addresses across the gap between the range's address
+/// blocks, skipping the excluded last address of the first block.
 /// @requirements(SEN-909)
 TEST(NetworkExclusion, SelectsAcrossRangeBlocks)
 {

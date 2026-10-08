@@ -16,7 +16,8 @@
 #include <utility>
 
 /// @test
-/// Verifies fromU8string correctly returns a copy of a standard lvalue std::string without modifying data
+/// Returns from fromU8string an equal copy of an lvalue std::string, preserving its UTF-8 bytes and
+/// size.
 /// @requirements(SEN-576)
 TEST(U8StringUtilTest, FromU8StringConstStdString)
 {
@@ -29,7 +30,7 @@ TEST(U8StringUtilTest, FromU8StringConstStdString)
 }
 
 /// @test
-/// Verifies fromU8string correctly moves a rvalue string
+/// Accepts an rvalue std::string in fromU8string, the result carrying the original content unchanged.
 /// @requirements(SEN-576)
 TEST(U8StringUtilTest, FromU8StringRvalueStdString)
 {
@@ -42,7 +43,8 @@ TEST(U8StringUtilTest, FromU8StringRvalueStdString)
 }
 
 /// @test
-/// Verifies castToCharPtr accurately returns the exact same const char* pointer passed to it
+/// Returns from castToCharPtr the very pointer it was given for a const char input, its content
+/// unchanged.
 /// @requirements(SEN-576)
 TEST(U8StringUtilTest, CastToCharPtrFromConstChar)
 {
@@ -56,7 +58,8 @@ TEST(U8StringUtilTest, CastToCharPtrFromConstChar)
 
 #if defined(__cpp_lib_char8_t)
 /// @test
-/// Verifies fromU8string correctly constructs a string from an u8string preserving all byte values
+/// Converts a std::u8string through fromU8string into a std::string of identical size whose every byte
+/// matches the source.
 /// @requirements(SEN-576)
 TEST(U8StringUtilTest, FromU8StringStdU8String)
 {
@@ -75,8 +78,8 @@ TEST(U8StringUtilTest, FromU8StringStdU8String)
 
 #if defined(__cpp_lib_char8_t)
 /// @test
-/// Verifies castToCharPtr accurately casts a const char8_t* to const char* maintaining the correct memory address and
-/// content
+/// Casts a const char8_t pointer to const char through castToCharPtr, keeping the same address and
+/// identical characters.
 /// @requirements(SEN-576)
 TEST(U8StringUtilTest, CastToCharPtrFromConstChar8)
 {

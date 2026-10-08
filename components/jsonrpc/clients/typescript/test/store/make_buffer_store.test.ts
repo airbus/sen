@@ -70,7 +70,7 @@ describe("makeBufferStore", () => {
   });
 
   describe("listeners", () => {
-    it("invalidate(key) fires only that key's listeners + subscribeAll", () => {
+    it("invalidate fires only that key's listeners and the subscribeAll listeners", () => {
       const store = makeStore<string, number>(() => 0);
       const onA = vi.fn();
       const onB = vi.fn();
@@ -111,7 +111,7 @@ describe("makeBufferStore", () => {
       expect(onAll).toHaveBeenCalledTimes(3);
     });
 
-    it("version bumps once per flush (rAF-batched), not once per dirtied key", () => {
+    it("the version bumps once per flush, not once per dirtied key", () => {
       const store = makeStore<string, number>(() => 0);
       expect(store.getVersion()).toBe(0);
       // rafBatch=false -> each invalidate is its own synchronous flush.

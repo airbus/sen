@@ -38,8 +38,10 @@ using sen::components::jsonrpc::test::request;
 using sen::components::jsonrpc::test::wildcardSelector;
 
 /// @test
-/// Same interest name on two connections doesn't collide; subscriptions are independent; a
-/// disconnect tears down only that connection's state.
+/// Keeps per-connection state independent. Two connections create an interest of the same name
+/// without collision, a widget mutation delivers exactly one propertyChanged to each, and
+/// disconnecting one connection tears down only its state so the other still receives
+/// notifications.
 TEST(JsonRpc, multipleConnectionsHaveIndependentState)
 {
   DispatcherFixture f;
@@ -103,8 +105,9 @@ TEST(JsonRpc, multipleConnectionsHaveIndependentState)
 }
 
 /// @test
-/// `knownTypes` dedup: the second `interestUpdate.added` for an object on the same connection
-/// must not re-bundle a spec the first one already shipped.
+/// Ships each type spec at most once per connection. The first interestUpdate for an object
+/// carries its type spec, and a second interest on the same connection matching the same object
+/// arrives with an empty types array.
 TEST(JsonRpc, knownTypesAreNotResentOnSameConnection)
 {
   DispatcherFixture f;
@@ -140,7 +143,8 @@ TEST(JsonRpc, knownTypesAreNotResentOnSameConnection)
 }
 
 /// @test
-/// Default `createInterest` (no `withSchemas`) leaves `typeSchemas` empty in `interestUpdate`.
+/// Leaves typeSchemas empty in every interestUpdate when createInterest is issued without the
+/// withSchemas option.
 TEST(JsonRpc, interestUpdateOmitsTypeSchemasWhenNotRequested)
 {
   DispatcherFixture f;
@@ -159,9 +163,9 @@ TEST(JsonRpc, interestUpdateOmitsTypeSchemasWhenNotRequested)
 }
 
 /// @test
-/// `createInterest` with `withSchemas=true` populates `typeSchemas` for every newly-shipped
-/// type in the `interestUpdate.added` batch. Schemas are JSON-encoded as a string field on the
-/// wire; decoded form is a map keyed by qualified name.
+/// Populates typeSchemas in the interestUpdate when createInterest opts in with withSchemas
+/// true. The schemas travel as one JSON-encoded string field that decodes to a map keyed by
+/// qualified type name and containing the fixture widget type.
 TEST(JsonRpc, interestUpdateShipsSchemasWhenOptedIn)
 {
   DispatcherFixture f;
@@ -192,8 +196,9 @@ TEST(JsonRpc, interestUpdateShipsSchemasWhenOptedIn)
 }
 
 /// @test
-/// `knownSchemas` dedup: a second interest with `withSchemas=true` on the same connection that
-/// references the same types as the first must not re-ship their schemas.
+/// Ships each type schema at most once per connection. The first withSchemas interest carries
+/// the schemas, and a second withSchemas interest on the same connection referencing the same
+/// types arrives with an empty typeSchemas field.
 TEST(JsonRpc, knownSchemasAreNotResentOnSameConnection)
 {
   DispatcherFixture f;
@@ -230,7 +235,8 @@ TEST(JsonRpc, knownSchemasAreNotResentOnSameConnection)
 }
 
 /// @test
-/// `getType(qname, withSchema=true)` returns the schema fragment as a non-empty string.
+/// Returns a non-empty schema fragment naming the requested type when getType is called with
+/// withSchema true.
 TEST(JsonRpc, getTypeWithSchemaReturnsFragment)
 {
   DispatcherFixture f;
@@ -247,10 +253,9 @@ TEST(JsonRpc, getTypeWithSchemaReturnsFragment)
 }
 
 /// @test
-/// Reproduces the TS-suite churn pattern: open a connection, declare an interest, expect the
-/// existing widget to land in `interestUpdate.added`, disconnect; repeat N times with fresh
-/// ConnectionIds. Every iteration must see the widget. Failure shape: at iteration K the
-/// snapshot `added` array is empty, matching `objects=0, state=active` in the TS suite.
+/// Delivers the pre-existing widget in the interestUpdate.added snapshot on every iteration of
+/// a connect, create-interest, disconnect churn loop run sixteen times with fresh connection
+/// ids.
 TEST(JsonRpc, sequentialConnectChurnAlwaysSeesExistingObject)
 {
   DispatcherFixture f;

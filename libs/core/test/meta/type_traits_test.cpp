@@ -48,7 +48,9 @@ using GeneratedSenClasses = ::testing::Types<ClassWithoutTemplatedBaseInterface,
 TYPED_TEST_SUITE(TypeRelationTestWithoutTemplatedBase, GeneratedSenClasses);
 
 /// @test
-/// Check types without template
+/// Resolves the interface, base, local proxy, and remote proxy types of a generated class
+/// family without a templated base from any member of the family, and isBaseTypeTemplate
+/// reports false.
 /// @requirements(SEN-1056)
 TYPED_TEST(TypeRelationTestWithoutTemplatedBase, TestAccessorDeclarations)
 {
@@ -75,7 +77,9 @@ class SomeOtherBase
 };
 
 /// @test
-/// Check types with template
+/// Resolves the interface, base, local proxy, and remote proxy types of a generated class
+/// family with a templated base from any member, the base resolves against any supplied base
+/// parameter and isBaseTypeTemplate reports true.
 /// @requirements(SEN-1056)
 TYPED_TEST(TypeRelationTestWithTemplatedBase, TestAccessorDeclarations)
 {

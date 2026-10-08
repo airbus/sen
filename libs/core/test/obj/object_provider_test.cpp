@@ -51,7 +51,7 @@ public:
 }  // namespace
 
 /// @test
-/// Verifies that forEachListener reaches every registered listener.
+/// Visits both registered listeners when forEachListener walks the registry.
 TEST(ObjectProviderTest, ForEachListenerVisitsEveryRegisteredListener)
 {
   TestProvider provider;
@@ -70,7 +70,7 @@ TEST(ObjectProviderTest, ForEachListenerVisitsEveryRegisteredListener)
 }
 
 /// @test
-/// Verifies that forEachListener calls nothing when no listener is registered.
+/// Invokes the forEachListener functor zero times when no listener is registered.
 TEST(ObjectProviderTest, ForEachListenerVisitsNothingWithoutListeners)
 {
   TestProvider provider;
@@ -87,9 +87,9 @@ TEST(ObjectProviderTest, ForEachListenerVisitsNothingWithoutListeners)
 }
 
 /// @test
-/// Verifies that a listener removed during the walk is not visited afterwards. The registry's
-/// iterators survive a concurrent erase; a walk over a copy would call the removed one instead,
-/// which is a use-after-free for a subclass that removed it so as to destroy it.
+/// Skips a listener removed from inside the walk callback, only the listener that did the
+/// removing is visited. A walk over a copy of the registry would still call the removed one,
+/// which is a use-after-free for a subclass that removed it in order to destroy it.
 TEST(ObjectProviderTest, ForEachListenerDoesNotVisitAListenerRemovedDuringTheWalk)
 {
   TestProvider provider;

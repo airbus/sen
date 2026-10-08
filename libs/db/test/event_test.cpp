@@ -28,7 +28,8 @@ namespace sen::db::test
 {
 
 /// @test
-/// Write an event entry and read it back
+/// Records a valueChanged event with one float64 argument and reads it back, the entry carrying
+/// the emitting object's id, the resolved event meta, and 99.1 decoded from the args.
 /// @requirements(SEN-364)
 TEST(EventTest, WriteAndReadEvent)
 {
@@ -107,7 +108,7 @@ TEST(EventTest, WriteAndReadEvent)
 }
 
 /// @test
-/// Write multiple events and verify the count
+/// Retains three events recorded at successive times for one object, the readback finding all three.
 /// @requirements(SEN-364)
 TEST(EventTest, MultipleEventsAreReadable)
 {

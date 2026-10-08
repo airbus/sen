@@ -24,7 +24,7 @@ using sen::components::logmaster::LoggerImpl;
 using SenLevel = sen::kernel::log::LogLevel;
 
 /// @test
-/// Every level Sen names maps to the spdlog level of the same name, so asking for one level does
+/// Maps every Sen log level to the spdlog level of the same name, so asking for one level does
 /// not silently set another.
 TEST(LogLevelMapping, SenLevelsMapToTheirSpdlogCounterpart)
 {
@@ -38,7 +38,7 @@ TEST(LogLevelMapping, SenLevelsMapToTheirSpdlogCounterpart)
 }
 
 /// @test
-/// Every spdlog level maps back to the Sen level of the same name, which is what a logger reports
+/// Maps every spdlog level back to the Sen level of the same name, the form a logger reports
 /// when it is first discovered.
 TEST(LogLevelMapping, SpdlogLevelsMapBackToTheirSenCounterpart)
 {
@@ -52,8 +52,8 @@ TEST(LogLevelMapping, SpdlogLevelsMapBackToTheirSenCounterpart)
 }
 
 /// @test
-/// A level neither side names falls back to off rather than to whatever the enum value happens to
-/// be, so an spdlog that grows a level does not quietly turn logging up.
+/// Maps a level neither side names to off in both directions, so an spdlog that grows a level
+/// does not quietly turn logging up.
 TEST(LogLevelMapping, AnUnknownLevelBecomesOff)
 {
   EXPECT_EQ(LoggerImpl::mapLogLevel(static_cast<spdlog::level::level_enum>(spdlog::level::n_levels)), SenLevel::off);

@@ -63,7 +63,8 @@ struct ProxyTestFixture
 }  // namespace
 
 /// @test
-/// Validates the polymorphic casts and identity methods for local native proxies
+/// Reports itself as local, mirrors the owner's id and name, and casts to a proxy object but not to
+/// a remote object.
 /// @requirements(SEN-351, SEN-583)
 TEST(NativeObjectProxy, IdentityAndPolymorphicCasts)
 {
@@ -83,7 +84,8 @@ TEST(NativeObjectProxy, IdentityAndPolymorphicCasts)
 }
 
 /// @test
-/// Verifies that property setters on the proxy correctly defer work to the owner queue
+/// Queues a property set made on the proxy onto the owner's work queue, the owner sees the new
+/// value only after the queue runs and a commit.
 /// @requirements(SEN-351, SEN-573)
 TEST(NativeObjectProxy, SendWorkToOwnerQueue)
 {
@@ -102,8 +104,8 @@ TEST(NativeObjectProxy, SendWorkToOwnerQueue)
 }
 
 /// @test
-/// Validates that calling drainInputs pulls the owner state into the proxy
-/// and appropriately triggers proxy-level change events
+/// Pulls committed owner state into the proxy on drainInputs, firing the proxy's property-changed
+/// callback and adopting the owner's commit time.
 /// @requirements(SEN-351, SEN-573, SEN-574)
 TEST(NativeObjectProxy, DrainInputsSynchronizesStateAndFiresEvents)
 {
@@ -130,7 +132,8 @@ TEST(NativeObjectProxy, DrainInputsSynchronizesStateAndFiresEvents)
 }
 
 /// @test
-/// Ensures drainInputs does not fire events if the owner properties have not actually changed
+/// Fires no property-changed callback from drainInputs when a new commit leaves the property
+/// values unchanged.
 /// @requirements(SEN-573)
 TEST(NativeObjectProxy, DrainInputsDoesNotFireWhenUnchanged)
 {
@@ -159,7 +162,8 @@ TEST(NativeObjectProxy, DrainInputsDoesNotFireWhenUnchanged)
 }
 
 /// @test
-/// Ensures untyped property subscriptions mapped to the proxy natively catch owner state changes upon draining inputs
+/// Delivers an owner property change to an untyped per-property subscription on the proxy once
+/// drainInputs runs.
 /// @requirements(SEN-573, SEN-574)
 TEST(NativeObjectProxy, UntypedPropertySubscriptionFiresOnDrain)
 {
@@ -184,7 +188,8 @@ TEST(NativeObjectProxy, UntypedPropertySubscriptionFiresOnDrain)
 }
 
 /// @test
-/// Verifies that invokeAllPropertyCallbacks on the proxy delegates strictly to the owner
+/// Delegates invokeAllPropertyCallbacks to the owner, owner-side subscribers fire while proxy-side
+/// subscribers stay silent.
 /// @requirements(SEN-573)
 TEST(NativeObjectProxy, InvokeAllPropertyCallbacks)
 {
@@ -215,7 +220,8 @@ TEST(NativeObjectProxy, InvokeAllPropertyCallbacks)
 }
 
 /// @test
-/// Ensures that untyped invoke and standard event delegation route straight to the owner
+/// Routes an untyped method invocation to the owner and delivers an owner-emitted event to an
+/// untyped event subscription made on the proxy.
 /// @requirements(SEN-351, SEN-573, SEN-574)
 TEST(NativeObjectProxy, InvokeAndEventDelegationRoutesToOwner)
 {
@@ -252,7 +258,8 @@ TEST(NativeObjectProxy, InvokeAndEventDelegationRoutesToOwner)
 }
 
 /// @test
-/// Ensures adding bindings on invalidated or uninitialized callbacks exits early cleanly
+/// Accepts a default-constructed, invalid callback in onPropertyChangedUntyped as a no-op and
+/// keeps answering untyped property reads.
 /// @requirements(SEN-574, SEN-1048)
 TEST(NativeObjectProxy, IgnoresInvalidatedCallbacks)
 {
@@ -267,8 +274,8 @@ TEST(NativeObjectProxy, IgnoresInvalidatedCallbacks)
 }
 
 /// @test
-/// Confirms that disconnecting an untyped subscription drops it correctly from the proxy
-/// map and forwards the un-registration accurately
+/// Stops delivering property changes to an untyped subscription once its connection guard is
+/// destroyed.
 /// @requirements(SEN-573, SEN-574)
 TEST(NativeObjectProxy, RemovesUntypedConnections)
 {
@@ -295,8 +302,8 @@ TEST(NativeObjectProxy, RemovesUntypedConnections)
 }
 
 /// @test
-/// Verifies the logic path where a removed connection ID is not found locally
-/// triggering the fallback to removeTypedConnectionOnOwner
+/// Removing a connection id the proxy does not know is harmless, an owner subscription made
+/// afterwards still fires.
 /// @requirements(SEN-351, SEN-573)
 TEST(NativeObjectProxy, RemoveTypedConnectionFallback)
 {

@@ -35,7 +35,8 @@ void triggerDoubleToFloatNegativeOverflow() { std::ignore = sen::std_util::check
 }  // namespace
 
 /// @test
-/// Verifies that converting to bool works correctly for zero, positive, negative, and floating point representations
+/// Converting to bool yields false for zero in integer and floating point form, and true for any
+/// non-zero value, negative and extreme ones included.
 /// @requirements(SEN-575)
 TEST(CheckedConversionsTest, ConvertsToBoolCorrectly)
 {
@@ -51,7 +52,8 @@ TEST(CheckedConversionsTest, ConvertsToBoolCorrectly)
 }
 
 /// @test
-/// Verifies float to float conversions, testing within bounds mapping and hard boundaries for max and lowest truncation
+/// A float value survives the trip to double, the float limits pass through unchanged, and a
+/// double beyond float range clamps to float's max or lowest.
 /// @requirements(SEN-1054, SEN-575)
 TEST(CheckedConversionsTest, FloatingPointToFloatingPoint)
 {
@@ -72,7 +74,8 @@ TEST(CheckedConversionsTest, FloatingPointToFloatingPoint)
 }
 
 /// @test
-/// Verifies cross-boundary integer conversions, testing signed and unsigned mismatching and hard value clamps
+/// An integer that fits the narrower type passes unchanged, one beyond its range clamps to the
+/// target's max or lowest, and a negative value clamps to zero when the target is unsigned.
 /// @requirements(SEN-1054, SEN-575)
 TEST(CheckedConversionsTest, IntegerToIntegerTruncation)
 {
@@ -93,7 +96,8 @@ TEST(CheckedConversionsTest, IntegerToIntegerTruncation)
 }
 
 /// @test
-/// Verifies floating point conversion to integers, checking normal bounds and extreme cuts
+/// A floating point value in range converts to the integer it names, and one beyond the target's
+/// range clamps to the target's max or lowest.
 /// @requirements(SEN-1054, SEN-575)
 TEST(CheckedConversionsTest, FloatingPointToIntegerTruncation)
 {
@@ -107,7 +111,8 @@ TEST(CheckedConversionsTest, FloatingPointToIntegerTruncation)
 }
 
 /// @test
-/// Verifies handling of NaN values during floating point to integer conversions
+/// NaN converts to zero for every integer target, where the raw cast is undefined, and stays NaN
+/// for a floating point target.
 /// @requirements(SEN-1054, SEN-575)
 TEST(CheckedConversionsTest, FloatingPointNaNToInteger)
 {
@@ -124,7 +129,7 @@ TEST(CheckedConversionsTest, FloatingPointNaNToInteger)
 }
 
 /// @test
-/// Verifies integers map correctly to floating point without clamping
+/// An integer converts to its floating point value without clamping, up to int64_t's max.
 /// @requirements(SEN-1054, SEN-575)
 TEST(CheckedConversionsTest, IntegerToFloatingPoint)
 {
@@ -135,7 +140,8 @@ TEST(CheckedConversionsTest, IntegerToFloatingPoint)
 }
 
 /// @test
-/// Verifies that checkedConversion behaves correctly and returns expected values when no bounds are exceeded
+/// checkedConversion returns the value unchanged when it fits the target type, across integer
+/// widening and integer to float and float to double conversions.
 /// @requirements(SEN-1054, SEN-575)
 TEST(CheckedConversionsTest, CheckedConversionSuccessWithinBounds)
 {
@@ -146,7 +152,8 @@ TEST(CheckedConversionsTest, CheckedConversionSuccessWithinBounds)
 }
 
 /// @test
-/// Verifies that the assertion policy successfully terminates execution on negative integer overflow
+/// checkedConversion's default policy terminates the process when a negative value cannot fit an
+/// unsigned target, reporting the value as too small.
 /// @requirements(SEN-1054)
 TEST(CheckedConversionsDeathTest, ReportPolicyAssertionTerminatesOnNegative)
 {
@@ -154,7 +161,8 @@ TEST(CheckedConversionsDeathTest, ReportPolicyAssertionTerminatesOnNegative)
 }
 
 /// @test
-/// Verifies that the assertion policy successfully terminates execution on positive integer overflow
+/// checkedConversion's default policy terminates the process when a value overflows the target's
+/// upper bound, reporting it as too big.
 /// @requirements(SEN-1054)
 TEST(CheckedConversionsDeathTest, ReportPolicyAssertionTerminatesOnPositive)
 {
@@ -162,7 +170,8 @@ TEST(CheckedConversionsDeathTest, ReportPolicyAssertionTerminatesOnPositive)
 }
 
 /// @test
-/// Verifies that the assertion policy successfully terminates execution on floating point to integer truncation
+/// checkedConversion's default policy terminates the process when a floating point value
+/// overflows an integer target, in either direction.
 /// @requirements(SEN-1054)
 TEST(CheckedConversionsDeathTest, ReportPolicyAssertionTerminatesOnFloatToIntTruncation)
 {
@@ -171,7 +180,8 @@ TEST(CheckedConversionsDeathTest, ReportPolicyAssertionTerminatesOnFloatToIntTru
 }
 
 /// @test
-/// Verifies that the assertion policy successfully terminates execution on double to float truncation
+/// checkedConversion's default policy terminates the process when a double beyond float range
+/// would truncate to float, in either direction.
 /// @requirements(SEN-1054)
 TEST(CheckedConversionsDeathTest, ReportPolicyAssertionTerminatesOnDoubleToFloatTruncation)
 {
@@ -182,7 +192,7 @@ TEST(CheckedConversionsDeathTest, ReportPolicyAssertionTerminatesOnDoubleToFloat
 }
 
 /// @test
-/// Verifies that the ignore policy handles truncation silently without emitting any output
+/// ReportPolicyIgnore truncates without writing anything to stdout or stderr.
 /// @requirements(SEN-1054)
 TEST(CheckedConversionsTest, ReportPolicyIgnoreIsSilent)
 {
@@ -199,7 +209,7 @@ TEST(CheckedConversionsTest, ReportPolicyIgnoreIsSilent)
 }
 
 /// @test
-/// Verifies that the log policy writes a truncation warning message without aborting execution
+/// ReportPolicyLog clamps the value, writes a truncation warning to stdout, and does not abort.
 /// @requirements(SEN-1054)
 TEST(CheckedConversionsTest, ReportPolicyLogWritesWarning)
 {
@@ -214,7 +224,7 @@ TEST(CheckedConversionsTest, ReportPolicyLogWritesWarning)
 }
 
 /// @test
-/// Verifies that the trace policy emits a truncation trace message without aborting execution
+/// ReportPolicyTrace clamps the value, writes a truncation message to stderr, and does not abort.
 /// @requirements(SEN-1054)
 TEST(CheckedConversionsTest, ReportPolicyTraceEmitsMessage)
 {

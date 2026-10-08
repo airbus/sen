@@ -141,7 +141,7 @@ describe("KernelRegistry name ownership", () => {
     await expect(afterShutdown).rejects.toBeInstanceOf(KernelDisconnectedError);
   });
 
-  it("disconnect of an unknown name throws and leaves the map alone", async () => {
+  it("disconnect of an unknown name throws and leaves the registry untouched", async () => {
     const registry = new KernelRegistry(() => undefined);
     const first = registry.connect("a", "ws://k", 100);
     settleDial(0, fakeClient());

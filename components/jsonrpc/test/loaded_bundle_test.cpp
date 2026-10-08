@@ -169,7 +169,7 @@ TEST(StripAndNormalize, rejectsRawBackslash)
 }
 
 /// @test
-/// A percent encoded backslash is refused for the same reason.
+/// A percent encoded backslash is refused, since it also separates paths on Windows.
 TEST(StripAndNormalize, rejectsPercentEncodedBackslash)
 {
   EXPECT_FALSE(stripAndNormalize(bundlePrefix, "/explorer/foo%5Cbar").has_value());

@@ -89,7 +89,10 @@ constexpr const char* multicastAddress = "239.192.0.10";
 }  // namespace
 
 /// @test
-/// Checks that the footprint contains configured network and conflicts.
+/// Builds a footprint carrying the discovery port, a multicast section whose configured and
+/// supplied buses are deduplicated and labeled with their source, the exclusion list and the
+/// self-collision block, the three configured ports with their kinds, modes and values, and the
+/// port exclusions grouped by origin.
 /// @requirements(SEN-909)
 TEST(NetworkFootprint, BuildsNetworkFootprint)
 {
@@ -178,7 +181,8 @@ TEST(NetworkFootprint, BuildsNetworkFootprint)
 }
 
 /// @test
-/// Omits multicast and reports ephemeral ports when no port configuration is present
+/// Omits the multicast section when multicast is disabled, and reports three valueless
+/// ephemeral ports when no port configuration is present.
 /// @requirements(SEN-909)
 TEST(NetworkFootprint, OmitsDisabledMulticast)
 {
@@ -223,7 +227,7 @@ TEST(NetworkFootprint, RejectsMulticastWithoutUsableAddress)
 }
 
 /// @test
-/// Checks that a state with no transports reports no buses and no ports.
+/// Reports no ports and an empty multicast bus list before any transport is added.
 /// @requirements(SEN-909)
 TEST(RuntimeNetworkFootprint, StartsEmpty)
 {
@@ -237,7 +241,8 @@ TEST(RuntimeNetworkFootprint, StartsEmpty)
 }
 
 /// @test
-/// Checks that a live transport's bus and ports reach the snapshot, marked as runtime.
+/// Reports a live transport's bus and port in the snapshot, the bus carrying its names and ids
+/// and marked with the runtime source.
 /// @requirements(SEN-909)
 TEST(RuntimeNetworkFootprint, ReportsTheBusesAndPortsOfALiveTransport)
 {
@@ -262,7 +267,8 @@ TEST(RuntimeNetworkFootprint, ReportsTheBusesAndPortsOfALiveTransport)
 }
 
 /// @test
-/// Checks that removing a transport drops its entries, so a stopped transport leaves nothing behind.
+/// Drops a removed transport's bus and port from the snapshot, so a stopped transport leaves
+/// nothing behind.
 /// @requirements(SEN-909)
 TEST(RuntimeNetworkFootprint, ForgetsARemovedTransport)
 {
@@ -282,8 +288,9 @@ TEST(RuntimeNetworkFootprint, ForgetsARemovedTransport)
 }
 
 /// @test
-/// Checks that removing an already-removed transport is harmless. The transport is removed once on
-/// stop and again in the destructor, so this pair really happens.
+/// Tolerates removing a transport twice and removing an invalid id, keeping the surviving
+/// transport's bus reported. The transport is removed once on stop and again in the destructor,
+/// so the pair really happens.
 /// @requirements(SEN-909)
 TEST(RuntimeNetworkFootprint, ToleratesRemovingATransportTwice)
 {
@@ -309,7 +316,7 @@ TEST(RuntimeNetworkFootprint, ToleratesRemovingATransportTwice)
 }
 
 /// @test
-/// Checks that removing one port leaves the transport's other ports reported.
+/// Removes only the named port, leaving the transport's other port in the snapshot.
 /// @requirements(SEN-909)
 TEST(RuntimeNetworkFootprint, RemovesOnlyTheNamedPort)
 {

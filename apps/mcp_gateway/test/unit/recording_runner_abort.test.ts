@@ -9,7 +9,7 @@ import { describe, expect, it } from "vitest";
 import { RecordingRunner, RecordingRunnerInputTooLargeError } from "../../src/recording_runner.js";
 
 describe("RecordingRunner abort", () => {
-  it("returns immediately with aborted:true when the signal is pre-aborted", async () => {
+  it("returns immediately as aborted when the signal is already aborted", async () => {
     const runner = new RecordingRunner({ timeoutMs: 10_000 });
     const ac = new AbortController();
     ac.abort();
