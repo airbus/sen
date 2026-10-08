@@ -32,6 +32,7 @@
 // std
 #include <algorithm>
 #include <cstdint>
+#include <iterator>
 #include <memory>
 #include <string>
 #include <utility>
@@ -194,12 +195,16 @@ void Session::localParticipantLeftBus(const LocalParticipant* participant, BusId
 
 void Session::remoteProcessLost(ProcessId who)
 {
+  // Declared before the lock so these are destroyed after it: ~RemoteParticipant takes a
+  // local participant's teardown lock.
+  std::vector<std::shared_ptr<RemoteParticipant>> leaving;
   Lock busesLock(busesMutex_);
 
   // notify the buses
   for (const auto& [id, bus]: buses_)
   {
-    bus->removeRemotesFromProcess(who);
+    auto left = bus->removeRemotesFromProcess(who);
+    leaving.insert(leaving.end(), std::make_move_iterator(left.begin()), std::make_move_iterator(left.end()));
   }
 
   // remove from pending remotes

@@ -142,13 +142,26 @@ BusAddress LocalParticipant::getBusAddress() const noexcept
 
 bool LocalParticipant::add(const Span<std::shared_ptr<NativeObject>>& instances)
 {
+  // Session lock first: the dispatcher's control-message chain takes these two in that order,
+  // and taking them the other way round here can wedge against it. The copy keeps the session
+  // alive while we wait for it, as markTornDown() does.
+  std::shared_ptr<Session> session;
+  {
+    std::lock_guard<std::recursive_mutex> earlyTeardownLock(teardownMutex_);
+    if (tornDown_)
+    {
+      return false;
+    }
+    session = session_;
+  }
+
+  Session::PublicLock sessionLock(*session);
+
   std::lock_guard<std::recursive_mutex> teardownLock(teardownMutex_);
   if (tornDown_)
   {
     return false;
   }
-
-  Session::PublicLock sessionLock(*session_);
 
   bool result = true;
 
@@ -221,13 +234,26 @@ bool LocalParticipant::add(const Span<std::shared_ptr<NativeObject>>& instances)
 
 void LocalParticipant::remove(const Span<std::shared_ptr<NativeObject>>& instances)
 {
+  // Session lock first: the dispatcher's control-message chain takes these two in that order,
+  // and taking them the other way round here can wedge against it. The copy keeps the session
+  // alive while we wait for it, as markTornDown() does.
+  std::shared_ptr<Session> session;
+  {
+    std::lock_guard<std::recursive_mutex> earlyTeardownLock(teardownMutex_);
+    if (tornDown_)
+    {
+      return;
+    }
+    session = session_;
+  }
+
+  Session::PublicLock sessionLock(*session);
+
   std::lock_guard<std::recursive_mutex> teardownLock(teardownMutex_);
   if (tornDown_)
   {
     return;
   }
-
-  Session::PublicLock sessionLock(*session_);
 
   for (const auto& instance: instances)
   {
