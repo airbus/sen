@@ -94,7 +94,8 @@ public:
 
   void remoteParticipantRemoved(RemoteParticipant* remote);
 
-  void removeRemotesFromProcess(ProcessId processId);
+  /// Hands the participants back so the caller destroys them outside its locks.
+  [[nodiscard]] std::vector<std::shared_ptr<RemoteParticipant>> removeRemotesFromProcess(ProcessId processId);
 
   void remoteMessageReceived(ObjectOwnerId to, Span<const uint8_t> msg);
 
