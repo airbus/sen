@@ -19,7 +19,8 @@ namespace sen::util
 {
 
 /// @test
-/// Check creation of a matrix
+/// Starts value-initialized with zeroed elements and stores a value written through the row and
+/// column accessor, leaving untouched elements at zero.
 /// @requirements(SEN-1059)
 TEST(Matrix, Creation)
 {
@@ -30,7 +31,8 @@ TEST(Matrix, Creation)
 }
 
 /// @test
-/// Check initialization of a matrix
+/// Fills the matrix row by row from a nested initializer list, with each element reading back
+/// from its row and column.
 /// @requirements(SEN-1059)
 TEST(Matrix, InitializerList)
 {
@@ -47,7 +49,7 @@ TEST(Matrix, InitializerList)
 }
 
 /// @test
-/// Check the copy of a matrix
+/// Copies every element to the new matrix when one is constructed from another.
 /// @requirements(SEN-1059)
 TEST(Matrix, copyMatrix)
 {
@@ -67,7 +69,8 @@ TEST(Matrix, copyMatrix)
 }
 
 /// @test
-/// Check the correct creation of an identity matrix
+/// Builds the identity matrix through makeIdentity, with ones on the diagonal and zeros
+/// elsewhere.
 /// @requirements(SEN-1059)
 TEST(Matrix, identity)
 {
@@ -84,7 +87,8 @@ TEST(Matrix, identity)
 }
 
 /// @test
-/// Check transpose function for a matrix
+/// Writes the transpose of a given matrix into the current instance, and transposing the
+/// instance over itself restores the original.
 /// @requirements(SEN-1059)
 TEST(Matrix, transpose)
 {
@@ -114,7 +118,8 @@ TEST(Matrix, transpose)
 }
 
 /// @test
-/// Check multiplication function for two given matrices storing the result in the current instance
+/// Stores the product of the two given matrices in the current instance, left operand times
+/// right operand.
 /// @requirements(SEN-1059)
 TEST(Matrix, mult)
 {
@@ -136,7 +141,8 @@ TEST(Matrix, mult)
 }
 
 /// @test
-/// Check pre-multiplication function for a given matrix to the current instance
+/// Replaces the current matrix with the product of the given matrix and itself, placing the
+/// argument on the left.
 /// @requirements(SEN-1059)
 TEST(Matrix, preMult)
 {
@@ -157,7 +163,8 @@ TEST(Matrix, preMult)
 }
 
 /// @test
-/// Check post-multiplication function for a given matrix to the current instance
+/// Replaces the current matrix with the product of itself and the given matrix, placing the
+/// argument on the right.
 /// @requirements(SEN-1059)
 TEST(Matrix, postMult)
 {
@@ -178,7 +185,7 @@ TEST(Matrix, postMult)
 }
 
 /// @test
-/// Check post-multiplication function for a given matrix and store the result in a vector
+/// Returns the product of the matrix and the given vector taken as a column on the right.
 /// @requirements(SEN-1059)
 TEST(Matrix, postMultVec)
 {
@@ -193,7 +200,7 @@ TEST(Matrix, postMultVec)
 }
 
 /// @test
-/// Check pre-multiplication function for a given matrix and store the result in a vector
+/// Returns the product of the given vector taken as a row on the left and the matrix.
 /// @requirements(SEN-1059)
 TEST(Matrix, preMultVec)
 {

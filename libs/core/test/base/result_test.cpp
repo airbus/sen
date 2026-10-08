@@ -136,7 +136,8 @@ private:
 };
 
 /// @test
-/// Check result type with no errors
+/// Reports Ok for an in-range call, the boolean conversion, isOk, and isError agreeing, and getValue and
+/// getValueOr both returning the computed 104.
 /// @requirements(SEN-1049)
 TEST(Result, basics_no_error)
 {
@@ -149,7 +150,7 @@ TEST(Result, basics_no_error)
 }
 
 /// @test
-/// Check result type with error of type 1 (too small value specified)
+/// Reports the tooSmall error for a negative input, isError true, and getValueOr falling back to the given -1.
 /// @requirements(SEN-1049)
 TEST(Result, basics_error_1)
 {
@@ -162,7 +163,7 @@ TEST(Result, basics_error_1)
 }
 
 /// @test
-/// Check result type with error of type 2 (special value specified)
+/// Reports the specialValue error for the input 50, isError true, and getValueOr falling back to the given -1.
 /// @requirements(SEN-1049)
 TEST(Result, basics_error_2)
 {
@@ -175,7 +176,8 @@ TEST(Result, basics_error_2)
 }
 
 /// @test
-/// Check result type with error of type 3 (too large value specified)
+/// Reports the tooLarge error for an input above 100, isError true, and getValueOr falling back to the
+/// given -1.
 /// @requirements(SEN-1049)
 TEST(Result, basics_error_3)
 {
@@ -188,7 +190,9 @@ TEST(Result, basics_error_3)
 }
 
 /// @test
-/// Checks that type compatible Results can be converted to each other (const reference).
+/// Converts a const reference Result into Results whose value and error types are explicitly constructible
+/// from the source types, carrying Ok 21 and 42 and the specialValue error across conversions of the value
+/// type, the error type, and both.
 /// @requirements(SEN-1049)
 TEST(Result, basics_conversion_compatible_type_cref)
 {
@@ -223,7 +227,8 @@ TEST(Result, basics_conversion_compatible_type_cref)
 }
 
 /// @test
-/// Checks that type compatible Results can be converted to each other (rvalue).
+/// Converts an rvalue Result into Results whose value and error types are explicitly constructible from the
+/// source types, carrying Ok 21 and 42 and the specialValue error across from the moved source.
 /// @requirements(SEN-1049)
 TEST(Result, basics_conversion_compatible_type_rvalue)
 {
@@ -258,7 +263,8 @@ TEST(Result, basics_conversion_compatible_type_rvalue)
 }
 
 /// @test
-/// Check basic comparisons (==, =!, <, <=, >, >=) between different results
+/// Compares Results by state and payload, equal Ok values comparing equal, a differing value or an error
+/// comparing unequal, and copy and move assignment preserving equality.
 /// @requirements(SEN-1049)
 TEST(Result, basics_comparison)
 {
@@ -282,7 +288,8 @@ TEST(Result, basics_comparison)
 }
 
 /// @test
-/// Check valid value
+/// Reports Ok for a void-payload Result from an in-range call, the boolean conversion, isOk, and isError
+/// agreeing.
 /// @requirements(SEN-1049)
 TEST(Result, void_payload_no_error)
 {
@@ -293,7 +300,7 @@ TEST(Result, void_payload_no_error)
 }
 
 /// @test
-/// Check invalid value error 1
+/// Reports the tooSmall error from a void-payload Result for a negative input.
 /// @requirements(SEN-1049)
 TEST(Result, void_payload_error_1)
 {
@@ -305,7 +312,7 @@ TEST(Result, void_payload_error_1)
 }
 
 /// @test
-/// Check invalid value error 2
+/// Reports the specialValue error from a void-payload Result for the input 50.
 /// @requirements(SEN-1049)
 TEST(Result, void_payload_error_2)
 {
@@ -317,7 +324,7 @@ TEST(Result, void_payload_error_2)
 }
 
 /// @test
-/// Check invalid value error 3
+/// Reports the tooLarge error from a void-payload Result for an input above 100.
 /// @requirements(SEN-1049)
 TEST(Result, void_payload_error_3)
 {
@@ -329,7 +336,7 @@ TEST(Result, void_payload_error_3)
 }
 
 /// @test
-/// Check invalid value error 4
+/// Constructs an error Result directly from Err, carrying the given tooSmall code with isError true.
 /// @requirements(SEN-1049)
 TEST(Result, void_payload_error_4)
 {
@@ -342,7 +349,8 @@ TEST(Result, void_payload_error_4)
 }
 
 /// @test
-/// Check comparison between different void type results
+/// Compares void-payload Results, Ok equal to Ok, errors equal only when their codes match, and copy and move
+/// assignment preserving equality.
 /// @requirements(SEN-1049)
 TEST(Result, void_payload_comparison)
 {
@@ -367,7 +375,7 @@ TEST(Result, void_payload_comparison)
 }
 
 /// @test
-/// Check valid value 2
+/// Reports Ok from a BoolResult for a non-negative input, the boolean conversion, isOk, and isError agreeing.
 /// @requirements(SEN-1049)
 TEST(Result, void_void_payload_no_error)
 {
@@ -378,7 +386,7 @@ TEST(Result, void_void_payload_no_error)
 }
 
 /// @test
-/// Check invalid value 1
+/// Reports the error state for a negative input, the boolean conversion, isOk, and isError agreeing.
 /// @requirements(SEN-1049)
 TEST(Result, void_void_payload_error_1)
 {
@@ -389,7 +397,8 @@ TEST(Result, void_void_payload_error_1)
 }
 
 /// @test
-/// Check comparison between different void type results
+/// Compares BoolResults, Ok equal to Ok and unequal to Err, with copy and move assignment preserving the
+/// state.
 /// @requirements(SEN-1049)
 TEST(Result, void_void_payload_comparison)
 {
@@ -410,7 +419,8 @@ TEST(Result, void_void_payload_comparison)
 }
 
 /// @test
-/// Check move only results
+/// Carries a move-only payload, an error result reassigned from a fresh Ok result and getValue exposing the
+/// moved value 1.
 /// @requirements(SEN-1049)
 TEST(Result, move_only)
 {
@@ -424,7 +434,8 @@ TEST(Result, move_only)
 }
 
 /// @test
-/// Check floating values in result types
+/// Classifies float inputs, 180.0001f reporting tooLarge while exactly -180 and 180 report the same
+/// specialValue error.
 /// @requirements(SEN-1049)
 TEST(Result, floating_values)
 {
@@ -443,7 +454,7 @@ TEST(Result, floating_values)
 }
 
 /// @test
-/// Check that calling getValue on an error result terminates the program
+/// Terminates the program with a Result error message when getValue is called on an error result.
 /// @requirements(SEN-1049)
 TEST(Result, get_value_on_error_terminates)
 {
@@ -452,7 +463,7 @@ TEST(Result, get_value_on_error_terminates)
 }
 
 /// @test
-/// Check that calling getValue on an error result terminates the program
+/// Terminates the program with a Result error message when getValue is called on an rvalue error result.
 /// @requirements(SEN-1049)
 TEST(Result, rvalue_get_value_on_error_terminates)
 {
@@ -460,7 +471,7 @@ TEST(Result, rvalue_get_value_on_error_terminates)
 }
 
 /// @test
-/// Check that calling getError on an ok result terminates the program
+/// Terminates the program with a Result error message when getError is called on an Ok result.
 /// @requirements(SEN-1049)
 TEST(Result, get_error_on_ok_terminates)
 {
@@ -469,7 +480,8 @@ TEST(Result, get_error_on_ok_terminates)
 }
 
 /// @test
-/// Check that expect on an error result prints the custom message and terminates
+/// Terminates the program when expect is called on an error result, printing the supplied custom failure
+/// message.
 /// @requirements(SEN-1049)
 TEST(Result, expect_on_error_terminates_with_message)
 {

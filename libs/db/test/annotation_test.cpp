@@ -27,7 +27,8 @@ namespace sen::db::test
 {
 
 /// @test
-/// Write a single annotation and read it back via the annotation cursor
+/// Round-trips a single int32 annotation through an archive, the cursor yielding one entry
+/// whose type, buffer bytes, and variant value match what was written.
 /// @requirements(SEN-364)
 TEST(AnnotationTest, WriteAndReadSingleAnnotation)
 {
@@ -88,7 +89,7 @@ TEST(AnnotationTest, WriteAndReadSingleAnnotation)
 }
 
 /// @test
-/// Write multiple annotations and verify the count
+/// Retains all five annotations written to an archive, the cursor counting exactly five on readback.
 /// @requirements(SEN-364)
 TEST(AnnotationTest, WriteAndReadMultipleAnnotations)
 {
@@ -141,7 +142,7 @@ TEST(AnnotationTest, WriteAndReadMultipleAnnotations)
 }
 
 /// @test
-/// Verify an archive with no annotations returns an empty cursor
+/// Yields an annotation cursor already at its end after one advance when the archive holds no annotations.
 /// @requirements(SEN-364)
 TEST(AnnotationTest, EmptyAnnotationsCursor)
 {
@@ -169,7 +170,8 @@ TEST(AnnotationTest, EmptyAnnotationsCursor)
 }
 
 /// @test
-/// Add an annotation using addAnnotation func to an existing archive
+/// Persists an annotation added via addAnnotation to an already closed archive, so a fresh
+/// Input reads it back as the only cursor entry.
 /// @requirements(SEN-364)
 TEST(AnnotationTest, AddAnnotationPostRecording)
 {

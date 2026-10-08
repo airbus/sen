@@ -69,7 +69,9 @@ void checkInvalidSpec(const SequenceSpec& spec)
 }  // namespace
 
 /// @test
-/// Checks bounded sequence spec comparison
+/// Compares bounded sequence specs: equal for identical specs, and unequal when the name,
+/// qualified name, description, element type, bound or fixed-size flag differs or the bound is
+/// removed.
 /// @requirements(SEN-579)
 TEST(SequenceType, BoundedSpecComparison)
 {
@@ -133,7 +135,9 @@ TEST(SequenceType, BoundedSpecComparison)
 }
 
 /// @test
-/// Checks unbounded sequence spec comparison
+/// Compares unbounded sequence specs: two with absent bounds are equal, and a changed name,
+/// qualified name, description, element type or fixed-size flag, or a bound added to one side,
+/// makes them unequal.
 /// @requirements(SEN-579)
 TEST(SequenceType, UnboundedSpecComparison)
 {
@@ -197,7 +201,8 @@ TEST(SequenceType, UnboundedSpecComparison)
 }
 
 /// @test
-/// Checks array sequence spec comparison
+/// Compares array sequence specs: equal for identical specs, and unequal when the name, qualified
+/// name, description, element type, size or fixed-size flag differs or the size is removed.
 /// @requirements(SEN-579)
 TEST(SequenceType, ArraySpecComparison)
 {
@@ -261,7 +266,8 @@ TEST(SequenceType, ArraySpecComparison)
 }
 
 /// @test
-/// Checks bounded sequence instance type
+/// Answers the type predicates for a bounded sequence: isCustomType, isSequenceType and isBounded
+/// are true and every other kind predicate sampled, from isNativeType to isAliasType, is false.
 /// @requirements(SEN-579)
 TEST(SequenceType, basicsBoundedBoolConvertion)
 {
@@ -297,7 +303,9 @@ TEST(SequenceType, basicsBoundedBoolConvertion)
 }
 
 /// @test
-/// Checks bounded sequence instance type
+/// Converts a bounded sequence through the as-type conversions: asCustomType and asSequenceType
+/// are non-null, the type is bounded, and every other kind conversion sampled, from asNativeType
+/// to asAliasType, returns null.
 /// @requirements(SEN-579)
 TEST(SequenceType, basicsBoundedConversion)
 {
@@ -333,7 +341,9 @@ TEST(SequenceType, basicsBoundedConversion)
 }
 
 /// @test
-/// Checks unbounded sequence instance type
+/// Answers the type predicates for an unbounded sequence: isCustomType and isSequenceType are
+/// true, isBounded is false, and every other kind predicate sampled, from isNativeType to
+/// isAliasType, is false.
 /// @requirements(SEN-579)
 TEST(SequenceType, basicsUnboundedBoolConversion)
 {
@@ -369,7 +379,9 @@ TEST(SequenceType, basicsUnboundedBoolConversion)
 }
 
 /// @test
-/// Checks unbounded sequence instance type
+/// Converts an unbounded sequence through the as-type conversions: asCustomType and
+/// asSequenceType are non-null, the type is not bounded, and every other kind conversion
+/// sampled, from asNativeType to asAliasType, returns null.
 /// @requirements(SEN-579)
 TEST(SequenceType, basicsUnboundedConversion)
 {
@@ -405,7 +417,8 @@ TEST(SequenceType, basicsUnboundedConversion)
 }
 
 /// @test
-/// Checks array sequence instance type
+/// Answers the type predicates for an array sequence: isCustomType, isSequenceType and isBounded
+/// are true and every other kind predicate sampled, from isNativeType to isAliasType, is false.
 /// @requirements(SEN-579)
 TEST(SequenceType, basicsArrayBoolConversion)
 {
@@ -441,7 +454,9 @@ TEST(SequenceType, basicsArrayBoolConversion)
 }
 
 /// @test
-/// Checks array sequence instance type
+/// Converts an array sequence through the as-type conversions: asCustomType and asSequenceType
+/// are non-null, the type is bounded, and every other kind conversion sampled, from asNativeType
+/// to asAliasType, returns null.
 /// @requirements(SEN-579)
 TEST(SequenceType, basicsArrayConversion)
 {
@@ -477,7 +492,8 @@ TEST(SequenceType, basicsArrayConversion)
 }
 
 /// @test
-/// CHecks correct sequence instant creation from spec
+/// Builds a bounded and an unbounded sequence whose getters expose the spec's name, qualified
+/// name, description, element type and bound.
 /// @requirements(SEN-579)
 TEST(SequenceType, makeBasic)
 {
@@ -497,7 +513,9 @@ TEST(SequenceType, makeBasic)
 }
 
 /// @test
-/// Checks invalid creation of sequence specs
+/// Refuses to build a sequence whose spec has a missing or malformed name or a missing qualified
+/// name, the malformed names covering lowercase-first, digit-first, space-bearing and symbol-only
+/// spellings.
 /// @requirements(SEN-579)
 TEST(SequenceType, makeInvalid)
 {
@@ -566,7 +584,9 @@ TEST(SequenceType, makeInvalid)
 }
 
 /// @test
-/// Checks sequence type comparison
+/// Compares built sequences by value: a sequence differs from every native type, two from the
+/// same spec are equal, and a changed name, qualified name, description, element type, bound or
+/// fixed-size flag makes them unequal.
 /// @requirements(SEN-579)
 TEST(SequenceType, comparison)
 {  // different types

@@ -20,7 +20,8 @@ namespace sen::util
 constexpr f64 absoluteError = 1e-4;
 
 /// @test
-/// Tests Vec3 initialization with values and without them
+/// Default-constructs to the zero vector and stores the three given components when constructed
+/// with values.
 TEST(Vec3, initialization)
 {
   const Vec3 defaultVec3 = Vec3<f32> {};
@@ -39,7 +40,8 @@ TEST(Vec3, initialization)
 }
 
 /// @test
-/// Tests Vec3 pointer method
+/// Exposes the components through ptr() in x, y, z order: writing through the mutable pointer
+/// changes the vector, and a const vector yields a readable pointer.
 TEST(Vec3, pointer)
 {
   Vec3 vec3NoConst = Vec3<f64> {35.65, 62.59, 20.79};
@@ -65,7 +67,8 @@ TEST(Vec3, pointer)
 }
 
 /// @test
-/// Tests Vec3 set method
+/// Overwrites the components through set with three values, through the per axis setters, and
+/// by copying from another vector, with each getter reading the value back.
 TEST(Vec3, set)
 {
   Vec3 vec3 = Vec3<f64> {};
@@ -100,7 +103,8 @@ TEST(Vec3, set)
 }
 
 /// @test
-/// Tests Vec3 equal to and not equal to operators
+/// Compares equal to itself and unequal to a vector with different components through the
+/// equality and inequality operators.
 TEST(Vec3, equality)
 {
   Vec3d vec3L {19.7, 3.89, 27.15};
@@ -114,7 +118,8 @@ TEST(Vec3, equality)
 }
 
 /// @test
-/// Tests Vec3 less than operator
+/// Orders vectors lexicographically with the less than operator, comparing x first, then y on a
+/// tie, then z.
 TEST(Vec3, comparison)
 {
   Vec3 vec3 = Vec3<f64> {43.34, 8.02, 58.46};
@@ -132,7 +137,8 @@ TEST(Vec3, comparison)
 }
 
 /// @test
-/// Tests Vec3 dot product and scalar multiplication methods
+/// Computes the dot product of two vectors, the cross product through the caret operator, and
+/// scales by a scalar through both the returning and the in place forms.
 TEST(Vec3, multiplication)
 {
   Vec3d vec3L {2, 8, 3};
@@ -161,7 +167,7 @@ TEST(Vec3, multiplication)
 }
 
 /// @test
-/// Tests Vec3 division methods
+/// Divides every component by a scalar through both the returning and the in place forms.
 TEST(Vec3, division)
 {
   Vec3d vec3L {16, 24, 12};
@@ -180,7 +186,7 @@ TEST(Vec3, division)
 }
 
 /// @test
-/// Tests Vec3 addition methods
+/// Adds vectors component by component through both the returning and the in place forms.
 TEST(Vec3, addition)
 {
   Vec3 vec3 = Vec3<f64> {63.16, 6.05, 37} + Vec3<f64> {16.31, 49.9, 54.24};
@@ -197,7 +203,8 @@ TEST(Vec3, addition)
 }
 
 /// @test
-/// Tests Vec3 subtraction methods
+/// Subtracts vectors component by component through the returning and in place forms, and
+/// negates every component through unary minus.
 TEST(Vec3, subtraction)
 {
   Vec3 vec3 = Vec3<f64> {28.05, 36.79, 5.7} - Vec3<f64> {18.36, 53.78, 86.77};
@@ -220,7 +227,7 @@ TEST(Vec3, subtraction)
 }
 
 /// @test
-/// Tests Vec3 length methods
+/// Reports the Euclidean length and its square, giving 7 and 49 for the vector (6, 2, 3).
 TEST(Vec3, length)
 {
   Vec3d vec3 {6, 2, 3};
@@ -230,7 +237,7 @@ TEST(Vec3, length)
 }
 
 /// @test
-/// Tests Vec3 normalization method
+/// Scales the vector in place to unit length and returns the length it had before.
 TEST(Vec3, normalization)
 {
   Vec3d vec3 {4, 0, 3};

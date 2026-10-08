@@ -35,7 +35,7 @@ namespace recorder::test
 using sen::components::recorder::RecorderState;
 
 /// @test
-/// getLogger reuses the recorder logger instance
+/// Returns the same logger instance named recorder from every getLogger call.
 /// @requirements(SEN-364)
 TEST(RecorderTest, GetLoggerReturnsSingletonInstance)
 {
@@ -48,7 +48,8 @@ TEST(RecorderTest, GetLoggerReturnsSingletonInstance)
 }
 
 /// @test
-/// A recorder that is not started reports empty stats and keeps the stopped state
+/// Reports a zero max queue size and stays in the stopped state while the recorder has not
+/// been started.
 /// @requirements(SEN-364)
 TEST(RecorderTest, FetchStatsReturnsDefaultValueWhenStopped)
 {
@@ -61,7 +62,8 @@ TEST(RecorderTest, FetchStatsReturnsDefaultValueWhenStopped)
 }
 
 /// @test
-/// Starting the recorder fails when the selection does not define a source bus
+/// Throws on start when the selection query names no source bus, leaving the recorder in the
+/// stopped state.
 /// @requirements(SEN-364)
 TEST(RecorderTest, StartThrowsWhenSelectionHasNoSource)
 {
@@ -74,7 +76,9 @@ TEST(RecorderTest, StartThrowsWhenSelectionHasNoSource)
 }
 
 /// @test
-/// Auto-started recorders write creation and deletion entries for objects added after recording starts
+/// Writes a creation entry naming the tracked object's session and bus when an object is
+/// added during an auto-started recording, and a deletion entry carrying its object id when
+/// it is removed.
 /// @requirements(SEN-364)
 TEST(RecorderTest, AutoStartRecordsCreationAndDeletionEntries)
 {
@@ -135,7 +139,8 @@ TEST(RecorderTest, AutoStartRecordsCreationAndDeletionEntries)
 }
 
 /// @test
-/// Recorder subscriptions write property changes and events from tracked objects
+/// Writes a property change entry holding the speed value 250 and an event entry holding the
+/// valueChanged argument 99.1 for a tracked object's updates.
 /// @requirements(SEN-364)
 TEST(RecorderTest, RecordsPropertyChangesAndEvents)
 {
@@ -193,7 +198,8 @@ TEST(RecorderTest, RecordsPropertyChangesAndEvents)
 }
 
 /// @test
-/// Recorder updates emit periodic keyframes when a keyframe period is configured
+/// Emits keyframes on the configured period, three kernel steps under a one second period
+/// produce exactly one keyframe in the archive.
 /// @requirements(SEN-364)
 TEST(RecorderTest, RecordsPeriodicKeyframes)
 {

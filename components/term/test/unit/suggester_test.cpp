@@ -146,7 +146,8 @@ TEST(FindSuggestions, RespectsMaxSuggestions)
 }
 
 /// @test
-/// Suggestions come back nearest first.
+/// A query one edit from shutdown and far from every other command gets shutdown as the first
+/// suggestion.
 TEST(FindSuggestions, OrdersByDistanceAscending)
 {
   // 'shutdwn' → 'shutdown' is distance 1 (insertion of 'o'); other candidates are far.
@@ -176,7 +177,8 @@ TEST(FindSuggestions, MaxSuggestionsZeroYieldsNothing)
 }
 
 /// @test
-/// A short query uses a tighter threshold, so a candidate two edits away is not suggested.
+/// The two-letter query is contained in no command, and every command is at least two edits
+/// away. No returned suggestion contains the query.
 TEST(FindSuggestions, ShortQueryStrictThreshold)
 {
   // 'aa' (length 2) → threshold 1. 'cd' is distance 2 → not suggested.
@@ -202,7 +204,7 @@ TEST(FormatSuggestionHint, EmptyReturnsEmpty)
 }
 
 /// @test
-/// One suggestion is written as a single question.
+/// The hint for a single suggestion reads "Did you mean 'ls'?".
 TEST(FormatSuggestionHint, OneSuggestion)
 {
   std::vector<std::string> s = {"ls"};
@@ -230,7 +232,8 @@ TEST(FormatSuggestionHint, ThreeSuggestionsUseCommaThenOr)
 //--------------------------------------------------------------------------------------------------------------
 
 /// @test
-/// The threshold grows with the length of the query and stops at three.
+/// The threshold is one edit for queries up to three characters, two up to six, and three from
+/// seven characters on.
 TEST(SuggesterPrimitives, SuggestionThresholdAdaptsToLength)
 {
   EXPECT_EQ(suggestionThreshold(1), 1U);

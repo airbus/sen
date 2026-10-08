@@ -44,7 +44,7 @@ protected:
 }  // namespace
 
 /// @test
-/// Check default constructor
+/// Defaults to an empty span with null data, both asserted at compile time.
 /// @requirements(SEN-355)
 TEST_F(SpanTest, default_construct)
 {
@@ -54,7 +54,7 @@ TEST_F(SpanTest, default_construct)
 }
 
 /// @test
-/// Check pointer size constructor
+/// Views the given pointer and size, reporting the array's size, data address, and first element.
 /// @requirements(SEN-355)
 TEST_F(SpanTest, pointer_size_construct)
 {
@@ -65,7 +65,7 @@ TEST_F(SpanTest, pointer_size_construct)
 }
 
 /// @test
-/// Check array constructor
+/// Views a std::array, the span's size and data matching the array's.
 /// @requirements(SEN-355)
 TEST_F(SpanTest, array_construct)
 {
@@ -75,7 +75,7 @@ TEST_F(SpanTest, array_construct)
 }
 
 /// @test
-/// Check vector constructor
+/// Views a std::vector, mutable and const spans both reporting the vector's size and data.
 /// @requirements(SEN-355)
 TEST_F(SpanTest, vector_construct)
 {
@@ -94,7 +94,7 @@ TEST_F(SpanTest, vector_construct)
 }
 
 /// @test
-/// Check first method
+/// Returns prefixes through first, sizes 0, 1, and 2 all sharing the span's data pointer.
 /// @requirements(SEN-355)
 TEST_F(SpanTest, first)
 {
@@ -114,7 +114,8 @@ TEST_F(SpanTest, first)
 }
 
 /// @test
-/// Check last method
+/// Returns suffixes through last, size 0 pointing one past the end, size 1 at the final element, and size 2 at
+/// the span's start.
 /// @requirements(SEN-355)
 TEST_F(SpanTest, last)
 {
@@ -134,7 +135,8 @@ TEST_F(SpanTest, last)
 }
 
 /// @test
-/// Check subspan method
+/// Drops a prefix through subspan, the default keeping everything while offsets 1 and 2 advance the data
+/// pointer and shrink the size to 1 and 0.
 /// @requirements(SEN-355)
 TEST_F(SpanTest, subspan_offset)
 {
@@ -154,7 +156,8 @@ TEST_F(SpanTest, subspan_offset)
 }
 
 /// @test
-/// Check subspan method using offset and count
+/// Selects windows through subspan with offset and count, the data pointer advanced by the offset and the size
+/// equal to the count, over every valid pair on a two element span.
 /// @requirements(SEN-355)
 TEST_F(SpanTest, subspan_offset_and_count)
 {
@@ -186,7 +189,8 @@ TEST_F(SpanTest, subspan_offset_and_count)
 }
 
 /// @test
-/// Check access operator in span
+/// Agrees across begin, end, cbegin, cend, data, and operator[] for mutable, const, and span-of-const views,
+/// every element reading the underlying array's value.
 /// @requirements(SEN-355)
 TEST_F(SpanTest, access)
 {
@@ -225,7 +229,8 @@ TEST_F(SpanTest, access)
 }
 
 /// @test
-/// Check empty method
+/// Reports empty for a span over a zero length array and for a null pointer with size 0, and non-empty for a
+/// span over elements.
 /// @requirements(SEN-355)
 TEST_F(SpanTest, empty)
 {
@@ -262,7 +267,8 @@ template <typename T>
 using MakeSpanArrayType = decltype(makeSpan(std::declval<std::array<T, 1UL>&>()));
 
 /// @test
-/// Check span type compatibilitity
+/// Deduces Span<int32_t> from makeSpan for scalar, pointer and size, C array, iterator pair, vector, and
+/// std::array arguments, asserted at compile time.
 /// @requirements(SEN-355)
 TEST_F(SpanVectorTest, static_asserts)
 {
@@ -275,7 +281,7 @@ TEST_F(SpanVectorTest, static_asserts)
 }
 
 /// @test
-/// Check span constructor using scalar
+/// Spans a single scalar through makeSpan, the data pointing at the variable with size 1.
 /// @requirements(SEN-355)
 TEST_F(SpanVectorTest, scalar)
 {
@@ -286,7 +292,7 @@ TEST_F(SpanVectorTest, scalar)
 }
 
 /// @test
-/// Test span pointer
+/// Spans a pointer and length through makeSpan, data and size matching the buffer.
 /// @requirements(SEN-355)
 TEST_F(SpanVectorTest, pointer)
 {
@@ -298,7 +304,7 @@ TEST_F(SpanVectorTest, pointer)
 }
 
 /// @test
-/// Test span carray
+/// Spans a C array through makeSpan, deducing its data and size 3.
 /// @requirements(SEN-355)
 TEST_F(SpanVectorTest, carray)
 {
@@ -310,7 +316,7 @@ TEST_F(SpanVectorTest, carray)
 }
 
 /// @test
-/// Test span iterator
+/// Spans an iterator pair through makeSpan, covering the array's data and full size.
 /// @requirements(SEN-355)
 TEST_F(SpanVectorTest, iterator)
 {
@@ -321,7 +327,7 @@ TEST_F(SpanVectorTest, iterator)
 }
 
 /// @test
-/// Test span array
+/// Spans a std::array through makeSpan, data and size matching the array.
 /// @requirements(SEN-355)
 TEST_F(SpanVectorTest, array)
 {
@@ -332,7 +338,7 @@ TEST_F(SpanVectorTest, array)
 }
 
 /// @test
-/// Test span vector
+/// Spans a std::vector through makeSpan, data and size matching the vector.
 /// @requirements(SEN-355)
 TEST_F(SpanVectorTest, vector)
 {
@@ -361,7 +367,8 @@ template <typename T>
 using MakeConstSpanStaticVectorType = decltype(makeConstSpan(std::declval<StaticVector<T, 4UL>>()));
 
 /// @test
-/// Test span type compatibility
+/// Deduces Span<const int32_t> from makeConstSpan for pointer and size, C array, iterator pair, vector,
+/// std::array, and StaticVector arguments, asserted at compile time.
 /// @requirements(SEN-355)
 TEST_F(SpanVectorTest, const_static_asserts)
 {
@@ -374,7 +381,8 @@ TEST_F(SpanVectorTest, const_static_asserts)
 }
 
 /// @test
-/// Test span const static vector
+/// Spans a StaticVector through makeConstSpan, covering the three pushed elements rather than the capacity of
+/// four and reading them back in order.
 /// @requirements(SEN-355)
 TEST_F(SpanVectorTest, const_static_vector)
 {
@@ -392,7 +400,7 @@ TEST_F(SpanVectorTest, const_static_vector)
 }
 
 /// @test
-/// Test span over an empty static vector
+/// Produces an empty span from makeConstSpan over a StaticVector holding no elements.
 /// @requirements(SEN-355)
 TEST_F(SpanVectorTest, const_static_vector_empty)
 {
@@ -405,7 +413,7 @@ TEST_F(SpanVectorTest, const_static_vector_empty)
 }
 
 /// @test
-/// Test span const pointer
+/// Spans a const buffer and length through makeConstSpan, data and size matching the buffer.
 /// @requirements(SEN-355)
 TEST_F(SpanVectorTest, const_pointer)
 {
@@ -417,7 +425,7 @@ TEST_F(SpanVectorTest, const_pointer)
 }
 
 /// @test
-/// Test span const carray
+/// Spans a const C array through makeConstSpan, deducing its data and size 3.
 /// @requirements(SEN-355)
 TEST_F(SpanVectorTest, const_carray)
 {
@@ -429,7 +437,7 @@ TEST_F(SpanVectorTest, const_carray)
 }
 
 /// @test
-/// Test span const iterator
+/// Spans a const iterator pair through makeConstSpan, covering the array's data and full size.
 /// @requirements(SEN-355)
 TEST_F(SpanVectorTest, const_iterator)
 {
@@ -440,7 +448,7 @@ TEST_F(SpanVectorTest, const_iterator)
 }
 
 /// @test
-/// Test span const array
+/// Spans a const std::array through makeConstSpan, data and size matching the array.
 /// @requirements(SEN-355)
 TEST_F(SpanVectorTest, const_array)
 {
@@ -451,7 +459,7 @@ TEST_F(SpanVectorTest, const_array)
 }
 
 /// @test
-/// Test span const vector
+/// Spans a const std::vector through makeConstSpan, data and size matching the vector.
 /// @requirements(SEN-355)
 TEST_F(SpanVectorTest, const_vector)
 {

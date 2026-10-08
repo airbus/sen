@@ -28,7 +28,8 @@ namespace sen::components::ether
 {
 
 /// @test
-/// Verifies that stopping the transport cleans up pending timers
+/// Clears a pending one-hour timer on stop, so stop completes without throwing and a later
+/// cancelTimer with the old timer id returns false.
 /// @requirements(SEN-365, SEN-908)
 TEST(EtherTransport, ClearPendingTimers)
 {

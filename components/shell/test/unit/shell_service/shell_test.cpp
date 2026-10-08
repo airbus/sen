@@ -28,7 +28,8 @@ void adaptCallArguments(const Method* method, VarList& argValues, const Method* 
 }
 
 /// @test
-/// Ensures arguments with quotes and spaces are correctly parsed into VarList
+/// Parses a quoted string containing spaces and a numeric literal from one command line into two Var
+/// arguments, the string kept whole and the number held as an integral value.
 /// @requirements(SEN-369)
 TEST(ShellUtilTest, ParseArgvComplexStrings)
 {
@@ -42,7 +43,8 @@ TEST(ShellUtilTest, ParseArgvComplexStrings)
 }
 
 /// @test
-/// Ensures single string arguments without quotes are captured entirely
+/// Captures everything after the command name as one unquoted string argument when the method takes a
+/// single string parameter.
 /// @requirements(SEN-369)
 TEST(ShellUtilTest, ParseArgvSingleStringShortcut)
 {
@@ -58,7 +60,7 @@ TEST(ShellUtilTest, ParseArgvSingleStringShortcut)
 }
 
 /// @test
-/// Verifies that malformed argument strings throw runtime errors
+/// Throws a runtime error for an argument list whose entries are not separated by commas.
 /// @requirements(SEN-369, SEN-1049)
 TEST(ShellUtilTest, ParseArgvMalformedThrows)
 {
@@ -67,7 +69,7 @@ TEST(ShellUtilTest, ParseArgvMalformedThrows)
 }
 
 /// @test
-/// Validates string formatting utility
+/// Formats printf-style through fromFormat, rendering Val: %02d with 5 as Val: 05.
 /// @requirements(SEN-369)
 TEST(ShellUtilTest, UtilFormatting)
 {
@@ -77,7 +79,8 @@ TEST(ShellUtilTest, UtilFormatting)
 }
 
 /// @test
-/// Validates trimming logic for various whitespace configurations
+/// Trims whitespace from both ends of a string by default and strips a caller-supplied character set such
+/// as dots.
 /// @requirements(SEN-369)
 TEST(ShellUtilTest, UtilTrimming)
 {
@@ -91,7 +94,7 @@ TEST(ShellUtilTest, UtilTrimming)
 }
 
 /// @test
-/// Validates that an empty command results in an empty VarList
+/// Leaves the VarList empty when the command line carries no arguments after the command name.
 /// @requirements(SEN-369)
 TEST(ShellUtilTest, ParseArgvEmpty)
 {
@@ -101,7 +104,8 @@ TEST(ShellUtilTest, ParseArgvEmpty)
 }
 
 /// @test
-/// Validates parsing arguments where method has no args but user provides malformed JSON
+/// Yields a single empty string argument, without throwing, when a method taking no parameters is given
+/// unparseable JSON text.
 /// @requirements(SEN-369, SEN-1049)
 TEST(ShellUtilTest, ParseArgvNoArgsProvidedByMethodThrows)
 {
@@ -116,7 +120,8 @@ TEST(ShellUtilTest, ParseArgvNoArgsProvidedByMethodThrows)
 }
 
 /// @test
-/// Verifies sequence of numbers parsed as array correctly
+/// Parses a bracketed number list into a single argument holding a nested VarList with its three
+/// elements in order.
 /// @requirements(SEN-369)
 TEST(ShellUtilTest, ParseArgvArray)
 {
@@ -133,7 +138,8 @@ TEST(ShellUtilTest, ParseArgvArray)
 }
 
 /// @test
-/// Verifies adaptation of arguments in normal method execution
+/// Adapts an argument list that already matches the method signature without throwing, leaving the value
+/// intact.
 /// @requirements(SEN-369)
 TEST(ShellUtilTest, AdaptCallArgumentsNormalFlow)
 {
@@ -149,7 +155,8 @@ TEST(ShellUtilTest, AdaptCallArgumentsNormalFlow)
 }
 
 /// @test
-/// Verifies adaptation handles size mismatches gracefully by returning early
+/// Returns without throwing and leaves the argument list untouched when its size does not match the
+/// method's parameter count.
 /// @requirements(SEN-369)
 TEST(ShellUtilTest, AdaptCallArgumentsSizeMismatch)
 {
@@ -165,7 +172,8 @@ TEST(ShellUtilTest, AdaptCallArgumentsSizeMismatch)
 }
 
 /// @test
-/// Verifies writer method adaptation logic maps variables correctly
+/// Reorders arguments given in the writer method's parameter order into the target method's order,
+/// matching parameters by name.
 /// @requirements(SEN-369)
 TEST(ShellUtilTest, AdaptCallArgumentsWriterMethod)
 {

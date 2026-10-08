@@ -50,7 +50,7 @@ std::shared_ptr<sen::Interest> makeTestInterest()
 }  // namespace
 
 /// @test
-/// Verifies the default constructor initializes an empty subscription without a source
+/// Starts without a source when default-constructed.
 /// @requirements(SEN-362)
 TEST(SubscriptionTest, DefaultConstructor)
 {
@@ -60,7 +60,7 @@ TEST(SubscriptionTest, DefaultConstructor)
 }
 
 /// @test
-/// Verifies the destructor cleanly removes the subscriber if a source is attached
+/// Survives destruction while still attached to a source.
 /// @requirements(SEN-362)
 TEST(SubscriptionTest, DestructorRemovesSubscriber)
 {
@@ -75,7 +75,7 @@ TEST(SubscriptionTest, DestructorRemovesSubscriber)
 }
 
 /// @test
-/// Verifies release() detaches the source and suppresses removal notifications when requested
+/// Detaches from its source on release, getSource reports empty afterwards.
 /// @requirements(SEN-362)
 TEST(SubscriptionTest, ReleaseDetachesSource)
 {
@@ -89,7 +89,7 @@ TEST(SubscriptionTest, ReleaseDetachesSource)
 }
 
 /// @test
-/// Verifies the move constructor securely transfers ownership of the state
+/// Transfers the attached source to the new subscription on move construction.
 /// @requirements(SEN-362)
 TEST(SubscriptionTest, MoveConstructor)
 {
@@ -103,8 +103,8 @@ TEST(SubscriptionTest, MoveConstructor)
 }
 
 /// @test
-/// Verifies move assignment handles state cleanly, transfers ownership,
-/// and manages self-assignment without causing undefined behavior
+/// Keeps the subscription sourceless when move-assigning from an empty subscription and when
+/// move-assigning it to itself.
 /// @requirements(SEN-351, SEN-362)
 TEST(SubscriptionTest, MoveAssignmentSelfAndEmpty)
 {
@@ -122,8 +122,8 @@ TEST(SubscriptionTest, MoveAssignmentSelfAndEmpty)
 }
 
 /// @test
-/// Verifies move assignment correctly unsubscribes the existing source
-/// on the destination object before claiming the new state from the moved object
+/// Replaces the destination's existing source on move assignment, the destination ends attached
+/// to the moved-in source.
 /// @requirements(SEN-362)
 TEST(SubscriptionTest, MoveAssignmentOverwritesExistingSource)
 {

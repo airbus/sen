@@ -21,7 +21,8 @@
 #include <string>
 
 /// @test
-/// Check writeFile creates the file successfully and writes the content correctly
+/// Writes an embedded template to the given path with its placeholders rendered, so the file
+/// holds the supplied package_name and class_name values.
 TEST(CliPackageUtil, WriteFile)
 {
   inja::json packageData;

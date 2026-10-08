@@ -213,7 +213,8 @@ void checkStringValues()
 }  // namespace
 
 /// @test
-/// Checks empty var creation
+/// Reports a default-constructed Var as empty, and getCopyAs of every supported type sampled,
+/// from monostate to VarMap, returns that type's default value.
 /// @requirements(SEN-1053)
 TEST(Var, empty)
 {
@@ -236,7 +237,8 @@ TEST(Var, empty)
 }
 
 /// @test
-/// Checks boolean var creation and possible copies into other types
+/// Copies a boolean Var to integers as zero for false and non-zero for true, and to the
+/// strings false and true. Conversions to Duration, TimeStamp, VarList, and VarMap throw.
 /// @requirements(SEN-1053)
 TEST(Var, boolean)
 {
@@ -286,7 +288,10 @@ TEST(Var, boolean)
 }
 
 /// @test
-/// Checks var creation with different numeric limits of number types
+/// Round-trips every integer and floating-point type through Var at min, max, lowest, zero,
+/// and a random sample. Checked getCopyAs to every other width returns the exact value when it
+/// fits and dies in debug with a truncation message when it does not, and each value also
+/// converts to bool and its decimal string.
 /// @requirements(SEN-1053)
 TEST(Var, numbers)
 {
@@ -302,7 +307,9 @@ TEST(Var, numbers)
 }
 
 /// @test
-/// Checks string var creation and conversion
+/// Converts a Var holding a numeric string to every integer and floating-point type, to bool,
+/// and back to the same string. An empty string converts to false and 0.0, and toJson keeps a
+/// numeric string quoted as a JSON string.
 /// @requirements(SEN-1053)
 TEST(Var, string)
 {
@@ -334,7 +341,9 @@ TEST(Var, string)
 }
 
 /// @test
-/// Checks duration var creation and possible conversions
+/// Copies a 100 nanosecond duration Var to every integer width as 100, to the string 100, and
+/// to Duration and TimeStamp intact, with toJson rendering the bare count. stringToDuration
+/// parses 1000ns and throws on a non-duration string.
 /// @requirements(SEN-1053)
 TEST(Var, duration)
 {
@@ -358,7 +367,9 @@ TEST(Var, duration)
 }
 
 /// @test
-/// Checks timestamp var creation and possible conversions
+/// Copies a timestamp Var to every integer width as its epoch nanoseconds, to Duration as
+/// sinceEpoch, and to TimeStamp intact, with toJson quoting the string form. getCopyAs of
+/// TimeStamp from an out-of-range or malformed string Var throws.
 /// @requirements(SEN-1053)
 TEST(Var, timestamp)
 {
@@ -385,7 +396,8 @@ TEST(Var, timestamp)
 }
 
 /// @test
-/// Checks varlist creation and possible conversions
+/// Renders a list Var to a string as JSON-style brackets, an empty list prints [] and numeric
+/// or string elements print one per line, strings quoted.
 /// @requirements(SEN-1053)
 TEST(Var, list)
 {
@@ -408,7 +420,8 @@ TEST(Var, list)
 }
 
 /// @test
-/// Checks varmap creation and possible conversions
+/// Renders a map Var to a string as JSON-style braces with quoted keys, an empty map prints
+/// {}, and copying a map to a number yields zero.
 /// @requirements(SEN-1053)
 TEST(Var, map)
 {
@@ -433,7 +446,7 @@ TEST(Var, map)
 }
 
 /// @test
-/// Checks KeyedVar conversions
+/// Renders a KeyedVar holding key 1 to a string that contains the key field with value 1.
 /// @requirements(SEN-1053)
 TEST(Var, keyedVar)
 {
@@ -445,7 +458,9 @@ TEST(Var, keyedVar)
 }
 
 /// @test
-/// Checks comparison between different var types
+/// Equates Vars holding the same type and value, including empty Vars however constructed,
+/// and distinguishes Vars whose value matches but whose type differs, such as signedness,
+/// width, bool against integer, or TimeStamp against Duration.
 /// @requirements(SEN-1053)
 TEST(Var, comparison)
 {
@@ -489,7 +504,8 @@ TEST(Var, comparison)
 }
 
 /// @test
-/// Checks find element var methods
+/// Finds a map entry by key through findElement and findElementAs, and throws when the key is
+/// absent or differs in case.
 /// @requirements(SEN-1053)
 TEST(Var, findElement)
 {
@@ -509,7 +525,8 @@ TEST(Var, findElement)
 }
 
 /// @test
-/// Checks swap between vars
+/// Exchanges the contents of two Vars through swap, across same types, different types, and
+/// an empty Var, each side afterwards holds exactly what the other held.
 /// @requirements(SEN-1053)
 TEST(Var, swap)
 {
@@ -560,7 +577,8 @@ TEST(Var, swap)
 }
 
 /// @test
-/// Checks if a var holds specific types (helper methods)
+/// Reports holdsIntegralValue only for a Var holding an integer and holdsFloatingPointValue
+/// only for one holding a floating-point value.
 /// @requirements(SEN-1053)
 TEST(Var, metaHoldsType)
 {
@@ -574,7 +592,8 @@ TEST(Var, metaHoldsType)
 }
 
 /// @test
-/// Checks basic JSON struct conversion
+/// Round-trips a generated struct through toVariant, toJson, fromJson, and toValue back to an
+/// equal struct.
 /// @requirements(SEN-1053)
 TEST(Var, jsonStructConversion)
 {
@@ -588,7 +607,8 @@ TEST(Var, jsonStructConversion)
 }
 
 /// @test
-/// Checks JSON struct conversion with variable indentation
+/// Round-trips a generated struct through JSON at indentation levels 0, 2, and 4, parsing
+/// back to an equal struct at each level.
 /// @requirements(SEN-1053)
 TEST(Var, jsonIndentation)
 {
@@ -603,7 +623,9 @@ TEST(Var, jsonIndentation)
 }
 
 /// @test
-/// Checks JSON conversion for specific primitives, arrays, and edges.
+/// Parses JSON primitives into typed Vars, true to bool, -12345 to int64_t, an array into a
+/// VarList with unsigned and signed elements, and null to an empty Var that serializes back to
+/// null. BSON input with an unsupported binary type throws.
 /// @requirements(SEN-1053)
 TEST(Var, jsonPrimitivesAndEdges)
 {
@@ -647,7 +669,8 @@ TEST(Var, jsonPrimitivesAndEdges)
 }
 
 /// @test
-/// Checks binary format conversions (BSON, CBOR, MsgPack, UBJson)
+/// Round-trips a map Var through BSON, CBOR, MsgPack, and UBJSON, each encoding is non-empty
+/// and decodes back to an equal Var.
 /// @requirements(SEN-1053)
 TEST(Var, binaryFormats)
 {
@@ -684,7 +707,10 @@ TEST(Var, binaryFormats)
 }
 
 /// @test
-/// Checks Checked Conversions and Implementation Wrappers (Safety & Gaps)
+/// Converts an integer Var through checked getCopyAs to bool, string, Duration, and
+/// TimeStamp, while VarList, VarMap, and KeyedVar targets throw and monostate stays allowed.
+/// In debug builds a checked conversion that would truncate, 300 into uint8_t, dies with the
+/// truncation message.
 /// @requirements(SEN-1053)
 TEST(Var, checkedConversions)
 {

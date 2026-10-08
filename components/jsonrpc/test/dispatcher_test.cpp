@@ -44,8 +44,7 @@ constexpr ConnectionId clientId {7U};
 }  // namespace
 
 /// @test
-/// A well-formed ping request is answered with `result:"pong"` echoing the request id, addressed
-/// at the connection that sent it.
+/// A well-formed ping request is answered with result "pong" echoing the request id.
 TEST(Dispatcher, pingHappyPath)
 {
   DispatcherFixture f;
@@ -59,8 +58,8 @@ TEST(Dispatcher, pingHappyPath)
 }
 
 /// @test
-/// A request whose `id` field is missing is a notification: the handler runs but no response is
-/// emitted on the outbound queue.
+/// A request whose id field is missing is a notification, so no response is emitted on the
+/// outbound queue.
 TEST(Dispatcher, notificationProducesNoResponse)
 {
   DispatcherFixture f;
@@ -72,7 +71,8 @@ TEST(Dispatcher, notificationProducesNoResponse)
 }
 
 /// @test
-/// Malformed JSON yields Parse error (-32700) with id null; the parser's diagnostic rides in `data`.
+/// Malformed JSON yields Parse error (-32700) with id null, and the parser's diagnostic rides
+/// in the data field.
 TEST(Dispatcher, parseErrorRespondsWithNullId)
 {
   DispatcherFixture f;
@@ -90,8 +90,8 @@ TEST(Dispatcher, parseErrorRespondsWithNullId)
 }
 
 /// @test
-/// A non-object envelope (a bare value or an array, including the batch case we deferred) is
-/// rejected with Invalid Request (-32600) and id null.
+/// A non-object envelope, here a bare number, is rejected with Invalid Request (-32600) and
+/// id null.
 TEST(Dispatcher, nonObjectEnvelopeIsInvalidRequest)
 {
   DispatcherFixture f;
@@ -142,8 +142,8 @@ TEST(Dispatcher, wrongVersionIsInvalidRequest)
 }
 
 /// @test
-/// `unsubscribeEvent` shares the param shape `{interest: string, object, event}`. Pins the
-/// handler's param-shape gate.
+/// Rejects unsubscribeEvent params that do not carry the required interest, object and event
+/// fields with Invalid params (-32602), echoing the request id.
 TEST(Dispatcher, unsubscribeEventRejectsBadParams)
 {
   DispatcherFixture f;
@@ -156,8 +156,8 @@ TEST(Dispatcher, unsubscribeEventRejectsBadParams)
 }
 
 /// @test
-/// `unsubscribeProperty` shares the param shape `{interest: string, object, property}`. Pins the
-/// handler's param-shape gate.
+/// Rejects unsubscribeProperty params that do not carry the required interest, object and
+/// property fields with Invalid params (-32602), echoing the request id.
 TEST(Dispatcher, unsubscribePropertyRejectsBadParams)
 {
   DispatcherFixture f;
@@ -170,8 +170,8 @@ TEST(Dispatcher, unsubscribePropertyRejectsBadParams)
 }
 
 /// @test
-/// `releaseInterest` with missing or non-string `interest` returns invalidParams. The error fires
-/// before any kernel/state lookup.
+/// Rejects releaseInterest params that are missing the interest string with Invalid params
+/// (-32602), echoing the request id.
 TEST(Dispatcher, releaseInterestRejectsBadParams)
 {
   DispatcherFixture f;
@@ -184,8 +184,8 @@ TEST(Dispatcher, releaseInterestRejectsBadParams)
 }
 
 /// @test
-/// ClientDisconnected and BackpressureUpdate synthetic messages are absorbed silently: they must
-/// not produce protocol traffic, even though the dispatcher tracks per-connection state from them.
+/// ClientDisconnected and BackpressureUpdate synthetic messages are absorbed silently, producing
+/// no protocol traffic even though the dispatcher tracks per-connection state from them.
 TEST(Dispatcher, syntheticMessagesAreAbsorbed)
 {
   DispatcherFixture f;
@@ -197,8 +197,8 @@ TEST(Dispatcher, syntheticMessagesAreAbsorbed)
 }
 
 /// @test
-/// `ClientConnected{identity}` is silent on the wire and seeds the per-connection `Server`'s
-/// identity (the WS-server tests cover the emission half of the auth seam).
+/// A ClientConnected message carrying an identity produces no wire traffic and seeds the
+/// per-connection Server with that identity's subject.
 TEST(Dispatcher, clientConnectedSeedsServerIdentity)
 {
   DispatcherFixture f;
@@ -212,8 +212,8 @@ TEST(Dispatcher, clientConnectedSeedsServerIdentity)
 }
 
 /// @test
-/// During the high window, best-effort `pushNotification` drops the message and increments
-/// `droppedNotifications`.
+/// While a connection's backpressure is high, a best-effort pushNotification drops the message
+/// and increments the droppedNotifications counter.
 TEST(Dispatcher, pushNotificationIsDroppedWhileBackpressureHigh)
 {
   DispatcherFixture f;
@@ -230,8 +230,8 @@ TEST(Dispatcher, pushNotificationIsDroppedWhileBackpressureHigh)
 }
 
 /// @test
-/// On the drained transition, the dispatcher emits one `notificationsDropped {count: N}` and
-/// resets the counter. The recovery message itself must not be gated.
+/// When backpressure drains, the dispatcher emits one notificationsDropped message carrying the
+/// number of notifications dropped during the high window and resets the counter to zero.
 TEST(Dispatcher, backpressureRecoveryEmitsNotificationsDropped)
 {
   DispatcherFixture f;
@@ -253,7 +253,8 @@ TEST(Dispatcher, backpressureRecoveryEmitsNotificationsDropped)
 }
 
 /// @test
-/// No recovery message when nothing was dropped - the message exists only to signal lost data.
+/// Emits no recovery message when nothing was dropped, since the message exists only to signal
+/// lost data.
 TEST(Dispatcher, backpressureRecoveryIsSilentWhenNothingWasDropped)
 {
   DispatcherFixture f;
@@ -285,8 +286,8 @@ TEST(Dispatcher, reliableNotificationBypassesBackpressureGate)
 }
 
 /// @test
-/// Direct-request responses bypass the backpressure gate; clients who asked for a result must
-/// always get one.
+/// Direct-request responses bypass the backpressure gate, so a client that asked for a result
+/// gets one even while backpressure is high.
 TEST(Dispatcher, requestResponseBypassesBackpressureGate)
 {
   DispatcherFixture f;

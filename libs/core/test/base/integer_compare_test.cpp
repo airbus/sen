@@ -85,7 +85,8 @@ class IntegerCompareTestSuiteSignedCmpSigned: public IntegerCompareTestSuiteBase
 };
 
 /// @test
-/// Check safe comparison between two signed types
+/// Produces the expected result from each of the six cmp_ comparison functions for every int32_t pair in the
+/// table, covering less, greater, and equal operands of both signs.
 /// @requirements(SEN-1046)
 TEST_P(IntegerCompareTestSuiteSignedCmpSigned, CheckCorrectComparison) { runComparison(); }
 
@@ -165,7 +166,8 @@ class IntegerCompareTestSuiteUnsignedCmpUnsigned: public IntegerCompareTestSuite
 };
 
 /// @test
-/// Check safe comparison between two unsigned types
+/// Produces the expected result from each of the six cmp_ comparison functions for every uint32_t pair in the
+/// table, covering less, greater, and equal operands.
 /// @requirements(SEN-1046)
 TEST_P(IntegerCompareTestSuiteUnsignedCmpUnsigned, CheckCorrectComparison) { runComparison(); }
 
@@ -205,7 +207,8 @@ class IntegerCompareTestSuiteSignedCmpUnsigned: public IntegerCompareTestSuiteBa
 };
 
 /// @test
-/// Check safe comparison from signed to unsigned types
+/// Compares int32_t against uint32_t by value in all six cmp_ functions, ordering -4 below 7u instead of
+/// letting the -4 wrap to a large unsigned value.
 /// @requirements(SEN-1046)
 TEST_P(IntegerCompareTestSuiteSignedCmpUnsigned, CheckCorrectComparison) { runComparison(); }
 
@@ -253,7 +256,8 @@ class IntegerCompareTestSuiteUnsignedCmpSigned: public IntegerCompareTestSuiteBa
 };
 
 /// @test
-/// Check safe comparison from unsigned to signed types
+/// Compares uint32_t against int32_t by value in all six cmp_ functions, ordering 7u above -4 instead of
+/// letting the -4 wrap to a large unsigned value.
 /// @requirements(SEN-1046)
 TEST_P(IntegerCompareTestSuiteUnsignedCmpSigned, CheckCorrectComparison) { runComparison(); }
 

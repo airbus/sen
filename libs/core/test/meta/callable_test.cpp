@@ -62,7 +62,8 @@ const std::vector<Arg>& args()
 }  // namespace
 
 /// @test
-/// Check callable arguments comparison
+/// Compares callable arguments: equal when name, description and type all match, empty names and
+/// descriptions included, and unequal when any of the three differs.
 /// @requirements(SEN-355)
 TEST(Callable, argComparison)
 {
@@ -129,7 +130,8 @@ TEST(Callable, argComparison)
 }
 
 /// @test
-/// Checks callable spec comparison
+/// Compares callable specs: equal for identical contents, and unequal when the name, description,
+/// transport mode or argument list differs, an optional versus mandatory argument type included.
 /// @requirements(SEN-355)
 TEST(Callable, specComparison)
 {
@@ -237,7 +239,9 @@ TEST(Callable, specComparison)
 }
 
 /// @test
-/// Checks callable spec correct creation
+/// Validates callable specs: accepts a well-formed spec, an empty description and unnamed
+/// arguments, and throws for a missing or non-lowerCamelCase name, a repeated argument name or an
+/// empty spec.
 /// @requirements(SEN-355)
 TEST(Callable, specValidation)
 {
@@ -291,7 +295,9 @@ TEST(Callable, specValidation)
 }
 
 /// @test
-/// Checks correct callable instance from specs
+/// Builds callable instances, including from specs with repeated or empty argument names, exposes
+/// the spec data through the getters, and compares them: equal for identical specs, unequal when
+/// the name, description or argument list differs.
 /// @requirements(SEN-355)
 TEST(Callable, instanceCheck)
 {
@@ -406,7 +412,8 @@ TEST(Callable, instanceCheck)
 }
 
 /// @test
-/// Checks callable arguments getter
+/// Finds a callable argument by name, and returns null for a name that does not exist or an
+/// empty name.
 /// @requirements(SEN-355)
 TEST(Callable, getArgFrom)
 {

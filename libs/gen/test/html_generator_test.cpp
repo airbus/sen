@@ -534,8 +534,8 @@ TEST_F(AnHtmlGenerator, namesEveryKindItEmits)
 //
 // The application is emitted here, so its reads can be checked against what was written.
 /// @test
-/// Every key app.js reads off a type, off the metadata and off the facts is a key the generator
-/// emits, so the two files stay in step.
+/// Every key app.js reads off a type, off the metadata and off the facts, min and max aside,
+/// is a key the generator emits, so the two files stay in step.
 TEST_F(AnHtmlGenerator, emitsEveryKeyTheApplicationReads)
 {
   generate(everyKindStl);
@@ -713,7 +713,7 @@ TEST_F(AnHtmlGenerator, writesOnlyRelativePaths)
 }
 
 /// @test
-/// `[static]` resolves to staticRW, which can be set from code and configuration but has no public
+/// [static] resolves to staticRW, which can be set from code and configuration but has no public
 /// setter. Calling it writable told a reader the property had one. The other generators derive this
 /// from writeAllowed, which is true for dynamicRW alone.
 TEST_F(AnHtmlGenerator, callsOnlyAPublicSetterWritable)
@@ -755,7 +755,7 @@ class Flags
 }
 
 /// @test
-/// A variant whose alternatives carry no description should not be given a column of blanks. STL
+/// A variant whose alternatives carry no description is not given a column of blanks. STL
 /// allows one per alternative, so the column appears when any of them is written.
 TEST_F(AnHtmlGenerator, omitsTheVariantDescriptionColumnWhenNothingDescribesAnArm)
 {

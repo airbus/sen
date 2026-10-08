@@ -28,7 +28,8 @@ namespace sen::db::test
 {
 
 /// @test
-/// Write a property change and read it back.
+/// Records a change of the speed property and reads it back, the entry carrying the object id,
+/// the property meta resolved by name, and a non-empty value buffer.
 /// @requirements(SEN-364)
 TEST(PropertyChangeTest, WriteAndReadPropertyChange)
 {
@@ -103,7 +104,7 @@ TEST(PropertyChangeTest, WriteAndReadPropertyChange)
 }
 
 /// @test
-/// Write multiple property changes and verify all are readable
+/// Retains four property changes recorded at successive times, the readback finding all four.
 /// @requirements(SEN-364)
 TEST(PropertyChangeTest, MultiplePropertyChanges)
 {
@@ -170,7 +171,8 @@ TEST(PropertyChangeTest, MultiplePropertyChanges)
 }
 
 /// @test
-/// Read a property change and verify getValueAsVariant works.
+/// Decodes a property change's value through getValueAsVariant, returning the float64 123.456
+/// that was serialized into the recording.
 /// @requirements(SEN-364)
 TEST(PropertyChangeTest, GetValueAsVariant)
 {

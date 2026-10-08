@@ -25,7 +25,7 @@ TEST(FibonacciAlgorithmTest, BaseCase0) { EXPECT_EQ(fibonacci::computeFibonacci(
 /// computeFibonacci(1) is 1.
 TEST(FibonacciAlgorithmTest, BaseCase1) { EXPECT_EQ(fibonacci::computeFibonacci(1), 1U); }
 /// @test
-/// The first terms of the sequence are computed correctly.
+/// computeFibonacci returns 1, 2, 3 and 5 for n from 2 to 5, and 55 for 10.
 TEST(FibonacciAlgorithmTest, SmallValues)
 {
   EXPECT_EQ(fibonacci::computeFibonacci(2), 1U);

@@ -26,7 +26,7 @@ namespace sen::db::test
 {
 
 /// @test
-/// Write a keyframe with no objects and verify it produces an empty snapshots list
+/// Produces a Keyframe entry whose snapshot list is empty when the keyframe was recorded with no objects.
 /// @requirements(SEN-364)
 TEST(KeyframeTest, EmptyKeyframeHasNoSnapshots)
 {
@@ -73,7 +73,8 @@ TEST(KeyframeTest, EmptyKeyframeHasNoSnapshots)
 }
 
 /// @test
-/// Write multiple keyframes at different times and verify they are all indexed
+/// Indexes all five keyframes recorded at successive times, the summary and
+/// getAllKeyframeIndexes both counting five.
 /// @requirements(SEN-364)
 TEST(KeyframeTest, MultipleKeyframeIndexes)
 {
@@ -110,7 +111,8 @@ TEST(KeyframeTest, MultipleKeyframeIndexes)
 }
 
 /// @test
-/// Verify that keyframe indexes are sorted by time
+/// Returns keyframe indexes in non-decreasing time order after five keyframes were recorded at
+/// successive times.
 /// @requirements(SEN-364)
 TEST(KeyframeTest, KeyframeIndexesSortedByTime)
 {
@@ -147,7 +149,8 @@ TEST(KeyframeTest, KeyframeIndexesSortedByTime)
 }
 
 /// @test
-/// Navigate to a specific keyframe and verify the cursor is valid
+/// Positions a cursor at the second keyframe index, iteration from there yielding the four
+/// remaining entries of the five recorded.
 /// @requirements(SEN-364)
 TEST(KeyframeTest, NavigateToSpecificKeyframe)
 {
@@ -195,7 +198,7 @@ TEST(KeyframeTest, NavigateToSpecificKeyframe)
 }
 
 /// @test
-/// Verify getKeyframeIndex returns the closest keyframe to a given time
+/// Returns the first keyframe index from getKeyframeIndex when queried with that keyframe's exact time.
 /// @requirements(SEN-364)
 TEST(KeyframeTest, GetClosestKeyframeIndex)
 {

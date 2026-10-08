@@ -233,7 +233,8 @@ struct ConvertToUint64: public VariantAdapterTestBase<uint64_t>
 };
 
 /// @test
-/// Every numeric type converts to uint64, capping at the limits rather than wrapping.
+/// Every numeric type converts to uint64, negative values capping at the lowest limit rather than
+/// wrapping.
 TEST_P(ConvertToUint64, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(

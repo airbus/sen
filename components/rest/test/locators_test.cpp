@@ -19,7 +19,8 @@
 using namespace sen::components::rest;  // NOLINT
 
 /// @test
-/// Verify bus locator building
+/// Builds a BusLocator from session and bus names, joining them into the dotted bus address, and reports
+/// emptySessionName or emptyBusName when the respective part is empty.
 /// @requirements(SEN-1061)
 TEST(Rest, bus_locator)
 {
@@ -43,7 +44,8 @@ TEST(Rest, bus_locator)
 }
 
 /// @test
-/// Verify bus locator building from an interest
+/// Builds a BusLocator from an interest by parsing the FROM target of its query into session and bus, and
+/// returns an error when the query does not parse.
 /// @requirements(SEN-1061)
 TEST(Rest, bus_locator_from_interest)
 {
@@ -63,7 +65,8 @@ TEST(Rest, bus_locator_from_interest)
 }
 
 /// @test
-/// Verify object locator building from an interest
+/// Extends a bus locator with an object name into an ObjectLocator exposing session, bus, and object, with
+/// the object address joining all three with dots.
 /// @requirements(SEN-1061)
 TEST(Rest, object_locator_from_interest)
 {
@@ -79,7 +82,8 @@ TEST(Rest, object_locator_from_interest)
 }
 
 /// @test
-/// Verify method locator building from an interest
+/// Extends a bus locator with object and method names into a MethodLocator exposing session, bus, object,
+/// and method.
 /// @requirements(SEN-1061)
 TEST(Rest, method_locator_from_interest)
 {
@@ -95,7 +99,8 @@ TEST(Rest, method_locator_from_interest)
 }
 
 /// @test
-/// Verify property locator building from an interest
+/// Extends a bus locator with object and property names into a PropertyLocator exposing session, bus,
+/// object, and property.
 /// @requirements(SEN-1061)
 TEST(Rest, property_locator_from_interest)
 {
@@ -112,7 +117,8 @@ TEST(Rest, property_locator_from_interest)
 }
 
 /// @test
-/// Verify event locator building from an interest
+/// Extends a bus locator with object and event names into an EventLocator exposing session, bus, object,
+/// and event.
 /// @requirements(SEN-1061)
 TEST(Rest, event_locator_from_interest)
 {

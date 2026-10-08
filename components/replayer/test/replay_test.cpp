@@ -195,8 +195,10 @@ void registerDummyReplayType(ReplaySetup& setup)
 }
 
 /// @test
-/// Keeps playback time coherent across play, pause, stop, and reset
-/// requirements(SEN-364)
+/// Transitions through playing, paused, and stopped on the matching calls, tolerates repeated
+/// calls in the same state, and resets playback time to the start on stop after an advance
+/// moved it forward.
+/// @requirements(SEN-364)
 TEST(ReplayTest, StopChangesStatusAndResetsTime)
 {
   ReplaySetup setup;
@@ -229,8 +231,9 @@ TEST(ReplayTest, StopChangesStatusAndResetsTime)
 }
 
 /// @test
-/// Advances when idle, ignores manual advance while playing and pauses at the end
-/// requirements(SEN-364)
+/// Advances playback time by the requested amount while stopped, ignores a manual advance
+/// while playing, and pauses when an advance reaches the end of the archive.
+/// @requirements(SEN-364)
 TEST(ReplayTest, AdvanceForwardWhenPaused)
 {
   ReplaySetup setup;
@@ -259,8 +262,9 @@ TEST(ReplayTest, AdvanceForwardWhenPaused)
 }
 
 /// @test
-/// Seeks within the archive window and rejects times outside it
-/// requirements(SEN-364)
+/// Seeks to a time inside the archive window so playback time lands exactly on the target,
+/// and throws for a seek one hour past the end.
+/// @requirements(SEN-364)
 TEST(ReplayTest, SeekingToValidTimeUpdatesTime)
 {
   ReplaySetup setup;
@@ -279,8 +283,9 @@ TEST(ReplayTest, SeekingToValidTimeUpdatesTime)
 }
 
 /// @test
-/// Seeks to a time between two indexed keyframes
-/// requirements(SEN-364)
+/// Seeks to a time lying between two indexed keyframes, playback time lands exactly on the
+/// requested intermediate target.
+/// @requirements(SEN-364)
 TEST(ReplayTest, SeekToIntermediateTime)
 {
   ReplaySetup setup("test_seek",
@@ -315,8 +320,9 @@ TEST(ReplayTest, SeekToIntermediateTime)
 }
 
 /// @test
-/// Handles keyframe replacement and awkward lifecycle entries without breaking playback
-/// requirements(SEN-364)
+/// Replaces the visible object set on each keyframe without duplicating a carried-over
+/// object, tolerates a repeated creation of the same object, and honors its deletion.
+/// @requirements(SEN-364)
 TEST(ReplayTest, KeyframeHandling)
 {
   ReplaySetup setup("test_keyframe",
@@ -391,8 +397,9 @@ TEST(ReplayTest, KeyframeHandling)
 }
 
 /// @test
-/// Applies payloads for existing objects and ignores the ones that arrive too late
-/// requirements(SEN-364)
+/// Plays an archive whose property change and event entries target an already deleted object,
+/// surviving them and pausing at the end of the archive.
+/// @requirements(SEN-364)
 TEST(ReplayTest, PayloadApplication)
 {
   ReplaySetup setup("test_payloads",
@@ -430,8 +437,9 @@ TEST(ReplayTest, PayloadApplication)
 }
 
 /// @test
-/// Rejects seeks that fall inside the time window but outside the keyframe index
-/// requirements(SEN-364)
+/// Throws for a seek to a time inside the archive's span but not covered by any keyframe
+/// index entry.
+/// @requirements(SEN-364)
 TEST(ReplayTest, SeekNoIndexThrows)
 {
   ReplaySetup setup("test_no_index",

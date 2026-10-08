@@ -62,7 +62,7 @@ TEST(Banner, EveryQuoteAndAuthorFitsTheBannerWidth)
 }
 
 /// @test
-/// The banner shows one of the quotes from the table with its author, dash prefixed.
+/// The rendered banner credits an author from the quote table, prefixed with a dash.
 TEST(Banner, ShowsAQuoteFromTheTableWithItsAuthorDashPrefixed)
 {
   auto out = renderToText(renderBanner("1.0.0", "g++", "release"));
@@ -90,7 +90,8 @@ TEST(Banner, HasColorBars)
 }
 
 /// @test
-/// Whether a quote fits beside its author or not, both the quote and the author appear.
+/// Every quote in the table falls on one side of renderBanner's shared-line bound, with at least
+/// one taking the shared line, and an author pushed to its own line still fits the banner width.
 TEST(Banner, TheQuoteAndAuthorEitherShareALineOrTheAuthorGetsItsOwn)
 {
   // This is the bound renderBanner branches on: `"  " + quote + 2 + "- " + author` against the banner

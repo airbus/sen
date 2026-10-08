@@ -26,7 +26,8 @@ constexpr Duration::ValueType halfSecond = 500000000;
 }  // namespace
 
 /// @test
-/// Check basic duration class methods
+/// Defaults to a zero duration, reporting zero nanoseconds, a zero chrono count, 0.0 seconds, and equality with
+/// another default-constructed Duration.
 /// @requirements(SEN-358)
 TEST(Duration, basics)
 {
@@ -38,7 +39,8 @@ TEST(Duration, basics)
 }
 
 /// @test
-/// Check initialization with some value
+/// Stores a raw nanosecond count given at construction, Duration(5) reporting 5 nanoseconds, a chrono count of 5,
+/// and 5e-9 seconds.
 /// @requirements(SEN-358)
 TEST(Duration, constructor_value)
 {
@@ -50,7 +52,8 @@ TEST(Duration, constructor_value)
 }
 
 /// @test
-/// Check initilization with chrono value
+/// Converts a chrono value given at construction, one std::chrono second reporting 1000000000 nanoseconds and
+/// 1.0 seconds.
 /// @requirements(SEN-358)
 TEST(Duration, constructor_chrono)
 {
@@ -62,7 +65,7 @@ TEST(Duration, constructor_chrono)
 }
 
 /// @test
-/// Check equality operation (s)
+/// Compares equal when built from one chrono second and from the raw nanosecond count 1000000000.
 /// @requirements(SEN-358)
 TEST(Duration, equality_operator_one_sec)
 {
@@ -72,7 +75,7 @@ TEST(Duration, equality_operator_one_sec)
 }
 
 /// @test
-/// Check equality operation (ms)
+/// Compares equal when built from one chrono millisecond and from the raw nanosecond count 1000000.
 /// @requirements(SEN-358)
 TEST(Duration, equality_operator_one_millisecond)
 {
@@ -82,7 +85,7 @@ TEST(Duration, equality_operator_one_millisecond)
 }
 
 /// @test
-/// Check equality operation (us)
+/// Compares equal when built from one chrono microsecond and from the raw nanosecond count 1000.
 /// @requirements(SEN-358)
 TEST(Duration, equality_operator_one_microsecond)
 {
@@ -92,7 +95,7 @@ TEST(Duration, equality_operator_one_microsecond)
 }
 
 /// @test
-/// Check equality operation (ns)
+/// Compares equal when built from one chrono nanosecond and from the raw nanosecond count 1.
 /// @requirements(SEN-358)
 TEST(Duration, equality_operator_one_nanosecond)
 {
@@ -102,7 +105,7 @@ TEST(Duration, equality_operator_one_nanosecond)
 }
 
 /// @test
-/// Check != operator
+/// Reports 2000 and 1000 nanosecond durations as not equal.
 /// @requirements(SEN-358)
 TEST(Duration, not_equal_operator)
 {
@@ -112,7 +115,7 @@ TEST(Duration, not_equal_operator)
 }
 
 /// @test
-/// Check < operator
+/// Orders 1000 nanoseconds strictly before 2000 nanoseconds under operator<.
 /// @requirements(SEN-358)
 TEST(Duration, less_than_operator)
 {
@@ -122,7 +125,7 @@ TEST(Duration, less_than_operator)
 }
 
 /// @test
-/// Check <= operator
+/// Satisfies operator<= both for a strictly smaller duration and for an equal one.
 /// @requirements(SEN-358)
 TEST(Duration, less_equal_than_operator)
 {
@@ -135,7 +138,7 @@ TEST(Duration, less_equal_than_operator)
 }
 
 /// @test
-/// Check > operator
+/// Orders 2000 nanoseconds strictly after 1000 nanoseconds under operator>.
 /// @requirements(SEN-358)
 TEST(Duration, greater_than_operator)
 {
@@ -145,7 +148,7 @@ TEST(Duration, greater_than_operator)
 }
 
 /// @test
-/// Check >= operator
+/// Satisfies operator>= both for a strictly larger duration and for an equal one.
 /// @requirements(SEN-358)
 TEST(Duration, greater_equal_than_operator)
 {
@@ -158,7 +161,8 @@ TEST(Duration, greater_equal_than_operator)
 }
 
 /// @test
-/// Check += operator
+/// Accumulates in place with operator+=, one second plus 500 chrono milliseconds plus 500 raw nanoseconds
+/// reaching 1500000500 nanoseconds.
 /// @requirements(SEN-358)
 TEST(Duration, plus_equal_operator)
 {
@@ -173,7 +177,8 @@ TEST(Duration, plus_equal_operator)
 }
 
 /// @test
-/// Check -= operator
+/// Reduces in place with operator-=, one second minus 500 chrono milliseconds minus 500 raw nanoseconds leaving
+/// 499999500 nanoseconds.
 /// @requirements(SEN-358)
 TEST(Duration, minus_equal_operator)
 {
@@ -188,7 +193,7 @@ TEST(Duration, minus_equal_operator)
 }
 
 /// @test
-/// Check + operator
+/// Adds two durations with operator+, one second plus 500 milliseconds yielding 1500000000 nanoseconds.
 /// @requirements(SEN-358)
 TEST(Duration, plus_operator)
 {
@@ -198,7 +203,7 @@ TEST(Duration, plus_operator)
 }
 
 /// @test
-/// Check - operator
+/// Subtracts two durations with operator-, one second minus 500 milliseconds yielding 500000000 nanoseconds.
 /// @requirements(SEN-358)
 TEST(Duration, minus_operator)
 {
@@ -208,7 +213,7 @@ TEST(Duration, minus_operator)
 }
 
 /// @test
-/// Check - operator for negative result values
+/// Negates with unary minus, one second reporting minus 1000000000 nanoseconds.
 /// @requirements(SEN-358)
 TEST(Duration, self_minus_operator)
 {
@@ -218,7 +223,8 @@ TEST(Duration, self_minus_operator)
 }
 
 /// @test
-/// Check equality of durations specify in Hertzs
+/// Converts a frequency to its period, 1 Hz giving one second, 0.5 Hz two seconds, and 2 Hz 500 milliseconds,
+/// from both double and float arguments.
 /// @requirements(SEN-358)
 TEST(Duration, from_hertz)
 {
@@ -233,7 +239,9 @@ TEST(Duration, from_hertz)
 }
 
 /// @test
-/// Check operations with different duration unit types
+/// Keeps comparisons and arithmetic exact across construction units. One chrono hour reports 3600 seconds, orders
+/// before 3601 chrono seconds, and sums with 3600 chrono seconds to 120 chrono minutes, while subtracting one
+/// microsecond yields an unequal duration whose seconds value is still float-equal.
 /// @requirements(SEN-358)
 TEST(Duration, operations_different_units)
 {
@@ -258,7 +266,8 @@ TEST(Duration, operations_different_units)
 }
 
 /// @test
-/// Check payload comparison between different durations
+/// Compares by value across construction forms and keeps that value through copy and move assignment, the
+/// assigned duration equaling its source.
 /// @requirements(SEN-358)
 TEST(Duration, payload_comparison)
 {

@@ -26,7 +26,7 @@ namespace sen::db::test
 {
 
 /// @test
-/// Write a deletion entry and verify it is readable
+/// Records a Deletion entry and reads it back from the archive with the deleted object id intact.
 /// @requirements(SEN-364)
 TEST(DeletionTest, WriteAndReadDeletion)
 {
@@ -79,7 +79,7 @@ TEST(DeletionTest, WriteAndReadDeletion)
 }
 
 /// @test
-/// Write multiple deletion entries and verify all are readable
+/// Retains every deletion recorded at successive times, the readback finding all five Deletion entries.
 /// @requirements(SEN-364)
 TEST(DeletionTest, MultipleDeletionEntries)
 {
@@ -129,7 +129,7 @@ TEST(DeletionTest, MultipleDeletionEntries)
 }
 
 /// @test
-/// Verify that deletion returns different ids for different deletions
+/// Keeps the object ids of successive deletions distinct and in write order, reading back 10 then 20.
 /// @requirements(SEN-364)
 TEST(DeletionTest, DifferentObjectIds)
 {

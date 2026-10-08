@@ -342,7 +342,8 @@ TEST_F(AFomParser, adoptsATypeAnExtensionIntroduces)
 //--------------------------------------------------------------------------------------------------------------
 
 /// @test
-/// Two extensions declaring the same member identically add it once rather than twice.
+/// An extension repeating a property the module declares identically leaves one copy of it, and
+/// the extension's other property still lands.
 TEST_F(AFomParser, keepsAnEquivalentRepeatOnce)
 {
   read({"property_repeat.xml"});
@@ -570,7 +571,8 @@ TEST_F(AFomParser, buildsOneClassWhenTwoFilesOfOnePackageDeclareIt)
 }
 
 /// @test
-/// The same holds when the second file nests a child under the shared class.
+/// Two files of one package declaring one class yield a single class even when the second file
+/// nests a child under it, and each file's child is kept.
 TEST_F(AFomParser, buildsOneClassWhenTheSecondFileAlsoNestsAChild)
 {
   // A child reaches its parent through the resolver rather than the class loop, so skipping the
@@ -651,7 +653,8 @@ TEST_F(AFomParser, givesANonModuleXmlNoTypeSetOfItsOwn)
 }
 
 /// @test
-/// An attribute declared on HLAobjectRoot itself is read.
+/// A module declaring an attribute on HLAobjectRoot itself is read: the root becomes no class
+/// and the classes under it keep their members.
 TEST_F(AFomParser, readsAModuleThatPutsAnAttributeOnTheObjectRoot)
 {
   // The MIM declares one there. The root is not a class, so it is not built as one, and the
@@ -730,8 +733,8 @@ TEST_F(AFomParser, packsAMappedEventIntoASingleArgument)
 }
 
 /// @test
-/// A property the mapping marks writable becomes read-write; one it does not mention keeps what the FOM
-/// implies.
+/// A property the mapping marks writable becomes read-write, and one it does not mention keeps
+/// what the FOM implies.
 TEST_F(AFomParser, marksAMappedPropertyWritable)
 {
   readWithMapping("mapped", "mapped_map.xml");
@@ -774,7 +777,7 @@ TEST_F(AFomParser, bindsAMappedMethodWhoseReturnIsAnotherInteraction)
 }
 
 /// @test
-/// A mapped method with a dataType return and local set returns that type and is local only.
+/// A mapped method with a dataType return and local set returns a non-void type and is local only.
 TEST_F(AFomParser, bindsAMappedMethodWhoseReturnIsADataType)
 {
   readWithMapping("mapped", "mapped_map.xml");
@@ -871,7 +874,7 @@ TEST_F(AFomParser, refusesAMappingForAnInteractionNoModuleDeclares)
 
 /// @test
 /// A module in another package does not add its members to a class this one defines. The boundary
-/// is the package: within one, files merge; across, each keeps its own.
+/// is the package: within one, files merge, and across it each keeps its own.
 TEST_F(AFomParser, doesNotTakeMembersFromAModuleOfAnotherPackage)
 {
   readModules("union_a", "union_b");
@@ -1258,7 +1261,8 @@ TEST_F(AFomParser, ordersContributedFieldsByTheOrderTheExtensionsWereGiven)
 }
 
 /// @test
-/// The same two extensions in the other order give the other field order.
+/// Reversing the order two field extensions are given reverses the order of the fields they
+/// contribute.
 TEST_F(AFomParser, ordersContributedFieldsTheOtherWayWhenGivenTheOtherWay)
 {
   read({"field_second.xml", "field.xml"});
@@ -1406,7 +1410,8 @@ TEST_F(AFomParser, refusesAContributionThatDisagreesAboutAVariantDiscriminant)
 //--------------------------------------------------------------------------------------------------------------
 
 /// @test
-/// A class node with members but no semantics is read as a contribution rather than a definition.
+/// A class node with members but no semantics still yields its class with the one declared
+/// property when read as a module on its own.
 TEST_F(AFomParser, readsAClassNodeThatCarriesMembersAndNoSemantics)
 {
   // An extension has this shape, so semantics alone cannot be what makes a node a declaration.

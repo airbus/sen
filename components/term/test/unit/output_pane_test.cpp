@@ -60,7 +60,8 @@ TEST(OutputPane, ReplacePendingClearsTheFlag)
 }
 
 /// @test
-/// Two pending entries are tracked separately, so replacing one leaves the other pending.
+/// Three pending entries are tracked separately, and the pane stays pending until the last one
+/// is replaced.
 TEST(OutputPane, MultiplePendingTrackedIndependently)
 {
   OutputPane pane;

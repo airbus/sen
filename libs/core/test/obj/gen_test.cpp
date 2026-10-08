@@ -55,7 +55,8 @@ SEN_IMPL_GEN_OPTIONAL(TestOptionalInt, int)
 }  // namespace
 
 /// @test
-/// Verifies that the generated override destructor correctly cleans up the object when deleted via a base class pointer
+/// Destroys a generated remote proxy safely through a base class pointer, and the proxy
+/// reports isRemote true.
 /// @requirements(SEN-583)
 TEST(GenMacroTest, RemoteProxyPolymorphicDestruction)
 {
@@ -69,7 +70,8 @@ TEST(GenMacroTest, RemoteProxyPolymorphicDestruction)
 }
 
 /// @test
-/// Verifies that the base class generated correctly links to its metadata and initializes properly
+/// Constructs a generated base object that reports its given name and whose instance class
+/// and static meta both name ExampleClass.
 /// @requirements(SEN-583, SEN-573)
 TEST(GenMacroTest, BaseClassLifecycleAndMetaWiring)
 {
@@ -82,7 +84,7 @@ TEST(GenMacroTest, BaseClassLifecycleAndMetaWiring)
 }
 
 /// @test
-/// Verifies that local proxy objects correctly identify themselves as local components, distinct from remote ones
+/// Reports isRemote false on a generated local proxy built over a base object.
 /// @requirements(SEN-583, SEN-351)
 TEST(GenMacroTest, LocalProxyIdentifiesAsLocal)
 {
@@ -94,7 +96,8 @@ TEST(GenMacroTest, LocalProxyIdentifiesAsLocal)
 }
 
 /// @test
-/// Checks that generated unbounded lists function exactly like standard dynamic arrays
+/// Starts a generated unbounded sequence empty and grows it with push_back, size and at
+/// reflect the two appended values.
 /// @requirements(SEN-577)
 TEST(GenMacroTest, UnboundedSequenceBehaviors)
 {
@@ -110,7 +113,8 @@ TEST(GenMacroTest, UnboundedSequenceBehaviors)
 }
 
 /// @test
-/// Ensures that generated bounded lists correctly initialize and respect their hard-coded capacity logic
+/// Starts a generated bounded sequence empty with its declared capacity of 5, and push_back
+/// stores the value readable through front.
 /// @requirements(SEN-577, SEN-908)
 TEST(GenMacroTest, BoundedSequenceBehaviors)
 {
@@ -124,7 +128,8 @@ TEST(GenMacroTest, BoundedSequenceBehaviors)
 }
 
 /// @test
-/// Verifies that fixed size arrays enforce limits during initialization list construction and operator usage
+/// Builds a generated fixed sequence of size 3 from initializer lists, full or partial, the
+/// size stays 3 and listed elements read back in position.
 /// @requirements(SEN-577)
 TEST(GenMacroTest, FixedSequenceBehaviors)
 {
@@ -142,7 +147,8 @@ TEST(GenMacroTest, FixedSequenceBehaviors)
 }
 
 /// @test
-/// Verifies the boolean states, containment, and comparisons of generated optional types
+/// Compares generated optionals equal when both are empty or both hold the same value and
+/// unequal otherwise, emplace engages the optional with its value and reset empties it again.
 /// @requirements(SEN-583)
 TEST(GenMacroTest, OptionalDataHandling)
 {
@@ -166,8 +172,8 @@ TEST(GenMacroTest, OptionalDataHandling)
 }
 
 /// @test
-/// Verifies that the generated structures strictly and safely map a class to its respective base, local proxy, and
-/// remote proxy types
+/// Maps a generated class through SenClassRelation to its own base, remote proxy, and local
+/// proxy types, with isBaseTypeTemplate false.
 /// @requirements(SEN-1056, SEN-583)
 TEST(GenMacroTest, ClassTraitsResolutionMapping)
 {
@@ -184,7 +190,8 @@ TEST(GenMacroTest, ClassTraitsResolutionMapping)
 }
 
 /// @test
-/// Verifies that generated inequality operators work correctly
+/// Compares equal generated sequences through the generated inequality operator, two empty
+/// unbounded sequences and two identical fixed sequences are not unequal.
 /// @requirements(SEN-577)
 TEST(GenMacroTest, InequalityOperatorUsage)
 {

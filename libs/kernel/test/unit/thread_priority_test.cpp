@@ -92,11 +92,6 @@ TEST(ThreadPriority, DoesNotPromoteAThreadThatAskedToBeLow)
   EXPECT_EQ(observedPolicy.load(), SCHED_OTHER) << "a thread that asked to be low was given a real-time policy";
 }
 
-/// @test
-/// An affinity the machine cannot honour leaves the thread running unpinned and says so. Failing
-/// thread creation instead would destroy an object the new thread is still reading.
-///
-/// Linux only: the macOS shim always reports that it applied, so there is nothing to observe.
 #  if defined(__linux__)
 /// @test
 /// An affinity mask the machine cannot honour does not fail thread creation. The thread runs

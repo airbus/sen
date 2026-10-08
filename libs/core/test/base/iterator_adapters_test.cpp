@@ -219,8 +219,8 @@ TEST(LockedRangeAdapter, stdMutexNonConstContainerVector)
 }
 
 /// @test
-/// A locked range works with a std::shared_mutex, and a reader sees either the state before the
-/// writer or the state after it.
+/// A locked range accepts a std::shared_mutex, and a concurrent reader sums either the state before
+/// the writer or the state after it, never an interleaving.
 TEST(LockedRangeAdapter, stdSharedMutexNonConstContainerVector)
 {
   std::vector<int> cont {1, 2, 3, 4, 5, 6};

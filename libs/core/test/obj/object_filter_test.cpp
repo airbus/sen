@@ -120,8 +120,8 @@ sen::impl::RemoteObjectInfo createTestProxyInfo()
 }  // namespace
 
 /// @test
-/// Validates that creating and removing a named provider works as expected and returns the exact same instance if
-/// requested multiple times
+/// Returns the same provider instance for repeated getOrCreateNamedProvider calls and a fresh
+/// instance after removeNamedProvider.
 /// @requirements(SEN-363)
 TEST(ObjectFilter, NamedProvider_CreateAndRemove)
 {
@@ -141,7 +141,8 @@ TEST(ObjectFilter, NamedProvider_CreateAndRemove)
 }
 
 /// @test
-/// Verifies that creating a named provider with conflicting names but the same interest throws an error
+/// Throws when a second provider name is requested for an interest that already has a named
+/// provider.
 /// @requirements(SEN-363)
 TEST(ObjectFilter, NamedProvider_ConflictThrows)
 {
@@ -155,8 +156,8 @@ TEST(ObjectFilter, NamedProvider_ConflictThrows)
 }
 
 /// @test
-/// Ensures that if an unnamed provider exists for an interest, creating a named provider with that same interest
-/// correctly assigns the name to the existing provider instead of creating a duplicate
+/// Returns a provider when getOrCreateNamedProvider is called with an interest that already
+/// has an unnamed provider from addSubscriber.
 /// @requirements(SEN-363)
 TEST(ObjectFilter, NamedProvider_AssignsNameToExistingUnnamedProvider)
 {
@@ -171,7 +172,8 @@ TEST(ObjectFilter, NamedProvider_AssignsNameToExistingUnnamedProvider)
 }
 
 /// @test
-/// Validates adding and removing subscribers from the filter and ensures no updates are received post removal
+/// Notifies a subscribed listener about a matching new object and stops notifying after
+/// removeSubscriber.
 /// @requirements(SEN-363)
 TEST(ObjectFilter, Subscriber_AddAndRemove)
 {
@@ -205,7 +207,8 @@ TEST(ObjectFilter, Subscriber_AddAndRemove)
 }
 
 /// @test
-/// Validates removing a subscriber using only the listener pointer cleans up correctly
+/// Removes a subscriber by listener pointer alone, a later matching object produces no
+/// notification.
 /// @requirements(SEN-363)
 TEST(ObjectFilter, Subscriber_RemoveByListener)
 {
@@ -227,7 +230,8 @@ TEST(ObjectFilter, Subscriber_RemoveByListener)
 }
 
 /// @test
-/// Checks that objects are properly tracked on creation and untracked when formally deleted from the set
+/// Reports a new matching object as added and reports it as removed once it appears in the
+/// deleted set.
 /// @requirements(SEN-363)
 TEST(ObjectFilter, Evaluate_AddsAndRemoves)
 {
@@ -258,7 +262,7 @@ TEST(ObjectFilter, Evaluate_AddsAndRemoves)
 }
 
 /// @test
-/// Confirms that evaluate properly ignores incoming objects that evaluate as native proxy instances
+/// Ignores remote proxy objects during evaluate, only native objects produce added notifications.
 /// @requirements(SEN-363)
 TEST(ObjectFilter, Evaluate_IgnoresNonNativeObjects)
 {
@@ -278,7 +282,8 @@ TEST(ObjectFilter, Evaluate_IgnoresNonNativeObjects)
 }
 
 /// @test
-/// Verifies evaluate safely ignores duplicates in newObjects if an object is already tracked
+/// Reports an already tracked object only once even when it reappears in newObjects on a later
+/// evaluate.
 /// @requirements(SEN-363)
 TEST(ObjectFilter, Evaluate_IgnoresDuplicateTrackedObjects)
 {
@@ -300,7 +305,7 @@ TEST(ObjectFilter, Evaluate_IgnoresDuplicateTrackedObjects)
 }
 
 /// @test
-/// Verifies evaluate safely skips processing deleted objects that the provider isn't currently tracking
+/// Skips a deleted object id it never tracked, evaluate neither throws nor reports a removal.
 /// @requirements(SEN-363)
 TEST(ObjectFilter, Evaluate_IgnoresUntrackedDeletedObjects)
 {
@@ -317,7 +322,8 @@ TEST(ObjectFilter, Evaluate_IgnoresUntrackedDeletedObjects)
 }
 
 /// @test
-/// Validates filtering strictly based on ClassType condition enforcing type safety in subscriptions
+/// Matches an object against a class condition resolved through the type registry and reports it
+/// as added.
 /// @requirements(SEN-363)
 TEST(ObjectFilter, Evaluate_TypeCondition_ClassType)
 {
@@ -338,7 +344,8 @@ TEST(ObjectFilter, Evaluate_TypeCondition_ClassType)
 }
 
 /// @test
-/// Validates filtering when the class name is not recognized during registration, triggering a string based type check
+/// Falls back to a string comparison of the class name when the queried type is absent from the
+/// registry and still reports the match.
 /// @requirements(SEN-363)
 TEST(ObjectFilter, Evaluate_TypeCondition_StringCondition)
 {
@@ -360,8 +367,8 @@ TEST(ObjectFilter, Evaluate_TypeCondition_StringCondition)
 }
 
 /// @test
-/// Validates dynamic evaluation via query conditions that involve object properties, responding seamlessly to property
-/// updates
+/// Re-evaluates a property-based query condition on each cycle, the object is added once prop2
+/// rises above the threshold and removed when it falls back below.
 /// @requirements(SEN-363)
 TEST(ObjectFilter, Evaluate_QueryCondition_UpdatesOnPropertyChange)
 {
@@ -402,7 +409,8 @@ TEST(ObjectFilter, Evaluate_QueryCondition_UpdatesOnPropertyChange)
 }
 
 /// @test
-/// Validates that queries filtering natively using the id keyword function correctly
+/// Evaluates a query that filters on the id keyword without throwing, both when the object is new
+/// and on re-evaluation.
 /// @requirements(SEN-363)
 TEST(ObjectFilter, Evaluate_QueryCondition_IdKeyword)
 {
@@ -425,8 +433,8 @@ TEST(ObjectFilter, Evaluate_QueryCondition_IdKeyword)
 }
 
 /// @test
-/// Ensures that queries attempting to access non-existent variables are marked invalid and fail securely without
-/// crashing
+/// Treats a query over a non-existent property as matching nothing, evaluate completes and the
+/// listener sees no additions.
 /// @requirements(SEN-363)
 TEST(ObjectFilter, Evaluate_InvalidQueryHandledSafely)
 {
@@ -447,7 +455,8 @@ TEST(ObjectFilter, Evaluate_InvalidQueryHandledSafely)
 }
 
 /// @test
-/// Verifies the coverage of base empty virtual methods within ObjectFilter
+/// Returns the owner id given at construction and accepts calls to the empty base implementations
+/// of the subscriber and object hooks.
 /// @requirements(SEN-363)
 TEST(ObjectFilter, BaseVirtualMethods)
 {
@@ -465,8 +474,8 @@ TEST(ObjectFilter, BaseVirtualMethods)
 }
 
 /// @test
-/// Verifies that when a listener is attached to a named provider with notification enabled,
-/// the provider correctly notifies the new listener of already existing matched objects
+/// Notifies a listener attached to a named provider with notify-existing enabled about objects
+/// the provider already matched.
 /// @requirements(SEN-363)
 TEST(ObjectFilter, NamedProvider_NotifyAddedOnExistingObjects)
 {
@@ -493,7 +502,8 @@ TEST(ObjectFilter, NamedProvider_NotifyAddedOnExistingObjects)
 }
 
 /// @test
-/// Validates that queries filtering natively using the name keyword function correctly
+/// Matches objects by the name keyword in a query, only the object with the queried name is
+/// reported as added.
 /// @requirements(SEN-363)
 TEST(ObjectFilter, Evaluate_QueryCondition_NameKeyword)
 {
@@ -521,8 +531,8 @@ TEST(ObjectFilter, Evaluate_QueryCondition_NameKeyword)
 }
 
 /// @test
-/// Validates that an object's query condition is not re-evaluated if its dependent properties
-/// have not changed in the current cycle, safely returning the notified state
+/// Keeps the cached match verdict for an object whose queried properties did not change in the
+/// cycle, notifications fire only on actual match transitions.
 /// @requirements(SEN-363)
 TEST(ObjectFilter, Evaluate_ReturnsCachedResultWhenUnchanged)
 {
@@ -575,8 +585,7 @@ TEST(ObjectFilter, Evaluate_ReturnsCachedResultWhenUnchanged)
 }
 
 /// @test
-/// Ensures that removing a named provider correctly iterates through the providers list when the target provider
-/// is not the first one
+/// Removes a named provider that is not first in the provider list without throwing.
 /// @requirements(SEN-363)
 TEST(ObjectFilter, NamedProvider_RemoveIteratesCorrectly)
 {
@@ -592,8 +601,8 @@ TEST(ObjectFilter, NamedProvider_RemoveIteratesCorrectly)
 }
 
 /// @test
-/// Verifies that removeSubscriber safely skips expired weak_ptrs if a provider gets deleted during the iteration
-/// of the local providers copy
+/// Survives a provider being destroyed from a removal notification raised while removeSubscriber
+/// iterates its copy of the provider list.
 /// @requirements(SEN-363)
 TEST(ObjectFilter, Subscriber_RemoveHandlesExpiredProvider)
 {
@@ -622,8 +631,8 @@ TEST(ObjectFilter, Subscriber_RemoveHandlesExpiredProvider)
 }
 
 /// @test
-/// Verifies that removeSubscriber by interest safely skips expired weak_ptrs if a provider gets deleted
-/// during the iteration of the local providers copy
+/// Survives a provider being destroyed from a removal notification raised while removeSubscriber
+/// for a specific interest iterates its copy of the provider list.
 /// @requirements(SEN-363)
 TEST(ObjectFilter, Subscriber_RemoveWithInterestHandlesExpiredProvider)
 {
@@ -652,8 +661,8 @@ TEST(ObjectFilter, Subscriber_RemoveWithInterestHandlesExpiredProvider)
 }
 
 /// @test
-/// addSubscriber(..., notifyAboutExisting=true) seeds a newly-created provider's listener
-/// with the filter's current match set.
+/// Seeds a newly-created provider's listener with the filter's current match set when
+/// addSubscriber runs with notifyAboutExisting=true.
 TEST(ObjectFilter, Subscriber_NotifyAboutExistingTrueSeedsNewProvider)
 {
   TestObjectFilter filter(getTestOwnerId());
@@ -678,7 +687,7 @@ TEST(ObjectFilter, Subscriber_NotifyAboutExistingTrueSeedsNewProvider)
 }
 
 /// @test
-/// addSubscriber(..., notifyAboutExisting=false) does not broadcast existing matches.
+/// Does not broadcast existing matches when addSubscriber runs with notifyAboutExisting=false.
 TEST(ObjectFilter, Subscriber_NotifyAboutExistingFalseStaysSilent)
 {
   TestObjectFilter filter(getTestOwnerId());
@@ -700,7 +709,8 @@ TEST(ObjectFilter, Subscriber_NotifyAboutExistingFalseStaysSilent)
 }
 
 /// @test
-/// Verifies that hasActiveListeners correctly reports the presence of active listeners
+/// Reports no active listeners on a fresh filter, true after addSubscriber, and false again after
+/// removeSubscriber.
 /// @requirements(SEN-362)
 TEST(ObjectFilter, HasActiveListeners)
 {

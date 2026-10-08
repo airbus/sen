@@ -28,7 +28,8 @@ constexpr std::string_view configString = R"(
   )";
 
 /// @test
-/// Test allocation and deallocation of the HTTP server
+/// Constructs and destroys the kernel hosting the rest server in a tight loop on the same port for five
+/// seconds, each shutdown releasing the port so the next startup succeeds without a crash.
 /// @requirements(SEN-1061)
 TEST(Rest, server_allocation)
 {

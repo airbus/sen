@@ -20,7 +20,7 @@
 #include <filesystem>
 
 /// @test
-/// Check sen package init fails when no path is provided
+/// Rejects an init command line that omits the required package path argument.
 TEST(CliPackageInit, NoPath)
 {
   CLI::App app;
@@ -32,7 +32,7 @@ TEST(CliPackageInit, NoPath)
 }
 
 /// @test
-/// Check sen package init shows help information when help flag is provided
+/// Treats init --help as a call for help instead of creating a package.
 TEST(CliPackageInit, Help)
 {
   CLI::App app;
@@ -44,7 +44,7 @@ TEST(CliPackageInit, Help)
 }
 
 /// @test
-/// Check sen package init fails when no class is provided
+/// Rejects an init command line that omits the required --class option.
 TEST(CliPackageInit, NoClass)
 {
   CLI::App app;
@@ -56,7 +56,7 @@ TEST(CliPackageInit, NoClass)
 }
 
 /// @test
-/// Check sen package init fails when the path provided already exists
+/// Exits with code 1 and reports the clash when the target package directory already exists.
 TEST(CliPackageInit, DirectoryAlreadyExists)
 {
   const ScopedWorkDir workDir;
@@ -74,7 +74,9 @@ TEST(CliPackageInit, DirectoryAlreadyExists)
 }
 
 /// @test
-/// Check sen package init creates all expected directories and files when no errors occur
+/// Creates the full package skeleton for init test_package --class TestClass, with CMakeLists.txt,
+/// config.yaml, snake_case class sources under src, and basic_types.stl plus test_class.stl under
+/// stl/test_package.
 TEST(CliPackageInit, NoErrors)
 {
   const ScopedWorkDir workDir;
@@ -100,7 +102,7 @@ TEST(CliPackageInit, NoErrors)
 }
 
 /// @test
-/// Check sen package init fails when an extra argument is provided
+/// Rejects an init command line that carries an extra positional argument after the package path.
 TEST(CliPackageInit, ExtraArgument)
 {
   CLI::App app;
@@ -112,7 +114,7 @@ TEST(CliPackageInit, ExtraArgument)
 }
 
 /// @test
-/// Check sen package init fails when class argument is provided twice
+/// Rejects an init command line that passes the --class option twice.
 TEST(CliPackageInit, ArgumentMismatch)
 {
   CLI::App app;

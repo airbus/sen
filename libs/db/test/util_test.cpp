@@ -76,7 +76,7 @@ TEST(UtilTest, OpenFileSucceedsWithValidFile)
 }
 
 /// @test
-/// searchOwner finds the class that owns a property
+/// searchOwner finds the class that owns a property.
 /// @requirements(SEN-364)
 TEST(UtilTest, SearchOwnerFindsPropertyInDirectClass)
 {

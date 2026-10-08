@@ -29,7 +29,8 @@ constexpr Duration::ValueType halfSecond = 500000000;
 }  // namespace
 
 /// @test
-/// Check basic timestamp class methods
+/// Default-constructs at the epoch, reporting zero nanoseconds since epoch and equality with another
+/// default-constructed TimeStamp.
 /// @requirements(SEN-1050)
 TEST(Timestamp, basics)
 {
@@ -39,7 +40,7 @@ TEST(Timestamp, basics)
 }
 
 /// @test
-/// Check duration time getter since epoch method
+/// Returns through sinceEpoch the exact Duration the timestamp was constructed from.
 /// @requirements(SEN-1050)
 TEST(Timestamp, get_time_since_epoch)
 {
@@ -49,7 +50,8 @@ TEST(Timestamp, get_time_since_epoch)
 }
 
 /// @test
-/// Check comparison operator between timestamps
+/// Compares timestamps by their duration since the epoch: equal durations are equal and satisfy both
+/// inclusive orderings, a later timestamp is strictly greater, and an earlier one strictly less.
 /// @requirements(SEN-1050)
 TEST(Timestamp, comparisons)
 {
@@ -92,7 +94,8 @@ TEST(Timestamp, comparisons)
 }
 
 /// @test
-/// Check plus equal operator with a duration type
+/// Advances in place through operator+= by a chrono-based and then a raw-nanosecond Duration,
+/// accumulating both into the nanoseconds since epoch.
 /// @requirements(SEN-1050)
 TEST(Timestamp, operator_plus_equal)
 {
@@ -107,7 +110,8 @@ TEST(Timestamp, operator_plus_equal)
 }
 
 /// @test
-/// Check minus equal operator with a duration type
+/// Rewinds in place through operator-= by a chrono-based and then a raw-nanosecond Duration,
+/// subtracting both from the nanoseconds since epoch.
 /// @requirements(SEN-1050)
 TEST(Timestamp, operator_minus_equal)
 {
@@ -122,7 +126,7 @@ TEST(Timestamp, operator_minus_equal)
 }
 
 /// @test
-/// Check plus operator with a duration type
+/// Adds a Duration through operator+, yielding a timestamp whose nanoseconds since epoch are the sum.
 /// @requirements(SEN-1050)
 TEST(Timestamp, operator_plus)
 {
@@ -132,7 +136,8 @@ TEST(Timestamp, operator_plus)
 }
 
 /// @test
-/// Check minus operator with a duration type
+/// Subtracts a Duration through operator-, yielding a timestamp whose nanoseconds since epoch are the
+/// difference.
 /// @requirements(SEN-1050)
 TEST(Timestamp, operator_minus)
 {
@@ -142,7 +147,7 @@ TEST(Timestamp, operator_minus)
 }
 
 /// @test
-/// Check minus operator with another timestamp
+/// Subtracts one timestamp from another, yielding the Duration between the two.
 /// @requirements(SEN-1050)
 TEST(Timestamp, operator_minus_timestamp)
 {
@@ -152,7 +157,8 @@ TEST(Timestamp, operator_minus_timestamp)
 }
 
 /// @test
-/// Check toUtcString format mapping
+/// Formats as a UTC date-time string with a trailing microsecond field, the epoch printing as
+/// 1970-01-01 00:00:00 000000 and one second later as 1970-01-01 00:00:01 000000.
 /// @requirements(SEN-1050)
 TEST(Timestamp, to_utc_string)
 {
@@ -164,7 +170,8 @@ TEST(Timestamp, to_utc_string)
 }
 
 /// @test
-/// Check toLocalString format size and structural integrity
+/// Formats the epoch as a 26-character local-time string whose last seven characters are the
+/// space-prefixed zero microsecond field.
 /// @requirements(SEN-1050)
 TEST(Timestamp, to_local_string)
 {
@@ -176,7 +183,8 @@ TEST(Timestamp, to_local_string)
 }
 
 /// @test
-/// Check toUtcStringNs format mapping (RFC-3339, ns precision).
+/// Formats epoch and post-epoch timestamps as RFC-3339 UTC strings with nine nanosecond digits,
+/// 1.500000001 seconds printing as 1970-01-01T00:00:01.500000001Z.
 TEST(Timestamp, to_utc_string_ns_epoch_and_post_epoch)
 {
   const TimeStamp ts;
@@ -187,8 +195,9 @@ TEST(Timestamp, to_utc_string_ns_epoch_and_post_epoch)
 }
 
 /// @test
-/// Pre-epoch timestamps must format with a non-negative sub-second component and the correct
-/// whole-second boundary. Pre-fix this printed e.g. "...59.-500000000Z" or skipped seconds.
+/// Formats pre-epoch timestamps with a floor-divided whole second and a non-negative sub-second field,
+/// minus 1.5 seconds printing as 1969-12-31T23:59:58.500000000Z and minus one nanosecond as
+/// 1969-12-31T23:59:59.999999999Z.
 TEST(Timestamp, to_utc_string_ns_pre_epoch_floor_divides_correctly)
 {
   // -1.5s from epoch = 1969-12-31T23:59:58.500000000Z
@@ -201,7 +210,8 @@ TEST(Timestamp, to_utc_string_ns_pre_epoch_floor_divides_correctly)
 }
 
 /// @test
-/// Sub-microsecond precision must survive the round-trip through the new ns formatter.
+/// Keeps sub-microsecond digits in toUtcStringNs, 123 nanoseconds past the epoch printing as
+/// 1970-01-01T00:00:00.000000123Z.
 TEST(Timestamp, to_utc_string_ns_sub_microsecond_precision)
 {
   // 123 ns past epoch.
@@ -210,7 +220,8 @@ TEST(Timestamp, to_utc_string_ns_sub_microsecond_precision)
 }
 
 /// @test
-/// toUtcString pre-epoch should also produce a valid whole-second + fraction pair.
+/// Formats a pre-epoch timestamp in toUtcString as a whole second with a non-negative fraction, minus
+/// 1.5 seconds printing as 1969-12-31 23:59:58 500000.
 TEST(Timestamp, to_utc_string_pre_epoch)
 {
   // -1.5s -> 1969-12-31 23:59:58 500000
@@ -219,7 +230,7 @@ TEST(Timestamp, to_utc_string_pre_epoch)
 }
 
 /// @test
-/// Check make factory rejects malformed string inputs
+/// Rejects a malformed date string in TimeStamp::make, returning a non-ok result.
 /// @requirements(SEN-1050)
 TEST(Timestamp, make_invalid)
 {
@@ -229,7 +240,8 @@ TEST(Timestamp, make_invalid)
 
 #ifdef __linux__
 /// @test
-/// Check make factory properly parses valid UTC time
+/// Parses the epoch string 1970-01-01 00:00:00 in TimeStamp::make, yielding a timestamp of zero
+/// nanoseconds since epoch.
 /// @requirements(SEN-1050)
 TEST(Timestamp, make_valid)
 {

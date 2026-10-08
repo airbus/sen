@@ -530,13 +530,15 @@ set_tests_properties(html_gen_smoke_unknown_flag PROPERTIES WILL_FAIL TRUE)
 
 # mkdocs without -o must fall back to output.md
 add_sen_cli_gen_smoke_test(
-  mkdocs_gen_smoke_default_output_stl
+  mkdocs_gen_smoke_default_output_stl DESCRIPTION
+  "Generates mkdocs markdown from an STL model with no output flag, writing the default output file."
   COMMAND ./cli_gen mkdocs stl ${hla_fom_gen_test_sources}/typescript/fixture.stl
   WORKING_DIRECTORY ${working_dir}
 )
 
 add_sen_cli_gen_smoke_test(
-  mkdocs_gen_smoke_default_output_fom
+  mkdocs_gen_smoke_default_output_fom DESCRIPTION
+  "Generates mkdocs markdown from a FOM module with no output flag, writing the default output file."
   COMMAND ./cli_gen mkdocs fom --directories=${hla_fom_gen_test_sources}/test1/fom
   WORKING_DIRECTORY ${working_dir}
 )

@@ -189,7 +189,7 @@ TEST_F(ATypstGenerator, doesNotEmitAStyleWhenTheCallerBringsOne)
 
 // An unset include point still tells a reader where their own content belongs.
 /// @test
-/// With no front matter the skeleton says where a title page belongs; with front matter named it
+/// With no front matter the skeleton says where a title page belongs. With front matter named it
 /// includes that file instead.
 TEST_F(ATypstGenerator, leavesAHintWhereACallerSuppliesNoPage)
 {
@@ -361,8 +361,8 @@ TEST_F(ATypstGenerator, saysWhatAWrapperTypeWraps)
 
 // A section switch that is off must remove the section, or the option is decorative.
 /// @test
-/// Turning the summary and index switches off removes those sections, and both are present by
-/// default.
+/// Turning the summary and index switches off removes those sections, while a default run still
+/// emits the summary.
 TEST_F(ATypstGenerator, honoursTheSectionSwitches)
 {
   sen::gen::TypstOptions off;
@@ -481,8 +481,8 @@ TEST_F(ATypstGenerator, honoursTheHierarchySwitch)
 // The caller's style was suppressed and never named, so the document imported a file
 // that nothing wrote and could not compile at all.
 /// @test
-/// Both the skeleton and the reference import the style file the caller named, and neither
-/// imports the default one.
+/// Both the skeleton and the reference import the style file the caller named, and the skeleton
+/// does not import the default one.
 TEST_F(ATypstGenerator, importsTheStyleTheCallerNamed)
 {
   sen::gen::TypstOptions options;
@@ -535,7 +535,8 @@ struct Lonely { value : i32 }
 // a person. Typeset upright as SI asks, and inline rather than as a stacked fraction,
 // which would be too tall for a line of declaration.
 /// @test
-/// A unit is typeset as mathematics, inline rather than stacked, and a degree sign is kept.
+/// A unit abbreviation is typeset as inline mathematics rather than a stacked fraction, degC
+/// gains its degree sign, and the machine spelling does not reach the page.
 TEST_F(ATypstGenerator, typesetsAUnitAsMathematics)
 {
   generate(R"(package t;

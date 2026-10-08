@@ -122,7 +122,8 @@ ClassSpec validClassSpec()
 }  // namespace
 
 /// @test
-/// Check asString method for bus spec
+/// Formats a bus spec as the session and bus names joined with a dot, mySession and myBus
+/// print as mySession.myBus.
 /// @requirements(SEN-363)
 TEST(BusSpec, asString)
 {
@@ -132,7 +133,9 @@ TEST(BusSpec, asString)
 }
 
 /// @test
-/// Check extraction of qualified names in type conditions
+/// Extracts the qualified type name from a type condition, empty yields an empty view, a
+/// string condition yields the string, and a class condition yields the class's qualified
+/// name.
 /// @requirements(SEN-363)
 TEST(TypeCondition, ExtractQualifiedName)
 {
@@ -158,8 +161,9 @@ TEST(TypeCondition, ExtractQualifiedName)
 }
 
 /// @test
-/// Checks comparison between different type conditions natively using the hidden
-/// operator implementations located inside the cpp file
+/// Compares type conditions through the out-of-line comparison operators, equal for matching
+/// strings or equal class types and unequal for different strings, with operator!= always the
+/// negation.
 /// @requirements(SEN-363)
 TEST(TypeCondition, CustomCompareOperators)
 {
@@ -195,7 +199,10 @@ TEST(TypeCondition, CustomCompareOperators)
 }
 
 /// @test
-/// Checks comparison between different type conditions using the standard behavior
+/// Equates a string condition with itself and two empty conditions, and distinguishes
+/// different strings, an empty against a filled condition, and conditions holding different
+/// alternatives. The equal and different class type cases compare the extracted type handles,
+/// not the conditions.
 /// @requirements(SEN-363)
 TEST(TypeCondition, compare)
 {
@@ -268,7 +275,8 @@ TEST(TypeCondition, compare)
 }
 
 /// @test
-/// Checks correct instance of interest class
+/// Builds an interest from a valid SELECT query, with or without a WHERE clause and
+/// regardless of registry contents, and throws for an empty query.
 /// @requirements(SEN-363)
 TEST(Interest, make)
 {
@@ -312,8 +320,8 @@ TEST(Interest, make)
 }
 
 /// @test
-/// Validates that an exception is thrown when a non-class type is used in the query.
-/// Ensures type safety during parsing and evaluation.
+/// Throws from Interest::make when the selected type resolves to a non-class type such as a
+/// struct.
 /// @requirements(SEN-363)
 TEST(Interest, make_ThrowsOnNonClassType)
 {
@@ -324,8 +332,8 @@ TEST(Interest, make_ThrowsOnNonClassType)
 }
 
 /// @test
-/// Validates that an exception is thrown when the query contains a compilation error
-/// inside the VM.
+/// Throws from Interest::make when the query fails to compile, a WHERE clause cut off
+/// mid-expression is rejected.
 /// @requirements(SEN-363)
 TEST(Interest, make_ThrowsOnCompileError)
 {
@@ -335,8 +343,9 @@ TEST(Interest, make_ThrowsOnCompileError)
 }
 
 /// @test
-/// Checks comparison between different interests. Validates the design decision that
-/// equality is strictly defined by the query string, ignoring the TypeRegistry
+/// Equates interests by their query string alone, the same query with different or empty
+/// type registries compares equal, while any difference in condition, selection, session, or
+/// bus compares unequal.
 /// @requirements(SEN-363)
 TEST(Interest, compare)
 {
@@ -415,7 +424,8 @@ TEST(Interest, compare)
 }
 
 /// @test
-/// Checks correct behavior of type registry getter
+/// Returns an empty type condition for a SELECT * query regardless of how many types the
+/// registry holds.
 /// @requirements(SEN-363)
 TEST(Interest, getTypeCondition)
 {
@@ -448,7 +458,7 @@ TEST(Interest, getTypeCondition)
 }
 
 /// @test
-/// Checks correct behavior of query string getter
+/// Returns the exact query text through getQueryString, with and without a WHERE clause.
 /// @requirements(SEN-363)
 TEST(Interest, getQueryStr)
 {
@@ -470,7 +480,8 @@ TEST(Interest, getQueryStr)
 }
 
 /// @test
-/// Checks correct behavior of query code getter
+/// Compiles the query into code whose count matches an independently compiled, valid chunk
+/// of the same program.
 /// @requirements(SEN-363)
 TEST(Interest, getQueryCode)
 {
@@ -487,7 +498,7 @@ TEST(Interest, getQueryCode)
 }
 
 /// @test
-/// Checks correct behavior of bus condition getter
+/// Splits the FROM clause into the bus condition, se.env yields session se and bus env.
 /// @requirements(SEN-363)
 TEST(Interest, getBusCondition)
 {
@@ -500,7 +511,7 @@ TEST(Interest, getBusCondition)
 }
 
 /// @test
-/// Checks correct behavior of id getter
+/// Derives the interest id as the crc32 of the query string, shown for two different queries.
 /// @requirements(SEN-363)
 TEST(Interest, getID)
 {
@@ -520,7 +531,7 @@ TEST(Interest, getID)
 }
 
 /// @test
-/// Validates robust extraction for queries holding no explicit logical conditions
+/// Returns an empty var info list for a query with no WHERE clause.
 /// @requirements(SEN-363)
 TEST(Interest, getVarInfoList_EmptyCode)
 {
@@ -533,7 +544,8 @@ TEST(Interest, getVarInfoList_EmptyCode)
 }
 
 /// @test
-/// Checks variant field introspection to ensure paths like VariantProperty.TypeName resolve correctly
+/// Resolves a variant property path such as direction.f64 into one var info entry carrying
+/// the field index of that alternative.
 /// @requirements(SEN-363)
 TEST(Interest, getVarInfoList_Variant)
 {
@@ -550,7 +562,7 @@ TEST(Interest, getVarInfoList_Variant)
 }
 
 /// @test
-/// Rejects attempts to traverse missing properties nested inside a variant
+/// Rejects attempts to traverse missing properties nested inside a variant.
 /// @requirements(SEN-363)
 TEST(Interest, getVarInfoList_MissingVariantField)
 {
@@ -563,7 +575,8 @@ TEST(Interest, getVarInfoList_MissingVariantField)
 }
 
 /// @test
-/// Detects queries attempting to dot-traverse native types holding no inner fields
+/// Throws from getOrComputeVarInfoList when a query dot-traverses a native property that has
+/// no inner fields.
 /// @requirements(SEN-363)
 TEST(Interest, getVarInfoList_InvalidPropertyField)
 {
@@ -576,7 +589,9 @@ TEST(Interest, getVarInfoList_InvalidPropertyField)
 }
 
 /// @test
-/// Checks correct behavior of get or compute var info list under standard conditions
+/// Computes the var info list for a query's variables, none for a constant-only condition and
+/// one entry per referenced built-in, property, or struct field path, and throws when a named
+/// property or struct field does not exist.
 /// @requirements(SEN-363)
 TEST(Interest, getVarInfoList)
 {
@@ -643,7 +658,9 @@ TEST(Interest, getVarInfoList)
 }
 
 /// @test
-/// Checks query evaluation against an object holding custom enums and optionals
+/// Evaluates queries against a generated class with enum and optional properties, the var
+/// info list names the queried property and the VM returns true for matching enum and
+/// optional values and false when the optional is empty.
 /// @requirements(SEN-363)
 TEST(Interest, QueriesAgainstRealObjectWithCustomTypes)
 {

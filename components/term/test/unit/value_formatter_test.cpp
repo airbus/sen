@@ -195,7 +195,7 @@ TEST(ValueFormatter, StringQuoted)
 }
 
 /// @test
-/// A value carrying no string renders as empty.
+/// A value carrying no string renders the <empty> placeholder.
 TEST(ValueFormatter, StringEmptyVar)
 {
   // Var with no string payload, formatter should fall back to <empty>.
@@ -229,7 +229,7 @@ TEST(ValueFormatter, Duration)
 }
 
 /// @test
-/// A duration with no value renders as empty.
+/// A duration with no value renders the <empty> placeholder.
 TEST(ValueFormatter, DurationEmpty)
 {
   auto out = renderToText(formatValue(Var {}, *DurationType::get()));
@@ -295,7 +295,7 @@ TEST(ValueFormatter, SequenceOfInts)
 }
 
 /// @test
-/// An empty sequence renders as empty.
+/// An empty sequence renders the <empty> placeholder.
 TEST(ValueFormatter, SequenceEmpty)
 {
   auto out = renderToText(formatValue(Var(VarList {}), *makeIntSeq()));
@@ -318,7 +318,7 @@ TEST(ValueFormatter, SequenceOfBytesRendersAsHex)
 
 /// @test
 /// A long sequence of bytes is capped, so a large buffer does not lay out a row per sixteen
-/// bytes without bound.
+/// bytes without bound. A closing line counts the bytes left out.
 TEST(ValueFormatter, SequenceOfBytesIsCapped)
 {
   // A blob arrives as sequence<u8>, and without a cap on this path a megabyte lays out 65,536 rows that the
@@ -377,7 +377,7 @@ TEST(ValueFormatter, Struct)
 }
 
 /// @test
-/// A struct with no value renders as empty.
+/// A struct with no value renders the <empty> placeholder.
 TEST(ValueFormatter, StructEmpty)
 {
   auto out = renderToText(formatValue(Var(VarMap {}), *makePointStruct()));
@@ -422,7 +422,7 @@ TEST(ValueFormatter, VariantInvalidIndex)
 }
 
 /// @test
-/// A variant whose payload cannot be keyed renders as empty.
+/// A variant whose payload cannot be keyed renders the <empty> placeholder.
 TEST(ValueFormatter, VariantNonKeyedPayload)
 {
   auto out = renderToText(formatValue(Var {}, *makeIntOrStringVariant()));
@@ -434,7 +434,7 @@ TEST(ValueFormatter, VariantNonKeyedPayload)
 //--------------------------------------------------------------------------------------------------------------
 
 /// @test
-/// An empty optional renders as empty.
+/// An empty optional renders the <empty> placeholder.
 TEST(ValueFormatter, OptionalEmpty)
 {
   auto out = renderToText(formatValue(Var {}, *makeOptionalInt()));
@@ -468,7 +468,7 @@ TEST(ValueFormatter, AliasDelegatesToAliasedType)
 //--------------------------------------------------------------------------------------------------------------
 
 /// @test
-/// A void value renders without faulting.
+/// A void value renders the <void> marker.
 TEST(ValueFormatter, Void)
 {
   auto out = renderToText(formatValue(Var {}, *VoidType::get()));
@@ -494,8 +494,7 @@ TEST(ValueFormatter, StructFieldHoldingAnEmptyOptional)
 }
 
 /// @test
-/// A timestamp renders as a UTC string, which is the only form that reads the same wherever the
-/// person looking at a property dump happens to be.
+/// A timestamp carrying a value renders as a date rather than the <empty> marker.
 TEST(ValueFormatter, Timestamp)
 {
   const auto when = TimeStamp(std::chrono::seconds(1'700'000'000));
@@ -515,8 +514,8 @@ TEST(ValueFormatter, TimestampEmpty)
 }
 
 /// @test
-/// A struct field holding an empty sequence is laid out as a simple field rather than opened as a
-/// subtree. A tree connector leading to nothing is worse than a value that says it is empty.
+/// A struct field holding an empty sequence keeps its name label in the output, and the field
+/// beside it still renders.
 TEST(ValueFormatter, StructFieldHoldingAnEmptySequence)
 {
   static const auto inner = SequenceType::make(SequenceSpec {"Inner", "test.Inner", "", Int32Type::get()});
@@ -533,8 +532,7 @@ TEST(ValueFormatter, StructFieldHoldingAnEmptySequence)
 }
 
 /// @test
-/// The same for a sequence whose elements are empty structs: each element is one line rather than
-/// an empty subtree of its own.
+/// A sequence whose elements are structs carrying no values still renders output.
 TEST(ValueFormatter, SequenceOfEmptyStructs)
 {
   static const auto element = StructType::make(StructSpec {"Empty", "test.Empty", "", {{"x", "", Int32Type::get()}}});

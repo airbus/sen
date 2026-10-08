@@ -44,7 +44,8 @@ void checkInvalidSpec(const OptionalSpec& spec)
 }  // namespace
 
 /// @test
-/// Checks optional spec comparison
+/// Compares optional specs: equal for identical specs, and unequal when the name, qualified name,
+/// description or wrapped type differs or any of them is emptied.
 /// @requirements(SEN-355)
 TEST(OptionalSpec, specComparison)
 {
@@ -128,7 +129,9 @@ TEST(OptionalSpec, specComparison)
 }
 
 /// @test
-/// Checks optional instance type
+/// Answers the type predicates for an optional: isCustomType and isOptionalType are true,
+/// isBounded follows the wrapped type, and every other kind predicate sampled, from isNativeType
+/// to isAliasType, is false.
 /// @requirements(SEN-355)
 TEST(OptionalType, basicsBoolConversion)
 {
@@ -165,7 +168,9 @@ TEST(OptionalType, basicsBoolConversion)
 }
 
 /// @test
-/// Checks optional instance type
+/// Converts an optional through the as-type conversions: asCustomType and asOptionalType are
+/// non-null and every other kind conversion sampled, from asNativeType to asAliasType, returns
+/// null.
 /// @requirements(SEN-355)
 TEST(OptionalType, basicsConversion)
 {
@@ -202,7 +207,8 @@ TEST(OptionalType, basicsConversion)
 }
 
 /// @test
-/// Checks correct optional instance creation
+/// Builds an optional from its spec and exposes the spec's name, qualified name, description and
+/// wrapped type through the getters, for a plain optional and an optional of an optional.
 /// @requirements(SEN-355)
 TEST(OptionalType, makeBasic)
 {
@@ -223,7 +229,8 @@ TEST(OptionalType, makeBasic)
 }
 
 /// @test
-/// Checks invalid optional creation
+/// Refuses to build an optional whose spec has a missing or malformed name or qualified name,
+/// covering lowercase-first, digit-first, space-bearing and symbol-only spellings.
 /// @requirements(SEN-355)
 TEST(OptionalType, makeInvalid)
 {
@@ -292,7 +299,9 @@ TEST(OptionalType, makeInvalid)
 }
 
 /// @test
-/// Checks optional instance comparison
+/// Compares built optionals by value: two from the same spec are equal, and a changed name,
+/// qualified name, description or wrapped type, including wrapping the optional in another
+/// optional, makes them unequal.
 /// @requirements(SEN-355)
 TEST(OptionalType, comparison)
 {

@@ -31,7 +31,7 @@ using sen::UuidVariant;
 using sen::UuidVersion;
 
 /// @test
-/// Verifies that the default constructor creates a nil UUID
+/// Default-constructs a nil UUID with a zero hash and all sixteen bytes zero.
 /// @requirements(SEN-584)
 TEST(UuidTest, DefaultConstructorIsNil)
 {
@@ -47,7 +47,8 @@ TEST(UuidTest, DefaultConstructorIsNil)
 }
 
 /// @test
-/// Verifies that constructing with two 64-bit integers stores the data correctly
+/// Constructs from two 64-bit halves a non-nil UUID whose getHash is their XOR and whose getHash32
+/// folds that hash into 32 bits.
 /// @requirements(SEN-584, SEN-575)
 TEST(UuidTest, ValueConstructorAndHash)
 {
@@ -65,7 +66,7 @@ TEST(UuidTest, ValueConstructorAndHash)
 }
 
 /// @test
-/// Verifies that constructing from a span of bytes maps correctly to the internal state
+/// Constructs from a sixteen-byte span, and bytes returns that identical byte sequence.
 /// @requirements(SEN-584, SEN-1051)
 TEST(UuidTest, SpanConstructor)
 {
@@ -79,7 +80,7 @@ TEST(UuidTest, SpanConstructor)
 }
 
 /// @test
-/// Verifies copying UUID to an array
+/// Copies the UUID into a sixteen-byte std::array, reproducing the bytes it was constructed from.
 /// @requirements(SEN-584, SEN-1051)
 TEST(UuidTest, CopyArray)
 {
@@ -94,7 +95,8 @@ TEST(UuidTest, CopyArray)
 }
 
 /// @test
-/// Verifies copying UUID to a StaticVector
+/// Copies the UUID into a StaticVector, filling it to byteCount elements with the same bytes that
+/// bytes reports.
 /// @requirements(SEN-584, SEN-1051)
 TEST(UuidTest, CopyStaticVector)
 {
@@ -116,7 +118,8 @@ TEST(UuidTest, CopyStaticVector)
 }
 
 /// @test
-/// Verifies the parsing of the UUID variant based on the top bits
+/// Classifies the variant from the top bits of the low half: nibbles 0 through 7 yield ncs, 8 through
+/// B yield rfc, C and D yield microsoft, and E and F yield reserved.
 /// @requirements(SEN-584)
 TEST(UuidTest, GetVariant)
 {
@@ -150,7 +153,9 @@ TEST(UuidTest, GetVariant)
 }
 
 /// @test
-/// Verifies the parsing of the UUID version based on the high bits
+/// Reads the version from the version nibble of the high half, 1 through 5 yielding timeBased,
+/// dceSecurity, nameBasedMd5, randomNumberBased, and nameBasedSha1, and any other nibble yielding
+/// none.
 /// @requirements(SEN-584)
 TEST(UuidTest, GetVersion)
 {
@@ -199,7 +204,9 @@ TEST(UuidTest, GetVersion)
 }
 
 /// @test
-/// Verifies string conversions and round-tripping string->uuid->string
+/// Parses canonical, braced, and uppercase UUID strings through fromString, each printing back through
+/// toString in canonical lowercase, and yields a nil UUID for empty, unterminated, non-hex, too-short,
+/// or too-long inputs.
 /// @requirements(SEN-584, SEN-576)
 TEST(UuidTest, StringConversions)
 {
@@ -228,7 +235,8 @@ TEST(UuidTest, StringConversions)
 }
 
 /// @test
-/// Verifies validation logic of string UUIDs
+/// Accepts canonical, braced, and dashless 32-digit UUID strings in isValid, and rejects empty
+/// strings, unmatched or reversed braces, non-hex characters, and wrong lengths.
 /// @requirements(SEN-584, SEN-576)
 TEST(UuidTest, StringValidation)
 {
@@ -247,7 +255,8 @@ TEST(UuidTest, StringValidation)
 }
 
 /// @test
-/// Verifies comparison operators
+/// Compares UUIDs equal only when both halves match, and orders them with operator< lexicographically
+/// by high half then low half.
 /// @requirements(SEN-584)
 TEST(UuidTest, Operators)
 {
@@ -274,7 +283,8 @@ TEST(UuidTest, Operators)
 }
 
 /// @test
-/// Verifies the behavior of Uuid swap mechanism
+/// Exchanges the values of two UUIDs through swap, each afterwards hashing as the other's original
+/// value.
 /// @requirements(SEN-584)
 TEST(UuidTest, Swap)
 {
@@ -288,7 +298,8 @@ TEST(UuidTest, Swap)
 }
 
 /// @test
-/// Verifies standard library integrations of hash and ostream
+/// Hashes through std::hash to the same value as getHash, and streams through operator<< as the
+/// toString text.
 /// @requirements(SEN-584, SEN-1051)
 TEST(UuidTest, StdIntegrations)
 {
@@ -303,7 +314,8 @@ TEST(UuidTest, StdIntegrations)
 }
 
 /// @test
-/// Verifies the properties of the random UUID generator
+/// Generates from a seeded UuidRandomGenerator a non-nil UUID carrying the randomNumberBased version
+/// and the rfc variant.
 /// @requirements(SEN-584)
 TEST(UuidTest, RandomGeneratorProducesCorrectSpec)
 {
@@ -319,8 +331,9 @@ TEST(UuidTest, RandomGeneratorProducesCorrectSpec)
 }
 
 /// @test
-/// A span shorter than a Uuid must be rejected before the copies, not by the assertion alone: a
-/// replaced check handler returns, and the copies read sixteen bytes whatever the span holds.
+/// Rejects a span shorter than a Uuid before any bytes are copied, not by the assertion alone: with a
+/// replaced check handler that returns, the handler fires exactly once and the UUID stays nil instead
+/// of sixteen bytes being read past the span's end.
 /// @requirements(SEN-584)
 TEST(UuidTest, ShortSpanIsNotReadPastItsEndWhenTheCheckHandlerReturns)
 {

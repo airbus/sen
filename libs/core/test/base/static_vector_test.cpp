@@ -225,7 +225,8 @@ using TestTypes = testing::Types<VectorTestTypes<int8_t, 10>,
 TYPED_TEST_SUITE(VectorTestTemplate, TestTypes);
 
 /// @test
-/// Checks resizing with 0, half and full capacity.
+/// Resizes to zero, full, and half capacity, default-constructing new elements and updating size,
+/// empty, and full at each step, and a resize with a value fills every element with that value.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, resize)
 {
@@ -277,7 +278,8 @@ TYPED_TEST(VectorTestTemplate, resize)
 }
 
 /// @test
-/// Checks default construction of a static vector
+/// Default-constructs empty with capacity and maxSize equal to the static capacity, and the
+/// StaticVectorBase view reports the same limits.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, defaultConstruction)
 {
@@ -306,7 +308,7 @@ TYPED_TEST(VectorTestTemplate, defaultConstruction)
 }
 
 /// @test
-/// Checks copy constructor of a static vector
+/// Copy-constructs an equal vector whose storage is independent, modifying the copy breaks the equality.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, copyConstructor)
 {
@@ -325,7 +327,7 @@ TYPED_TEST(VectorTestTemplate, copyConstructor)
 }
 
 /// @test
-/// Checks move constructor of a static vector
+/// Move-constructs a vector that takes over the source elements and leaves the moved-from vector empty.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, moveConstructor)
 {
@@ -341,7 +343,7 @@ TYPED_TEST(VectorTestTemplate, moveConstructor)
 }
 
 /// @test
-/// Checks assignation of a static vector
+/// Copy-assigns all elements from another vector, leaving the two vectors equal.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, assign)
 {
@@ -358,7 +360,7 @@ TYPED_TEST(VectorTestTemplate, assign)
 }
 
 /// @test
-/// Checks failure when trying to assign the content of a bigger static vector
+/// Rejects assign from a range longer than the capacity, reporting the full error.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, assign2)
 {
@@ -375,7 +377,7 @@ TYPED_TEST(VectorTestTemplate, assign2)
 }
 
 /// @test
-/// Checks failure when trying to assign an invalid range form another static vector
+/// Rejects assign with a reversed iterator range, reporting the badRange error.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, assign3)
 {
@@ -391,8 +393,7 @@ TYPED_TEST(VectorTestTemplate, assign3)
 }
 
 /// @test
-/// Checks equality of two static vectors, where the second one was created with the content of the first using the
-/// move constructor
+/// Move-initializes a new vector that receives every element and leaves the moved-from vector empty.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, moveAssign)
 {
@@ -408,7 +409,8 @@ TYPED_TEST(VectorTestTemplate, moveAssign)
 }
 
 /// @test
-/// Checks equality of two static vectors, where the second one is created using the base assignment of the first one
+/// Assigns an empty range into a populated vector through the StaticVectorBase reference interface, the
+/// assign reporting success.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, assignmentBase)
 {
@@ -428,7 +430,7 @@ TYPED_TEST(VectorTestTemplate, assignmentBase)
 }
 
 /// @test
-/// Checks equality of self-assignment static vector
+/// Keeps the contents unchanged under copy self-assignment.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, selfAssignment)
 {
@@ -446,7 +448,7 @@ TYPED_TEST(VectorTestTemplate, selfAssignment)
 }
 
 /// @test
-/// Checks usage of beginning memory pointer
+/// Returns from begin the address of the first element, on mutable and const vectors alike.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, begin)
 {
@@ -465,7 +467,7 @@ TYPED_TEST(VectorTestTemplate, begin)
 }
 
 /// @test
-/// Checks usage of ending memory pointer
+/// Returns from end the address one past the last element, on mutable and const vectors alike.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, end)
 {
@@ -484,7 +486,7 @@ TYPED_TEST(VectorTestTemplate, end)
 }
 
 /// @test
-/// Check resize operator when the new size is less than the max capacity
+/// Grows from empty to a size below capacity and reports the new size.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, resizeUp)
 {
@@ -499,7 +501,8 @@ TYPED_TEST(VectorTestTemplate, resizeUp)
 }
 
 /// @test
-/// Check resize operator with value when the new size is less than the max capacity
+/// Grows with a fill value so every element equals that value, accepts a same-size resize as a no-op,
+/// and reports the full error for a size beyond maxSize.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, resizeUpValue)
 {
@@ -535,7 +538,7 @@ TYPED_TEST(VectorTestTemplate, resizeUpValue)
 }
 
 /// @test
-/// Checks failure on resize with a new size greater than the max capacity
+/// Refuses to resize beyond capacity, keeping the previous size and the empty and full flags.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, resizeExcess)
 {
@@ -554,7 +557,7 @@ TYPED_TEST(VectorTestTemplate, resizeExcess)
 }
 
 /// @test
-/// Check resize operator when resizing to a smaller size
+/// Shrinks a full vector to half capacity, reporting the reduced size and no longer full.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, resizeDown)
 {
@@ -575,7 +578,8 @@ TYPED_TEST(VectorTestTemplate, resizeDown)
 }
 
 /// @test
-/// Check resize operator with value when resizing to a smaller size
+/// Shrinks a vector filled with a value to half capacity, the remaining elements still equal to that
+/// value.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, resizeDownValue)
 {
@@ -598,7 +602,7 @@ TYPED_TEST(VectorTestTemplate, resizeDownValue)
 }
 
 /// @test
-/// Check empty static vector resize operator
+/// Reports not empty and full after a resize to the whole static capacity.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, empty)
 {
@@ -613,7 +617,7 @@ TYPED_TEST(VectorTestTemplate, empty)
 }
 
 /// @test
-/// Check basic operators on empty static vector
+/// Reports size zero, empty, and not full on a default-constructed vector.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, full)
 {
@@ -626,7 +630,7 @@ TYPED_TEST(VectorTestTemplate, full)
 }
 
 /// @test
-/// Check static vector index operator
+/// Returns each populated element by position through operator[].
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, index)
 {
@@ -643,7 +647,7 @@ TYPED_TEST(VectorTestTemplate, index)
 }
 
 /// @test
-/// Check index operator on const static vector
+/// Returns each populated element by position through operator[] on a const vector.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, indexConst)
 {
@@ -661,7 +665,7 @@ TYPED_TEST(VectorTestTemplate, indexConst)
 }
 
 /// @test
-/// Check front method on static vector
+/// Returns the first populated element from front.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, front)
 {
@@ -674,7 +678,7 @@ TYPED_TEST(VectorTestTemplate, front)
 }
 
 /// @test
-/// Check front method on const static vector
+/// Returns the first populated element from front on a const vector.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, frontConst)
 {
@@ -688,7 +692,7 @@ TYPED_TEST(VectorTestTemplate, frontConst)
 }
 
 /// @test
-/// Check back method on static vector
+/// Returns the last populated element from back.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, back)
 {
@@ -701,7 +705,7 @@ TYPED_TEST(VectorTestTemplate, back)
 }
 
 /// @test
-/// Check back method on const static vector
+/// Returns the last populated element from back on a const vector.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, backConst)
 {
@@ -715,7 +719,7 @@ TYPED_TEST(VectorTestTemplate, backConst)
 }
 
 /// @test
-/// Check data method on static vector
+/// Exposes through data a contiguous block holding exactly the populated elements.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, data)
 {
@@ -728,7 +732,7 @@ TYPED_TEST(VectorTestTemplate, data)
 }
 
 /// @test
-/// Check data method on const static vector
+/// Exposes through data on a const vector a contiguous block holding exactly the populated elements.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, dataConst)
 {
@@ -743,7 +747,7 @@ TYPED_TEST(VectorTestTemplate, dataConst)
 }
 
 /// @test
-/// Check assign method on static vector
+/// Copies an iterator range through assign, matching the source size and contents.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, assignRange)
 {
@@ -760,7 +764,8 @@ TYPED_TEST(VectorTestTemplate, assignRange)
 }
 
 /// @test
-/// Check assign method on const static vector
+/// Fills through assign with a count and a value, matching an array of that count holding the same
+/// value.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, assignSizeValue)
 {
@@ -778,7 +783,7 @@ TYPED_TEST(VectorTestTemplate, assignSizeValue)
 }
 
 /// @test
-/// Check failure on assign method with excess of data
+/// Rejects assign with a count above capacity, reporting the full error.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, assignSizeValueExcess)
 {
@@ -792,7 +797,8 @@ TYPED_TEST(VectorTestTemplate, assignSizeValueExcess)
 }
 
 /// @test
-/// Check assign method with an initializer list
+/// Assigns an initializer list below and at exact capacity, and reports the full error when the list is
+/// longer than the capacity.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, assignInitList)
 {
@@ -827,7 +833,8 @@ TYPED_TEST(VectorTestTemplate, assignInitList)
 }
 
 /// @test
-/// Check assign method with move init list
+/// Assigns a temporary initializer list below and at exact capacity, and reports the full error when
+/// the list is longer than the capacity.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, moveInitList)
 {
@@ -856,7 +863,7 @@ TYPED_TEST(VectorTestTemplate, moveInitList)
 }
 
 /// @test
-/// Check push back method
+/// Appends each element through push_back, after which size and contents match the pushed sequence.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, pushBack)
 {
@@ -873,7 +880,8 @@ TYPED_TEST(VectorTestTemplate, pushBack)
 }
 
 /// @test
-/// Check empty push back method
+/// Appends default-constructed elements through the argumentless push_back, matching a default-resized
+/// vector, and reports the full error once at capacity.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, pushBackEmpty)
 {
@@ -895,7 +903,7 @@ TYPED_TEST(VectorTestTemplate, pushBackEmpty)
 }
 
 /// @test
-/// Check push back method with literal values
+/// Appends temporary values through push_back, matching a std::vector built with the same calls.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, pushBackLiteral)
 {
@@ -923,7 +931,7 @@ TYPED_TEST(VectorTestTemplate, pushBackLiteral)
 }
 
 /// @test
-/// Check push back method of a full static vector with a literal value
+/// Reports the full error when push_back of a temporary value hits a full vector.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, pushBackExcess)
 {
@@ -942,7 +950,7 @@ TYPED_TEST(VectorTestTemplate, pushBackExcess)
 }
 
 /// @test
-/// Check push back method of a full static vector
+/// Reports the full error when push_back of a const reference hits a full vector.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, pushBackExcess2)
 {
@@ -962,7 +970,7 @@ TYPED_TEST(VectorTestTemplate, pushBackExcess2)
 }
 
 /// @test
-/// Check emplace back method of a static vector
+/// Appends each element through emplace_back, after which size and contents match the source sequence.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, emplaceBack)
 {
@@ -979,7 +987,7 @@ TYPED_TEST(VectorTestTemplate, emplaceBack)
 }
 
 /// @test
-/// Check emplace back method of a full static vector
+/// Reports the full error when emplace_back hits a full vector.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, emplaceBackExcess)
 {
@@ -997,7 +1005,8 @@ TYPED_TEST(VectorTestTemplate, emplaceBackExcess)
 }
 
 /// @test
-/// Check emplace method of a static vector
+/// Inserts through emplace at the end and mid-vector, growing the size and placing the value at the
+/// given position, and reports full on a full vector and badRange for positions outside the vector.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, emplace)
 {
@@ -1053,7 +1062,7 @@ TYPED_TEST(VectorTestTemplate, emplace)
 }
 
 /// @test
-/// Check pop back method of static vector
+/// Removes the last element on each pop_back, matching a std::vector after the same removals.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, popBack)
 {
@@ -1076,7 +1085,7 @@ TYPED_TEST(VectorTestTemplate, popBack)
 }
 
 /// @test
-/// Check failure of pop back method
+/// Pops every element and then reports the empty error on one more pop_back.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, popBackError)
 {
@@ -1090,7 +1099,8 @@ TYPED_TEST(VectorTestTemplate, popBackError)
 }
 
 /// @test
-/// Check insert method of static vector
+/// Inserts a value at every position offset, matching std::vector insertion, and reports badRange for
+/// positions before begin or past end.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, insertPositionValue)
 {
@@ -1133,7 +1143,8 @@ TYPED_TEST(VectorTestTemplate, insertPositionValue)
 }
 
 /// @test
-/// Check insert method with moved value
+/// Inserts a moved temporary at every position offset, matching std::vector insertion at the same
+/// offset.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, insertPositionValueMoved)
 {
@@ -1161,7 +1172,7 @@ TYPED_TEST(VectorTestTemplate, insertPositionValueMoved)
 }
 
 /// @test
-/// Check insert method of a full static vector
+/// Reports the full error for insert of a value at any position of a full vector.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, insertPositionValueExcess)
 {
@@ -1177,7 +1188,7 @@ TYPED_TEST(VectorTestTemplate, insertPositionValueExcess)
 }
 
 /// @test
-/// Check insert method of a full static vector with moved values
+/// Reports the full error for insert of a moved temporary at any position of a full vector.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, insertPositionValueMovedExcess)
 {
@@ -1194,7 +1205,8 @@ TYPED_TEST(VectorTestTemplate, insertPositionValueMovedExcess)
 }
 
 /// @test
-/// Check insert method with N values
+/// Inserts a counted run of one value at every position offset, matching std::vector, and reports
+/// badRange for positions outside the vector.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, insertPositionNValue)
 {
@@ -1231,7 +1243,7 @@ TYPED_TEST(VectorTestTemplate, insertPositionNValue)
 }
 
 /// @test
-/// Check insert method with N values that exceed vector size
+/// Reports the full error for a counted insert at any position of a full vector.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, insertPositionNValueExcess)
 {
@@ -1251,7 +1263,8 @@ TYPED_TEST(VectorTestTemplate, insertPositionNValueExcess)
 }
 
 /// @test
-/// Check insert method in certain position range
+/// Inserts an iterator range at every position offset, matching std::vector insertion at the same
+/// offset.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, insertPositionRange)
 {
@@ -1280,7 +1293,7 @@ TYPED_TEST(VectorTestTemplate, insertPositionRange)
 }
 
 /// @test
-/// Check insert method in certain range that exceed vector size
+/// Reports the full error for a range insert at any position of a full vector.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, insertPositionRangeExcess)
 {
@@ -1301,7 +1314,8 @@ TYPED_TEST(VectorTestTemplate, insertPositionRangeExcess)
 }
 
 /// @test
-/// Check insert method with initializer list
+/// Inserts an initializer list at begin, and refuses one at a position outside the vector or when the
+/// elements do not fit.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, insertInitList)
 {
@@ -1336,7 +1350,8 @@ TYPED_TEST(VectorTestTemplate, insertInitList)
 }
 
 /// @test
-/// Check failure cases of insert method
+/// Reports badRange for move_insert at a position outside the vector or with a reversed source range,
+/// and full when the source does not fit.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, moveInsertError)
 {
@@ -1380,7 +1395,8 @@ TYPED_TEST(VectorTestTemplate, moveInsertError)
 }
 
 /// @test
-/// Check erase method
+/// Erases a single element, matching std::vector, and reports badRange for a position outside the
+/// vector.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, eraseSingle)
 {
@@ -1414,7 +1430,7 @@ TYPED_TEST(VectorTestTemplate, eraseSingle)
 }
 
 /// @test
-/// Check ranged-erase method
+/// Erases an iterator range mid-vector, matching a std::vector after the same erase.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, eraseRange)
 {
@@ -1435,7 +1451,7 @@ TYPED_TEST(VectorTestTemplate, eraseRange)
 }
 
 /// @test
-/// Check ranged-erase method
+/// Reports badRange for a reversed erase range, and erasing an empty range changes nothing.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, eraseRange2)
 {
@@ -1462,7 +1478,7 @@ TYPED_TEST(VectorTestTemplate, eraseRange2)
 }
 
 /// @test
-/// Check clear method
+/// Empties a populated vector through clear.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, clear)
 {
@@ -1484,7 +1500,7 @@ TYPED_TEST(VectorTestTemplate, clear)
 }
 
 /// @test
-/// Check usage of iterator over static vector
+/// Visits the assigned elements in order from begin to end.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, iterator)
 {
@@ -1498,7 +1514,7 @@ TYPED_TEST(VectorTestTemplate, iterator)
 }
 
 /// @test
-/// Check usage of const iterator over static vector
+/// Visits the assigned elements in order from cbegin to cend.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, constIterator)
 {
@@ -1512,7 +1528,7 @@ TYPED_TEST(VectorTestTemplate, constIterator)
 }
 
 /// @test
-/// Check usage of reverse iterator over static vector
+/// Visits the assigned elements in reverse order from rbegin to rend.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, reverseIterator)
 {
@@ -1526,7 +1542,7 @@ TYPED_TEST(VectorTestTemplate, reverseIterator)
 }
 
 /// @test
-/// Check usage of const reverse iterator over static vector
+/// Visits the assigned elements in reverse order from crbegin to crend.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, constReverseIterator)
 {
@@ -1541,7 +1557,7 @@ TYPED_TEST(VectorTestTemplate, constReverseIterator)
 }
 
 /// @test
-/// Check equality of two populated static vectors
+/// Compares equal for identical contents, and unequal for different contents or a shorter vector.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, equal)
 {
@@ -1567,7 +1583,8 @@ TYPED_TEST(VectorTestTemplate, equal)
 }
 
 /// @test
-/// Check inequality of two populated static vectors
+/// Yields false from operator!= for identical contents, and true for different contents or a shorter
+/// vector.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, notEqual)
 {
@@ -1593,7 +1610,8 @@ TYPED_TEST(VectorTestTemplate, notEqual)
 }
 
 /// @test
-/// Check assign operator
+/// Copy-assigns empty and populated vectors into equality, move-assigns the full size into empty or
+/// shorter targets, and survives move self-assignment with contents intact.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, assignOperator)
 {
@@ -1666,7 +1684,7 @@ TYPED_TEST(VectorTestTemplate, assignOperator)
 }
 
 /// @test
-/// Check swap method
+/// Exchanges the contents of two vectors through swap, each afterwards equal to the other's original.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, swap)
 {
@@ -1694,7 +1712,7 @@ TYPED_TEST(VectorTestTemplate, swap)
 }
 
 /// @test
-/// Check copy move constructor of a static vector
+/// Move-constructs from a full vector, the new vector full and the source left empty.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, copyMoveConstructor)
 {
@@ -1711,7 +1729,8 @@ TYPED_TEST(VectorTestTemplate, copyMoveConstructor)
 }
 
 /// @test
-/// Check creation of static vector with specific size
+/// Constructs with an element count, default-filling that many elements, and a count above capacity
+/// trips the failed-check handler.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, makeN)
 {
@@ -1736,7 +1755,8 @@ TYPED_TEST(VectorTestTemplate, makeN)
 }
 
 /// @test
-/// Check creation of static vector with specific size and values
+/// Constructs with a count and a value, filling that many elements with the value, and a count above
+/// capacity trips the failed-check handler.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, makeNValue)
 {
@@ -1765,7 +1785,8 @@ TYPED_TEST(VectorTestTemplate, makeNValue)
 }
 
 /// @test
-/// Check creation of static vector with initializer list
+/// Constructs from an initializer list below and at exact capacity, and a list longer than the capacity
+/// trips the failed-check handler.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, makeList)
 {
@@ -1792,7 +1813,8 @@ TYPED_TEST(VectorTestTemplate, makeList)
 }
 
 /// @test
-/// Check creation of static vector with iterators
+/// Constructs from an iterator pair, copying the range, and a reversed pair trips the failed-check
+/// handler.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, makeIterators)
 {
@@ -1809,7 +1831,7 @@ TYPED_TEST(VectorTestTemplate, makeIterators)
 }
 
 /// @test
-/// Check insert method with initializer list (1)
+/// Inserts a five-element initializer list into an empty vector, producing exactly those elements.
 /// @requirements(SEN-355)
 TEST_F(BasicVectorTest, initializer_list)
 {
@@ -1819,7 +1841,8 @@ TEST_F(BasicVectorTest, initializer_list)
 }
 
 /// @test
-/// Check insert method with initializer list (2)
+/// Inserts an initializer list mid-vector, returning an iterator to the first inserted element and
+/// producing the merged sequence.
 /// @requirements(SEN-355)
 TEST_F(BasicVectorTest, initializer_list_2)
 {
@@ -1832,7 +1855,8 @@ TEST_F(BasicVectorTest, initializer_list_2)
 }
 
 /// @test
-/// Check insert method with initializer list (3)
+/// Inserts an initializer list at begin ahead of existing elements, returning an iterator to the first
+/// inserted element and producing the merged sequence.
 /// @requirements(SEN-355)
 TEST_F(BasicVectorTest, initializer_list_3)
 {
@@ -1845,7 +1869,8 @@ TEST_F(BasicVectorTest, initializer_list_3)
 }
 
 /// @test
-/// Check insert method indicating position and const reference
+/// Inserts single elements by const reference at begin, end, and interior positions, building the
+/// expected sequence step by step.
 /// @requirements(SEN-355)
 TEST_F(BasicVectorTest, position_and_const_ref)
 {
@@ -1872,7 +1897,8 @@ TEST_F(BasicVectorTest, position_and_const_ref)
 }
 
 /// @test
-/// Check insert method indicating position and values
+/// Inserts counted runs of one value at chosen positions, returns the given position unchanged for a
+/// count of zero, and refuses the insert once the vector is full.
 /// @requirements(SEN-355)
 TEST_F(BasicVectorTest, position_and_n_values)
 {
@@ -1920,7 +1946,8 @@ TEST_F(BasicVectorTest, position_and_n_values)
 }
 
 /// @test
-/// Check insert method with initialized lists
+/// Inserts initializer lists at begin, end, and interior positions, accumulating the expected
+/// sequence, and refuses the insert that would exceed capacity.
 /// @requirements(SEN-355)
 TEST_F(BasicVectorTest, initializer_list_make)
 {
@@ -1946,7 +1973,8 @@ TEST_F(BasicVectorTest, initializer_list_make)
 }
 
 /// @test
-/// Check insert method with ranges
+/// Inserts iterator ranges from another vector at begin, end, and interior positions, and refuses the
+/// insert that would exceed capacity.
 /// @requirements(SEN-355)
 TEST_F(BasicVectorTest, range)
 {
@@ -1973,7 +2001,8 @@ TEST_F(BasicVectorTest, range)
 }
 
 /// @test
-/// Check move insert method
+/// Move-inserts iterator ranges at begin, end, and interior positions, accumulating the expected
+/// sequence, and refuses the insert that would exceed capacity.
 /// @requirements(SEN-355)
 TEST_F(BasicVectorTest, move_insert)
 {
@@ -2020,7 +2049,7 @@ TEST_F(BasicVectorTest, move_insert)
 }
 
 /// @test
-/// Check erasing of all values in static vector
+/// Erases the full range from begin to end, leaving the vector empty.
 /// @requirements(SEN-355)
 TEST_F(BasicVectorTest, erase_all)
 {
@@ -2031,7 +2060,7 @@ TEST_F(BasicVectorTest, erase_all)
 }
 
 /// @test
-/// CHeck first values erasing in static vector
+/// Erases the two leading elements, keeping the remaining tail in order.
 /// @requirements(SEN-355)
 TEST_F(BasicVectorTest, erase_start_of_range)
 {
@@ -2041,7 +2070,7 @@ TEST_F(BasicVectorTest, erase_start_of_range)
 }
 
 /// @test
-/// Check last values erasing in static vector
+/// Erases the two trailing elements, keeping the leading elements in order.
 /// @requirements(SEN-355)
 TEST_F(BasicVectorTest, erase_end_of_range)
 {
@@ -2051,7 +2080,7 @@ TEST_F(BasicVectorTest, erase_end_of_range)
 }
 
 /// @test
-/// Check mid values erasing in static vector
+/// Erases the interior elements, keeping only the first and the last.
 /// @requirements(SEN-355)
 TEST_F(BasicVectorTest, erase_mid_of_range)
 {
@@ -2061,7 +2090,8 @@ TEST_F(BasicVectorTest, erase_mid_of_range)
 }
 
 /// @test
-/// Check corner case in emplace method of basic static vector
+/// Refuses emplace at positions outside the vector, inserts at begin, end, and interior positions
+/// building the expected sequence, and refuses one more emplace once full.
 /// @requirements(SEN-355)
 TEST_F(BasicVectorTest, emplace_position)
 {
@@ -2094,7 +2124,7 @@ TEST_F(BasicVectorTest, emplace_position)
 }
 
 /// @test
-/// Check corner case in emplace method of basic static vector
+/// Emplaces mid-vector, shifting the trailing elements one slot to the right.
 /// @requirements(SEN-355)
 TEST_F(BasicVectorTest, emplace_corner_case)
 {
@@ -2104,7 +2134,8 @@ TEST_F(BasicVectorTest, emplace_corner_case)
 }
 
 /// @test
-/// Check emplace back method of basic static vector
+/// Appends through emplace_back up to capacity, producing the appended sequence, and refuses one more
+/// append once full.
 /// @requirements(SEN-355)
 TEST_F(BasicVectorTest, emplace_back)
 {
@@ -2119,7 +2150,8 @@ TEST_F(BasicVectorTest, emplace_back)
 }
 
 /// @test
-/// Checks the default resize method
+/// Resizes default-filling new elements, accepts same-size and shrinking resizes, and reports the full
+/// error for a size beyond capacity.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, resizeDefault)
 {
@@ -2143,7 +2175,8 @@ TYPED_TEST(VectorTestTemplate, resizeDefault)
 }
 
 /// @test
-/// Checks range erase branches
+/// Reports badRange for a reversed erase range, empties the vector when erasing the full range, keeps
+/// it intact for an empty range, and shrinks by one for a single-element range.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, eraseRangeComprehensive)
 {
@@ -2166,7 +2199,8 @@ TYPED_TEST(VectorTestTemplate, eraseRangeComprehensive)
 }
 
 /// @test
-/// Checks internal error propagation for SEN_VECTOR_TRY
+/// Propagates badRange out of insert for a position before begin and for an invalid source iterator
+/// range.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, internalErrorPropagation)
 {
@@ -2179,7 +2213,8 @@ TYPED_TEST(VectorTestTemplate, internalErrorPropagation)
 }
 
 /// @test
-/// Checks push_back and emplace_back when full for specific coverage
+/// Reports the full error on a full vector from every append overload: push_back by moved value, by
+/// lvalue reference, and with no argument, and emplace_back.
 /// @requirements(SEN-355)
 TYPED_TEST(VectorTestTemplate, fullCapacityErrors)
 {
@@ -2196,7 +2231,7 @@ TYPED_TEST(VectorTestTemplate, fullCapacityErrors)
 }
 
 /// @test
-/// Checks that emplace at the end of a non-full vector works correctly
+/// Emplaces at end on a non-full vector, succeeding and placing the value as the new back.
 /// @requirements(SEN-355)
 TEST(StaticVectorLogicTest, EmplaceAtEnd)
 {
@@ -2209,7 +2244,7 @@ TEST(StaticVectorLogicTest, EmplaceAtEnd)
 }
 
 /// @test
-/// Checks that erasing an empty range at the end is a valid operation
+/// Erases the empty range at end, succeeding and leaving the size unchanged.
 /// @requirements(SEN-355)
 TEST(StaticVectorLogicTest, EraseEmptyRangeAtEnd)
 {
@@ -2221,7 +2256,8 @@ TEST(StaticVectorLogicTest, EraseEmptyRangeAtEnd)
 }
 
 /// @test
-/// Checks emplace when the argument is a reference to an element inside the vector
+/// Emplaces at begin a reference to the vector's own first element, both slots holding the original
+/// value afterwards.
 /// @requirements(SEN-355)
 TEST(StaticVectorLogicTest, EmplaceSelfReference)
 {
@@ -2234,7 +2270,9 @@ TEST(StaticVectorLogicTest, EmplaceSelfReference)
 }
 
 /// @test
-/// Cheks error paths and macro expansions for complex instantiations
+/// Walks the error paths on StaticVector of std::string and of std::variant elements: appends and
+/// inserts on a full vector fail, positions outside the vector and reversed ranges report errors,
+/// pop_back on an empty vector fails, and resize beyond capacity fails while valid resizes succeed.
 /// @requirements(SEN-355)
 TEST(StaticVectorCoverageExtra, ComplexInstantiation)
 {

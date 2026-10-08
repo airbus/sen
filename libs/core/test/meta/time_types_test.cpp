@@ -48,7 +48,9 @@ void checkEquality()
 }  // namespace
 
 /// @test
-/// Checks duration instance type
+/// Names the duration type Duration and answers true from isCustomType, isQuantityType, and
+/// isDurationType, with every other type predicate sampled, from isNativeType to isAliasType,
+/// false.
 /// @requirements(SEN-358)
 TEST(TimeTypes, durationBoolConversion)
 {
@@ -88,7 +90,9 @@ TEST(TimeTypes, durationBoolConversion)
 }
 
 /// @test
-/// Checks duration instance type
+/// Returns non-null from asCustomType, asQuantityType, and asDurationType on the duration type
+/// and null from every other as-conversion sampled, from asNativeType to asAliasType. The
+/// duration type equals itself and no native or timestamp type.
 /// @requirements(SEN-358)
 TEST(TimeTypes, durationConversion)
 {
@@ -134,7 +138,9 @@ TEST(TimeTypes, durationConversion)
 }
 
 /// @test
-/// Checks timestamp instance type
+/// Names the timestamp type TimeStamp and answers true from isCustomType, isQuantityType, and
+/// isTimestampType, with every other type predicate sampled, from isNativeType to isAliasType,
+/// false.
 /// @requirements(SEN-1050)
 TEST(TimeTypes, timestampBoolConversion)
 {
@@ -173,7 +179,9 @@ TEST(TimeTypes, timestampBoolConversion)
 }
 
 /// @test
-/// Checks timestamp instance type
+/// Returns non-null from asCustomType, asQuantityType, and asTimestampType on the timestamp
+/// type and null from every other as-conversion sampled, from asNativeType to asAliasType. The
+/// timestamp type equals itself and no native or duration type.
 /// @requirements(SEN-1050)
 TEST(TimeTypes, timestampConversion)
 {

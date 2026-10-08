@@ -159,7 +159,9 @@ void checkInvalidSpec(const ClassSpec& spec) { EXPECT_THROW(std::ignore = ClassT
 }  // namespace
 
 /// @test
-/// Checks class spec comparison
+/// Compares class specs: identical or both-empty specs are equal, and a difference in name,
+/// qualified name, description, interface flag, constructor, properties, methods, events or
+/// parents makes them unequal.
 /// @requirements(SEN-355)
 TEST(ClassType, specComparison)
 {
@@ -310,7 +312,10 @@ TEST(ClassType, specComparison)
 }
 
 /// @test
-/// Checks basics class type methods
+/// Answers the type predicates for a class: isCustomType and isClassType are true and every other
+/// kind predicate sampled, from isNativeType to isAliasType, is false, the interface flag reads
+/// back true, and isSameOrInheritsFrom accepts the class's own name while refusing an empty or
+/// unknown one.
 /// @requirements(SEN-355)
 TEST(ClassType, basicsBoolConversion)
 {
@@ -355,7 +360,8 @@ TEST(ClassType, basicsBoolConversion)
 }
 
 /// @test
-/// Checks basics class type methods
+/// Converts a class through the as-type conversions: asCustomType and asClassType are non-null
+/// and every other kind conversion sampled, from asNativeType to asAliasType, returns null.
 /// @requirements(SEN-355)
 TEST(ClassType, basicsConversion)
 {
@@ -391,7 +397,9 @@ TEST(ClassType, basicsConversion)
 }
 
 /// @test
-/// Checks correct class instance creation
+/// Builds class types whose getters and member lookups match the spec, for a standalone class and
+/// for one- and two-level inheritance chains, and composes an implementation class whose qualified
+/// name falls under the given package path, or under the parent's namespace when none is given.
 /// @requirements(SEN-355)
 TEST(ClassType, makeValid)
 {
@@ -466,7 +474,9 @@ TEST(ClassType, makeValid)
 }
 
 /// @test
-/// Checks incorrect class instance creation
+/// Refuses class specs malformed in any of several ways: a missing or invalid name, a missing
+/// qualified name, an interface that has a parent, a property, method or event whose name repeats
+/// within the class, an invalid constructor, or the same parent listed twice.
 /// @requirements(SEN-355)
 TEST(ClassType, makeInvalid)
 {
@@ -802,7 +812,9 @@ TEST(ClassType, makeInvalid)
 }
 
 /// @test
-/// Checks class instance comparison
+/// Builds class types and compares them: two instances from the same spec are equal by value,
+/// and each differing-spec case, along with the native types, compares distinct shared pointer
+/// instances as unequal.
 /// @requirements(SEN-355)
 TEST(ClassType, comparison)
 {
@@ -943,7 +955,8 @@ TEST(ClassType, comparison)
 }
 
 /// @test
-/// Checks correctness of search properties(), methods and events() by ID
+/// Finds properties, methods and events by their hashed ids, returns null for ids that match
+/// nothing, and reaches a parent's members when the search mode includes parents.
 /// @requirements(SEN-355)
 TEST(ClassType, searchByID)
 {
@@ -1043,7 +1056,8 @@ TEST(ClassType, searchByID)
 }
 
 /// @test
-/// Checks correctness of compute methods
+/// Computes method and event hashes without throwing, and prefixes the generated type getter and
+/// instance maker function names with senGetType and senMakeInstance.
 /// @requirements(SEN-355)
 TEST(ClassType, compute)
 {
@@ -1075,7 +1089,8 @@ TEST(ClassType, compute)
 }
 
 /// @test
-/// Checks that searchMethodByName finds properties
+/// Finds the generated property accessor methods by name: getProperty1, getProperty2 and
+/// setNextProperty2.
 /// @requirements(SEN-355)
 TEST(ClassType, searchMethodByNameFindsPropertyGetterAndSetter)
 {
@@ -1104,7 +1119,8 @@ TEST(ClassType, searchMethodByNameFindsPropertyGetterAndSetter)
 }
 
 /// @test
-/// Checks that searchMethodById finds properties
+/// Finds a generated property getter by id: looking up getProperty1 by name and then by its
+/// reported id returns the same method.
 /// @requirements(SEN-355)
 TEST(ClassType, searchMethodByIdFindsPropertyGetter)
 {
@@ -1121,7 +1137,8 @@ TEST(ClassType, searchMethodByIdFindsPropertyGetter)
 }
 
 /// @test
-/// Checks that searchEventByName finds property change notification events
+/// Finds the generated property change notification events by name, property1Changed and
+/// property2Changed.
 /// @requirements(SEN-355)
 TEST(ClassType, searchEventByNameFindsChangeEvent)
 {
@@ -1143,7 +1160,8 @@ TEST(ClassType, searchEventByNameFindsChangeEvent)
 }
 
 /// @test
-/// Checks that searchMethodByName and searchEventByName find members in parent classes
+/// Finds a parent's method and event by name when the search mode includes parents, and misses
+/// them when it does not.
 /// @requirements(SEN-355)
 TEST(ClassType, searchByNameFindsInParent)
 {
@@ -1180,7 +1198,8 @@ TEST(ClassType, searchByNameFindsInParent)
 }
 
 /// @test
-/// Checks ClassSpec operator==
+/// Compares class specs that name parents: equal when both name the same parent type, unequal
+/// when the parents differ.
 /// @requirements(SEN-355)
 TEST(ClassType, specComparisonWithParents)
 {

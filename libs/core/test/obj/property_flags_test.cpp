@@ -50,7 +50,8 @@ void checkPropertyBits(const PropertyFlags& flags, const uint8_t mask)
 }
 
 /// @test
-/// Check creation of PropertyFlags class and mask bits at creation time
+/// Starts with current and next indices at zero, no change recorded, and types-in-sync clear,
+/// and a copy preserves those bits.
 /// @requirements(SEN-579)
 TEST(PropertyFlags, make)
 {
@@ -62,7 +63,8 @@ TEST(PropertyFlags, make)
 }
 
 /// @test
-/// Check advance current method
+/// Leaves every flag untouched when advanceCurrent runs with no pending advanceNext, even when
+/// called repeatedly.
 /// @requirements(SEN-579)
 TEST(PropertyFlags, advanceCurrent)
 {
@@ -84,7 +86,8 @@ TEST(PropertyFlags, advanceCurrent)
 }
 
 /// @test
-/// Check advance next method
+/// Flips the next index to the free slot on the first advanceNext and returns the same index
+/// without further changes on repeated calls.
 /// @requirements(SEN-579)
 TEST(PropertyFlags, advanceNext)
 {
@@ -106,7 +109,9 @@ TEST(PropertyFlags, advanceNext)
 }
 
 /// @test
-/// CHeck property advance current and next bit methods
+/// Cycles the current index after the next index through both slots, the changed-in-last-cycle
+/// bit is raised exactly by the advanceCurrent call that moves current and cleared by the
+/// following one.
 /// @requirements(SEN-579)
 TEST(PropertyFlags, advanceCurrNext)
 {
@@ -143,7 +148,8 @@ TEST(PropertyFlags, advanceCurrNext)
 }
 
 /// @test
-/// Check set sync method
+/// Sets and clears the types-in-sync bit through setTypesInSync, getTypesInSync reflects each
+/// change.
 /// @requirements(SEN-579)
 TEST(PropertyFlags, setSync)
 {
@@ -160,7 +166,9 @@ TEST(PropertyFlags, setSync)
 }
 
 /// @test
-/// Check set value method
+/// Writes the value into the pending next slot for every current/next flag combination,
+/// advancing next first when both indices coincide, and skips the write when the value equals
+/// the current one.
 /// @requirements(SEN-579)
 TEST(PropertyFlags, setValues)
 {

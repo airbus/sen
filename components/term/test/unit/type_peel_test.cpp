@@ -27,9 +27,9 @@ namespace
 {
 
 /// @test
-/// Every kind of type term can be shown has a word for it, and the words differ. `types` puts this
-/// in a column and the completer puts it in an annotation, so a kind that came back as the generic
-/// "type" would read as a type term does not understand.
+/// Every kind of type that term can be shown has a word for it, and the words differ. The types
+/// command puts this in a column and the completer puts it in an annotation, so a kind that came
+/// back as the generic "type" would read as a type term does not understand.
 ///
 /// Variant and quantity are not built here: both need a spec shape this test would have to guess
 /// at, and a guess that compiles is not evidence. Their branches stay uncovered and named.

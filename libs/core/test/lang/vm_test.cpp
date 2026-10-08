@@ -106,7 +106,7 @@ namespace
 /// @test
 /// Arithmetic inside a WHERE clause, one operator at a time.
 ///
-/// The compiler tests exercise the comparisons and the logical operators; the four arithmetic opcodes
+/// The compiler tests exercise the comparisons and the logical operators. The four arithmetic opcodes
 /// had no test, so opAdd, opSub, opMul and opDiv were never interpreted. Each case compares the result
 /// against a literal, so the assertion needs no knowledge of the type the operation produced.
 TEST(VmTest, ArithmeticOperatorsEvaluate)
@@ -124,7 +124,8 @@ TEST(VmTest, ArithmeticOperatorsEvaluate)
 }
 
 /// @test
-/// The two comparisons the compiler tests leave out.
+/// Evaluates the inequality and less-or-equal comparisons in a WHERE clause, with a true and a
+/// false outcome for each. These are the two comparisons the compiler tests leave out.
 TEST(VmTest, InequalityAndLessOrEqualEvaluate)
 {
   EXPECT_TRUE(evaluate(query("1 != 2")));
@@ -135,12 +136,12 @@ TEST(VmTest, InequalityAndLessOrEqualEvaluate)
 }
 
 /// @test
-/// A variable of every type a Value can hold compares against a literal.
+/// A variable of every numeric type a Value can hold compares against a literal.
 ///
 /// This is the shape the kernel uses the VM in: an interest filter compares an object's property
 /// against a constant, and a property can be any of the eleven alternatives of Value. A literal in a
 /// query only ever parses to a couple of them, so the rest of the type combinations in the comparison
-/// path are reachable only through a variable — which is why they had never been evaluated.
+/// path are reachable only through a variable, which is why they had never been evaluated.
 TEST(VmTest, AVariableOfEveryNumericTypeComparesAgainstALiteral)
 {
   struct Case
@@ -170,7 +171,8 @@ TEST(VmTest, AVariableOfEveryNumericTypeComparesAgainstALiteral)
 }
 
 /// @test
-/// A string variable compares against a string literal, which is the other type a property can carry.
+/// A string variable compares against a string literal, one of the two non-numeric types a
+/// property can carry.
 TEST(VmTest, AStringVariableComparesAgainstALiteral)
 {
   std::vector<ValueGetter> environment {[]() { return Value {std::string {"ownship"}}; }};
@@ -231,7 +233,7 @@ TEST(VmTest, ComparingValuesOfDifferentKindsFailsTheQuery)
 /// A property with no value does not match a comparison, whatever shape the comparison takes.
 ///
 /// An empty optional is not equal to anything, not greater than anything, and not inside any
-/// range. The comparison path has said so since it was written; what had never been run is the
+/// range. The comparison path has said so since it was written. What had never been run is the
 /// same value arriving through arithmetic or as the right-hand operand, which is a different
 /// branch in each of the two macros the file is built from.
 TEST(VmTest, AnEmptyOptionalDoesNotMatchAComparison)
@@ -252,11 +254,11 @@ TEST(VmTest, AnEmptyOptionalDoesNotMatchAComparison)
 
 /// @test
 /// A property with no value reaches the top of the query through the operators that cannot answer
-/// for it, and the caller leaves the object out.
+/// for it.
 ///
 /// `!`, `AND` and `OR` have no reading of an absent value: treating it as false would let `!field`
-/// match an object whose field is not there. So it is carried on, the result is not a boolean, and
-/// `ObjectFilter` drops that object. Each of these five clauses used to throw
+/// match an object whose field is not there. So it is carried on and the result is not a boolean,
+/// which lets the caller leave the object out. Each of these five clauses used to throw
 /// `std::bad_variant_access` out of `interpret` instead, past a caller that evaluates a query per
 /// object per cycle and catches nothing.
 TEST(VmTest, AnEmptyOptionalInALogicalOperatorReachesTheTop)
@@ -323,10 +325,10 @@ TEST(VmTest, AQueryWithTooManyVariablesDoesNotCompile)
 }
 
 /// @test
-/// A clause that is not a condition evaluates to the value it says, not to a boolean.
+/// A clause that is not a condition does not evaluate to a boolean.
 ///
-/// `WHERE 1 + 1` parses and runs, and the result is a number. The caller cannot treat that as a
-/// match or as a miss, so it leaves the object out — which is only safe because it checks, and this
+/// `WHERE 1 + 1` parses and runs without answering a boolean. The caller cannot treat that as a
+/// match or as a miss, so it leaves the object out, which is only safe because it checks, and this
 /// is the case that says it has to.
 TEST(VmTest, AClauseThatIsNotAConditionDoesNotEvaluateToABoolean)
 {
@@ -339,7 +341,7 @@ TEST(VmTest, AClauseThatIsNotAConditionDoesNotEvaluateToABoolean)
 /// @test
 /// A query with more pending operands than the value stack can hold is refused.
 ///
-/// The constant and variable tables each check that they are not full; the stack did not, and
+/// The constant and variable tables each check that they are not full. The stack did not, and
 /// `StaticVector::push_back` reports a full container by returning a value `std::stack::push`
 /// discards, so a push was dropped and a later `pop` read a slot nothing wrote. Right-nested
 /// arithmetic reaches it: every left operand waits until the innermost expression resolves, and

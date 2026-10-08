@@ -55,7 +55,9 @@ void checkInvalidSpec(const AliasSpec& spec) { EXPECT_THROW(std::ignore = AliasT
 }  // namespace
 
 /// @test
-/// Checks alias spec comparison
+/// Compares alias specs: equal for identical specs, and unequal when the name, qualified name,
+/// description or aliased type differs, including differences buried in a nested enum or an
+/// alias of an alias.
 /// @requirements(SEN-1055)
 TEST(AliasType, specComparison)
 {
@@ -138,7 +140,9 @@ TEST(AliasType, specComparison)
 }
 
 /// @test
-/// Checks alias type visitor method to check wrapped type
+/// Answers the type predicates for an alias: isCustomType and isAliasType are true, isBounded
+/// follows the aliased type, and every other kind predicate sampled, from isNativeType to
+/// isQuantityType, is false.
 /// @requirements(SEN-1055)
 TEST(AliasType, basicsBoolConversion)
 {
@@ -174,7 +178,8 @@ TEST(AliasType, basicsBoolConversion)
 }
 
 /// @test
-/// Checks alias type visitor method to check wrapped type
+/// Converts an alias through the as-type conversions: asCustomType and asAliasType are non-null
+/// and every other kind conversion sampled, from asNativeType to asQuantityType, returns null.
 /// @requirements(SEN-1055)
 TEST(AliasType, basicsConversion)
 {
@@ -210,7 +215,9 @@ TEST(AliasType, basicsConversion)
 }
 
 /// @test
-/// Checks alias type getters
+/// Builds an alias from its spec and exposes the spec's name, qualified name, description and
+/// aliased type through the getters, for a plain alias, an alias of an alias and an alias of an
+/// enum.
 /// @requirements(SEN-1055)
 TEST(AliasType, makeBasic)
 {
@@ -237,7 +244,8 @@ TEST(AliasType, makeBasic)
 }
 
 /// @test
-/// Checks invalid alias spec creation
+/// Refuses to build an alias whose spec has a missing or malformed name or qualified name,
+/// covering lowercase-first, digit-first, space-bearing and symbol-only spellings.
 /// @requirements(SEN-1055)
 TEST(AliasType, makeInvalid)
 {
@@ -306,7 +314,9 @@ TEST(AliasType, makeInvalid)
 }
 
 /// @test
-/// Checks shared ptr alias type comparison
+/// Compares built alias types by value: an alias differs from every native type, two built from
+/// the same spec are equal, and a changed name, qualified name, description or aliased type,
+/// nested aliases included, makes them unequal.
 /// @requirements(SEN-1055)
 TEST(AliasType, comparison)
 {
