@@ -50,6 +50,7 @@ jobs:
         # One of these is set per event: the pull request's base, the queue
         # entry's, and on a push the commit main moved from. A push used to
         # pass nothing here, so nothing was ever classified after a merge.
+        # A manual run sets none.
         env:
           BASE_SHA: >-
             ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
@@ -223,7 +224,7 @@ jobs:
     needs: detect-changes
     if: >-
       needs.detect-changes.outputs.code == 'true' &&
-      (github.event_name == 'push' ||
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch' ||
        (github.event_name == 'pull_request' && github.event.pull_request.draft == false))
     uses: ./.github/workflows/pr_sanitizers.yaml
     permissions:
@@ -238,7 +239,7 @@ jobs:
     needs: detect-changes
     if: >-
       needs.detect-changes.outputs.code == 'true' &&
-      (github.event_name == 'push' ||
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch' ||
        (github.event_name == 'pull_request' && github.event.pull_request.draft == false))
     uses: ./.github/workflows/clang_tidy_diff.yaml
     permissions:

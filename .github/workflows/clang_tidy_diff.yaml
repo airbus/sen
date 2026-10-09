@@ -162,7 +162,8 @@ jobs:
         id: scope
         shell: bash
         env:
-          # One of these is set per event, as classify_changes is given the same way.
+          # One of these is set per event. A manual run sets none, which the scope check
+          # below reads as full scope.
           BASE_SHA: >-
             ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
         run: |
@@ -170,11 +171,19 @@ jobs:
           # and `.clang-tidy` sorts first, so git is still writing when the pipe closes:
           # past the pipe buffer it dies on SIGPIPE, pipefail makes that the condition's
           # status, and the branch taken is the one for a change that did not happen.
-          changed=$(git diff --name-only "$BASE_SHA...HEAD")
-          if grep -qxF '.clang-tidy' <<<"$changed"; then
+          # A manual run has no base to diff against, so no changed lines can be picked out.
+          # The whole compile database is the only scope left that checks anything.
+          if [ -z "$BASE_SHA" ]; then
             echo "full=true" >> "$GITHUB_OUTPUT"
+            echo "reason=manual" >> "$GITHUB_OUTPUT"
           else
-            echo "full=false" >> "$GITHUB_OUTPUT"
+            changed=$(git diff --name-only "$BASE_SHA...HEAD")
+            if grep -qxF '.clang-tidy' <<<"$changed"; then
+              echo "full=true" >> "$GITHUB_OUTPUT"
+              echo "reason=config" >> "$GITHUB_OUTPUT"
+            else
+              echo "full=false" >> "$GITHUB_OUTPUT"
+            fi
           fi
 
       - name: Run clang-tidy on the changed lines
@@ -217,7 +226,11 @@ jobs:
         if: steps.scope.outputs.full == 'true'
         shell: bash
         run: |
-          echo "::notice::.clang-tidy changed, so every file is analysed rather than the diff."
+          if [ "${{ steps.scope.outputs.reason }}" == "manual" ]; then
+            echo "::notice::Manual run with no base commit, so every file is analysed."
+          else
+            echo "::notice::.clang-tidy changed, so every file is analysed rather than the diff."
+          fi
           .github/scripts/in_image.sh <<'IN'
           . .cache/clang-tidy-helpers
           # The regex keeps generated sources out: run-clang-tidy reads the compile database,
