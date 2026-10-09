@@ -16,7 +16,7 @@ from generate_matrix_jobs import SPECIFIED_JOBS, Compiler, JobSpecification, com
 
 GCC_DEBUG = ("Basic GCC", "gcc-12", "Debug", "ubuntu-22.04", "x86")
 GCC_RELEASE = ("Basic GCC", "gcc-12", "Release", "ubuntu-22.04", "x86")
-CLANG_COVERAGE = ("Basic Clang", "clang-20", "Debug", "ubuntu-24.04", "x86")
+CLANG_DEBUG = ("Basic Clang", "clang-20", "Debug", "ubuntu-24.04", "x86")
 MSVC_RELEASE = ("Basic Windows", "cl", "Release", "windows-2022", "x86")
 GCC_RELWITHDEBINFO = ("Basic GCC (debug information)", "gcc-12", "RelWithDebInfo", "ubuntu-22.04", "x86")
 GCC_DEBUG_BUILD = ("Basic GCC (debug build)", "gcc-12", "Debug", "ubuntu-22.04", "x86")
@@ -32,7 +32,15 @@ def job_keys(jobs: list[JobSpecification]) -> list[tuple[str, str, str, str, str
 def test_standard_test_job_set():
     """Standard tests run the three Linux x86 legs plus the arm leg."""
     jobs = compute_jobs(release=False, conan=False, standard_test=True, target_main=False)
-    assert job_keys(jobs) == [CLANG_COVERAGE, GCC_DEBUG, GCC_RELEASE, ARM_DEBUG, MSVC_RELEASE]
+    assert job_keys(jobs) == [
+        CLANG_DEBUG,
+        GCC_DEBUG,
+        GCC_RELEASE,
+        GCC_RELWITHDEBINFO,
+        ARM_DEBUG,
+        MSVC_RELEASE,
+        MSVC_RELWITHDEBINFO,
+    ]
 
 
 def test_main_runs_what_pull_requests_run():
@@ -48,10 +56,31 @@ def test_main_runs_what_pull_requests_run():
     assert job_keys(on_main) == job_keys(on_pull_request)
 
 
+def test_every_shipped_configuration_is_tested():
+    """A release publishes nothing the standard-test matrix has not run.
+
+    The document a release delivers is rendered by the run that tested the commit, and the
+    release workflow only builds and packages -- it runs no tests of its own. So a shipped
+    configuration missing from the matrix below is both untested and invisible in the report,
+    which is how two RelWithDebInfo builds shipped untested until 2026-10-08.
+    """
+
+    def built(job):
+        # Compared on what decides the program, not on the leg's name: the release selects some
+        # configurations through their own entry, so names differ where the build does not. The
+        # runner is in the key because it sets the libc the binary is built against.
+        return (job.compiler.cc, job.arch, job.build_type, job.std, job.runner)
+
+    shipped = compute_jobs(release=True, conan=False, standard_test=False, target_main=False)
+    tested = compute_jobs(release=False, conan=False, standard_test=True, target_main=False)
+    missing = sorted({built(job) for job in shipped} - {built(job) for job in tested})
+    assert not missing, f"shipped but never tested: {missing}"
+
+
 def test_conan_job_set():
     """Packaging runs the Linux legs plus the MSVC Release leg."""
     jobs = compute_jobs(release=False, conan=True, standard_test=False, target_main=False)
-    assert job_keys(jobs) == [CLANG_COVERAGE, GCC_DEBUG, GCC_RELEASE, MSVC_RELEASE]
+    assert job_keys(jobs) == [CLANG_DEBUG, GCC_DEBUG, GCC_RELEASE, MSVC_RELEASE]
 
 
 def test_release_job_set():
@@ -86,10 +115,24 @@ def test_a_release_and_its_debug_information_share_a_toolchain():
     }
 
 
-def test_only_coverage_leg_enables_coverage():
-    """Exactly one leg collects coverage."""
-    jobs = compute_jobs(release=False, conan=False, standard_test=True, target_main=False)
-    assert [job.name for job in jobs if job.enable_coverage] == ["Basic Clang"]
+def test_one_leg_measures_coverage_and_it_is_a_build_we_ship():
+    """Coverage comes from a single configuration, and it has to be one a release publishes.
+
+    Optimisation moves which line a hit is counted against, so the leg is a debug build. A leg
+    outside what a release ships would describe a binary nobody receives.
+    """
+
+    def built(job):
+        return (job.compiler.cc, job.arch, job.build_type, job.runner)
+
+    tested = compute_jobs(release=False, conan=False, standard_test=True, target_main=False)
+    measuring = [job for job in tested if job.enable_coverage]
+    assert len(measuring) == 1, [job.name for job in measuring]
+
+    leg = measuring[0]
+    assert leg.build_type == "Debug", leg.build_type
+    shipped = compute_jobs(release=True, conan=False, standard_test=False, target_main=False)
+    assert built(leg) in {built(job) for job in shipped}, f"{built(leg)} is not published by a release"
 
 
 def test_no_flag_selection_fails_loudly():
@@ -149,13 +192,16 @@ def test_pull_request_packaging_job_set():
 
 
 def test_each_operating_system_checks_its_package():
-    """The CPack archive is built and checked once per operating system.
+    """The CPack archive is built and checked on every leg that ships one.
 
     Windows ships a different archive, so the Linux leg cannot stand in for it.
     """
     jobs = compute_jobs(release=False, conan=False, standard_test=True, target_main=False)
     checked = [job for job in jobs if job.check_package]
-    assert job_keys(checked) == [GCC_RELEASE, MSVC_RELEASE]
+    assert job_keys(checked) == [GCC_RELEASE, GCC_RELWITHDEBINFO, MSVC_RELEASE, MSVC_RELWITHDEBINFO]
+    # The list above is exact, so a leg added on one operating system and not the other would
+    # pass unnoticed if nothing named the property the list is there to hold.
+    assert {job.runner for job in checked} == {"ubuntu-22.04", "windows-2022"}
 
 
 def test_standard_test_specs_in_full():
@@ -173,7 +219,7 @@ def test_standard_test_specs_in_full():
             "arch": "x86",
             "std": 17,
             "build_type": "Debug",
-            "enable_coverage": True,
+            "enable_coverage": False,
             "enable_examples": True,
             "runtime_base": "",
             "check_package": False,
@@ -186,7 +232,7 @@ def test_standard_test_specs_in_full():
             "arch": "x86",
             "std": 17,
             "build_type": "Debug",
-            "enable_coverage": False,
+            "enable_coverage": True,
             "enable_examples": True,
             "runtime_base": "ubuntu:22.04",
             "check_package": False,
@@ -202,6 +248,19 @@ def test_standard_test_specs_in_full():
             "enable_coverage": False,
             "enable_examples": True,
             "runtime_base": "ubuntu:22.04",
+            "check_package": True,
+            "ci_image": "22.04",
+        },
+        {
+            "name": "Basic GCC (debug information)",
+            "runner": "ubuntu-22.04",
+            "compiler": {"name": "gcc", "version": 12, "cc": "gcc-12", "cxx": "g++-12"},
+            "arch": "x86",
+            "std": 17,
+            "build_type": "RelWithDebInfo",
+            "enable_coverage": False,
+            "enable_examples": True,
+            "runtime_base": "",
             "check_package": True,
             "ci_image": "22.04",
         },
@@ -225,6 +284,19 @@ def test_standard_test_specs_in_full():
             "arch": "x86",
             "std": 17,
             "build_type": "Release",
+            "enable_coverage": False,
+            "enable_examples": True,
+            "runtime_base": "",
+            "check_package": True,
+            "ci_image": "",
+        },
+        {
+            "name": "Basic Windows (debug information)",
+            "runner": "windows-2022",
+            "compiler": {"name": "msvc", "version": 194, "cc": "cl", "cxx": "cl"},
+            "arch": "x86",
+            "std": 17,
+            "build_type": "RelWithDebInfo",
             "enable_coverage": False,
             "enable_examples": True,
             "runtime_base": "",
