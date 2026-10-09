@@ -97,13 +97,17 @@ jobs:
       # On a leg that builds in the image the action has nothing to install and
       # nothing to wrap: the image carries ccache, and cmake wires the launcher
       # inside the container, which writes into the directory in_image.sh mounts.
+      # Instrumented objects are not interchangeable with plain ones, and the release workflow
+      # builds this compiler and build type without coverage, so one key has them evicting
+      # each other.
+      #
       # Keeping the directory is all that is left, so that is all this does.
       - name: Restore the compiler cache
         if: matrix.ci_image != ''
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.ccache
-          key: ccache-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}
+          key: ccache-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}${{ matrix.enable_coverage && '-coverage' || '' }}
 
       # Sen's targets reach the cache through CMAKE_<LANG>_COMPILER_LAUNCHER (sen_utils.cmake),
       # so the shims must not also be on PATH while it builds: the launcher would invoke a shim
@@ -115,7 +119,7 @@ jobs:
         uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03  # v1.2.23
         with:
           variant: ${{ runner.os == 'Windows' && 'sccache' || 'ccache' }}
-          key: ${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}
+          key: ${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}${{ matrix.enable_coverage && '-coverage' || '' }}
           max-size: 1G
           verbose: 1
           # Same reasoning as the conan cache above.
@@ -253,7 +257,6 @@ jobs:
           IN
 
       - name: Run tests
-        if: ${{ !matrix.enable_coverage }}
         # The suite runs in minutes. The bound is for what happens after it: a
         # process outliving ctest holds the pipes, and the step then waits in
         # silence for the whole job budget.
@@ -295,7 +298,7 @@ jobs:
       # merge never happened, leaving the publish step below nothing to render exactly
       # when the list of failures is wanted. Merges whichever reports exist.
       - name: Merge the test reports
-        if: ${{ always() && !matrix.enable_coverage }}
+        if: ${{ always() }}
         shell: bash
         run: |
           bash .github/scripts/in_environment.sh <<'IN'
@@ -310,20 +313,15 @@ jobs:
           junitparser merge "$@" ctestReport.xml
           IN
 
-      # The report target runs the suite itself, so this replaces the step above
-      # rather than following it. Without it the leg pays for instrumentation
-      # and produces no report.
-      - name: Run tests and report coverage
-        if: matrix.enable_coverage
-        # Same reason as the step above.
-        timeout-minutes: 20
+      # The suite has already run, so this reads what it left rather than running it again.
+      - name: Collect the coverage the run produced
+        if: ${{ matrix.enable_coverage }}
         shell: bash
         run: |
           bash .github/scripts/in_environment.sh <<'IN'
           # Same reason as the first of these, in standard_test.yaml.
           source build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh
-          cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ \
-            --target generate-coverage-report
+          cmake --build build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ --target collect-coverage
           IN
 
       # ctest sees one test per vitest package, so without this the document would carry five
@@ -401,50 +399,7 @@ jobs:
             build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/test-descriptions.tsv
             build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/test-environment.tsv
             build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/coverage_reports/coverage.txt
-
-      - name: Publish the coverage report
-        if: matrix.enable_coverage
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
-        with:
-          name: coverage-report
-          if-no-files-found: error
-          path: build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/coverage_reports/
-
-      # The floor is a point or so below what the suite measured on 2026-10-03
-      # (81.17% of lines), so ordinary movement does not fail a pull request while
-      # a real drop does. Raise it when coverage rises. That figure was measured on
-      # arm64 clang Debug and this lane is x86_64, so the first green run after the
-      # exclusions land is what confirms the headroom.
-      - name: Show the coverage total and hold the floor
-        if: matrix.enable_coverage
-        shell: bash
-        env:
-          MINIMUM_LINE_COVERAGE: "80"
-        run: |
-          summary="build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/coverage_reports/coverage.txt"
-          {
-            echo "### Coverage"
-            echo '```'
-            tail -2 "$summary"
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
-
-          # llvm-cov's TOTAL row: regions, then functions, then lines, then
-          # branches, each as count, missed and percentage.
-          lines=$(awk '$1 == "TOTAL" { gsub("%", "", $10); print $10 }' "$summary")
-          case "$lines" in
-            "" | *[!0-9.]*)
-              echo "Could not read the line coverage from $summary; the report format changed."
-              exit 1
-              ;;
-          esac
-          echo "line coverage: $lines% (floor $MINIMUM_LINE_COVERAGE%)"
-          # Compared as whole percent, so no locale can reinterpret the
-          # decimal separator; dropping the fraction only makes it stricter.
-          if [ "${lines%%.*}" -lt "$MINIMUM_LINE_COVERAGE" ]; then
-              echo "line coverage $lines% is below the $MINIMUM_LINE_COVERAGE% floor"
-              exit 1
-          fi
+            build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/coverage_data/coverage.xml
 
       # The release workflow attaches this archive and the installer unpacks
       # it, so its layout is a contract. Building it here keeps a dropped
@@ -503,7 +458,7 @@ jobs:
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.ccache
-          key: ccache-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}
+          key: ccache-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}${{ matrix.enable_coverage && '-coverage' || '' }}
 
       - name: Save conan packages
         if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
@@ -547,37 +502,62 @@ jobs:
           # What the matrix said it would run, to check against what arrived.
           SEN_MATRIX: ${{ needs.compute-matrix-jobs.outputs.jobs }}
         run: |
-          # One line per configuration: its name, the report it wrote, and the records a figure
-          # in the document can be checked against. A leg that reported nothing stops this,
-          # rather than leaving the document a build short without saying so.
           shopt -s nullglob
           mkdir -p combined
-          manifest=combined/legs.tsv
-          : > "$manifest"
+
+          # Every configuration the matrix ran has to have reported. The upload ignores a leg
+          # that produced no files, so one can go missing without failing anything, and a
+          # document a build short reads exactly like a complete one.
+          found=0
+          reported=""
           for leg in test-reports/*/; do
               name=$(basename "$leg")
               name=${name#test-report-}
-              report="${leg}testReport.xml"
-              [ -f "$report" ] || report="${leg}ctestReport.xml"
-              if [ ! -f "$report" ]; then
+              if [ ! -f "${leg}testReport.xml" ] && [ ! -f "${leg}ctestReport.xml" ]; then
                   echo "$name produced no test report"
                   exit 1
               fi
-              coverage="${leg}coverage_reports/coverage.txt"
+              reported="$reported  $name"$'\n'
+              found=$((found + 1))
+          done
+          expected=$(python -c 'import json, os; print(len(json.loads(os.environ["SEN_MATRIX"])))')
+          if [ "$found" -ne "$expected" ]; then
+              echo "the matrix ran $expected configurations and $found reported:"
+              printf '%s' "$reported"
+              exit 1
+          fi
+
+          # The document reports on what a release publishes, which is a subset of what the
+          # matrix tests: clang and arm are run for what they catch, not for what they ship.
+          # The release matrix is asked for rather than written down, so the two cannot drift.
+          python - <<'PICK' > combined/released.txt
+          import sys
+          sys.path.insert(0, ".github/scripts")
+          from generate_matrix_jobs import compute_jobs
+          for job in compute_jobs(release=True, conan=False, standard_test=False, target_main=False):
+              print(f"{job.compiler.name}-{job.compiler.version}-{job.arch}-cxx{job.std}-{job.build_type}")
+          PICK
+
+          # One line per configuration: its name, the report it wrote, and the records a figure
+          # in the document can be checked against.
+          manifest=combined/legs.tsv
+          : > "$manifest"
+          while read -r name; do
+              leg="test-reports/test-report-${name}/"
+              if [ ! -d "$leg" ]; then
+                  echo "$name is published by a release and did not report"
+                  exit 1
+              fi
+              report="${leg}testReport.xml"
+              [ -f "$report" ] || report="${leg}ctestReport.xml"
+              # cobertura from gcovr and OpenCppCoverage, llvm-cov's table from clang; the
+              # renderer reads either and tells them apart by their first character.
+              coverage="${leg}coverage_data/coverage.xml"
+              [ -f "$coverage" ] || coverage="${leg}coverage_reports/coverage.txt"
               [ -f "$coverage" ] || coverage=""
               printf '%s\t%s\t%s\t%s\t%s\n' "$name" "$report" "$coverage" \
                   "${leg}test-environment.tsv" "${leg}test-descriptions.tsv" >> "$manifest"
-          done
-          # Every configuration the matrix ran has to be here. The upload ignores a leg that
-          # produced no files, so one can go missing without failing, and a report covering
-          # four of five builds reads exactly like a report covering all of them.
-          expected=$(python -c 'import json, os; print(len(json.loads(os.environ["SEN_MATRIX"])))')
-          found=$(wc -l < "$manifest" | tr -d ' ')
-          if [ "$found" -ne "$expected" ]; then
-              echo "the matrix ran $expected configurations and $found reported:"
-              cut -f1 "$manifest" | sed 's/^/  /'
-              exit 1
-          fi
+          done < combined/released.txt
           python .github/scripts/render_test_document.py \
               "--legs=$manifest" combined/testReport.typ "${{ github.sha }}" . \
               --coverage-floor=80 \
@@ -608,3 +588,4 @@ jobs:
             combined/testReport.typ
             combined/testReport.pdf
             combined/legs.tsv
+            combined/released.txt

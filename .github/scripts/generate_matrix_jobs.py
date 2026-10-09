@@ -91,6 +91,7 @@ SPECIFIED_JOBS = [
             arch="x86",
             std=17,
             build_type="Debug",
+            enable_coverage=True,
             enable_examples=True,
             runtime_base="ubuntu:22.04",
             ci_image="22.04",
@@ -130,7 +131,6 @@ SPECIFIED_JOBS = [
             arch="x86",
             std=17,
             build_type="Debug",
-            enable_coverage=True,
             enable_examples=True,
             ci_image="24.04",
         ),
@@ -193,7 +193,7 @@ SPECIFIED_JOBS = [
         include_in_release_workflow=True,
         include_in_conan_workflow=False,
         include_in_conan_workflow_on_pull_requests=False,
-        include_in_standard_test_workflow=False,
+        include_in_standard_test_workflow=True,
         include_in_standard_test_workflow_also_main=True,
     ),
     # A release also ships an unoptimised build, for a consumer who wants to step through Sen
@@ -231,7 +231,7 @@ SPECIFIED_JOBS = [
         include_in_release_workflow=True,
         include_in_conan_workflow=False,
         include_in_conan_workflow_on_pull_requests=False,
-        include_in_standard_test_workflow=False,
+        include_in_standard_test_workflow=True,
         include_in_standard_test_workflow_also_main=True,
     ),
 ]
