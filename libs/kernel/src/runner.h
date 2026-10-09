@@ -9,6 +9,7 @@
 #define SEN_LIBS_KERNEL_SRC_RUNNER_H
 
 // sen libraries
+#include "sen/core/base/assert.h"
 #include "sen/core/base/class_helpers.h"
 #include "sen/core/base/duration.h"
 #include "sen/core/base/mutex_utils.h"
@@ -53,6 +54,8 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace sen::kernel::impl
@@ -194,10 +197,10 @@ public:
   [[nodiscard]] std::size_t getObjectCount() const noexcept { return objectCount_; }
 
   /// Configures the objects to work in this runner
-  void registerObjects(Span<std::shared_ptr<NativeObject>> instances);
+  void registerObjects(ObjectOwnerId from, Span<std::shared_ptr<NativeObject>> instances);
 
   /// Configures the objects to not work in this runner
-  void unregisterObjects(Span<std::shared_ptr<NativeObject>> instances);
+  void unregisterObjects(ObjectOwnerId from, Span<std::shared_ptr<NativeObject>> instances);
 
   /// Registers a type into the kernel. Does nothing if null or already present
   void registerType(ConstTypeHandle<> type);
@@ -292,6 +295,87 @@ private:
                                           xenium::policy::reclaimer<xenium::reclamation::epoch_based<>>,
                                           xenium::policy::compare<std::owner_less<std::weak_ptr<LocalParticipant>>>>;
 
+  /// One registration batch in flight: who opened it, its members, and the set a removal files
+  /// into to cancel one. A removal that finds no registration is either a member of a batch still
+  /// being registered or a removal from a participant that never staged the object, and membership
+  /// cannot tell them apart because the second names a genuine member. The participant can, so a
+  /// cancel is filed only when the removal comes from the one that opened the batch.
+  struct InFlightBatch
+  {
+    ObjectOwnerId owner;
+    const std::vector<std::shared_ptr<NativeObject>>* members;
+    std::unordered_set<NativeObject*>* cancelled;
+  };
+
+  /// Keeps a registration batch on the in-flight list for the duration of the call, including when
+  /// the call leaves by a throw: add() is user-called, so a hook's exception can unwind through a
+  /// frame that catches it, and the list must not be left holding a destroyed set. The batch itself
+  /// is not unwound -- members registered before the throw stay registered.
+  ///
+  /// The cancel set's raw pointers extend no lifetime. They are only compared against members of
+  /// the batch, which the batch copy keeps alive for the whole call, so no address can have been
+  /// reused before it is read.
+  class ScopedCancelBatch
+  {
+  public:
+    ScopedCancelBatch(std::vector<InFlightBatch>& inFlight,
+                      ObjectOwnerId owner,
+                      const std::vector<std::shared_ptr<NativeObject>>& members,
+                      std::unordered_set<NativeObject*>& cancelled)
+      : inFlight_(inFlight)
+    {
+      inFlight_.push_back(InFlightBatch {owner, &members, &cancelled});
+    }
+
+    ~ScopedCancelBatch() { inFlight_.pop_back(); }
+
+    ScopedCancelBatch(const ScopedCancelBatch&) = delete;
+    ScopedCancelBatch(ScopedCancelBatch&&) = delete;
+    ScopedCancelBatch& operator=(const ScopedCancelBatch&) = delete;
+    ScopedCancelBatch& operator=(ScopedCancelBatch&&) = delete;
+
+  private:
+    std::vector<InFlightBatch>& inFlight_;
+  };
+
+  /// A walk in progress over one of the object lists, so a removal made from inside a hook can step
+  /// its cursor off a node it is about to free. The list is recorded with it, because a cursor into
+  /// one list must not be compared with a node of the other. `stepped` says the cursor has already
+  /// been moved on and the walk must not advance it again.
+  struct ActiveCursor
+  {
+    const NativeObjectPtrList* list;
+    NativeObjectPtrList::iterator* cursor;
+    bool* stepped;
+  };
+
+  /// Registers a walk's cursor for the duration of the walk. A guard rather than two statements
+  /// because the unwind path is reachable: a throw out of a cycle hook ends the process only if the
+  /// component's run() does not catch around execLoop, and one that catches would otherwise leave a
+  /// registered cursor pointing into a dead frame.
+  class ScopedWalkCursor
+  {
+  public:
+    ScopedWalkCursor(std::vector<ActiveCursor>& active,
+                     const NativeObjectPtrList& list,
+                     NativeObjectPtrList::iterator& cursor,
+                     bool& stepped)
+      : active_(active)
+    {
+      active_.push_back(ActiveCursor {&list, &cursor, &stepped});
+    }
+
+    ~ScopedWalkCursor() { active_.pop_back(); }
+
+    ScopedWalkCursor(const ScopedWalkCursor&) = delete;
+    ScopedWalkCursor(ScopedWalkCursor&&) = delete;
+    ScopedWalkCursor& operator=(const ScopedWalkCursor&) = delete;
+    ScopedWalkCursor& operator=(ScopedWalkCursor&&) = delete;
+
+  private:
+    std::vector<ActiveCursor>& active_;
+  };
+
   /// One registration of one object. The serial tells two registrations of the same object
   /// apart, which an iterator cannot: removing an object erases its list node, and a
   /// re-registration can land a new node at the same address.
@@ -317,6 +401,17 @@ private:
   std::unordered_map<std::shared_ptr<NativeObject>, ObjectRegistration> objectsMap_;
   NativeObjectPtrList objectsList_;
   NativeObjectPtrList objectsThatNeedPreAndPostUpdateCalls_;
+
+  /// Outermost first. One entry rather than a stack would lose a cancellation aimed at an outer
+  /// batch while a nested add was open.
+  std::vector<InFlightBatch> cancelBatchesInFlight_;
+
+  /// The cursors of the cycle walks currently running. Empty outside a walk.
+  std::vector<ActiveCursor> activeCursors_;
+
+  /// Steps every walk whose cursor stands on `node` in `list` to the element after it, so that
+  /// node can be erased without leaving a cursor pointing into freed memory.
+  void stepCursorsPast(const NativeObjectPtrList& list, const NativeObjectPtrList::iterator& node);
   std::uint64_t registrationSerial_ {0U};
   Guarded<TimeStamp> time_;
   TimeStamp startTime_;
@@ -372,13 +467,50 @@ private:
   return (nanoseconds + millisecondMinusOneNano) - ((nanoseconds + millisecondMinusOneNano) % millisecond);
 }
 
+inline void Runner::stepCursorsPast(const NativeObjectPtrList& list, const NativeObjectPtrList::iterator& node)
+{
+  // The increment below would be undefined on end(). All three call sites pass a node they have
+  // just established is live, so this is a precondition rather than a check of the argument.
+  SEN_DEBUG_ASSERT(node != list.end() && "stepCursorsPast needs a live node, not the sentinel");
+
+  for (auto& active: activeCursors_)
+  {
+    if (active.list == &list && *active.cursor == node)
+    {
+      ++*active.cursor;
+      *active.stepped = true;
+    }
+  }
+}
+
 inline NanoSecs Runner::drainInputs()
 {
   SEN_TRACE_ZONE(*tracer_);
 
-  for (auto& obj: objectsThatNeedPreAndPostUpdateCalls_)
+  // A hook calling remove() reaches unregisterObjects synchronously, which erases a node of this
+  // list. The cursor is registered, so unregisterObjects steps it off any node it is about to free,
+  // and the walk advances only where the repair did not.
+  //
+  // Advancing before the hook would be equally safe against removal, but it holds the cursor on
+  // end() while the last object's hook runs, and an object added there is linked before the
+  // sentinel where that cursor never reaches it. An object added by a hook that first removed
+  // *itself*, from the last position, is still missed for the same reason and is driven on the next
+  // cycle. Blocked so that no cursor is live across the participant drains or
+  // workQueue_.executeAll().
   {
-    obj->preDrain();
+    auto itr = objectsThatNeedPreAndPostUpdateCalls_.begin();
+    bool stepped = false;
+    const ScopedWalkCursor cursor(activeCursors_, objectsThatNeedPreAndPostUpdateCalls_, itr, stepped);
+    while (itr != objectsThatNeedPreAndPostUpdateCalls_.end())
+    {
+      auto* const obj = *itr;
+      stepped = false;
+      obj->preDrain();
+      if (!stepped)
+      {
+        ++itr;
+      }
+    }
   }
 
   sessionsDiscoverer_.drainInputs();
@@ -423,10 +555,21 @@ inline void Runner::update()
 {
   SEN_TRACE_ZONE(*tracer_);
 
-  for (auto* obj: objectsList_)
+  // Registered and repaired as in drainInputs().
+  auto itr = objectsList_.begin();
+  bool stepped = false;
+  const ScopedWalkCursor cursor(activeCursors_, objectsList_, itr, stepped);
+  while (itr != objectsList_.end())
   {
+    auto* const obj = *itr;
+    stepped = false;
+
     SEN_TRACE_ZONE_NAMED(*tracer_, "object update");
     obj->update(runApi_);
+    if (!stepped)
+    {
+      ++itr;
+    }
   }
 }
 
@@ -439,9 +582,19 @@ inline void Runner::commit(TimeStamp time)
   {
     SEN_TRACE_ZONE_NAMED(*tracer_, "pre-commit");
 
-    for (auto& obj: objectsThatNeedPreAndPostUpdateCalls_)
+    // Registered and repaired as in drainInputs().
+    auto itr = objectsThatNeedPreAndPostUpdateCalls_.begin();
+    bool stepped = false;
+    const ScopedWalkCursor cursor(activeCursors_, objectsThatNeedPreAndPostUpdateCalls_, itr, stepped);
+    while (itr != objectsThatNeedPreAndPostUpdateCalls_.end())
     {
+      auto* const obj = *itr;
+      stepped = false;
       obj->preCommit();
+      if (!stepped)
+      {
+        ++itr;
+      }
     }
   }
 
@@ -451,9 +604,19 @@ inline void Runner::commit(TimeStamp time)
   {
     SEN_TRACE_ZONE_NAMED(*tracer_, "commit");
 
-    for (auto* obj: objectsList_)
+    // Registered and repaired as in drainInputs().
+    auto itr = objectsList_.begin();
+    bool stepped = false;
+    const ScopedWalkCursor cursor(activeCursors_, objectsList_, itr, stepped);
+    while (itr != objectsList_.end())
     {
+      auto* const obj = *itr;
+      stepped = false;
       obj->commit(time);
+      if (!stepped)
+      {
+        ++itr;
+      }
     }
   }
 

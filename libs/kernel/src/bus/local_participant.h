@@ -43,6 +43,7 @@
 #include <memory>
 #include <mutex>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 // spdlog
@@ -55,6 +56,30 @@ class Bus;
 class SessionManager;
 class RemoteParticipant;
 class Session;
+
+/// Aims a participant's new-object target at a temporary for a scope and puts back what it
+/// displaced, including when the scope is left by a throw.
+class ScopedNewObjectsRedirect
+{
+public:
+  using Target = std::unordered_map<ObjectId, std::shared_ptr<Object>>;
+
+  ScopedNewObjectsRedirect(Target*& target, Target& temporary): target_(target), previous_(target)
+  {
+    target_ = &temporary;
+  }
+
+  ~ScopedNewObjectsRedirect() { target_ = previous_; }
+
+  ScopedNewObjectsRedirect(const ScopedNewObjectsRedirect&) = delete;
+  ScopedNewObjectsRedirect(ScopedNewObjectsRedirect&&) = delete;
+  ScopedNewObjectsRedirect& operator=(const ScopedNewObjectsRedirect&) = delete;
+  ScopedNewObjectsRedirect& operator=(ScopedNewObjectsRedirect&&) = delete;
+
+private:
+  Target*& target_;
+  Target* previous_;
+};
 
 /// A local participant of a bus. There can be multiple LocalParticipants in the same component.
 class LocalParticipant: public Participant, public ObjectSource, public std::enable_shared_from_this<LocalParticipant>
@@ -222,10 +247,11 @@ inline void throwIfNamePresent(std::string_view name, const std::vector<Object*>
 
 inline void LocalParticipant::evaluateLocalObjects(const ObjectSet& objects)
 {
-  // redirect the new objects that may be created during evaluation
-  targetNewObjects_ = &tempNewObjects_;
+  // Collect objects created during evaluation separately. Put back, not set to a constant, because
+  // a callback can re-enter this through commit(); and put back by a guard, because evaluate() runs
+  // subscriber callbacks, and a throw past a plain restore delays every later add by a cycle.
+  const ScopedNewObjectsRedirect redirect(targetNewObjects_, tempNewObjects_);
   ObjectFilter::evaluate(objects);
-  targetNewObjects_ = &localObjects_.newObjects;
 }
 
 }  // namespace sen::kernel::impl

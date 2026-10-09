@@ -165,6 +165,12 @@ bool LocalParticipant::add(const Span<std::shared_ptr<NativeObject>>& instances)
 
   bool result = true;
 
+  // A refused instance must not reach the runner: it would be registered, updated and committed
+  // every cycle while this participant has no record of it and the caller has been told the add
+  // failed.
+  std::vector<std::shared_ptr<NativeObject>> accepted;
+  accepted.reserve(instances.size());
+
   targetNewObjects_->reserve(targetNewObjects_->size() + instances.size());
   for (const auto& instance: instances)
   {
@@ -188,11 +194,12 @@ bool LocalParticipant::add(const Span<std::shared_ptr<NativeObject>>& instances)
       localObjectNames_.insert(localName);
       targetNewObjects_->try_emplace(id, instance);
       localObjects_.deletedObjects.erase(id);
+      accepted.push_back(instance);
     }
   }
 
-  // this will call commit() on all the instances
-  owner_->registerObjects(instances);
+  // this will call commit() on all the accepted instances
+  owner_->registerObjects(id_, accepted);
 
   return result;
 }
@@ -258,13 +265,19 @@ void LocalParticipant::remove(const Span<std::shared_ptr<NativeObject>>& instanc
   for (const auto& instance: instances)
   {
     // add() inside a listener callback lands the object in tempNewObjects_, so erasing only from
-    // newObjects would leave it queued as new. This sits here rather than in removeSingleObject
-    // because the rejection path reaches that one from the dispatcher thread.
+    // newObjects would leave it queued as new. Erased here and not inside removeSingleObject: the
+    // other caller of that is handleRejectedPublications, which runs on a MessageDispatcher worker
+    // (Session::remoteMessageReceived enqueues the work), and tempNewObjects_ is the map the
+    // component thread is redirected into while it evaluates.
     tempNewObjects_.erase(instance->getId());
     removeSingleObject(instance.get());
   }
 
-  owner_->unregisterObjects(instances);
+  // Every instance, not a filtered subset. A participant-side record of what it handed the runner
+  // would hold intents rather than facts, because the runner can refuse a registration and has no
+  // way to say so. The cost of forwarding everything is that a removal addressed to a participant
+  // that never held the object still reaches the runner, which is pre-existing.
+  owner_->unregisterObjects(id_, instances);
 }
 
 void LocalParticipant::removeSingleObject(Object* instance)
@@ -471,9 +484,11 @@ void LocalParticipant::flushLocalObjectsState(const std::list<::sen::impl::Seria
 
 void LocalParticipant::connect()
 {
-  // This is called only by Runner::getOrCreateLocalParticipant() immediately after construction,
-  // before the participant is published or accessible to application threads. It therefore cannot
-  // race with teardown or another connect call.
+  // Called only by Runner::getOrCreateLocalParticipant(), immediately after construction -- but
+  // after the participant is in localParticipants_, which the component thread walks in
+  // drainInputs() and commit(). So this is not an unpublished window: a caller on another thread
+  // leaves a participant reachable with an empty name prefix and no bus connection. The
+  // scan-then-create above it is unsynchronised too, and the pair wants one answer.
   Session::PublicLock sessionLock(*session_);
 
   const auto busAddress = getBusAddress();
