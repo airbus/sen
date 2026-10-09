@@ -27,7 +27,7 @@ REQUIRED_FILES = (
     # sen.exe on Windows; either spelling satisfies this entry.
     "bin/sen",
     "cmake/sen/sen_targets.cmake",
-    "cmake/sen/SenConfigVersion.cmake",
+    "cmake/sen/sen-config-version.cmake",
     "cmake/sen/util/sen_utils.cmake",
 )
 
