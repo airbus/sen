@@ -17,6 +17,7 @@ add_sen_unit_test_suite(
   runner_schedule_test.cpp
   type_specs_utils_test.cpp
   test_kernel/test_kernel_test.cpp
+  test_kernel/object_reentrancy_test.cpp
   LINK_DEPS
   sen::core
   sen::kernel

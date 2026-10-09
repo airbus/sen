@@ -166,6 +166,13 @@ jobs:
           BASE_SHA: >-
             ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
         run: |
+          # A force-push leaves github.event.before naming the commit it overwrote, which is
+          # not reachable from the branch any more, so the diff below cannot resolve it. Fall
+          # back to the parent of the new tip, which is the nearest thing to what was replaced.
+          if ! git rev-parse --verify --quiet "$BASE_SHA^{commit}" > /dev/null; then
+            echo "::notice::$BASE_SHA is unreachable, most likely a force-push. Using HEAD^ instead."
+            BASE_SHA=$(git rev-parse HEAD^)
+          fi
           # Collected, then matched without a pipe. grep -q leaves on the first match,
           # and `.clang-tidy` sorts first, so git is still writing when the pipe closes:
           # past the pipe buffer it dies on SIGPIPE, pipefail makes that the condition's
@@ -184,6 +191,13 @@ jobs:
           BASE_SHA: >-
             ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
         run: |
+          # A force-push leaves github.event.before naming the commit it overwrote, which is
+          # not reachable from the branch any more, so the diff below cannot resolve it. Fall
+          # back to the parent of the new tip, which is the nearest thing to what was replaced.
+          if ! git rev-parse --verify --quiet "$BASE_SHA^{commit}" > /dev/null; then
+            echo "::notice::$BASE_SHA is unreachable, most likely a force-push. Using HEAD^ instead."
+            BASE_SHA=$(git rev-parse HEAD^)
+          fi
           # Only files the compile database has a command for. A changed header has none, so
           # clang-tidy falls back to a bare invocation with no include paths and every check
           # reports nonsense -- include-cleaner calls even std::vector unprovided.
