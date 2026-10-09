@@ -29,7 +29,7 @@ LINUX_MEMBERS = (
     "lib/libcore.so.0.0.0",
     "lib/libshell.so",
     "cmake/sen/sen_targets.cmake",
-    "cmake/sen/SenConfigVersion.cmake",
+    "cmake/sen/sen-config-version.cmake",
     "cmake/sen/util/sen_utils.cmake",
     "libs/core/include/sen/core/base/hash32.h",
     "resources/syntax_highlighting/stl.tmLanguage.json",

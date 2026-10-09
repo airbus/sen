@@ -73,17 +73,18 @@ export(
 # configure and install the -config.cmake.in files.
 configure_exportable_packages(INTERFACES_CONFIG_DIRS ${CMAKE_CURRENT_LIST_DIR}/interfaces)
 
-# Create a ConfigVersion.cmake file
+# The version file beside the config file. find_package pairs sen-config.cmake with
+# sen-config-version.cmake only; under any other name it finds the config, reports the version
+# as unknown, and refuses every find_package(sen <version>).
 include(CMakePackageConfigHelpers)
 
 write_basic_package_version_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/SenConfigVersion.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/sen-config-version.cmake
   VERSION ${sen_VERSION}
   COMPATIBILITY AnyNewerVersion
 )
 
-# Install the configVersion package
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/SenConfigVersion.cmake DESTINATION ${CMAKE_INSTALL_CMAKEDIR})
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/sen-config-version.cmake DESTINATION ${CMAKE_INSTALL_CMAKEDIR})
 
 # Install required sen utils cmake files
 install(FILES ${CMAKE_UTILS_FILES} DESTINATION ${CMAKE_INSTALL_CMAKEDIR}/util)
