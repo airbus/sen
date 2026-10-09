@@ -459,6 +459,7 @@ add_sen_integration_test(
     USE_TESTCONTAINERS
 )
 
+set(LISTENER_TYPE ListenerLocalMethod)
 configure_file(
   config/single_component.yaml.in ${CMAKE_CURRENT_BINARY_DIR}/9_local_method/single_component.yaml @ONLY
 )

@@ -300,7 +300,7 @@ protected:  // implements ListenerObjectSyncImpl
 
 SEN_EXPORT_CLASS(ListenerStaticProps)
 
-/// Listener that checks if static props are synchronized correctly
+/// Listener that checks if best effort props are synchronized correctly
 class ListenerBestEffortProps final: public ListenerObjectSyncImpl
 {
 public:
@@ -322,6 +322,7 @@ protected:
          {
            firstUpdateIndex_ = getFirstUpdateIndex(
              obj->getBestEffortProp(), [](std::mt19937& gen) { return std::uniform_real_distribution()(gen); });
+           SEN_ASSERT(firstUpdateIndex_.has_value() && "Update index not found");
          }
 
          bestEffortPropUpdates_.push_back(obj->getBestEffortProp());
@@ -329,7 +330,6 @@ protected:
          {
            for (size_t i = 0; i < bestEffortPropUpdates_.size(); ++i)
            {
-             // TODO: do we need to check this inside the loop?
              std::mt19937 gen {generatorSeed};
              gen.discard(*firstUpdateIndex_ + i);
              SEN_ASSERT(bestEffortPropUpdates_[i] - std::uniform_real_distribution()(gen) < 1e-6);
@@ -354,7 +354,7 @@ private:
 
 SEN_EXPORT_CLASS(ListenerBestEffortProps)
 
-/// Listener that checks if static props are synchronized correctly
+/// Listener that checks if confirmed props are synchronized correctly
 class ListenerConfirmedProps final: public ListenerObjectSyncImpl
 {
 public:
@@ -376,6 +376,7 @@ protected:  // implements ListenerObjectSyncImpl
                                               firstUpdateIndex_ = getFirstUpdateIndex(obj->getConfirmedProp(),
                                                                                       [](std::mt19937& gen)
                                                                                       { return generateStruct(gen); });
+                                              SEN_ASSERT(firstUpdateIndex_.has_value() && "Update index not found");
                                             }
 
                                             confirmedPropUpdates_.push_back(obj->getConfirmedProp());
@@ -384,8 +385,6 @@ protected:  // implements ListenerObjectSyncImpl
                                             {
                                               for (size_t i = 0; i < confirmedPropUpdates_.size(); ++i)
                                               {
-                                                // TODO: do we need to check this inside the loop?
-
                                                 std::mt19937 gen {generatorSeed};
                                                 gen.discard(*firstUpdateIndex_ + i);
                                                 SEN_ASSERT(confirmedPropUpdates_[i] == generateStruct(gen));
@@ -427,6 +426,7 @@ protected:  // implements ListenerObjectSyncImpl
                                                 getFirstUpdateIndex(static_cast<float64_t>(*obj->getMulticastProp()),
                                                                     [](std::mt19937& gen)
                                                                     { return std::uniform_real_distribution()(gen); });
+                                              SEN_ASSERT(firstUpdateIndex_.has_value() && "Update index not found");
                                             }
 
                                             multicastPropUpdates_.push_back(obj->getMulticastProp());
@@ -435,7 +435,6 @@ protected:  // implements ListenerObjectSyncImpl
                                             {
                                               for (size_t i = 0; i < multicastPropUpdates_.size(); ++i)
                                               {
-                                                // TODO: do i need to create the gen inside the loop?
                                                 std::mt19937 gen {generatorSeed};
                                                 gen.discard(*firstUpdateIndex_ + i);
                                                 SEN_ASSERT(abs(static_cast<float64_t>(*multicastPropUpdates_[i]) -
@@ -461,7 +460,7 @@ private:
 
 SEN_EXPORT_CLASS(ListenerMulticastProps)
 
-/// Listener that checks if writable props are synchronized . We just send the update ID in the writable prop directly
+/// Listener that checks if writable props are synchronized. We just send the update ID in the writable prop directly
 class ListenerWritableProps final: public ListenerObjectSyncImpl
 {
 public:
@@ -656,7 +655,7 @@ private:
 
 SEN_EXPORT_CLASS(ListenerMulticastEvent)
 
-/// Listener that checks if confirmed events are transmitted correctly
+/// Listener that checks if local methods return correctly when called
 class ListenerLocalMethod final: public ListenerObjectSyncImpl
 {
 public:
@@ -676,10 +675,11 @@ public:
       returnedValues_.push_back(testObject_->localMethod());
       if (returnedValues_.size() == numOfChecks)
       {
-        std::mt19937 gen {generatorSeed};
         for (const auto value: returnedValues_)
         {
-          SEN_ASSERT(std::uniform_int_distribution<uint16_t>()(gen) == value);
+          auto idx = getFirstUpdateIndex(
+            value, [](std::mt19937& gen) { return std::uniform_int_distribution<uint16_t>()(gen); });
+          SEN_ASSERT(idx.has_value());
         }
 
         ListenerObjectSyncImpl::onTestObjectAdded(testObject_);
@@ -707,7 +707,7 @@ private:
 
 SEN_EXPORT_CLASS(ListenerLocalMethod)
 
-/// Listener that checks if confirmed return correctly when called
+/// Listener that checks if const methods return correctly when called
 // TODO (SEN-1783): Check for order correctness in the calls once the WorkQueue issue has been handled
 class ListenerConstMethod final: public ListenerObjectSyncImpl
 {
