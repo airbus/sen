@@ -187,8 +187,11 @@ void Bus::remoteParticipantRemoved(RemoteParticipant* remote)
   }
 }
 
-void Bus::removeRemotesFromProcess(ProcessId processId)
+std::vector<std::shared_ptr<RemoteParticipant>> Bus::removeRemotesFromProcess(ProcessId processId)
 {
+  // ~RemoteParticipant takes a local participant's teardown lock, so it must not run under
+  // remotesMutex_ and the caller's session lock. Same reason as remoteParticipantLeft().
+  std::vector<std::shared_ptr<RemoteParticipant>> leaving;
   Lock lock(remotesMutex_);
 
   decltype(remotes_) remaining;
@@ -199,9 +202,16 @@ void Bus::removeRemotesFromProcess(ProcessId processId)
     {
       remaining.insert({id, std::move(participant)});
     }
+    else
+    {
+      participant->markRemoved();
+      leaving.push_back(std::move(participant));
+    }
   }
 
   remotes_ = std::move(remaining);
+
+  return leaving;
 }
 
 void Bus::remoteMessageReceived(ObjectOwnerId to, Span<const uint8_t> msg)
