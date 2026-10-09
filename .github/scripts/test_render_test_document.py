@@ -10,8 +10,12 @@ import hashlib
 from pathlib import Path
 
 import pytest
+from generate_matrix_jobs import compute_jobs
 from render_test_document import (
     DETAIL_LIMIT,
+    MATRIX_CHARACTER_CM,
+    MATRIX_NAME_LIMIT,
+    MATRIX_WIDE_COLUMN_CM,
     SPEC_NAME_LIMIT,
     Leg,
     LegError,
@@ -25,7 +29,12 @@ from render_test_document import (
     is_spec,
     main,
     match_key,
+    matrix_capacity,
+    matrix_name_space,
+    matrix_shape,
+    read_cobertura,
     read_coverage,
+    read_coverage_report,
     read_descriptions,
     read_manifest,
     run_started,
@@ -313,7 +322,17 @@ def test_the_area_index_ends_with_a_total(tmp_path, monkeypatch):
     out = tmp_path / "out.typ"
     monkeypatch.setattr(
         "sys.argv",
-        ["render_test_document.py", str(report), str(out), "x", "y", ".", f"--coverage={coverage}"],
+        # The fixture measures 40%, and the floor is what this test is not about.
+        [
+            "render_test_document.py",
+            str(report),
+            str(out),
+            "x",
+            "y",
+            ".",
+            f"--coverage={coverage}",
+            "--coverage-floor=40",
+        ],
     )
     assert main() == 0
     body = out.read_text()
@@ -348,7 +367,17 @@ def test_the_cover_names_each_document_with_its_digest(tmp_path, monkeypatch):
     out = tmp_path / "out.typ"
     monkeypatch.setattr(
         "sys.argv",
-        ["render_test_document.py", str(report), str(out), "x", "y", ".", f"--coverage={coverage}"],
+        # The fixture measures 40%, and the floor is what this test is not about.
+        [
+            "render_test_document.py",
+            str(report),
+            str(out),
+            "x",
+            "y",
+            ".",
+            f"--coverage={coverage}",
+            "--coverage-floor=40",
+        ],
     )
     assert main() == 0
     body = out.read_text()
@@ -643,6 +672,7 @@ def a_leg(name, cover=None, cases=None):
         coverage="",
         area_coverage={},
         area_missed={},
+        area_lines={},
         line_coverage=cover,
         environment=[],
         descriptions={},
@@ -652,12 +682,18 @@ def a_leg(name, cover=None, cases=None):
     )
 
 
-def test_the_summary_says_when_one_configuration_measured_coverage_alone():
-    """Today only one leg instruments, and a figure from one build is not a figure for five."""
-    legs = [a_leg("gcc-x86-Debug"), a_leg("clang-x86-Debug", 84.59), a_leg("msvc-x86-Release")]
+def test_the_summary_names_the_configuration_the_figure_came_from():
+    """One leg instruments by design, so the sentence states which build rather than lamenting.
+
+    A figure from one build is not a figure for five, and naming it is what lets a reader tell
+    the difference.
+    """
+    legs = [a_leg("gcc-x86-Debug", 84.59), a_leg("clang-x86-Debug"), a_leg("msvc-x86-Release")]
     said = combined_criteria_prose(legs, 84.59, "80")
-    assert "Only clang-x86-Debug measured coverage" in said
+    assert "measured on gcc-x86-Debug" in said
     assert "84.59% of lines" in said
+    # "Only" read as a shortfall rather than as where coverage comes from.
+    assert "Only" not in said
 
 
 def test_the_summary_reports_the_lowest_once_every_configuration_measures():
@@ -697,6 +733,178 @@ def test_a_case_is_skipped_only_where_no_configuration_ran_it():
     assert [c.status for c in union_cases([a_leg("one", cases=[skipped]), a_leg("two", cases=[ran])])] == ["passed"]
     both = [a_leg("one", cases=[skipped]), a_leg("two", cases=[skipped])]
     assert [c.status for c in union_cases(both)] == ["skipped"]
+
+
+# gcovr's shape: one package per directory, a line element per measured line.
+GCOVR_COBERTURA = """<?xml version="1.0" ?>
+<coverage line-rate="0.75" lines-covered="3" lines-valid="4" version="gcovr 5.0">
+  <sources><source>.</source></sources>
+  <packages>
+    <package name="libs.core" line-rate="0.75">
+      <classes>
+        <class name="quantity.cpp" filename="libs/core/quantity.cpp" line-rate="0.5">
+          <methods/>
+          <lines>
+            <line number="10" hits="4"/>
+            <line number="11" hits="0"/>
+          </lines>
+        </class>
+        <class name="vm.cpp" filename="libs/core/vm.cpp" line-rate="1.0">
+          <methods/>
+          <lines>
+            <line number="7" hits="1"/>
+            <line number="8" hits="2"/>
+          </lines>
+        </class>
+      </classes>
+    </package>
+  </packages>
+</coverage>
+"""
+
+# OpenCppCoverage's shape: a package per module, so one source file appears under each test
+# binary it was linked into. Here the same two lines are covered by one binary each.
+OPENCPP_COBERTURA = """<?xml version="1.0" ?>
+<coverage line-rate="0.5" lines-covered="2" lines-valid="4" version="OpenCppCoverage">
+  <sources><source>C:\\src</source></sources>
+  <packages>
+    <package name="core_test.exe" line-rate="0.5">
+      <classes>
+        <class name="quantity.cpp" filename="libs/core/quantity.cpp" line-rate="0.5">
+          <methods/>
+          <lines><line number="10" hits="1"/><line number="11" hits="0"/></lines>
+        </class>
+      </classes>
+    </package>
+    <package name="kernel_test.exe" line-rate="0.5">
+      <classes>
+        <class name="quantity.cpp" filename="libs/core/quantity.cpp" line-rate="0.5">
+          <methods/>
+          <lines><line number="10" hits="0"/><line number="11" hits="3"/></lines>
+        </class>
+      </classes>
+    </package>
+  </packages>
+</coverage>
+"""
+
+
+def test_a_cobertura_report_reads_into_the_same_shape(tmp_path):
+    """The document's coverage section is written against llvm-cov's two return values."""
+    report = tmp_path / "coverage.xml"
+    report.write_text(GCOVR_COBERTURA, encoding="utf-8")
+    totals, files = read_cobertura(report)
+    assert [(one.name, one.lines, one.lines_missed) for one in files] == [
+        ("libs/core/quantity.cpp", 2, 1),
+        ("libs/core/vm.cpp", 2, 0),
+    ]
+    assert totals["Lines"] == "75.00%"
+    assert (totals["Lines measured"], totals["Lines uncovered"]) == ("4", "1")
+    # Neither producer counts these, and a build that did not look found no zero.
+    assert totals["Functions"] == totals["Regions"] == "not measured"
+
+
+def test_one_file_in_two_modules_is_merged_not_counted_twice(tmp_path):
+    """OpenCppCoverage emits a package per module, so a shared source file is listed per binary.
+
+    Summing the listings would count every line of it once per test binary it was linked into,
+    and report a file every run covered as half covered.
+    """
+    report = tmp_path / "coverage.xml"
+    report.write_text(OPENCPP_COBERTURA, encoding="utf-8")
+    totals, files = read_cobertura(report)
+    assert [(one.name, one.lines, one.lines_missed) for one in files] == [("libs/core/quantity.cpp", 2, 0)]
+    assert totals["Lines"] == "100.00%"
+
+
+def test_the_reader_picks_the_format_the_leg_produced(tmp_path):
+    """Legs ship llvm-cov text or cobertura xml, and the manifest names one column for both."""
+    cobertura = tmp_path / "coverage.xml"
+    cobertura.write_text(GCOVR_COBERTURA, encoding="utf-8")
+    assert read_coverage_report(cobertura) == read_cobertura(cobertura)
+
+    table = tmp_path / "coverage.txt"
+    table.write_text(COVERAGE, encoding="utf-8")
+    assert read_coverage_report(table) == read_coverage(table)
+
+
+def test_a_figure_under_the_floor_fails_the_run_and_still_writes_the_document(tmp_path, monkeypatch):
+    """The document says the criterion was not met; without this the job said it was.
+
+    It is written before the exit code is decided, because the figure that fell short is the one
+    a reader wants to look at.
+    """
+    report = tmp_path / "r.xml"
+    report.write_text(
+        '<?xml version="1.0"?><testsuite name="sen" tests="1">'
+        '<testcase classname="libs/core/test/a_test.cpp" name="A.ok"/>'
+        "</testsuite>"
+    )
+    coverage = tmp_path / "coverage.txt"
+    coverage.write_text(COVERAGE)
+    out = tmp_path / "out.typ"
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "render_test_document.py",
+            str(report),
+            str(out),
+            "x",
+            "y",
+            ".",
+            f"--coverage={coverage}",
+            "--coverage-floor=80",
+        ],
+    )
+    assert main() == 1
+    assert out.is_file() and out.read_text()
+
+
+def test_a_run_that_measured_nothing_does_not_fail_the_floor(tmp_path, monkeypatch):
+    """Most legs instrument nothing, and a build that did not look has not fallen short."""
+    out = tmp_path / "report.typ"
+    monkeypatch.setattr(
+        "sys.argv", ["render_test_document.py", str(write(tmp_path)), str(out), "clang Debug", "abc123"]
+    )
+    assert main() == 0
+
+
+def test_five_configurations_keep_the_layout_they_had():
+    """The width model must leave a document that already rendered correctly exactly as it was."""
+    assert matrix_shape(5) == (MATRIX_WIDE_COLUMN_CM, MATRIX_NAME_LIMIT)
+
+
+def test_a_name_fits_beside_however_many_configurations_there_are():
+    """A name wider than its column prints over the first configuration's cell.
+
+    Seven configurations found this: the limit was a constant measured against five, so the two
+    added columns took their width out of the name and every name in the matrix overflowed.
+    typst reports nothing for that, and a five-configuration document still looked right.
+    """
+    for count in range(1, matrix_capacity() + 1):
+        column, limit = matrix_shape(count)
+        assert limit * MATRIX_CHARACTER_CM <= matrix_name_space(count, column), f"{count} configurations"
+
+
+def test_the_matrix_holds_every_configuration_the_pipeline_runs():
+    """The capacity above is derived from the width model, so on its own it proves nothing.
+
+    This is the half that bites: the model may be self-consistent and still too small for the
+    matrix the pipeline actually produces, which is how seven legs came to overflow a limit
+    measured against five.
+    """
+    legs = compute_jobs(release=False, conan=False, standard_test=True, target_main=False)
+    assert matrix_capacity() >= len(legs), f"the pipeline runs {len(legs)} configurations"
+
+
+def test_more_configurations_than_the_matrix_holds_are_refused(tmp_path):
+    """Past the capacity the names overflow in silence, so the manifest is refused instead."""
+    report = write(tmp_path)
+    manifest = tmp_path / "legs.tsv"
+    too_many = matrix_capacity() + 1
+    manifest.write_text("".join(f"configuration-{n}\t{report}\t\t\t\n" for n in range(too_many)), encoding="utf-8")
+    with pytest.raises(LegError, match="do not fit the results matrix"):
+        read_manifest(manifest, "80", False)
 
 
 def test_a_manifest_naming_a_report_that_is_not_there_stops_the_document(tmp_path):

@@ -127,8 +127,12 @@ def test_crash_reporter_no_signal(tmp_path):
     assert stacktrace is not None, "Stacktrace field is null"
     assert len(stacktrace) > 0, "Stacktrace is empty"
 
+    # An optimised build inlines, and cpptrace prints "(inlined)" where the address would be
+    # (src/formatting.cpp), so requiring an address on every frame holds only at -O0.
     for elem in stacktrace:
-        assert re.search(r"#\d+\s+0x[0-9a-f]+.+", elem) is not None, "Stack trace has an invalid format"
+        assert re.search(r"#\d+\s+(0x[0-9a-f]+|\(inlined\))\s+.+", elem) is not None, (
+            f"Stack trace has an invalid format: {elem!r}"
+        )
 
     # The report is not all of it: this route ends through abort(), so the handler dumps it too,
     # and the dump carries the other threads' stacks that the report does not.

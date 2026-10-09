@@ -125,8 +125,46 @@ ZERO_WIDTH_SPACE = "\u200b"
 PARAMETER_DUMP = "  # GetParam()"
 NAME_LIMIT = 90
 # A matrix row is one line, so the name is cut to what the column holds and the whole name
-# is in the description the row links to.
+# is in the description the row links to. The configuration columns take a fixed width out of
+# the 17cm text block and the name takes the rest, so the cut depends on how many there are:
+# a name wider than its column prints over the first configuration's cell.
+MATRIX_TEXT_WIDTH_CM = 17.0
+MATRIX_INSET_CM = 0.282
+# One character of the 7.5pt monospace the names are set in, measured off a rendered page.
+MATRIX_CHARACTER_CM = 0.149
+MATRIX_WIDE_COLUMN_CM, MATRIX_NARROW_COLUMN_CM = 1.75, 1.3
+MATRIX_WIDE_UNTIL = 5
+# What five configurations allowed. A longer name buys nothing: the whole one is in the
+# description the row links to.
 MATRIX_NAME_LIMIT = 44
+MATRIX_NAME_FLOOR = 24
+
+
+def matrix_name_space(configurations: int, column: float) -> float:
+    """What the 17cm text block leaves the name column, in centimetres."""
+    return MATRIX_TEXT_WIDTH_CM - configurations * column - (configurations + 1) * MATRIX_INSET_CM
+
+
+def matrix_shape(configurations: int) -> tuple[float, int]:
+    """The width of a configuration column and the name limit that fits beside it."""
+    column = MATRIX_WIDE_COLUMN_CM if configurations <= MATRIX_WIDE_UNTIL else MATRIX_NARROW_COLUMN_CM
+    spare = matrix_name_space(configurations, column)
+    return column, max(MATRIX_NAME_FLOOR, min(MATRIX_NAME_LIMIT, int(spare / MATRIX_CHARACTER_CM)))
+
+
+def matrix_fits(configurations: int) -> bool:
+    """Whether a name of the floor length still fits beside this many configurations.
+
+    Past the capacity the floor wins over the arithmetic and names print across the first
+    configuration's cell. typst reports nothing for that, so the count is refused here instead.
+    """
+    column, limit = matrix_shape(configurations)
+    return limit * MATRIX_CHARACTER_CM <= matrix_name_space(configurations, column)
+
+
+def matrix_capacity() -> int:
+    """The most configurations the results matrix holds."""
+    return max(count for count in range(1, 32) if matrix_fits(count))
 
 
 def display_name(name: str, limit: int = NAME_LIMIT) -> str:
@@ -166,6 +204,11 @@ def breakable(name: str) -> str:
 
 
 AREA_DEPTH = 2
+
+# What the area column holds in Coverage: a name, and a level of indent under its group.
+COVERAGE_AREA_CM = 3.0
+# The heading, not the figure, is what sets this column.
+TESTS_COLUMN_CM = 1.3
 
 
 def area_of(declared_in: str) -> str:
@@ -218,6 +261,7 @@ def case_data(
     document has four outcomes and not three, because an absence that renders like a pass is the
     failure this table exists to avoid.
     """
+    _, name_limit = matrix_shape(len(per_leg) if per_leg else 0)
     rows = []
     for number, case in enumerate(cases):
         suite, name, full = split_name(case.classname, case.name)
@@ -261,7 +305,7 @@ def case_data(
                 (
                     f"per: {per}",
                     f"id: {number}",
-                    f"short: {typst_string(elide(name, MATRIX_NAME_LIMIT))}",
+                    f"short: {typst_string(elide(name, name_limit))}",
                 )
                 if per
                 else ()
@@ -563,6 +607,89 @@ def read_coverage(path: Path) -> tuple[dict[str, str], list[FileCoverage]]:
             files.append(FileCoverage(fields[0], count, missed, lines))
 
     return totals, files
+
+
+# Neither gcovr nor OpenCppCoverage counts regions or functions, which llvm-cov does. They read
+# as not measured rather than as zero: a build that did not look is not a build that found none.
+COBERTURA_UNMEASURED = (("Functions", None), ("Regions", None))
+
+
+def described_by(cases: list[Case], matched: list[Annotation | None], descriptions: dict[str, str]) -> str:
+    """How many cases say what they check, and where each says it, for the line main prints."""
+    annotated = sum(1 for annotation in matched if annotation and annotation.description)
+    # A test registered in CMake is described by the build, not by an annotation.
+    declared = sum(
+        1
+        for case, annotation in zip(cases, matched, strict=True)
+        if annotation is None and split_name(case.classname, case.name)[1] in descriptions
+    )
+    # A spec case is its own description.
+    spoken = sum(1 for case in cases if is_spec(split_name(case.classname, case.name)[0]))
+    traced = sum(1 for annotation in matched if annotation and annotation.requirements)
+    return (
+        f"{annotated + spoken + declared} describe what they check ({spoken} by their own"
+        f" sentence, {declared} by the build), {traced} name a requirement"
+    )
+
+
+def floor_held(line_coverage: float | None, floor: str) -> bool:
+    """Whether the figure clears the floor. A run that measured nothing has not fallen short."""
+    return line_coverage is None or line_coverage >= float(floor)
+
+
+def floor_outcome(line_coverage: float | None, floor: str) -> int:
+    """The exit status the floor decides, after naming the figure that fell short."""
+    if floor_held(line_coverage, floor):
+        return 0
+    print(f"line coverage {line_coverage:.2f}% is below the {floor}% floor", file=sys.stderr)
+    return 1
+
+
+def read_cobertura(path: Path) -> tuple[dict[str, str], list[FileCoverage]]:
+    """Reads a cobertura report into its total row and a row per file.
+
+    gcovr writes this for the gcc legs and OpenCppCoverage for the MSVC ones, so one reader
+    serves both. OpenCppCoverage emits a package per module, so a source file linked into two
+    test binaries is listed twice; the lines are merged by filename and a line any run covered
+    counts as covered. The totals are summed from those merged rows rather than read off the
+    root element, which counts the duplicates and would disagree with the rows beneath it.
+    """
+    hits_by_file: dict[str, dict[int, int]] = {}
+    for element in ElementTree.parse(path).getroot().iter("class"):
+        name = element.get("filename") or element.get("name") or ""
+        if not name:
+            continue
+        lines = hits_by_file.setdefault(name, {})
+        for line in element.iter("line"):
+            try:
+                number, hits = int(line.get("number") or 0), int(line.get("hits") or 0)
+            except ValueError:
+                continue
+            lines[number] = max(lines.get(number, 0), hits)
+
+    files = []
+    for name, lines in sorted(hits_by_file.items()):
+        if not lines:
+            continue
+        missed = sum(1 for hits in lines.values() if hits == 0)
+        files.append(FileCoverage(name, len(lines), missed, 100.0 * (len(lines) - missed) / len(lines)))
+
+    if not files:
+        return {}, []
+
+    measured = sum(one.lines for one in files)
+    uncovered = sum(one.lines_missed for one in files)
+    totals = {"Lines": shown(100.0 * (measured - uncovered) / measured)}
+    totals.update({key: shown(value) for key, value in COBERTURA_UNMEASURED})
+    totals["Lines measured"] = f"{measured}"
+    totals["Lines uncovered"] = f"{uncovered}"
+    return totals, files
+
+
+def read_coverage_report(path: Path) -> tuple[dict[str, str], list[FileCoverage]]:
+    """Reads whichever summary the leg produced: llvm-cov's table or a cobertura document."""
+    head = path.read_text(encoding="utf-8", errors="replace")[:200].lstrip()
+    return read_cobertura(path) if head.startswith("<") else read_coverage(path)
 
 
 FOLDER_DEPTH = 2
@@ -1199,6 +1326,7 @@ def render(
     criteria: str = "",
     acceptance: str = "",
     by_area_section: str = "",
+    size_section: str = "",
     tests_section: str = "",
     summary_clauses: str = "",
     closing_clauses: str = "",
@@ -1224,6 +1352,7 @@ def render(
     parts = clause or {}
     # With no mark the stack holds the name alone.
     mark = f"align(center, {logo}),\n    " if logo else ""
+    matrix_column, _ = matrix_shape(len(per_leg) if per_leg else 0)
     meta_rows = "\n".join(f"  ({typst_string(k)}, {typst_string(v)})," for k, v in meta)
     described = annotations or {}
 
@@ -1264,15 +1393,29 @@ def render(
 #let INK = rgb("#1a1d21")
 #let SLATE = rgb("#4a5058")
 #let RULE = rgb("#dcdfe3")
-#let TRACK = rgb("#ecedf0")
+#let TRACK = rgb("#d8dce2")
+// Alternating bands on the tables that run for pages. Light enough that the figures keep
+// their contrast and the row rules stay the thing that separates a group from its members.
+#let BAND = rgb("#f4f5f7")
+#let banded = (x, y) => if calc.odd(y) {{ BAND }} else {{ none }}
+// Stopped short of the columns holding a bar, where a band reads as a third tone.
+#let bandedBefore(limit) = (x, y) => if x < limit and calc.odd(y) {{ BAND }} else {{ none }}
+#let SHARE = rgb("#9aa3ad")
 #let ACCENT = rgb("#2d4a63")
+// Behind the figure a table exists to give.
+#let TINT = rgb("#e4ebf1")
 #let RESULT-COLOUR = (passed: rgb("#1f6b4f"), failed: rgb("#9c2b3e"), skipped: rgb("#7b8187"))
 #let WARN = rgb("#9a6b1f")
 
 // Figures line up in columns all through this document, so the digits are the same width.
 #set text(font: BODY, size: 9pt, fill: INK, number-width: "tabular")
 // Paragraph spacing, set wider than the leading inside a paragraph.
-#set par(leading: 0.68em, spacing: 1.15em, justify: false)
+#set par(leading: 0.68em, spacing: 1.15em, justify: true)
+// Prose only: justification stretches a wrapped heading across its column.
+#show table: set par(justify: false)
+#show grid: set par(justify: false)
+// Justified text breaks between the two plus signs. One rule covers every mention.
+#show "C++": box[C++]
 #show raw: set text(font: MONO)
 
 // Numbered to the depth the contents lists. A suite heading below that keeps its name alone: a
@@ -1343,13 +1486,16 @@ def render(
 // The coverage table holds compiler, architecture and build type on one line in a narrower
 // column, so its heading is a half point smaller again.
 #let cover-label(name) = text(size: 5pt, fill: SLATE, weight: "bold", tracking: 0em)[#upper(name)]
+// The code size columns carry one short tag each, so the heading reads at the body size.
+#let size-label(name) = text(size: 7pt, fill: SLATE, weight: "bold", tracking: 0.02em)[#upper(name)]
 
 // One cell of the results matrix: the mark for an outcome. A configuration that never
 // registered the case carries a dash, which is not a result of zero.
 #let resultCell(p) = if p.status == "absent" {{
   text(size: 7.5pt, weight: "bold", fill: WARN)[#sym.dash.en]
 }} else {{
-  text(font: MONO, size: 7.5pt, weight: "bold", fill: RESULT-COLOUR.at(p.status))[#(
+  // Larger than the duration beside it: the mark is what a page of these is scanned for.
+  text(font: MONO, size: 9.5pt, weight: "bold", fill: RESULT-COLOUR.at(p.status))[#(
     if p.status == "passed" {{ sym.checkmark }}
     else if p.status == "failed" {{ sym.crossmark }}
     else {{ sym.circle.small }}
@@ -1360,13 +1506,14 @@ def render(
 // document that compiles has no broken link: typst refuses a label that does not resolve.
 #let resultsOf(wanted) = block(below: 1.1em)[
   #table(
-    columns: (1fr, ..configurations.map(_ => 1.75cm)),
-    align: (left + horizon, ..configurations.map(_ => center + horizon)),
+    columns: (1fr, ..configurations.map(_ => {matrix_column}cm)),
+    align: (left + horizon, ..configurations.map(_ => left + horizon)),
     inset: (x: 4pt, y: 2.5pt),
     stroke: none,
+    fill: banded,
     table.header(
       label-text("Test"),
-      ..configurations.map(c => align(right)[
+      ..configurations.map(c => align(left)[
         #config-label(c.at(0))#if c.at(1) != "" [#linebreak()#config-label(c.at(1))]
       ]),
     ),
@@ -1596,6 +1743,7 @@ def render(
 {acceptance}{environment}
 {coverage}
 {by_area_section}
+{size_section}
 
 #let failures = cases.filter(c => c.status == "failed")
 
@@ -1627,24 +1775,33 @@ def render(
 """
 
 
-def coverage_parts(report: Path | None, floor: str) -> tuple[str, dict[str, float], dict[str, int], float | None]:
+def coverage_parts(
+    report: Path | None, floor: str
+) -> tuple[str, dict[str, float], dict[str, int], dict[str, int], float | None]:
     """The coverage section, each area's figure and missed lines, and the line total."""
     if report is None:
-        return "", {}, {}, None
+        return "", {}, {}, {}, None
 
     if not report.is_file():
         # Most legs do not instrument, so a missing report is ordinary.
         print(f"no coverage report at {report}; the document omits that section")
-        return "", {}, {}, None
+        return "", {}, {}, {}, None
 
-    totals, files = read_coverage(report)
+    totals, files = read_coverage_report(report)
     if not totals:
-        return "", {}, {}, None
+        return "", {}, {}, {}, None
 
     tree = coverage_tree(files)
     by_area = {row.label: row.lines_cover for row in tree}
     missed = {row.label: row.lines_missed for row in tree}
-    return coverage_section(totals, files, floor), by_area, missed, float(totals["Lines"].rstrip("%"))
+    counted = {row.label: row.lines for row in tree}
+    return (
+        coverage_section(totals, files, floor),
+        by_area,
+        missed,
+        counted,
+        float(totals["Lines"].rstrip("%")),
+    )
 
 
 def collected_environment(path: Path | None) -> list[tuple[str, str]]:
@@ -1686,6 +1843,7 @@ class Leg(NamedTuple):
     coverage: str
     area_coverage: dict[str, float]
     area_missed: dict[str, int]
+    area_lines: dict[str, int]
     line_coverage: float | None
     environment: list[tuple[str, str]]
     descriptions: dict[str, str]
@@ -1717,7 +1875,7 @@ def read_leg(
 
     environment = collected_environment(environment_file)
     descriptions = collected_descriptions(descriptions_file)
-    coverage, area_coverage, area_missed, line_coverage = coverage_parts(coverage_report, coverage_floor)
+    coverage, area_coverage, area_missed, area_lines, line_coverage = coverage_parts(coverage_report, coverage_floor)
     if coverage_report is not None and not coverage and coverage_report.is_file():
         raise LegError(f"{coverage_report} has no TOTAL row; the report format changed")
 
@@ -1729,6 +1887,7 @@ def read_leg(
         coverage=coverage,
         area_coverage=area_coverage,
         area_missed=area_missed,
+        area_lines=area_lines,
         line_coverage=line_coverage,
         environment=environment,
         descriptions=descriptions,
@@ -1808,7 +1967,7 @@ def combined_criteria_prose(legs: list[Leg], line_coverage: float | None, floor:
     if not measured:
         seen = "No configuration measured coverage, so the floor was not tested."
     elif len(measured) == 1:
-        seen = f"Only {measured[0]} measured coverage, and it reached {line_coverage:.2f}% of lines."
+        seen = f"Coverage was measured on {measured[0]}, which reached {line_coverage:.2f}% of lines."
     else:
         seen = f"The lowest any configuration measured was {line_coverage:.2f}% of lines."
     outcome = "every case that ran passed" if not failures else f"{tests(failures)} did not pass"
@@ -1826,29 +1985,20 @@ def combined_criteria_prose(legs: list[Leg], line_coverage: float | None, floor:
         f" coverage holds the {floor}% floor. Individual areas may sit under it, and Coverage says"
         f" which. On this run {outcome} and none stopped early. {seen}{note}"
     )
-    return (
-        f"The run reads PASSED only if every case passes on every configuration it registers on,"
-        f" the whole suite runs, and measured line coverage holds the {floor}% floor. On this run"
-        f" {outcome} and the whole suite ran. {seen}{note}"
-    )
 
 
 def acceptance_section(legs: list[Leg], criteria_prose: str = "") -> str:
-    """One row per configuration: its verdict, its counts, and the coverage figure beside them.
+    """One row per configuration: its verdict and its counts.
 
-    The verdict column sits before the counts and not at the end, where it would stand against
-    the coverage figure and read as a conclusion drawn from it. Coverage is reported here, not
-    gated.
+    No coverage column. One configuration measures it, so a column would carry one figure and a
+    row of blanks, which reads as four builds having been measured and found wanting. The figure
+    and what it describes are in Coverage instead.
     """
     rows = []
     for leg in legs:
         total, passed, failed, skipped = leg_counts(leg)
         ok = leg_passed(leg)
-        figure = "not measured" if leg.line_coverage is None else f"{leg.line_coverage:.2f}%"
-        rows.append(
-            f"  ({typst_string(leg.configuration)}, {str(ok).lower()}, {total}, {passed},"
-            f" {failed}, {skipped}, {typst_string(figure)})"
-        )
+        rows.append(f"  ({typst_string(leg.configuration)}, {str(ok).lower()}, {total}, {passed}, {failed}, {skipped})")
     body = ",\n".join(rows)
     totals = [sum(column) for column in zip(*(leg_counts(leg) for leg in legs), strict=True)]
     every = all(leg_passed(leg) for leg in legs)
@@ -1858,27 +2008,29 @@ def acceptance_section(legs: list[Leg], criteria_prose: str = "") -> str:
   {criteria_prose}
 
   One row per configuration this report covers, each tested on the build it was produced from. A
-  configuration reads failed if any case failed on it or if it did not build; skipped cases and
-  the coverage figure do not enter that. Counts differ between compilers because the suite is not
-  uniform. The last row adds the configurations together, so it counts runs of a case; the count
-  of distinct tests is in Coverage.
+  configuration reads failed if any case failed on it or if it did not build; skipped cases do not
+  enter that. Counts differ between compilers because the suite is not uniform. The last row adds
+  the configurations together, so it counts runs of a case; the count of distinct tests is in
+  Coverage.
 ])
 
 #let acceptance = (
 {body}
 )
 
-#block(below: 1.3em)[
+#align(center, block(below: 1.3em)[
   #table(
-    columns: (1fr, auto, auto, auto, auto, auto, auto),
-    align: (left, center, right, right, right, right, right),
-    inset: (x: 5pt, y: 3.2pt),
+    columns: (auto, auto, auto, auto, auto, auto),
+    align: (left, center, right, right, right, right),
+    // The result badge hangs below the baseline by its own inset, so these rows need more
+    // room than the figures in them would.
+    inset: (x: 5pt, y: 5pt),
     stroke: none,
     table.header(..column-labels((
-      "Configuration", "Result", "Cases", "Passed", "Failed", "Skipped", "Lines covered",
+      "Configuration", "Result", "Cases", "Passed", "Failed", "Skipped",
     ))),
     table.hline(stroke: 0.6pt + RULE),
-    ..acceptance.map(((name, ok, total, passed, failed, skipped, cover)) => (
+    ..acceptance.map(((name, ok, total, passed, failed, skipped)) => (
       text(size: 8.5pt)[#name],
       box(
         stroke: 0.9pt + (if ok {{ RESULT-COLOUR.passed }} else {{ RESULT-COLOUR.failed }}),
@@ -1892,7 +2044,6 @@ def acceptance_section(legs: list[Leg], criteria_prose: str = "") -> str:
       text(size: 8.5pt, fill: RESULT-COLOUR.passed)[#thousands(passed)],
       text(size: 8.5pt, fill: if failed > 0 {{ RESULT-COLOUR.failed }} else {{ SLATE }})[#thousands(failed)],
       text(size: 8.5pt, fill: if skipped > 0 {{ RESULT-COLOUR.skipped }} else {{ SLATE }})[#thousands(skipped)],
-      text(size: 8.5pt, fill: SLATE)[#cover],
     )).flatten(),
     table.hline(stroke: 0.6pt + RULE),
     text(size: 8.5pt, weight: "bold")[All],
@@ -1908,9 +2059,8 @@ def acceptance_section(legs: list[Leg], criteria_prose: str = "") -> str:
     text(size: 8.5pt, weight: "bold")[#thousands({totals[1]})],
     text(size: 8.5pt, weight: "bold")[#thousands({totals[2]})],
     text(size: 8.5pt, weight: "bold")[#thousands({totals[3]})],
-    text(size: 8.5pt, fill: SLATE)[#sym.dash.em],
   )
-]
+])
 """
 
 
@@ -2012,8 +2162,7 @@ def environments_of(legs: list[Leg]) -> str:
     for leg in legs:
         rows = ",\n".join(f"      ({typst_string(k)}, {typst_string(wrappable(value(leg, k)))})" for k in varying)
         blocks.append(
-            f"""#block(width: 100%, height: {{box-height}}, breakable: false,
-        stroke: 0.5pt + RULE, radius: 2pt, inset: (x: 8pt, y: 6pt))[
+            f"""grid.cell(breakable: false)[
   #text(size: 9pt, weight: "bold")[{typst_string(leg.configuration)[1:-1]}]
   #block(above: 0.6em)[
     #grid(
@@ -2028,6 +2177,11 @@ def environments_of(legs: list[Leg]) -> str:
 ]
 """
         )
+
+    # The stroke belongs to the cell, so an odd count draws an empty bordered box beside the
+    # last card.
+    if len(blocks) % 2:
+        blocks.append("grid.cell(stroke: none)[]\n")
 
     return f"""= Test environments
 
@@ -2045,16 +2199,15 @@ def environments_of(legs: list[Leg]) -> str:
 {shared_block}
 {"== Configurations" if varying else ""}
 
-// One height for all of them: boxes that differ only because a version string wrapped read
-// as though they held different things. Kept above what this run needs, because the values
-// come from the machines and a longer one on another run would otherwise overlap.
-#let box-height = 3.5cm
-
+// The border is the cell's, so a card is as tall as the tallest in its row. A height set
+// here would be a constant, and these values come from the machines: one outgrows it.
 #grid(
   columns: (1fr, 1fr),
   column-gutter: 9pt,
   row-gutter: 9pt,
-{",".join(block.lstrip("#") for block in blocks)}
+  stroke: 0.5pt + RULE,
+  inset: (x: 8pt, y: 6pt),
+{",".join(blocks)}
 )
 """
 
@@ -2087,6 +2240,12 @@ def read_manifest(path: Path, coverage_floor: str, stopped_at_first_failure: boo
         )
     if not legs:
         raise LegError(f"{path} lists no configurations")
+
+    if not matrix_fits(len(legs)):
+        raise LegError(
+            f"{len(legs)} configurations do not fit the results matrix, which holds "
+            f"{matrix_capacity()}. Widen the page or drop the per-configuration durations."
+        )
     return legs
 
 
@@ -2339,21 +2498,40 @@ def one_by_area_section() -> str:
     return "== Tests by area\n\n" + ONE_BY_AREA_LEAD + "\n\n" + AREA_TABLE + "\n"
 
 
-def combined_by_area_section(legs: list[Leg]) -> str:
-    """Tests and coverage per area in one table, a coverage column per configuration.
+def area_sizes(legs: list[Leg]) -> tuple[dict[str, int], dict[str, int]]:
+    """How much code each area holds and how much of it no test reached.
 
-    They were two tables saying things about the same rows, and the area tree here reads better
-    than a flat list of paths: a group is a line of its own and its directories sit under it.
+    Merged the way the figures beside them are, so a row's count and its percentage describe the
+    same reading. A percentage alone ranks an eighteen-line directory beside a fourteen-hundred
+    line one.
     """
-    keys: list[str] = []
+    held: dict[str, int] = {}
+    unreached: dict[str, int] = {}
     for leg in legs:
+        for area, count in leg.area_lines.items():
+            held[area] = max(held.get(area, count), count)
+        for area, count in leg.area_missed.items():
+            unreached[area] = max(unreached.get(area, count), count)
+    return held, unreached
+
+
+def combined_by_area_section(legs: list[Leg]) -> str:
+    """Tests and coverage per area in one table, a coverage column per measuring configuration.
+
+    Only the configurations that measured get a column. Giving every configuration one put a
+    dash in four cells of every row when one build measures, which reads as four builds having
+    been looked at and found empty rather than as a choice about where coverage comes from.
+    """
+    measuring = [leg for leg in legs if leg.line_coverage is not None]
+    keys: list[str] = []
+    for leg in measuring:
         for area in leg.area_coverage:
             if area not in keys:
                 keys.append(area)
     rows = []
     for area in sorted(keys):
         cells = []
-        for leg in legs:
+        for leg in measuring:
             got = leg.area_coverage.get(area)
             cells.append(
                 f"({typst_string(NOTHING_MEASURED)}, -1.0)"
@@ -2363,77 +2541,337 @@ def combined_by_area_section(legs: list[Leg]) -> str:
         rows.append(f"  {typst_string(area)}: ({', '.join(cells)},),")
     by_area = "\n".join(rows)
 
-    nothing = ", ".join(f"({typst_string(NOTHING_MEASURED)}, -1.0)" for _ in legs)
-    totals = ", ".join(
-        f"({typst_string(NOTHING_MEASURED)}, -1.0)"
-        if leg.line_coverage is None
-        else f"({typst_string(f'{leg.line_coverage:.2f}%')}, {leg.line_coverage:.4f})"
-        for leg in legs
+    held, unreached = area_sizes(measuring)
+    # The rows are what was measured, not every area a test is declared in. An area the
+    # exclusions remove has tests and no figure, and a row of dashes beside them reads as a gap
+    # rather than as a scope the document states. Test results still enumerates those tests.
+    measured_areas = ", ".join(typst_string(area) for area in sorted(keys))
+    sizes = "\n".join(f"  {typst_string(area)}: ({held[area]}, {unreached.get(area, 0)})," for area in sorted(held))
+    # The groups partition the files, so they add up where group and subdirectory rows would not.
+    total_lines = sum(count for area, count in held.items() if "/" not in area)
+    total_unreached = sum(count for area, count in unreached.items() if "/" not in area)
+
+    nothing = ", ".join(f"({typst_string(NOTHING_MEASURED)}, -1.0)" for _ in measuring)
+    totals = ", ".join(f"({typst_string(f'{leg.line_coverage:.2f}%')}, {leg.line_coverage:.4f})" for leg in measuring)
+    # One column needs no configuration in its heading: the note above names the build.
+    # Several configuration names need the smaller label to hold compiler, architecture and
+    # build type on two lines; one short heading does not.
+    heading = "label-text" if len(measuring) == 1 else "cover-label"
+    if len(measuring) == 1:
+        labels = f"({typst_string('Statement')}, {typst_string('coverage')})"
+    else:
+        labels = ", ".join(f"({typst_string(head)}, {typst_string(tail)})" for head, tail in label_parts(measuring))
+
+    if not measuring:
+        where = " No configuration in this report measured coverage, so the table carries tests and failures only."
+    elif len(measuring) == 1:
+        where = (
+            f" Coverage comes from {measuring[0].configuration} and names that build alone."
+            " gcovr reads an unoptimised build, where a hit still belongs to the line that was"
+            " written; the configurations beside it are optimised and would answer approximately"
+            " for the same source."
+        )
+    else:
+        where = " Each coverage column names what that configuration's own binaries covered."
+    note = (
+        " Statements are what the compiler emitted code for, which is roughly three fifths of the"
+        " non-comment lines of a file: a declaration, a brace and an include carry none. They are"
+        " given so a small directory at a low percentage can be weighed against a large one a"
+        " point below it, and the bar beside each is the row's share of the whole. A dash is an"
+        " area the measurement does not reach, not a figure of zero."
+        " Branch coverage is left out, being counted once per macro expansion and per template"
+        " instantiation and so reading far worse than it is."
     )
-    silent = [leg.configuration for leg in legs if leg.line_coverage is None]
-    note = "" if not silent else " A dash is a configuration that measured nothing, not a figure of zero."
-    width = "1.95cm"
+    # The figure and its bar are two columns under one heading, which is what lets the heading
+    # be as wide as the words in it rather than as wide as the number under it.
+    figure_cm, bar_cm = (1.6, 1.9) if len(measuring) == 1 else (1.3, 1.4)
+    pair = ", ".join([f"{figure_cm}cm, {bar_cm}cm"] * len(measuring))
+    # Fixed, because a column taking the slack leaves the names far from their figures. It
+    # goes back to taking it when the configurations would push the table past the text block.
+    fixed = TESTS_COLUMN_CM + 1.4 + 1.4 + 1.4 + 1.9 + (figure_cm + bar_cm) * len(measuring)
+    area_column = f"{COVERAGE_AREA_CM}cm" if COVERAGE_AREA_CM + fixed <= MATRIX_TEXT_WIDTH_CM else "1fr"
     return f"""== Coverage
 
-#block(below: 0.8em, text(size: 8.5pt, fill: SLATE)[
-  Every test any configuration reported, counted once and grouped by where it is declared,
-  beside what each configuration's own binaries covered of that part. A case counts
-  as failed if it failed on any configuration; Test results says which.{note}
+#block(below: 0.6em, text(size: 8.5pt, fill: SLATE)[
+  Every test any configuration reported, counted once and grouped by where it is declared. A case
+  counts as failed if it failed on any configuration; Test results says which.{where}{note}
 ])
+
+#let coverageBy = ({labels},)
 
 #let areaCoverageBy = (
 {by_area}
 )
 
-// The same row as the index it replaces, with a coverage cell per configuration rather than one.
+// The areas the measurement covers, which are the rows of this table.
+#let measuredAreas = ({measured_areas},)
+#let coverGroups = measuredAreas.filter(a => not a.contains("/")).sorted()
+#let coverAreasIn(g) = measuredAreas.filter(a => a.contains("/") and groupOf(a) == g).sorted()
+#let coveredCases = cases.filter(c => c.area in measuredAreas)
+
+// Statements the measurement counted in each area, and how many of them no test reached.
+#let areaSize = (
+{sizes}
+)
+
+// The same row as the index it replaces, with a coverage cell per measuring configuration.
 #let areaRow(key, shown, list, level) = {{
   let failed = countIn(list, "failed")
   let heavy = if level == 0 {{ "bold" }} else {{ "regular" }}
+  // The groups above are already bold, so the project row takes a point of size and the
+  // ink colour as well.
+  let grand = key == ""
+  let big(small) = if grand {{ small + 1pt }} else {{ small }}
+  let dark = if grand {{ INK }} else {{ SLATE }}
   // Only the total row takes the overall figures. An area nobody measured is a dash: showing
   // the project total against one directory would read as that directory's coverage.
   let covers = if key in areaCoverageBy {{ areaCoverageBy.at(key) }}
     else if key == "" {{ ({totals},) }} else {{ ({nothing},) }}
   (
     block(inset: (left: level * 12pt))[
-      #text(font: MONO, size: if level == 0 {{ 8.5pt }} else {{ 8pt }}, weight: heavy,
+      #text(font: MONO, size: big(if level == 0 {{ 8.5pt }} else {{ 8pt }}), weight: heavy,
             fill: if level == 0 {{ INK }} else {{ SLATE }})[#shown]
     ],
-    text(size: 8pt, weight: heavy)[#thousands(list.len())],
+    text(size: big(8pt), weight: heavy)[#thousands(list.len())],
     // Failed here is failed on at least one configuration, which no other table says. Passed
     // would be this column subtracted from Tests, and skipped-everywhere is not what Acceptance
     // means by skipped, so neither is carried.
-    if failed > 0 {{ text(size: 8pt, weight: heavy, fill: RESULT-COLOUR.failed)[#thousands(failed)] }} else {{
-      text(size: 8pt, fill: SLATE)[0]
+    if failed > 0 {{ text(size: big(8pt), weight: heavy, fill: RESULT-COLOUR.failed)[#thousands(failed)] }} else {{
+      text(size: big(8pt), fill: dark)[0]
+    }},
+    // What the area holds, so a percentage can be weighed rather than only ranked. The bar is
+    // the row's share of the whole, on one scale, so a group is as long as its members
+    // together. A share under a tenth of a percent still draws a hairline, not nothing.
+    ..{{
+      let size = if key in areaSize {{ areaSize.at(key) }}
+        else if key == "" {{ ({total_lines}, {total_unreached}) }}
+        else {{ (-1, -1) }}
+      (
+        if size.at(0) < 0 {{ text(size: 7.5pt, fill: SLATE)[#sym.dash.en] }} else {{
+          text(size: big(7.5pt), weight: heavy, fill: dark)[#thousands(size.at(0))]
+        }},
+        if size.at(0) < 0 {{ [] }} else {{
+          box(width: 100%, height: 3.4pt, fill: TRACK, radius: 0.6pt)[
+            #place(left, box(width: calc.max(1.2, 100.0 * size.at(0) / {max(total_lines, 1)}) * 1%,
+                             height: 3.4pt, fill: SHARE, radius: 0.6pt))
+          ]
+        }},
+        if size.at(1) < 0 {{ text(size: 7.5pt, fill: SLATE)[#sym.dash.en] }} else {{
+          text(size: big(7.5pt), weight: heavy, fill: dark)[#thousands(size.at(1))]
+        }},
+      )
     }},
     // Grey, not the amber the results matrix uses: there a dash means the case never
-    // registered on that configuration, here it means nobody measured that area.
-    ..covers.map(c => if c.at(1) < 0 {{ text(size: 7.5pt, fill: SLATE)[#c.at(0)] }} else {{
-      text(size: 7.5pt, weight: heavy, fill: cover-colour(c.at(1)))[#c.at(0)]
-    }}),
+    // registered on that configuration, here it means the measurement does not reach that area.
+    // A bar beside the figure: the eye ranks the column without reading thirty numbers, and a
+    // row the measurement does not reach has no bar rather than an empty one.
+    ..covers.map(c => (
+      // The project's own figure is what the section exists to give, so it sits on a tint the
+      // way the code size total does.
+      table.cell(fill: if grand {{ TINT }} else {{ none }},
+        text(size: big(7.5pt), weight: if c.at(1) < 0 {{ "regular" }} else {{ heavy }},
+             fill: if c.at(1) < 0 {{ SLATE }} else {{ cover-colour(c.at(1)) }})[#c.at(0)]),
+      // A row the measurement does not reach keeps the track empty rather than dropping it,
+      // so the column below the heading stays a column.
+      if c.at(1) < 0 {{ [] }} else {{
+        box(width: 100%, height: 3.4pt, fill: TRACK, radius: 0.6pt)[
+          #place(left, box(width: calc.max(2.0, c.at(1)) * 1%, height: 3.4pt,
+                           fill: cover-colour(c.at(1)), radius: 0.6pt))
+        ]
+      }},
+    )).flatten(),
   )
 }}
 
-#table(
-  columns: (1fr, 1.2cm, 1.1cm, {", ".join([width] * len(legs))}),
-  align: (left, right, right, {", ".join(["right"] * len(legs))}),
-  inset: (x: 4pt, y: 1.75pt),
+#align(center, table(
+  columns: ({area_column}, {TESTS_COLUMN_CM}cm, 1.4cm, 1.4cm, 1.4cm, 1.9cm, {pair}),
+  align: (left, right, right, right, left + horizon, right,
+          {", ".join(["right, left + horizon"] * len(measuring))}),
+  inset: (x: 4pt, y: 1.55pt),
   stroke: none,
+  fill: bandedBefore(6),
   table.header(
-    label-text("Area"), config-label("Distinct tests"), config-label("Failed"),
-    ..configurations.map(c => align(right)[
-      #cover-label(if c.at(1) != "" {{ c.at(0) + " " + c.at(1) }} else {{ c.at(0) }})
-    ]),
+    label-text("Area"), label-text("Tests"), label-text("Failed"),
+    // Over the figure and its bar together, so the heading is as wide as its own words.
+    table.cell(colspan: 2, align: center, label-text("Statements")),
+    label-text("Unreached"),
+    ..coverageBy.map(c => table.cell(colspan: 2, align: center,
+      {heading}(if c.at(1) != "" {{ c.at(0) + " " + c.at(1) }} else {{ c.at(0) }}))).flatten(),
   ),
   table.hline(stroke: 0.6pt + RULE),
-  ..groups
+  ..coverGroups
     .map(group => (
       areaRow(group, group, inGroup(group), 0),
-      ..areasIn(group).map(area => areaRow(area, leafOf(area), inArea(area), 1)),
+      ..coverAreasIn(group).map(area => areaRow(area, leafOf(area), inArea(area), 1)),
     ))
     .flatten(),
   table.hline(stroke: 0.6pt + RULE),
-  ..areaRow("", "Total", cases, 0)
+  ..areaRow("", "Total", coveredCases, 0)
+))
+"""
+
+
+# What each kind of source is called in the document, by the suffixes it is written in. .stl is
+# Sen's own model language. The .xml under fom/ is left out: it is object-model data a test
+# reads rather than something written to be run.
+SOURCE_LANGUAGES = (
+    ("C++", (".cpp", ".cc", ".h", ".hpp")),
+    ("TS", (".ts", ".tsx")),
+    ("PY", (".py",)),
+    ("STL", (".stl",)),
+    ("J2", (".j2",)),
+    ("CMAKE", (".cmake",)),
+    ("SH", (".sh", ".bats")),
+    ("YAML", (".yaml", ".yml")),
+    ("MD", (".md",)),
 )
+
+
+def size_bars(totals: list[int], languages: list[str]) -> str:
+    """The language split as a ranked bar: one scale and one fill, so there is no colour key."""
+    whole = sum(totals)
+    if not whole:
+        return ""
+    ordered = sorted(
+        ((count, language) for language, count in zip(languages, totals, strict=True) if count),
+        reverse=True,
+    )
+    rows = []
+    for count, language in ordered:
+        share = 100.0 * count / whole
+        rows.append(
+            f"    text(font: MONO, size: 8pt, fill: SLATE)[{language}],\n"
+            f"    box(width: 100%, height: 5pt, fill: TRACK, radius: 1pt)[\n"
+            # A share under a percent is still a bar rather than an empty track, which would
+            # read as a language with nothing written in it.
+            f"      #place(left, box(width: {max(share, 0.7):.3f}%, height: 5pt,"
+            f" fill: ACCENT, radius: 1pt))\n"
+            f"    ],\n"
+            f"    text(size: 7.5pt, fill: SLATE)[#thousands({count})],\n"
+            f"    text(size: 7.5pt, fill: SLATE)[{share:.1f}%],"
+        )
+    drawn = "\n".join(rows)
+    return f"""
+#block(above: 1.2em)[
+  #grid(columns: (1.4cm, 1fr, 1.5cm, 1.1cm), column-gutter: 8pt, row-gutter: 4pt,
+    align: (left + horizon, left + horizon, right + horizon, right + horizon),
+{drawn}
+  )
+]
+"""
+
+
+# What the area column holds before it would wrap, at the width ten language columns leave it.
+SIZE_NAME_LIMIT = 20
+# What each short heading stands for, written out once under the table.
+LANGUAGE_NAMES = (
+    "TS TypeScript",
+    "PY Python",
+    "STL Sen's model language",
+    "J2 the templates a generated package is built from",
+    "SH shell and bats",
+    "MD Markdown",
+)
+# Directory names that hold somebody else's code, this build's output, or nothing a person
+# wrote. Matched as whole path segments: "build" as a substring would also take a source file
+# whose own name carries it.
+NOT_SEN_SOURCE = frozenset({"build", "_deps", "node_modules", ".git", ".venv", "generated", "__pycache__"})
+
+
+def language_sizes(sources: Path | None) -> dict[str, dict[str, int]]:
+    """Lines of each language per area, counted from the tree rather than from the measurement.
+
+    Statements are what coverage counts and they are not lines of a file. This answers the other
+    question a reader has -- how much is here -- in the units they expect, and says which
+    languages carry it: an area written in TypeScript gets no coverage figure and is not empty.
+    """
+    if sources is None or not sources.is_dir():
+        return {}
+    by_suffix = {suffix: name for name, suffixes in SOURCE_LANGUAGES for suffix in suffixes}
+    sizes: dict[str, dict[str, int]] = {}
+    for found in sources.rglob("*"):
+        if found.suffix not in by_suffix and found.name != "CMakeLists.txt":
+            continue
+        parts = found.relative_to(sources).parts
+        if NOT_SEN_SOURCE.intersection(parts) or parts[0].startswith(".") or not found.is_file():
+            continue
+        if len(parts) < 2:
+            continue  # a file at the root belongs to no part of the tree
+        # One segment for a directory that holds its sources directly, two where it groups them.
+        area = "/".join(parts[:2]) if len(parts) > 2 else parts[0]
+        language = "CMAKE" if found.name == "CMakeLists.txt" else by_suffix[found.suffix]
+        try:
+            lines = found.read_text(encoding="utf-8", errors="replace").splitlines()
+        except OSError:
+            continue
+        counted = sum(1 for line in lines if line.strip() and not line.strip().startswith(("//", "#", "*")))
+        sizes.setdefault(area, {}).setdefault(language, 0)
+        sizes[area][language] += counted
+    return sizes
+
+
+def size_by_language_section(sizes: dict[str, dict[str, int]]) -> str:
+    """How much of each language sits in each area, beside the coverage that reads one of them.
+
+    Coverage counts C++ statements. An area written in TypeScript has no figure and is not
+    thereby untested, and an area with a small C++ surface over a large one in another language
+    is not thereby small. This is the table that says so.
+    """
+    if not sizes:
+        return ""
+    languages = [name for name, _ in SOURCE_LANGUAGES if any(name in row for row in sizes.values())]
+    if any("CMAKE" in row for row in sizes.values()) and "CMAKE" not in languages:
+        languages.append("CMAKE")
+    rows = []
+    for area in sorted(sizes):
+        counts = [sizes[area].get(language, 0) for language in languages]
+        cells = ", ".join(str(n) for n in counts)
+        # Cut to what the column holds: three names are longer, and wrapping one mid-path reads
+        # as two areas. The whole name is the directory, which the reader has.
+        rows.append(f"  ({typst_string(elide(area, SIZE_NAME_LIMIT))}, {cells}, {sum(counts)}),")
+    body = "\n".join(rows)
+    totals = [sum(row.get(language, 0) for row in sizes.values()) for language in languages]
+    totals.append(sum(totals))
+    languages = [*languages, "TOTAL"]
+    heads = ", ".join(typst_string(language) for language in languages)
+    legend = ", ".join(LANGUAGE_NAMES[:-1]) + " and " + LANGUAGE_NAMES[-1]
+    # Without the total column, which is the whole rather than a share of it.
+    bars = size_bars(totals[:-1], languages[:-1])
+    return f"""== Code size
+
+#block(below: 0.6em, text(size: 8.5pt, fill: SLATE)[
+  Lines written in each language, counted from the tree and not from the measurement, with blank
+  and comment lines left out. Coverage reads compiled C++ only: an area written in TypeScript
+  carries no figure in Coverage and is not thereby untested, and an area with a small C++ surface
+  over a large one in another language is not thereby small. Generated sources, the build tree
+  and vendored dependencies are not counted. Columns are {legend}.
+])
+
+#let sizeRows = (
+{body}
+)
+
+#table(
+  columns: (1fr, {", ".join(["1.32cm"] * len(languages))}),
+  align: (left, {", ".join(["right"] * len(languages))}),
+  inset: (x: 4pt, y: 1.55pt),
+  stroke: none,
+  fill: banded,
+  table.header(label-text("Area"), ..({heads},).map(h => align(right, size-label(h)))),
+  table.hline(stroke: 0.6pt + RULE),
+  ..sizeRows.map(row => (
+    text(font: MONO, size: 8pt, fill: SLATE)[#row.at(0)],
+    ..row.slice(1).map(n => if n == 0 {{ text(size: 7.5pt, fill: SLATE)[#sym.dash.en] }} else {{
+      text(size: 7.5pt, fill: SLATE)[#thousands(n)]
+    }}),
+  )).flatten(),
+  table.hline(stroke: 0.6pt + RULE),
+  text(size: 8pt, weight: "bold")[Total],
+  ..({", ".join(str(n) for n in totals[:-1])},).map(n => text(size: 8pt, weight: "bold")[#thousands(n)]),
+  // The whole tree in one figure.
+  table.cell(fill: TINT)[#text(size: 8pt, weight: "bold", fill: ACCENT)[#thousands({totals[-1]})]],
+)
+{bars}
 """
 
 
@@ -2480,7 +2918,7 @@ def cover_identity(
     ]
 
 
-def lowest_coverage(legs: list[Leg]) -> tuple[float | None, dict[str, float], dict[str, int]]:
+def lowest_coverage(legs: list[Leg]) -> tuple[float | None, dict[str, float], dict[str, int], dict[str, int]]:
     """The lowest figure any configuration measured, overall and per area.
 
     A floor claimed for a release has to hold for every configuration in it, not for the best one,
@@ -2489,12 +2927,15 @@ def lowest_coverage(legs: list[Leg]) -> tuple[float | None, dict[str, float], di
     figures = [leg.line_coverage for leg in legs if leg.line_coverage is not None]
     areas: dict[str, float] = {}
     missed: dict[str, int] = {}
+    counted: dict[str, int] = {}
     for leg in legs:
         for area, value in leg.area_coverage.items():
             areas[area] = min(areas.get(area, value), value)
         for area, count in leg.area_missed.items():
             missed[area] = max(missed.get(area, count), count)
-    return (min(figures) if figures else None), areas, missed
+        for area, count in leg.area_lines.items():
+            counted[area] = max(counted.get(area, count), count)
+    return (min(figures) if figures else None), areas, missed, counted
 
 
 class Shape(NamedTuple):
@@ -2503,6 +2944,7 @@ class Shape(NamedTuple):
     line_coverage: float | None
     area_coverage: dict[str, float]
     area_missed: dict[str, int]
+    area_lines: dict[str, int]
     coverage: str
     acceptance: str
     environment: str
@@ -2524,6 +2966,7 @@ def shape_of(legs: list[Leg], coverage_floor: str) -> Shape:
             line_coverage=legs[0].line_coverage,
             area_coverage=legs[0].area_coverage,
             area_missed=legs[0].area_missed,
+            area_lines=legs[0].area_lines,
             coverage=legs[0].coverage,
             acceptance="",
             environment=environment_section(legs[0].environment),
@@ -2534,12 +2977,13 @@ def shape_of(legs: list[Leg], coverage_floor: str) -> Shape:
             configuration_names="()",
         )
 
-    line_coverage, area_coverage, area_missed = lowest_coverage(legs)
+    line_coverage, area_coverage, area_missed, area_lines = lowest_coverage(legs)
     names = ", ".join(f"({typst_string(head)}, {typst_string(tail)})" for head, tail in label_parts(legs))
     return Shape(
         line_coverage=line_coverage,
         area_coverage=area_coverage,
         area_missed=area_missed,
+        area_lines=area_lines,
         coverage="",
         acceptance=acceptance_section(legs, combined_criteria_prose(legs, line_coverage, coverage_floor)),
         environment="",
@@ -2669,6 +3113,7 @@ def main() -> int:
 
     annotations = scan(sources) if sources is not None else {}
     registrations = read_registrations_for(sources, build)
+    size_section = size_by_language_section(language_sizes(sources))
 
     if measured is not None:
         meta.append(("Coverage report", f"{measured.name}  sha256 {file_digest(measured)}"))
@@ -2759,6 +3204,7 @@ def main() -> int:
             criteria=criteria,
             acceptance=acceptance,
             by_area_section=by_area_section,
+            size_section=size_section,
             tests_section=tests_section,
             summary_clauses=summary_clauses,
             closing_clauses=closing_clauses,
@@ -2774,22 +3220,11 @@ def main() -> int:
         ),
         encoding="utf-8",
     )
-    annotated = sum(1 for annotation in matched if annotation and annotation.description)
-    # A test registered in CMake is described by the build, not by an annotation.
-    declared = sum(
-        1
-        for case, annotation in zip(cases, matched, strict=True)
-        if annotation is None and split_name(case.classname, case.name)[1] in descriptions
-    )
-    # A spec case is its own description.
-    spoken = sum(1 for case in cases if is_spec(split_name(case.classname, case.name)[0]))
-    traced = sum(1 for annotation in matched if annotation and annotation.requirements)
-    print(
-        f"wrote {out} for {len(cases)} cases: {annotated + spoken + declared} describe what they"
-        f" check ({spoken} by their own sentence, {declared} by the build), {traced} name a"
-        " requirement"
-    )
-    return 0
+    print(f"wrote {out} for {len(cases)} cases: {described_by(cases, matched, descriptions)}")
+
+    # Decided after the document is written, not instead of it: the figure that fell short is
+    # the one a reader wants to look at.
+    return floor_outcome(line_coverage, coverage_floor)
 
 
 if __name__ == "__main__":
