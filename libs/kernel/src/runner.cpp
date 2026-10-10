@@ -28,6 +28,7 @@
 #include "sen/core/meta/type.h"
 #include "sen/core/meta/var.h"
 #include "sen/core/obj/native_object.h"
+#include "sen/core/obj/object_provider.h"
 #include "sen/core/obj/object_source.h"
 #include "sen/kernel/component.h"
 #include "sen/kernel/component_api.h"
@@ -54,8 +55,10 @@
 #include <stdexcept>
 #include <string>
 #include <tuple>
+#include <unordered_set>
 #include <utility>
 #include <variant>
+#include <vector>
 
 // OS
 #if defined(__unix__) || defined(__APPLE__)
@@ -464,9 +467,14 @@ void Runner::stopThread()
     it = localParticipants_.begin();
   }
 
-  // clear objects
-  objectsMap_.clear();
+  // The pre-drain list holds raw pointers to objects the map's erase destroys, and a count left at
+  // its pre-stop value is read by fetchMonitoringInfo() for as long as the runner exists.
+  // The raw-pointer lists go before the owning map: clearing the map destroys the objects, and
+  // those lists would hold dangling pointers in between.
   objectsList_.clear();
+  objectsThatNeedPreAndPostUpdateCalls_.clear();
+  objectsMap_.clear();
+  objectCount_ = 0U;
 
   serializableEvents_.clear();
   workQueue_.clear();
@@ -530,12 +538,48 @@ void Runner::toErrorState(const ExecError& err)
   std::terminate();
 }
 
-void Runner::registerObjects(Span<std::shared_ptr<NativeObject>> instances)
+void Runner::registerObjects(ObjectOwnerId from, Span<std::shared_ptr<NativeObject>> instances)
 {
-  for (const auto& object: instances)
+  // Copied so the loop does not depend on the caller's storage outliving the hooks it runs:
+  // registered() and the pre-drain query below are user code and can re-enter the participant.
+  const std::vector<std::shared_ptr<NativeObject>> batch(instances.begin(), instances.end());
+
+  // A hook belonging to one member can remove a later member, which reaches unregisterObjects
+  // before this loop has registered it. That removal finds nothing, so it records the object here
+  // and the loop honours it by never registering it: added and removed before the add took effect
+  // means nothing happened, and no hook runs for it.
+  std::unordered_set<NativeObject*> cancelled;
+  const ScopedCancelBatch scopedBatch(cancelBatchesInFlight_, from, batch, cancelled);
+
+  for (const auto& object: batch)
   {
+    // A lookup, not an erase: a batch holding one object twice would otherwise cancel only its
+    // first occurrence. LocalParticipant::add cannot produce such a batch, and this does not rely
+    // on that.
+    if (cancelled.count(object.get()) != 0U)
+    {
+      continue;
+    }
+
     objectsList_.emplace_back(object.get());
-    objectsMap_.emplace(object, std::prev(objectsList_.end()));
+    const auto node = std::prev(objectsList_.end());
+    const auto serial = ++registrationSerial_;
+
+    // An already registered object would leave this node reachable from no map entry, and the
+    // cycle walks the list, so it would be updated twice and then dangle.
+    if (!objectsMap_.emplace(object, ObjectRegistration {node, serial}).second)
+    {
+      // Uniform with the other erase from this list. Nothing between the emplace_back above and
+      // here can move a cursor, so this steps nothing today; relying on that would make the erase
+      // correct only while these lines stay free of anything that calls user code.
+      stepCursorsPast(objectsList_, node);
+      objectsList_.erase(node);
+      spdlog::debug("Object '{}' is already registered with runner '{}'; ignoring the second registration.",
+                    object->getName(),
+                    name_);
+      continue;
+    }
+    ++objectCount_;
 
     object->setQueues(&workQueue_, &serializableEvents_);
 
@@ -543,46 +587,121 @@ void Runner::registerObjects(Span<std::shared_ptr<NativeObject>> instances)
     // virtualized time mode. Registration time is not accessible to users.
     object->setRegistrationTime(TimeStamp {Duration {std::chrono::system_clock::now().time_since_epoch()}});
 
+    // let the kernel know about the type before any user code runs: add() is documented as
+    // registering the object including its type, and a hook that removes the object must not
+    // leave that half undone.
+    kernel_.getTypes().add(object->getClass());
+
     // notify the user (this can trigger property changes, events, additions, removals, etc.)
     object->registered(registrationApi_);
+
+    // registered() can remove this object, or remove and add it again. A second add registers it
+    // in full, so carrying on would commit it twice. The serial identifies our own registration:
+    // a removal erases the list node, so an iterator to it could match a reused address. The
+    // count is raised at the insert above so both paths balance.
+    if (const auto itr = objectsMap_.find(object); itr == objectsMap_.end() || itr->second.serial != serial)
+    {
+      continue;
+    }
 
     // ensure all properties are current
     object->commit(time_);
 
-    // let the kernel know about the type
-    kernel_.getTypes().add(object->getClass());
+    // Virtual, so an override can remove the object, and asked before the check below so the check
+    // covers it. Asked after registered() rather than before, because an override may be deciding
+    // its answer in that hook.
+    const bool wantsPreDrainOrPreCommit = object->needsPreDrainOrPreCommit();
 
-    if (object->needsPreDrainOrPreCommit())
+    // Asked again so it covers either statement above removing the object: commit() dispatches
+    // properties and needsPreDrainOrPreCommit() is virtual.
+    if (const auto itr = objectsMap_.find(object); itr == objectsMap_.end() || itr->second.serial != serial)
+    {
+      continue;
+    }
+
+    if (wantsPreDrainOrPreCommit)
     {
       objectsThatNeedPreAndPostUpdateCalls_.push_back(object.get());
     }
-
-    ++objectCount_;
   }
 }
 
-void Runner::unregisterObjects(Span<std::shared_ptr<NativeObject>> instances)
+void Runner::unregisterObjects(ObjectOwnerId from, Span<std::shared_ptr<NativeObject>> instances)
 {
-  for (const auto& object: instances)
-  {
-    // remove object from the map and the list
-    if (auto it = objectsMap_.find(object); it != objectsMap_.end())
-    {
-      object->setQueues(nullptr, nullptr);
-      object->unregistered(registrationApi_);
-      object->setRegistrationTime({});
-      objectsList_.erase(it->second);
-      objectsMap_.erase(it);
+  // Copied so the loop does not depend on the caller's storage outliving the hooks it runs, and so
+  // each object stays alive across its own unregistered(), which the map's key stops doing once its
+  // entry is erased.
+  const std::vector<std::shared_ptr<NativeObject>> batch(instances.begin(), instances.end());
 
-      if (object->needsPreDrainOrPreCommit())
+  for (const auto& object: batch)
+  {
+    const auto it = objectsMap_.find(object);
+    if (it == objectsMap_.end())
+    {
+      // Not registered yet, so this is a removal of a member of a batch still being registered.
+      // Recording it cancels that member, rather than letting the registration loop carry on and
+      // register an object the participant has already unstaged and whose name it has freed.
+      // Only a batch opened by the participant this removal came through. The miss above has two
+      // meanings, and membership does not separate them -- a removal sent through another bus of
+      // this runner names a genuine member of the batch. Cancelling on that would stop a
+      // registration whose own participant never asked for it to stop, leaving the object published
+      // by that participant and registered by nobody.
+      for (const auto& inFlight: cancelBatchesInFlight_)
       {
-        auto& list = objectsThatNeedPreAndPostUpdateCalls_;
-        if (auto elem = std::find(list.begin(), list.end(), object.get()); elem != list.end())
+        if (inFlight.owner != from)
         {
-          list.erase(elem);
+          continue;
+        }
+
+        if (std::find(inFlight.members->begin(), inFlight.members->end(), object) != inFlight.members->end())
+        {
+          inFlight.cancelled->insert(object.get());
         }
       }
-      --objectCount_;
+      continue;
+    }
+
+    // The map iterator must not outlive unregistered(), because the hook can add objects and a
+    // rehash would invalidate it, and taking the entry out first is what stops a hook removing this
+    // object again from re-entering. A fresh keyed lookup after the hook is still fine.
+    object->setQueues(nullptr, nullptr);
+
+    // A cycle walk may be standing on this node: its own hook is what called us, and a walk holds
+    // its cursor on the element whose hook is running, so the node being freed can be that object
+    // or any other the hook asked to remove.
+    stepCursorsPast(objectsList_, it->second.node);
+    objectsList_.erase(it->second.node);
+    objectsMap_.erase(it);
+
+    // Unconditional, because needsPreDrainOrPreCommit() can answer differently now than it did at
+    // registration and the entry to erase is the one that earlier answer added. Every match rather
+    // than the first, because the list holds raw pointers and a stale entry would otherwise match a
+    // later object allocated at the same address. Written out rather than std::list::remove so the
+    // pre-drain walks get their cursors stepped off each node.
+    for (auto itr = objectsThatNeedPreAndPostUpdateCalls_.begin(); itr != objectsThatNeedPreAndPostUpdateCalls_.end();)
+    {
+      if (*itr != object.get())
+      {
+        ++itr;
+        continue;
+      }
+
+      stepCursorsPast(objectsThatNeedPreAndPostUpdateCalls_, itr);
+      itr = objectsThatNeedPreAndPostUpdateCalls_.erase(itr);
+    }
+
+    --objectCount_;
+
+    object->unregistered(registrationApi_);
+
+    // Clearing the stamp before the hook would leave it zero for as long as user code runs, and a
+    // zero stamp wins the duplicate-name arbitration rather than losing it, so this side claims
+    // seniority it does not have and the repeated name is settled on neither side. Our own entry
+    // went before the hook and the serial only rises, so an entry here now is a newer registration
+    // whose stamp is not ours to clear.
+    if (objectsMap_.find(object) == objectsMap_.end())
+    {
+      object->setRegistrationTime({});
     }
   }
 }
