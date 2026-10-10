@@ -9,6 +9,7 @@
 
 // test_helpers
 #include "test_helpers/helpers.h"
+#include "test_helpers/test_helpers.stl.h"
 
 // sen
 #include "sen/core/base/assert.h"
@@ -300,7 +301,7 @@ protected:  // implements ListenerObjectSyncImpl
 
 SEN_EXPORT_CLASS(ListenerStaticProps)
 
-/// Listener that checks if static props are synchronized correctly
+/// Listener that checks if best effort props are synchronized correctly
 class ListenerBestEffortProps final: public ListenerObjectSyncImpl
 {
 public:
@@ -322,6 +323,7 @@ protected:
          {
            firstUpdateIndex_ = getFirstUpdateIndex(
              obj->getBestEffortProp(), [](std::mt19937& gen) { return std::uniform_real_distribution()(gen); });
+           SEN_ASSERT(firstUpdateIndex_.has_value() && "Update index not found");
          }
 
          bestEffortPropUpdates_.push_back(obj->getBestEffortProp());
@@ -329,7 +331,6 @@ protected:
          {
            for (size_t i = 0; i < bestEffortPropUpdates_.size(); ++i)
            {
-             // TODO: do we need to check this inside the loop?
              std::mt19937 gen {generatorSeed};
              gen.discard(*firstUpdateIndex_ + i);
              SEN_ASSERT(bestEffortPropUpdates_[i] - std::uniform_real_distribution()(gen) < 1e-6);
@@ -354,7 +355,7 @@ private:
 
 SEN_EXPORT_CLASS(ListenerBestEffortProps)
 
-/// Listener that checks if static props are synchronized correctly
+/// Listener that checks if confirmed props are synchronized correctly
 class ListenerConfirmedProps final: public ListenerObjectSyncImpl
 {
 public:
@@ -376,6 +377,7 @@ protected:  // implements ListenerObjectSyncImpl
                                               firstUpdateIndex_ = getFirstUpdateIndex(obj->getConfirmedProp(),
                                                                                       [](std::mt19937& gen)
                                                                                       { return generateStruct(gen); });
+                                              SEN_ASSERT(firstUpdateIndex_.has_value() && "Update index not found");
                                             }
 
                                             confirmedPropUpdates_.push_back(obj->getConfirmedProp());
@@ -384,8 +386,6 @@ protected:  // implements ListenerObjectSyncImpl
                                             {
                                               for (size_t i = 0; i < confirmedPropUpdates_.size(); ++i)
                                               {
-                                                // TODO: do we need to check this inside the loop?
-
                                                 std::mt19937 gen {generatorSeed};
                                                 gen.discard(*firstUpdateIndex_ + i);
                                                 SEN_ASSERT(confirmedPropUpdates_[i] == generateStruct(gen));
@@ -427,6 +427,7 @@ protected:  // implements ListenerObjectSyncImpl
                                                 getFirstUpdateIndex(static_cast<float64_t>(*obj->getMulticastProp()),
                                                                     [](std::mt19937& gen)
                                                                     { return std::uniform_real_distribution()(gen); });
+                                              SEN_ASSERT(firstUpdateIndex_.has_value() && "Update index not found");
                                             }
 
                                             multicastPropUpdates_.push_back(obj->getMulticastProp());
@@ -435,7 +436,6 @@ protected:  // implements ListenerObjectSyncImpl
                                             {
                                               for (size_t i = 0; i < multicastPropUpdates_.size(); ++i)
                                               {
-                                                // TODO: do i need to create the gen inside the loop?
                                                 std::mt19937 gen {generatorSeed};
                                                 gen.discard(*firstUpdateIndex_ + i);
                                                 SEN_ASSERT(abs(static_cast<float64_t>(*multicastPropUpdates_[i]) -
@@ -461,7 +461,7 @@ private:
 
 SEN_EXPORT_CLASS(ListenerMulticastProps)
 
-/// Listener that checks if writable props are synchronized . We just send the update ID in the writable prop directly
+/// Listener that checks if writable props are synchronized. We just send the update ID in the writable prop directly
 class ListenerWritableProps final: public ListenerObjectSyncImpl
 {
 public:
@@ -656,7 +656,7 @@ private:
 
 SEN_EXPORT_CLASS(ListenerMulticastEvent)
 
-/// Listener that checks if confirmed events are transmitted correctly
+/// Listener that checks if local methods return correctly when called
 class ListenerLocalMethod final: public ListenerObjectSyncImpl
 {
 public:
@@ -676,10 +676,11 @@ public:
       returnedValues_.push_back(testObject_->localMethod());
       if (returnedValues_.size() == numOfChecks)
       {
-        std::mt19937 gen {generatorSeed};
         for (const auto value: returnedValues_)
         {
-          SEN_ASSERT(std::uniform_int_distribution<uint16_t>()(gen) == value);
+          auto idx = getFirstUpdateIndex(
+            value, [](std::mt19937& gen) { return std::uniform_int_distribution<uint16_t>()(gen); });
+          SEN_ASSERT(idx.has_value());
         }
 
         ListenerObjectSyncImpl::onTestObjectAdded(testObject_);
@@ -707,7 +708,7 @@ private:
 
 SEN_EXPORT_CLASS(ListenerLocalMethod)
 
-/// Listener that checks if confirmed return correctly when called
+/// Listener that checks if const methods return correctly when called
 // TODO (SEN-1783): Check for order correctness in the calls once the WorkQueue issue has been handled
 class ListenerConstMethod final: public ListenerObjectSyncImpl
 {
@@ -903,5 +904,964 @@ private:
 };
 
 SEN_EXPORT_CLASS(ListenerBestEffortMethod)
+
+/// Base node class that coordinates P2P synchronization states and object discovery
+class SyncNodeObjectSyncImpl: public SyncNodeBase<sen::test::StateFulObjectImpl>
+{
+public:
+  SEN_NOCOPY_NOMOVE(SyncNodeObjectSyncImpl)
+
+public:
+  using SyncNodeBase::SyncNodeBase;
+  ~SyncNodeObjectSyncImpl() override = default;
+
+public:
+  void registered(sen::kernel::RegistrationApi& api) override
+  {
+    StateFulObjectImpl::registered(api);
+    bus_ = api.getSource("session.bus");
+
+    // publish the node's own test object
+    myObject_ = std::make_shared<TestObjectImpl>(getName() + "_obj", staticPropValue);
+    bus_->add(myObject_);
+
+    // subscribe to other nodes to track network progress
+    nodesSub_ = api.selectAllFrom<SyncNodeInterface>(
+      "session.bus",
+      [this](const auto& nodes)
+      {
+        std::ignore = nodes;
+        checkStartingConditions();
+      },
+      [](const auto& removedNodes) { std::ignore = removedNodes; });
+
+    // subscribe to all test objects for state checks
+    testObjectsSub_ = api.selectAllFrom<TestObjectInterface>(
+      "session.bus",
+      [this](const auto& objs)
+      {
+        for (auto* obj: objs)
+        {
+          onTestObjectAdded(obj);
+        }
+        checkStartingConditions();
+      },
+      [this](const auto& objs)
+      {
+        for (auto* obj: objs)
+        {
+          onTestObjectRemoved(obj);
+        }
+      });
+  }
+
+  void update(sen::kernel::RunApi& runApi) override
+  {
+    std::ignore = runApi;
+    auto currentState = getState();
+
+    // initial transition to ready state
+    if (readyFlag_ && currentState == sen::test::ConnectionState::starting)
+    {
+      readyFlag_ = false;
+      setNextState(sen::test::ConnectionState::ready);
+      return;
+    }
+
+    // local validations passed, advance to the first step
+    if (step1Flag_ && currentState == sen::test::ConnectionState::ready)
+    {
+      step1Flag_ = false;
+      setNextState(sen::test::ConnectionState::step1);
+      return;
+    }
+
+    // wait for all nodes to finish their local validations
+    if (currentState == sen::test::ConnectionState::step1)
+    {
+      bool allStep1OrMore = true;
+      for (const auto* n: nodesSub_->list.getObjects())
+      {
+        auto s = n->getState();
+        if (s == sen::test::ConnectionState::starting || s == sen::test::ConnectionState::ready)
+        {
+          allStep1OrMore = false;
+          break;
+        }
+      }
+
+      if (allStep1OrMore)
+      {
+        setNextState(sen::test::ConnectionState::step2);
+        bus_->remove(myObject_);
+      }
+    }
+    // wait for all test objects to be removed from the bus
+    else if (currentState == sen::test::ConnectionState::step2)
+    {
+      if (testObjectsSub_->list.getObjects().empty())
+      {
+        setNextState(sen::test::ConnectionState::step3);
+      }
+    }
+    // confirm that all nodes have acknowledged the removal of the objects
+    else if (currentState == sen::test::ConnectionState::step3)
+    {
+      bool allStep3OrMore = true;
+      for (const auto* n: nodesSub_->list.getObjects())
+      {
+        auto s = n->getState();
+        if (s == sen::test::ConnectionState::starting || s == sen::test::ConnectionState::ready ||
+            s == sen::test::ConnectionState::step1 || s == sen::test::ConnectionState::step2)
+        {
+          allStep3OrMore = false;
+          break;
+        }
+      }
+
+      if (allStep3OrMore)
+      {
+        setNextState(sen::test::ConnectionState::step4);
+      }
+    }
+    // final consensus before issuing the shutdown request
+    else if (currentState == sen::test::ConnectionState::step4)
+    {
+      bool allStep4OrMore = true;
+      for (const auto* n: nodesSub_->list.getObjects())
+      {
+        auto s = n->getState();
+        if (s != sen::test::ConnectionState::step4 && s != sen::test::ConnectionState::finished)
+        {
+          allStep4OrMore = false;
+          break;
+        }
+      }
+
+      if (allStep4OrMore)
+      {
+        setNextState(sen::test::ConnectionState::finished);
+      }
+    }
+  }
+
+protected:
+  virtual void onTestObjectAdded(TestObjectInterface* obj) { std::ignore = obj; }
+  virtual void onTestObjectRemoved(TestObjectInterface* obj) { std::ignore = obj; }
+
+  void checkAllVerified(bool isAllVerified)
+  {
+    if (isAllVerified)
+    {
+      step1Flag_ = true;
+    }
+  }
+
+  // Getter expuesto para las clases hijas
+  const auto& getTestObjects() const { return testObjectsSub_->list.getObjects(); }
+
+private:
+  void checkStartingConditions()
+  {
+    if (getState() == sen::test::ConnectionState::starting && nodesSub_->list.getObjects().size() == getNumOfNodes() &&
+        testObjectsSub_->list.getObjects().size() == getNumOfNodes())
+    {
+      readyFlag_ = true;
+    }
+  }
+
+private:
+  std::shared_ptr<sen::ObjectSource> bus_;
+  std::shared_ptr<TestObjectImpl> myObject_;
+  std::shared_ptr<sen::Subscription<SyncNodeInterface>> nodesSub_;
+  std::shared_ptr<sen::Subscription<TestObjectInterface>> testObjectsSub_;
+
+  bool readyFlag_ = false;
+  bool step1Flag_ = false;
+};
+
+/// Node that checks if static props are synchronized correctly
+class NodeStaticProps final: public SyncNodeObjectSyncImpl
+{
+public:
+  SEN_NOCOPY_NOMOVE(NodeStaticProps)
+
+public:
+  using SyncNodeObjectSyncImpl::SyncNodeObjectSyncImpl;
+  ~NodeStaticProps() override = default;
+
+protected:
+  void onTestObjectAdded(TestObjectInterface* obj) override
+  {
+    SEN_ASSERT(obj->getStaticProp() == staticPropValue);
+    SEN_ASSERT(obj->getStaticNoConfigProp() == staticNoConfigPropValue);
+    verifiedCount_++;
+    checkAllVerified(verifiedCount_ == getNumOfNodes());
+  }
+
+private:
+  uint32_t verifiedCount_ = 0;
+};
+
+SEN_EXPORT_CLASS(NodeStaticProps)
+
+/// Node that checks if best effort props are synchronized correctly
+class NodeBestEffortProps final: public SyncNodeObjectSyncImpl
+{
+public:
+  SEN_NOCOPY_NOMOVE(NodeBestEffortProps)
+
+public:
+  using SyncNodeObjectSyncImpl::SyncNodeObjectSyncImpl;
+  ~NodeBestEffortProps() override = default;
+
+protected:
+  struct State
+  {
+    std::vector<float64_t> updates;
+    sen::ConnectionGuard guard;
+    bool verified = false;
+  };
+
+  void onTestObjectAdded(TestObjectInterface* obj) override
+  {
+    auto id = obj->asObject().getId();
+    auto& state = states_[id];
+    state.updates.reserve(numOfChecks);
+    state.guard = obj->onBestEffortPropChanged(
+      {this,
+       [this, obj, id]()
+       {
+         if (states_.find(id) == states_.end())
+         {
+           return;
+         }
+         auto& s = states_[id];
+         if (s.verified)
+         {
+           return;
+         }
+
+         s.updates.push_back(obj->getBestEffortProp());
+         if (s.updates.size() == numOfChecks)
+         {
+           size_t lastIdx = 0;
+           bool first = true;
+           for (const auto& val: s.updates)
+           {
+             auto idx =
+               getFirstUpdateIndex(val, [](std::mt19937& gen) { return std::uniform_real_distribution()(gen); });
+             SEN_ASSERT(idx.has_value());
+             if (!first)
+             {
+               SEN_ASSERT(idx.value() > lastIdx);
+             }
+             lastIdx = idx.value();
+             first = false;
+           }
+           s.verified = true;
+           checkAllVerified(
+             states_.size() == getNumOfNodes() &&
+             std::all_of(states_.begin(), states_.end(), [](const auto& p) { return p.second.verified; }));
+         }
+       }});
+  }
+
+  void onTestObjectRemoved(TestObjectInterface* obj) override { states_.erase(obj->asObject().getId()); }
+
+private:
+  std::unordered_map<sen::ObjectId, State> states_;
+};
+
+SEN_EXPORT_CLASS(NodeBestEffortProps)
+
+/// Node that checks if confirmed props are synchronized correctly
+class NodeConfirmedProps final: public SyncNodeObjectSyncImpl
+{
+public:
+  SEN_NOCOPY_NOMOVE(NodeConfirmedProps)
+
+public:
+  using SyncNodeObjectSyncImpl::SyncNodeObjectSyncImpl;
+  ~NodeConfirmedProps() override = default;
+
+protected:
+  struct State
+  {
+    std::vector<TestStruct> updates;
+    sen::ConnectionGuard guard;
+    bool verified = false;
+  };
+
+  void onTestObjectAdded(TestObjectInterface* obj) override
+  {
+    auto id = obj->asObject().getId();
+    auto& state = states_[id];
+    state.updates.reserve(numOfChecks);
+    state.guard = obj->onConfirmedPropChanged(
+      {this,
+       [this, obj, id]()
+       {
+         if (states_.find(id) == states_.end())
+         {
+           return;
+         }
+         auto& s = states_[id];
+         if (s.verified)
+         {
+           return;
+         }
+
+         s.updates.push_back(obj->getConfirmedProp());
+         if (s.updates.size() == numOfChecks)
+         {
+           size_t lastIdx = 0;
+           bool first = true;
+           for (const auto& val: s.updates)
+           {
+             auto idx = getFirstUpdateIndex(val, [](std::mt19937& gen) { return generateStruct(gen); });
+             SEN_ASSERT(idx.has_value());
+             if (!first)
+             {
+               SEN_ASSERT(idx.value() > lastIdx);
+             }
+             lastIdx = idx.value();
+             first = false;
+           }
+           s.verified = true;
+           checkAllVerified(
+             states_.size() == getNumOfNodes() &&
+             std::all_of(states_.begin(), states_.end(), [](const auto& p) { return p.second.verified; }));
+         }
+       }});
+  }
+
+  void onTestObjectRemoved(TestObjectInterface* obj) override { states_.erase(obj->asObject().getId()); }
+
+private:
+  std::unordered_map<sen::ObjectId, State> states_;
+};
+
+SEN_EXPORT_CLASS(NodeConfirmedProps)
+
+/// Node that checks if multicast props are synchronized correctly
+class NodeMulticastProps final: public SyncNodeObjectSyncImpl
+{
+public:
+  SEN_NOCOPY_NOMOVE(NodeMulticastProps)
+
+public:
+  using SyncNodeObjectSyncImpl::SyncNodeObjectSyncImpl;
+  ~NodeMulticastProps() override = default;
+
+protected:
+  struct State
+  {
+    std::vector<OptF32> updates;
+    sen::ConnectionGuard guard;
+    bool verified = false;
+  };
+
+  void onTestObjectAdded(TestObjectInterface* obj) override
+  {
+    auto id = obj->asObject().getId();
+    auto& state = states_[id];
+    state.updates.reserve(numOfChecks);
+    state.guard = obj->onMulticastPropChanged(
+      {this,
+       [this, obj, id]()
+       {
+         if (states_.find(id) == states_.end())
+         {
+           return;
+         }
+         auto& s = states_[id];
+         if (s.verified)
+         {
+           return;
+         }
+
+         s.updates.push_back(obj->getMulticastProp());
+         if (s.updates.size() == numOfChecks)
+         {
+           size_t lastIdx = 0;
+           bool first = true;
+           for (const auto& val: s.updates)
+           {
+             auto idx = getFirstUpdateIndex(static_cast<float64_t>(*val),
+                                            [](std::mt19937& gen) { return std::uniform_real_distribution()(gen); });
+             SEN_ASSERT(idx.has_value());
+             if (!first)
+             {
+               SEN_ASSERT(idx.value() > lastIdx);
+             }
+             lastIdx = idx.value();
+             first = false;
+           }
+           s.verified = true;
+           checkAllVerified(
+             states_.size() == getNumOfNodes() &&
+             std::all_of(states_.begin(), states_.end(), [](const auto& p) { return p.second.verified; }));
+         }
+       }});
+  }
+
+  void onTestObjectRemoved(TestObjectInterface* obj) override { states_.erase(obj->asObject().getId()); }
+
+private:
+  std::unordered_map<sen::ObjectId, State> states_;
+};
+
+SEN_EXPORT_CLASS(NodeMulticastProps)
+
+/// Node that checks if writable props are synchronized correctly
+class NodeWritableProps final: public SyncNodeObjectSyncImpl
+{
+public:
+  SEN_NOCOPY_NOMOVE(NodeWritableProps)
+
+public:
+  using SyncNodeObjectSyncImpl::SyncNodeObjectSyncImpl;
+  ~NodeWritableProps() override = default;
+
+public:
+  void update(sen::kernel::RunApi& runApi) override
+  {
+    SyncNodeObjectSyncImpl::update(runApi);
+    if (getState() == sen::test::ConnectionState::ready || getState() == sen::test::ConnectionState::step1)
+    {
+      for (auto* obj: getTestObjects())
+      {
+        obj->setNextWritableProp({counter_++, std::uniform_int_distribution<uint64_t>()(gen_)});
+      }
+    }
+  }
+
+protected:
+  struct State
+  {
+    std::vector<WritablePropType> updates;
+    sen::ConnectionGuard guard;
+    bool verified = false;
+  };
+
+  void onTestObjectAdded(TestObjectInterface* obj) override
+  {
+    auto id = obj->asObject().getId();
+    auto& state = states_[id];
+    state.updates.reserve(numOfChecks);
+    state.guard = obj->onWritablePropChanged(
+      {this,
+       [this, id, obj]()
+       {
+         if (states_.find(id) == states_.end())
+         {
+           return;
+         }
+         auto& s = states_[id];
+         if (s.verified)
+         {
+           return;
+         }
+
+         s.updates.push_back(obj->getWritableProp());
+         if (s.updates.size() == numOfChecks)
+         {
+           for (const auto& [updateId, value]: s.updates)
+           {
+             std::mt19937_64 gen {generatorSeed};
+             gen.discard(updateId);
+             SEN_ASSERT(value == std::uniform_int_distribution<uint64_t>()(gen));
+           }
+           s.verified = true;
+           checkAllVerified(
+             states_.size() == getNumOfNodes() &&
+             std::all_of(states_.begin(), states_.end(), [](const auto& p) { return p.second.verified; }));
+         }
+       }});
+  }
+
+  void onTestObjectRemoved(TestObjectInterface* obj) override { states_.erase(obj->asObject().getId()); }
+
+private:
+  std::unordered_map<sen::ObjectId, State> states_;
+  uint32_t counter_ = 0U;
+  std::mt19937_64 gen_ {generatorSeed};
+};
+
+SEN_EXPORT_CLASS(NodeWritableProps)
+
+/// Node that checks if best effort events are transmitted correctly
+class NodeBestEffortEvent final: public SyncNodeObjectSyncImpl
+{
+public:
+  SEN_NOCOPY_NOMOVE(NodeBestEffortEvent)
+
+public:
+  using SyncNodeObjectSyncImpl::SyncNodeObjectSyncImpl;
+  ~NodeBestEffortEvent() override = default;
+
+protected:
+  struct State
+  {
+    std::unordered_map<uint32_t, TestStruct> data;
+    sen::ConnectionGuard guard;
+    bool verified = false;
+  };
+
+  void onTestObjectAdded(TestObjectInterface* obj) override
+  {
+    auto id = obj->asObject().getId();
+    auto& state = states_[id];
+    state.data.reserve(numOfChecks);
+    state.guard = obj->onBestEffortEvent(
+      {this,
+       [this, id](u32 eventId, const TestStruct& value)
+       {
+         if (states_.find(id) == states_.end())
+         {
+           return;
+         }
+         auto& s = states_[id];
+         if (s.verified)
+         {
+           return;
+         }
+
+         s.data.emplace(eventId, value);
+         if (s.data.size() == numOfChecks)
+         {
+           for (const auto& event: s.data)
+           {
+             std::mt19937 gen {generatorSeed};
+             gen.discard(event.first);
+             SEN_ASSERT(generateStruct(gen) == event.second);
+           }
+           s.verified = true;
+           checkAllVerified(
+             states_.size() == getNumOfNodes() &&
+             std::all_of(states_.begin(), states_.end(), [](const auto& p) { return p.second.verified; }));
+         }
+       }});
+  }
+
+  void onTestObjectRemoved(TestObjectInterface* obj) override { states_.erase(obj->asObject().getId()); }
+
+private:
+  std::unordered_map<sen::ObjectId, State> states_;
+};
+
+SEN_EXPORT_CLASS(NodeBestEffortEvent)
+
+/// Node that checks if confirmed events are transmitted correctly
+class NodeConfirmedEvent final: public SyncNodeObjectSyncImpl
+{
+public:
+  SEN_NOCOPY_NOMOVE(NodeConfirmedEvent)
+
+public:
+  using SyncNodeObjectSyncImpl::SyncNodeObjectSyncImpl;
+  ~NodeConfirmedEvent() override = default;
+
+protected:
+  struct State
+  {
+    std::unordered_map<uint32_t, std::string> data;
+    sen::ConnectionGuard guard;
+    bool verified = false;
+  };
+
+  void onTestObjectAdded(TestObjectInterface* obj) override
+  {
+    auto id = obj->asObject().getId();
+    auto& state = states_[id];
+    state.data.reserve(numOfChecks);
+    state.guard = obj->onConfirmedEvent(
+      {this,
+       [this, id](u32 eventId, const std::string& value)
+       {
+         if (states_.find(id) == states_.end())
+         {
+           return;
+         }
+         auto& s = states_[id];
+         if (s.verified)
+         {
+           return;
+         }
+
+         s.data.emplace(eventId, value);
+         if (s.data.size() == numOfChecks)
+         {
+           for (const auto& event: s.data)
+           {
+             std::mt19937 gen {generatorSeed};
+             gen.discard(event.first);
+             SEN_ASSERT(generateString(gen) == event.second);
+           }
+           s.verified = true;
+           checkAllVerified(
+             states_.size() == getNumOfNodes() &&
+             std::all_of(states_.begin(), states_.end(), [](const auto& p) { return p.second.verified; }));
+         }
+       }});
+  }
+
+  void onTestObjectRemoved(TestObjectInterface* obj) override { states_.erase(obj->asObject().getId()); }
+
+private:
+  std::unordered_map<sen::ObjectId, State> states_;
+};
+
+SEN_EXPORT_CLASS(NodeConfirmedEvent)
+
+/// Node that checks if multicast events are transmitted correctly
+class NodeMulticastEvent final: public SyncNodeObjectSyncImpl
+{
+public:
+  SEN_NOCOPY_NOMOVE(NodeMulticastEvent)
+
+public:
+  using SyncNodeObjectSyncImpl::SyncNodeObjectSyncImpl;
+  ~NodeMulticastEvent() override = default;
+
+protected:
+  struct State
+  {
+    std::unordered_map<uint32_t, OptF32> data;
+    sen::ConnectionGuard guard;
+    bool verified = false;
+  };
+
+  void onTestObjectAdded(TestObjectInterface* obj) override
+  {
+    auto id = obj->asObject().getId();
+    auto& state = states_[id];
+    state.data.reserve(numOfChecks);
+    state.guard = obj->onMulticastEvent(
+      {this,
+       [this, id](u32 eventId, const OptF32& value)
+       {
+         if (states_.find(id) == states_.end())
+         {
+           return;
+         }
+         auto& s = states_[id];
+         if (s.verified)
+         {
+           return;
+         }
+
+         s.data.emplace(eventId, value);
+         if (s.data.size() == numOfChecks)
+         {
+           for (const auto& event: s.data)
+           {
+             std::mt19937 gen {generatorSeed};
+             gen.discard(event.first);
+             SEN_ASSERT(std::abs(static_cast<float64_t>(*event.second) - std::uniform_real_distribution()(gen)) < 1e-6);
+           }
+           s.verified = true;
+           checkAllVerified(
+             states_.size() == getNumOfNodes() &&
+             std::all_of(states_.begin(), states_.end(), [](const auto& p) { return p.second.verified; }));
+         }
+       }});
+  }
+
+  void onTestObjectRemoved(TestObjectInterface* obj) override { states_.erase(obj->asObject().getId()); }
+
+private:
+  std::unordered_map<sen::ObjectId, State> states_;
+};
+
+SEN_EXPORT_CLASS(NodeMulticastEvent)
+
+/// Node that checks if local methods return correctly when called
+class NodeLocalMethod final: public SyncNodeObjectSyncImpl
+{
+public:
+  SEN_NOCOPY_NOMOVE(NodeLocalMethod)
+
+public:
+  using SyncNodeObjectSyncImpl::SyncNodeObjectSyncImpl;
+  ~NodeLocalMethod() override = default;
+
+public:
+  void update(sen::kernel::RunApi& runApi) override
+  {
+    SyncNodeObjectSyncImpl::update(runApi);
+    for (auto* obj: getTestObjects())
+    {
+      auto id = obj->asObject().getId();
+      auto& state = states_[id];
+      if (!state.verified)
+      {
+        state.returnValues.push_back(obj->localMethod());
+        if (state.returnValues.size() == numOfChecks)
+        {
+          for (const auto val: state.returnValues)
+          {
+            auto idx = getFirstUpdateIndex(
+              val, [](std::mt19937& gen) { return std::uniform_int_distribution<uint16_t>()(gen); });
+            SEN_ASSERT(idx.has_value());
+          }
+          state.verified = true;
+          checkAllVerified(
+            states_.size() == getNumOfNodes() &&
+            std::all_of(states_.begin(), states_.end(), [](const auto& p) { return p.second.verified; }));
+        }
+      }
+    }
+  }
+
+protected:
+  struct State
+  {
+    std::vector<uint16_t> returnValues;
+    bool verified = false;
+  };
+
+  void onTestObjectRemoved(TestObjectInterface* obj) override { states_.erase(obj->asObject().getId()); }
+
+private:
+  std::unordered_map<sen::ObjectId, State> states_;
+};
+
+SEN_EXPORT_CLASS(NodeLocalMethod)
+
+/// Node that checks if const methods return correctly when called
+// TODO (SEN-1783): Check for order correctness in the calls once the WorkQueue issue has been handled
+class NodeConstMethod final: public SyncNodeObjectSyncImpl
+{
+public:
+  SEN_NOCOPY_NOMOVE(NodeConstMethod)
+
+public:
+  using SyncNodeObjectSyncImpl::SyncNodeObjectSyncImpl;
+  ~NodeConstMethod() override = default;
+
+public:
+  void update(sen::kernel::RunApi& runApi) override
+  {
+    SyncNodeObjectSyncImpl::update(runApi);
+    for (auto* obj: getTestObjects())
+    {
+      auto id = obj->asObject().getId();
+      auto& state = states_[id];
+      if (state.callCount < numOfChecks)
+      {
+        state.callCount++;
+        obj->constMethod(
+          generateEnum(state.gen),
+          {this,
+           [this, id](const auto& response)
+           {
+             if (states_.find(id) == states_.end())
+             {
+               return;
+             }
+             auto& s = states_[id];
+             if (s.verified)
+             {
+               return;
+             }
+
+             s.returnValues.push_back(response.getValue());
+             if (s.returnValues.size() == numOfChecks)
+             {
+               std::vector<u32> expected;
+               expected.reserve(numOfChecks);
+               std::mt19937 gen {generatorSeed};
+               for (size_t i = 0; i < numOfChecks; ++i)
+               {
+                 expected.push_back(static_cast<u32>(generateEnum(gen)));
+               }
+               std::sort(s.returnValues.begin(), s.returnValues.end());
+               std::sort(expected.begin(), expected.end());
+               SEN_ASSERT(s.returnValues == expected);
+
+               s.verified = true;
+               checkAllVerified(
+                 states_.size() == getNumOfNodes() &&
+                 std::all_of(states_.begin(), states_.end(), [](const auto& p) { return p.second.verified; }));
+             }
+           }});
+      }
+    }
+  }
+
+protected:
+  struct State
+  {
+    uint32_t callCount = 0;
+    std::vector<uint32_t> returnValues;
+    std::mt19937 gen {generatorSeed};
+    bool verified = false;
+  };
+
+  void onTestObjectRemoved(TestObjectInterface* obj) override { states_.erase(obj->asObject().getId()); }
+
+private:
+  std::unordered_map<sen::ObjectId, State> states_;
+};
+
+SEN_EXPORT_CLASS(NodeConstMethod)
+
+/// Node that checks if confirmed methods return correctly when called
+// TODO (SEN-1783): Check for order correctness in the calls once the WorkQueue issue has been handled
+class NodeConfirmedMethod final: public SyncNodeObjectSyncImpl
+{
+public:
+  SEN_NOCOPY_NOMOVE(NodeConfirmedMethod)
+
+public:
+  using SyncNodeObjectSyncImpl::SyncNodeObjectSyncImpl;
+  ~NodeConfirmedMethod() override = default;
+
+public:
+  void update(sen::kernel::RunApi& runApi) override
+  {
+    SyncNodeObjectSyncImpl::update(runApi);
+    for (auto* obj: getTestObjects())
+    {
+      auto id = obj->asObject().getId();
+      auto& state = states_[id];
+      if (state.callCount < numOfChecks)
+      {
+        state.callCount++;
+        obj->confirmedMethod(
+          std::uniform_int_distribution<uint16_t>()(state.gen),
+          {this,
+           [this, id](const auto& response)
+           {
+             if (states_.find(id) == states_.end())
+             {
+               return;
+             }
+             auto& s = states_[id];
+             if (s.verified)
+             {
+               return;
+             }
+
+             s.returnValues.push_back(response.getValue());
+             if (s.returnValues.size() == numOfChecks)
+             {
+               std::vector<u8> expected;
+               expected.reserve(numOfChecks);
+               std::mt19937_64 gen {generatorSeed};
+               for (size_t i = 0; i < numOfChecks; ++i)
+               {
+                 expected.push_back(static_cast<u8>(std::uniform_int_distribution<uint16_t>()(gen)));
+               }
+               std::sort(s.returnValues.begin(), s.returnValues.end());
+               std::sort(expected.begin(), expected.end());
+               SEN_ASSERT(s.returnValues == expected);
+
+               s.verified = true;
+               checkAllVerified(
+                 states_.size() == getNumOfNodes() &&
+                 std::all_of(states_.begin(), states_.end(), [](const auto& p) { return p.second.verified; }));
+             }
+           }});
+      }
+    }
+  }
+
+protected:
+  struct State
+  {
+    uint32_t callCount = 0;
+    std::vector<u8> returnValues;
+    std::mt19937_64 gen {generatorSeed};
+    bool verified = false;
+  };
+
+  void onTestObjectRemoved(TestObjectInterface* obj) override { states_.erase(obj->asObject().getId()); }
+
+private:
+  std::unordered_map<sen::ObjectId, State> states_;
+};
+
+SEN_EXPORT_CLASS(NodeConfirmedMethod)
+
+/// Node that checks if best effort methods return correctly when called
+// TODO (SEN-1783): Check for order correctness in the calls once the WorkQueue issue has been handled
+class NodeBestEffortMethod final: public SyncNodeObjectSyncImpl
+{
+public:
+  SEN_NOCOPY_NOMOVE(NodeBestEffortMethod)
+
+public:
+  using SyncNodeObjectSyncImpl::SyncNodeObjectSyncImpl;
+  ~NodeBestEffortMethod() override = default;
+
+public:
+  void update(sen::kernel::RunApi& runApi) override
+  {
+    SyncNodeObjectSyncImpl::update(runApi);
+    for (auto* obj: getTestObjects())
+    {
+      auto id = obj->asObject().getId();
+      auto& state = states_[id];
+      if (state.callCount < numOfChecks)
+      {
+        state.callCount++;
+        obj->bestEffortMethod(
+          generateString(state.gen),
+          {this,
+           [this, id](const auto& response)
+           {
+             if (states_.find(id) == states_.end())
+             {
+               return;
+             }
+             auto& s = states_[id];
+             if (s.verified)
+             {
+               return;
+             }
+
+             s.returnValues.push_back(response.getValue());
+             if (s.returnValues.size() == numOfChecks)
+             {
+               std::vector<u64> expected;
+               expected.reserve(numOfChecks);
+               std::mt19937 gen {generatorSeed};
+               for (size_t i = 0; i < numOfChecks; ++i)
+               {
+                 expected.push_back(std::hash<std::string>()(generateString(gen)));
+               }
+               std::sort(s.returnValues.begin(), s.returnValues.end());
+               std::sort(expected.begin(), expected.end());
+               SEN_ASSERT(s.returnValues == expected);
+
+               s.verified = true;
+               checkAllVerified(
+                 states_.size() == getNumOfNodes() &&
+                 std::all_of(states_.begin(), states_.end(), [](const auto& p) { return p.second.verified; }));
+             }
+           }});
+      }
+    }
+  }
+
+protected:
+  struct State
+  {
+    uint32_t callCount = 0;
+    std::vector<u64> returnValues;
+    std::mt19937 gen {generatorSeed};
+    bool verified = false;
+  };
+
+  void onTestObjectRemoved(TestObjectInterface* obj) override { states_.erase(obj->asObject().getId()); }
+
+private:
+  std::unordered_map<sen::ObjectId, State> states_;
+};
+
+SEN_EXPORT_CLASS(NodeBestEffortMethod)
 
 }  // namespace object_sync

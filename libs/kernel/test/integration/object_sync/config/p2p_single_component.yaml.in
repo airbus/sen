@@ -1,0 +1,24 @@
+kernel:
+  crashReportDisabled: true
+
+build:
+  - name: myComponent
+    group: 3
+    freqHz: 50
+    imports: [test_helpers, object_sync]
+    objects:
+      - name: terminator
+        class: sen.test.ProcessTerminatorImpl
+        bus: session.bus
+      - name: node1
+        class: object_sync.@NODE_TYPE@
+        numOfNodes: 3
+        bus: session.bus
+      - name: node2
+        class: object_sync.@NODE_TYPE@
+        numOfNodes: 3
+        bus: session.bus
+      - name: node3
+        class: object_sync.@NODE_TYPE@
+        numOfNodes: 3
+        bus: session.bus
