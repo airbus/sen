@@ -1144,6 +1144,9 @@ const TypeSet* readStlFile(const std::filesystem::path& originalFileName,
   std::string fileContents;
   readFile(absoluteFileName, fileContents);
 
+  // Every file the generator opens passes through here.
+  globalContext.recordReadFile(absoluteFileName);
+
   StlScanner scanner(fileContents);
   const auto& tokens = scanner.scanTokens();
 
