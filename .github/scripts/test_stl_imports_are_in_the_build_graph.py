@@ -7,17 +7,11 @@
 """Checks that generated output depends on every model it was built from.
 
 A `.stl` reaches its imports through the `-i` search path while the generator runs, so `DEPENDS`
-cannot name them: the build system learns about them from a depfile the generator writes as it
-reads, or not at all. Without one, editing an imported model left the importing package's generated
-header stale, and the symptom hid itself -- header scanning recompiles the `.cpp` anyway, so the
-build still looks like it responded, and a clean build makes it disappear.
+cannot name them: a depfile the generator writes is the only route into the build graph. Three
+commands need one, and the FOM glob needs CONFIGURE_DEPENDS because its result is an `OUTPUT`.
 
-Three separate places needed it and two were easy to miss: the code generation command, the schema
-command beside it, and the FOM directory glob, whose list becomes a custom command's `OUTPUT` rather
-than its `DEPENDS`, so a file added after configuring gets no generation rule at all.
-
-These read the generated build graph rather than the CMake text. A `DEPFILE` keyword present in the
-file but never passed to the generator satisfies a grep and still leaves the edge empty.
+Reads the generated build graph, not the CMake text: a `DEPFILE` the generator is never passed
+leaves the edge empty while satisfying a grep.
 """
 
 import os
@@ -30,7 +24,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 CODEGEN_MODULE = ROOT / "cmake" / "util" / "sen_codegen_utils.cmake"
 
-# The module leans on these; stubbing them keeps the module itself real, which is the point.
+# Stubbed so the module under test stays real.
 STUBBED_COMMANDS = ("sen_skip_linting", "sen_configure_target", "add_properties_to_export_set")
 STUBBED_TARGETS = ("core", "kernel", "db", "util", "gen")
 
@@ -242,8 +236,7 @@ def test_a_fom_file_added_after_configuring_gets_a_generation_rule(tmp_path):
     source, build = tmp_path / "proj", tmp_path / "build"
     (source / "fom_one" / "late.xml").write_text(FOM_XML, encoding="utf-8")
 
-    # Building re-runs CMake when a watched directory listing changed; the stub generator makes
-    # that cheap, and the regenerated graph is what the assertion reads.
+    # A changed directory listing re-runs CMake, which rewrites the graph this reads.
     subprocess.run([ninja(), "-C", str(build), "build.ninja"], capture_output=True, text=True, check=False)
     graph = (build / "build.ninja").read_text(encoding="utf-8")
     assert "late.xml" in graph, "a FOM file added after configuring has no generation rule"

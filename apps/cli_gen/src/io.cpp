@@ -16,7 +16,9 @@
 #include <fstream>
 #include <ios>
 #include <iterator>
+#include <set>
 #include <string>
+#include <vector>
 
 void openFile(const std::filesystem::path& path, std::ofstream& stream)
 {
@@ -102,10 +104,8 @@ void writeDepFile(const std::filesystem::path& path,
                   const std::vector<std::filesystem::path>& targets,
                   const std::set<std::filesystem::path>& dependencies)
 {
-  // A rule with no target, or with an empty one, is not a depfile the build system can read,
-  // and the empty case does not fail quietly: absolute("") is the current directory, so the
-  // rule would name a plausible-looking path that depends on the models. `-o` is optional on
-  // every subcommand, so this is reachable from the command line rather than only from a bug.
+  // `absolute("")` is the current directory, so an empty target would name a real path.
+  // `-o` is optional on every subcommand, so a caller can reach this.
   SEN_ENSURE(!targets.empty());
 
   std::string body;
@@ -121,8 +121,7 @@ void writeDepFile(const std::filesystem::path& path,
   }
   body += "\n";
 
-  // Not writeFile: that skips an identical write, and a depfile whose content did not
-  // change must still be newer than the output it describes.
+  // writeFile skips an identical write; a depfile must still be newer than its output.
   std::ofstream stream;
   openFile(path, stream);
   stream << body;

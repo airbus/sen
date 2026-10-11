@@ -34,8 +34,7 @@ struct StlArgs
   // can still accept the flags.
   std::string basePath;
   std::string codegenOptionsFile;
-  // Where to record the files this run read, for the build system's dependency graph.
-  // Empty means write none, which is what every caller outside the build does.
+  // Where to record the files read. Empty writes none.
   std::filesystem::path depFile;
 };
 

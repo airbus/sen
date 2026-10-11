@@ -285,9 +285,8 @@ function(sen_generate_code)
         message(FATAL_ERROR "  sen_generate_cpp: invalid output language ${_arg_LANG}")
       endif()
 
-      # A .stl reaches its imports through the -i search path at generation time, so DEPENDS
-      # cannot name them and editing an imported model left this output stale. The generator
-      # records what it opened; DEPFILE is how that reaches the build graph.
+      # Imports arrive through the -i search path, so DEPENDS cannot name them. The generator
+      # records what it opened and DEPFILE carries that to the build graph.
       set(_dep_file ${_output_file_prefix}.d)
 
       add_custom_command(
@@ -314,9 +313,7 @@ function(sen_generate_code)
 
     # generate schema file if needed
     if(_generate_schema)
-      # Same reason as the generation command above: the schema is built by parsing these
-      # models, so it depends on whatever they import, and only the generator knows what
-      # that turned out to be.
+      # The schema parses the same models, so it depends on their imports too.
       set(_schema_dep_file ${_arg_SCHEMA_FILE}.d)
 
       add_custom_command(
@@ -368,20 +365,15 @@ function(sen_generate_code)
       )
 
       # get the xml files
-      # CONFIGURE_DEPENDS because this list becomes the custom command's OUTPUT, not just its
-      # DEPENDS: without it a newly added FOM file has no generation rule at all and no
-      # diagnostic, until something else happens to reconfigure. STL_FILES does not need this
-      # -- it names files, so adding one edits CMakeLists and reconfigures by itself, whereas
-      # this argument names directories and dropping a file in touches nothing CMake watches.
+      # This list becomes the custom command's OUTPUT, so without CONFIGURE_DEPENDS a FOM file
+      # added after configuring gets no generation rule. STL_FILES names files, not directories.
       file(
         GLOB _dir_xml_files
         LIST_DIRECTORIES false
         CONFIGURE_DEPENDS "${_fom_dir}/*.xml"
       )
 
-      # Accumulated rather than overwritten: the target_sources and DEPENDS uses below sit
-      # outside this loop, so globbing into the shared name left every directory but the last
-      # out of both. sen_generate_uml does the same accumulation for the same reason.
+      # Accumulated: the target_sources and DEPENDS uses below are outside this loop.
       list(APPEND _xml_files ${_dir_xml_files})
 
       foreach(_xml_file ${_dir_xml_files})

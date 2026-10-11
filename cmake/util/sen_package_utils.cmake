@@ -350,11 +350,14 @@ function(add_sen_package)
     )
 
     # generate the exports file
+    #
+    # `_gen_files` is set nowhere, so the dependency list was the generator alone and adding a
+    # class to a model never regenerated the registry.
     add_custom_command(
       OUTPUT ${_exports_file}
       COMMAND_EXPAND_LISTS VERBATIM
       COMMAND sen::cli_gen cpp exports ${_export_args}
-      DEPENDS ${_gen_files} sen::cli_gen
+      DEPENDS ${_gen_hdr_files} sen::cli_gen
       WORKING_DIRECTORY ${_output_dir}
       COMMENT "Generating exports sen code for ${_arg_TARGET}"
     )

@@ -169,20 +169,13 @@ class ClassUnderTest
 }
 
 /// @test
-/// Resolving a model records every file it read, the imported ones included.
-///
-/// An import is found through a search path while the generator runs, so nothing the build
-/// system sees names it. Without this record a generated header does not depend on the model
-/// it imports, and editing that model leaves the output stale while the build still appears
-/// to run.
+/// Resolving a model records every file it read, transitive imports included.
 TEST_F(AStlResolver, RecordsEveryFileItReadsIncludingTheImportedOnes)
 {
   // arrange
   const std::filesystem::path leaf {"lang/stl/stl_resolver_test/importing_leaf.stl"};
 
-  // act
-  // Own context rather than the fixture's, so the record under test is this call's alone.
-  // Same search path and origin as the resolve() helper above: fixtures live under bin/.
+  // act (own context, so the record is this call's alone)
   sen::lang::TypeSetContext context;
   const sen::lang::TypeSet* typeSet {};
   ASSERT_NO_THROW(
