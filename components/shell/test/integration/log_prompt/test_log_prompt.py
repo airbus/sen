@@ -15,7 +15,7 @@ import unittest
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent))
-from shell_runner import ShellTester
+from shell_runner import ShellTester, config_on_this_run_s_port
 
 
 class TestLogPrompt(unittest.TestCase):
@@ -55,8 +55,11 @@ class TestLogPrompt(unittest.TestCase):
         self.assertTrue(len(lines1) > 0, "No initial output received.")
         self.assertTrue(lines1[-1].startswith("sen:") and ">" in lines1[-1], f"Initial prompt missing. Output:\n{out1}")
 
+        # The same rendered port as the shell above, or the two never meet on the discovery hub.
         proc2: subprocess.Popen[bytes] = subprocess.Popen(
-            [self.cli_run_path, self.config_2_yaml], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+            [self.cli_run_path, config_on_this_run_s_port(self.config_2_yaml)],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
         )
 
         try:

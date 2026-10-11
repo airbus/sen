@@ -109,6 +109,17 @@ jobs:
           path: ~/.ccache
           key: ccache-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}${{ matrix.enable_coverage && '-coverage' || '' }}
 
+      # The counters live in the restored directory, so without this they would carry every
+      # previous run's totals and no run's own. The action does the same for the legs outside
+      # the image; these legs restore and save the cache themselves and had neither half.
+      - name: Zero the compiler cache counters
+        if: matrix.ci_image != ''
+        shell: bash
+        run: |
+          .github/scripts/in_image.sh <<'IN'
+          ccache --zero-stats
+          IN
+
       # Sen's targets reach the cache through CMAKE_<LANG>_COMPILER_LAUNCHER (sen_utils.cmake),
       # so the shims must not also be on PATH while it builds: the launcher would invoke a shim
       # and store every object twice. 631 compile edges drew 1223 ccache calls, run 34117054695.
@@ -288,7 +299,7 @@ jobs:
           # once they finish. Keep in step with CMAKE_CTEST_ARGUMENTS in
           # cmake/util/test.cmake.
           cd build/${{ matrix.compiler.name }}/${{ matrix.build_type }}
-          ctest --parallel 1 --output-junit ctestParallelReport.xml --no-tests=error \
+          ctest --parallel 4 --output-junit ctestParallelReport.xml --no-tests=error \
             --stop-on-failure --output-on-failure --timeout 20 --schedule-random -LE flaky
           ctest --repeat until-pass:5 --output-junit ctestFlakyReport.xml --no-tests=ignore \
             --stop-on-failure --output-on-failure --timeout 20 --schedule-random -L flaky
@@ -444,7 +455,7 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-        run: bash .github/scripts/drop_cache_key.sh "${{ runner.os == 'Windows' && 'sccache' || 'ccache' }}-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}"
+        run: bash .github/scripts/drop_cache_key.sh "${{ runner.os == 'Windows' && 'sccache' || 'ccache' }}-${{ matrix.runner }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}-${{ matrix.build_type }}${{ matrix.enable_coverage && '-coverage' || '' }}"
 
       - name: Drop the entry this save replaces
         if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
@@ -452,6 +463,18 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: bash .github/scripts/drop_cache_key.sh "conanp-${{ env.SEN_CACHE_SCOPE }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}-${{ matrix.std }}"
+
+      # A cap is judged on a hit rate, not on a size: a leg at its cap with a high rate is
+      # right-sized and one that evicts to stay there is not. Every ref, not only main, because
+      # the reading costs a second and a pull request's is as informative. Before the save, so
+      # the numbers belong to the run that produced them.
+      - name: Read the compiler cache statistics
+        if: ${{ !cancelled() && matrix.ci_image != '' }}
+        shell: bash
+        run: |
+          .github/scripts/in_image.sh <<'IN'
+          ccache --show-stats
+          IN
 
       - name: Save the compiler cache
         if: ${{ !cancelled() && github.ref == 'refs/heads/main' && matrix.ci_image != '' }}

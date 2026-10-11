@@ -18,6 +18,11 @@
 # image sets CCACHE_DIR to a directory under its own user, which is mode 750
 # and unreadable to anyone else, so a build fails on the first compile.
 #
+# CCACHE_MAXSIZE caps what a leg saves: the image sets no max_size, so ccache
+# takes its 5 GiB default against a 10 GiB budget shared by every cache entry
+# in the repository. The legs that build on the runner are capped by the action
+# that restores them.
+#
 # CI is what the checks that must not skip read: the installer suite refuses to
 # configure without bats, and its fish cases fail rather than skip. Both were
 # written against a variable that stopped at the container wall.
@@ -82,6 +87,7 @@ docker run --rm --interactive \
     --env HOME=/tmp \
     --env CONAN_HOME=/conan \
     --env CCACHE_DIR=/ccache \
+    --env CCACHE_MAXSIZE=2G \
     --env CC \
     --env CXX \
     --env SEN_INTEGRATION_TEST_IMAGE \

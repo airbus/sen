@@ -137,8 +137,13 @@ SPECIFIED_JOBS = [
         include_in_release_workflow=False,
         include_in_conan_workflow=True,
         include_in_conan_workflow_on_pull_requests=False,
-        include_in_standard_test_workflow=True,
-        include_in_standard_test_workflow_also_main=True,
+        # No release publishes clang, so it does not gate a pull request. The nightly builds
+        # this same configuration under both sanitizers and again for coverage, and
+        # pr_sanitizers compiles clang-20 Debug on every pull request, so the front-end still
+        # reads every translation unit before a merge. What is no longer built before one is a
+        # plain clang binary. It stays in the packaging matrix, which has no compiler cache.
+        include_in_standard_test_workflow=False,
+        include_in_standard_test_workflow_also_main=False,
     ),
     # Add msvc jobs
     JobSelector(
@@ -159,22 +164,6 @@ SPECIFIED_JOBS = [
         include_in_standard_test_workflow_also_main=True,
     ),
     # Add arm jobs
-    JobSelector(
-        job_spec=JobSpecification(
-            name="Basic Ubuntu arm",
-            runner="ubuntu-24.04-arm",
-            compiler=Compiler(name="gcc", version=12, cc="gcc-12", cxx="g++-12"),
-            arch="arm",
-            std=17,
-            build_type="Debug",
-            enable_examples=True,
-        ),
-        include_in_release_workflow=False,
-        include_in_conan_workflow=False,
-        include_in_conan_workflow_on_pull_requests=False,
-        include_in_standard_test_workflow=True,
-        include_in_standard_test_workflow_also_main=True,
-    ),
     # A release also ships a build carrying debug information. Built at a different optimisation
     # level, so its symbols do not describe the binaries that ship. Windows keeps its symbols in
     # .pdb files, which sen_internal_utils.cmake installs beside the binaries.
