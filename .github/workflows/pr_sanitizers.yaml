@@ -98,7 +98,14 @@ jobs:
         run: |
           .github/scripts/in_image.sh <<'IN'
           options='-o sen/*:with_tests=True -o sen/*:sanitizer=address'
-          variables="{'SEN_SANITIZER_LOG_DIR': '$PWD/sanitizer-reports', 'SEN_SANITIZER_FAIL_FAST': 'ON'}"
+          # SEN_CTEST_JOBS=1: a sanitizer lane runs its suite one test at a time, whatever the
+          # rest of the repository does. A detector's shadow state is per process, and four of
+          # them on a 4-processor runner with 15.6 GiB starves it: TSan at --parallel 4 timed a
+          # unit test out of its 20-second bound, aborted before the flaky pass, and archived no
+          # thread report at all [nightly run 38098378734, against 0 failures and a 75 kB report
+          # on main the night before]. A lane whose purpose is a reproducible inventory of races
+          # cannot be allowed to trade that for speed.
+          variables="{'SEN_SANITIZER_LOG_DIR': '$PWD/sanitizer-reports', 'SEN_SANITIZER_FAIL_FAST': 'ON', 'SEN_CTEST_JOBS': '1'}"
           # --profile:all names both host and build profile. The action this replaced
           # copied one over `default` instead, which is the arrangement that makes a
           # documented `conan install --profile=...` work here and fail for a reader.

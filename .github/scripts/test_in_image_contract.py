@@ -81,6 +81,15 @@ def test_a_cache_is_redirected_and_mounted(name, inside, outside):
     assert f'--volume "{outside}:{inside}"' in TEXT, f"nothing is mounted at {inside}"
 
 
+# A cap set in a workflow's env block stops at the container wall, so this is the only
+# place it can be set for the legs that build in the image. Nothing fails when it is
+# missing: the leg grows to ccache's 5 GiB default and crowds the other entries out of
+# the repository's shared budget, while every save still reports success.
+def test_the_compiler_cache_is_capped():
+    """Pinned to a size rather than forwarded, because no caller sets it."""
+    assert re.search(r"--env\s+CCACHE_MAXSIZE=\d+[KMG]\b", TEXT), "the compiler cache is uncapped"
+
+
 def test_the_build_output_belongs_to_the_caller():
     """Root-owned output fails whoever reads it afterwards, not the build that wrote it."""
     assert '--user "$(id -u):$(id -g)"' in TEXT, "the container runs as the image's user"
