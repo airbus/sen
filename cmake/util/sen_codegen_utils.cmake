@@ -285,12 +285,18 @@ function(sen_generate_code)
         message(FATAL_ERROR "  sen_generate_cpp: invalid output language ${_arg_LANG}")
       endif()
 
+      # A .stl reaches its imports through the -i search path at generation time, so DEPENDS
+      # cannot name them and editing an imported model left this output stale. The generator
+      # records what it opened; DEPFILE is how that reaches the build graph.
+      set(_dep_file ${_output_file_prefix}.d)
+
       add_custom_command(
         OUTPUT ${_file_output_files}
         COMMAND_EXPAND_LISTS VERBATIM
-        COMMAND sen::cli_gen ${_arg_LANG} ${_public_symbols_opt} stl ${_settings_file_option} ${_base_path_opt}
-                ${_abs_stl_file} ${_extra_options}
+        COMMAND sen::cli_gen ${_arg_LANG} ${_public_symbols_opt} stl --depfile ${_dep_file}
+                ${_settings_file_option} ${_base_path_opt} ${_abs_stl_file} ${_extra_options}
         DEPENDS ${_abs_stl_file} sen::cli_gen ${_abs_settings_path}
+        DEPFILE ${_dep_file}
         WORKING_DIRECTORY ${_file_output_dir}
         COMMENT "Generating sen code for ${_abs_stl_file} in ${_file_output_dir}"
       )
@@ -308,12 +314,18 @@ function(sen_generate_code)
 
     # generate schema file if needed
     if(_generate_schema)
+      # Same reason as the generation command above: the schema is built by parsing these
+      # models, so it depends on whatever they import, and only the generator knows what
+      # that turned out to be.
+      set(_schema_dep_file ${_arg_SCHEMA_FILE}.d)
+
       add_custom_command(
         OUTPUT ${_arg_SCHEMA_FILE}
         COMMAND_EXPAND_LISTS VERBATIM
-        COMMAND sen::cli_gen json ${_schema_type} stl -b ${_abs_base_path} ${_stl_files} ${_extra_options} -o
-                ${_arg_SCHEMA_FILE} ${_component_name_opt}
+        COMMAND sen::cli_gen json ${_schema_type} stl --depfile ${_schema_dep_file} -b ${_abs_base_path}
+                ${_stl_files} ${_extra_options} -o ${_arg_SCHEMA_FILE} ${_component_name_opt}
         DEPENDS ${_stl_files} sen::cli_gen ${_abs_settings_path}
+        DEPFILE ${_schema_dep_file}
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
         COMMENT "Generating json schema code for ${_arg_TARGET} in ${_arg_SCHEMA_FILE}"
       )
@@ -356,13 +368,23 @@ function(sen_generate_code)
       )
 
       # get the xml files
+      # CONFIGURE_DEPENDS because this list becomes the custom command's OUTPUT, not just its
+      # DEPENDS: without it a newly added FOM file has no generation rule at all and no
+      # diagnostic, until something else happens to reconfigure. STL_FILES does not need this
+      # -- it names files, so adding one edits CMakeLists and reconfigures by itself, whereas
+      # this argument names directories and dropping a file in touches nothing CMake watches.
       file(
-        GLOB _xml_files
+        GLOB _dir_xml_files
         LIST_DIRECTORIES false
-        "${_fom_dir}/*.xml"
+        CONFIGURE_DEPENDS "${_fom_dir}/*.xml"
       )
 
-      foreach(_xml_file ${_xml_files})
+      # Accumulated rather than overwritten: the target_sources and DEPENDS uses below sit
+      # outside this loop, so globbing into the shared name left every directory but the last
+      # out of both. sen_generate_uml does the same accumulation for the same reason.
+      list(APPEND _xml_files ${_dir_xml_files})
+
+      foreach(_xml_file ${_dir_xml_files})
 
         # compute _xml_stem
         get_filename_component(_xml_file_full_name_not_lower ${_xml_file} NAME)

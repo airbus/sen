@@ -17,6 +17,7 @@
 
 // std
 #include <filesystem>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -165,6 +166,37 @@ class ClassUnderTest
   const auto method {typeSet->types.front()->asClassType()->searchMethodByName("deferredMethod")};
   ASSERT_NE(method, nullptr);
   ASSERT_TRUE(method->getDeferred());
+}
+
+/// @test
+/// Resolving a model records every file it read, the imported ones included.
+///
+/// An import is found through a search path while the generator runs, so nothing the build
+/// system sees names it. Without this record a generated header does not depend on the model
+/// it imports, and editing that model leaves the output stale while the build still appears
+/// to run.
+TEST_F(AStlResolver, RecordsEveryFileItReadsIncludingTheImportedOnes)
+{
+  // arrange
+  const std::filesystem::path leaf {"lang/stl/stl_resolver_test/importing_leaf.stl"};
+
+  // act
+  // Own context rather than the fixture's, so the record under test is this call's alone.
+  // Same search path and origin as the resolve() helper above: fixtures live under bin/.
+  sen::lang::TypeSetContext context;
+  const sen::lang::TypeSet* typeSet {};
+  ASSERT_NO_THROW(
+    typeSet = sen::lang::readTypesFile(leaf, {"bin"}, context, {}, std::filesystem::current_path().string() + "/bin"));
+  ASSERT_NE(typeSet, nullptr);
+
+  // assert -- by file name, because the recorded paths are absolute and machine-specific
+  std::set<std::string> names;
+  for (const auto& path: context.readFiles())
+  {
+    names.insert(path.filename().string());
+  }
+  const std::set<std::string> expected {"imported_base.stl", "importing_leaf.stl"};
+  EXPECT_EQ(names, expected);
 }
 
 /// @test

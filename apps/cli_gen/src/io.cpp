@@ -67,3 +67,65 @@ void writeFile(const std::filesystem::path& path, const std::string& body)
   SEN_ENSURE(stream.good());
   stream.close();
 }
+
+namespace
+{
+
+/// Escapes the three characters a depfile reader treats as syntax rather than path.
+std::string escapedForDepFile(const std::filesystem::path& path)
+{
+  std::string escaped;
+  for (const char character: path.string())
+  {
+    switch (character)
+    {
+      case ' ':
+        escaped += "\\ ";
+        break;
+      case '#':
+        escaped += "\\#";
+        break;
+      case '$':
+        escaped += "$$";
+        break;
+      default:
+        escaped += character;
+        break;
+    }
+  }
+  return escaped;
+}
+
+}  // namespace
+
+void writeDepFile(const std::filesystem::path& path,
+                  const std::vector<std::filesystem::path>& targets,
+                  const std::set<std::filesystem::path>& dependencies)
+{
+  // A rule with no target, or with an empty one, is not a depfile the build system can read,
+  // and the empty case does not fail quietly: absolute("") is the current directory, so the
+  // rule would name a plausible-looking path that depends on the models. `-o` is optional on
+  // every subcommand, so this is reachable from the command line rather than only from a bug.
+  SEN_ENSURE(!targets.empty());
+
+  std::string body;
+  for (const auto& target: targets)
+  {
+    SEN_ENSURE(!target.empty());
+    body += (body.empty() ? "" : " ") + escapedForDepFile(std::filesystem::absolute(target));
+  }
+  body += ":";
+  for (const auto& dependency: dependencies)
+  {
+    body += " " + escapedForDepFile(std::filesystem::absolute(dependency));
+  }
+  body += "\n";
+
+  // Not writeFile: that skips an identical write, and a depfile whose content did not
+  // change must still be newer than the output it describes.
+  std::ofstream stream;
+  openFile(path, stream);
+  stream << body;
+  SEN_ENSURE(stream.good());
+  stream.close();
+}

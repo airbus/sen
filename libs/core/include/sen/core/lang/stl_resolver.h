@@ -15,6 +15,7 @@
 // std
 #include <filesystem>
 #include <memory>
+#include <set>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -81,8 +82,16 @@ public:
   [[nodiscard]] TypeSetIterator begin() const { return {typeSets_.cbegin()}; }
   [[nodiscard]] TypeSetIterator end() const { return {typeSets_.cend()}; }
 
+  /// Records a file the resolver opened. Imports are found through a search path, so the
+  /// build system cannot know them without being told; sorted so a depfile is reproducible.
+  void recordReadFile(const std::filesystem::path& file) { readFiles_.insert(file); }
+
+  /// Every file read while resolving, the imports reached transitively included.
+  [[nodiscard]] const std::set<std::filesystem::path>& readFiles() const { return readFiles_; }
+
 private:
   TypeSetStorageContainerType typeSets_;
+  std::set<std::filesystem::path> readFiles_;
 };
 
 struct ClassAnnotations

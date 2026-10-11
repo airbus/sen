@@ -1,0 +1,10 @@
+// Relative to the include root, the way kernel_objects.stl imports basic_types.stl.
+import "lang/stl/stl_resolver_test/imported_base.stl"
+
+package stl_resolver_test;
+
+// Reaches a type that lives in another file, which is the case a depfile has to cover.
+struct ImportingLeaf
+{
+  base : stl_resolver_test.ImportedBase  // only resolvable once the import is read
+}

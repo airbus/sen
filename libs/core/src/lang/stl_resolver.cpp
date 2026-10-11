@@ -1144,6 +1144,10 @@ const TypeSet* readStlFile(const std::filesystem::path& originalFileName,
   std::string fileContents;
   readFile(absoluteFileName, fileContents);
 
+  // Every file the generator opens passes through here, so this is the one place that
+  // sees the transitive import set a depfile needs.
+  globalContext.recordReadFile(absoluteFileName);
+
   StlScanner scanner(fileContents);
   const auto& tokens = scanner.scanTokens();
 

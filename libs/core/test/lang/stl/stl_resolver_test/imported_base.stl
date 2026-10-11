@@ -1,0 +1,7 @@
+package stl_resolver_test;
+
+// Exists only to be imported by importing_leaf.stl, so that a resolution reads two files.
+struct ImportedBase
+{
+  value : u32  // the field the importing model reaches through the import
+}
