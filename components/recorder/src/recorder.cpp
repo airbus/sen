@@ -61,7 +61,12 @@ RecorderImpl::RecorderImpl(const sen::components::recorder::RecordingSettings& s
   setNextState(sen::components::recorder::RecorderState::stopped);
 }
 
-RecorderImpl::~RecorderImpl() { stopImpl(); }
+RecorderImpl::~RecorderImpl()
+{
+  // No cycle will come to honour a deferred stop, so the writer closes here instead.
+  stopImpl();
+  teardown();
+}
 
 void RecorderImpl::update(sen::kernel::RunApi& runApi)
 {
@@ -73,6 +78,14 @@ void RecorderImpl::update(sen::kernel::RunApi& runApi)
     {
       start();
     }
+  }
+
+  if (stopPending_)
+  {
+    // Ahead of the guard below, because stopImpl() has already moved the state off recording.
+    stopPending_ = false;
+    teardown();
+    return;
   }
 
   if (getState() != sen::components::recorder::RecorderState::recording)
@@ -108,6 +121,14 @@ void RecorderImpl::startImpl()
   {
     sen::components::recorder::getLogger()->info("cannot start the recorder {} because it is not stopped", getName());
     return;
+  }
+
+  if (stopPending_)
+  {
+    // A start between stop() and the deferred teardown. Close the old recording here, or the
+    // next update() tears down the one opened below.
+    stopPending_ = false;
+    teardown();
   }
 
   const auto& settings = getSettings();
@@ -195,15 +216,29 @@ void RecorderImpl::stopImpl()
 {
   if (getState() == sen::components::recorder::RecorderState::recording)
   {
-    additionsAndRemovalsEnabled_ = false;
-    guards_.clear();
-    out_.reset();
-    mux_.reset();
-    trackedObjects_.reset();
-    sources_.clear();
-
-    sen::components::recorder::getLogger()->debug("{} stopped", getName());
+    // The writer stays open. A removal reaches objectRemoved() from the flush, which runs after
+    // update(), so closing out_ here drops the entry with no error. The state goes to stopped for
+    // the caller and the teardown runs at the next update().
+    stopPending_ = true;
+    setNextState(sen::components::recorder::RecorderState::stopped);
   }
+}
+
+void RecorderImpl::teardown()
+{
+  if (!out_)
+  {
+    return;  // already torn down
+  }
+
+  additionsAndRemovalsEnabled_ = false;
+  guards_.clear();
+  out_.reset();
+  mux_.reset();
+  trackedObjects_.reset();
+  sources_.clear();
+
+  sen::components::recorder::getLogger()->debug("{} stopped", getName());
 }
 
 sen::db::OutStats RecorderImpl::fetchStatsImpl()

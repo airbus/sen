@@ -40,6 +40,7 @@ protected:
   void update(sen::kernel::RunApi& runApi) override;
 
 private:
+  void teardown();
   void objectAdded(Object* object);
   void subscribeToEvents(Object* object);
   void subscribeToPropertyChanges(Object* object);
@@ -61,6 +62,7 @@ private:
   std::unordered_map<sen::ObjectId, std::vector<sen::ConnectionGuard>> guards_;
   std::vector<std::shared_ptr<sen::ObjectSource>> sources_;
   bool additionsAndRemovalsEnabled_ = false;
+  bool stopPending_ = false;
   sen::TimeStamp lastKeyframeTime_;
   sen::kernel::RunApi* api_ = nullptr;
 };
