@@ -32,9 +32,10 @@
 namespace
 {
 
-void writeModule(sen::gen::PythonGenerator& generator,
-                 const sen::lang::TypeSet& typeSet,
-                 const std::filesystem::path& inputFile)
+/// Writes the module, returning its path so a depfile can name it.
+std::filesystem::path writeModule(sen::gen::PythonGenerator& generator,
+                                  const sen::lang::TypeSet& typeSet,
+                                  const std::filesystem::path& inputFile)
 {
   auto outputFile = inputFile.stem().string();
   sen::gen::PythonGenerator::replaceInvalidCharacters(outputFile);
@@ -44,6 +45,7 @@ void writeModule(sen::gen::PythonGenerator& generator,
 
   writeFile(outputFile, contents);
   std::cout << "stl|python> " << outputFile << std::endl;
+  return outputFile;
 }
 
 }  // namespace
@@ -70,9 +72,16 @@ void setupPythonCli(CLI::App& app)
                                docs.push_back(newDoc);
                              }
                              sen::gen::PythonGenerator generator;
+                             std::vector<std::filesystem::path> outputs;
+                             outputs.reserve(docs.size());
                              for (std::size_t i = 0; i < docs.size(); ++i)
                              {
-                               writeModule(generator, *docs[i], args->inputs[i]);
+                               outputs.emplace_back(writeModule(generator, *docs[i], args->inputs[i]));
+                             }
+
+                             if (!args->depFile.empty())
+                             {
+                               writeDepFile(args->depFile, outputs, context.readFiles());
                              }
                            });
 

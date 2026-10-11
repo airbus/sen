@@ -285,12 +285,17 @@ function(sen_generate_code)
         message(FATAL_ERROR "  sen_generate_cpp: invalid output language ${_arg_LANG}")
       endif()
 
+      # Imports arrive through the -i search path, so DEPENDS cannot name them. The generator
+      # records what it opened and DEPFILE carries that to the build graph.
+      set(_dep_file ${_output_file_prefix}.d)
+
       add_custom_command(
         OUTPUT ${_file_output_files}
         COMMAND_EXPAND_LISTS VERBATIM
-        COMMAND sen::cli_gen ${_arg_LANG} ${_public_symbols_opt} stl ${_settings_file_option} ${_base_path_opt}
-                ${_abs_stl_file} ${_extra_options}
+        COMMAND sen::cli_gen ${_arg_LANG} ${_public_symbols_opt} stl --depfile ${_dep_file}
+                ${_settings_file_option} ${_base_path_opt} ${_abs_stl_file} ${_extra_options}
         DEPENDS ${_abs_stl_file} sen::cli_gen ${_abs_settings_path}
+        DEPFILE ${_dep_file}
         WORKING_DIRECTORY ${_file_output_dir}
         COMMENT "Generating sen code for ${_abs_stl_file} in ${_file_output_dir}"
       )
@@ -308,12 +313,16 @@ function(sen_generate_code)
 
     # generate schema file if needed
     if(_generate_schema)
+      # The schema parses the same models, so it depends on their imports too.
+      set(_schema_dep_file ${_arg_SCHEMA_FILE}.d)
+
       add_custom_command(
         OUTPUT ${_arg_SCHEMA_FILE}
         COMMAND_EXPAND_LISTS VERBATIM
-        COMMAND sen::cli_gen json ${_schema_type} stl -b ${_abs_base_path} ${_stl_files} ${_extra_options} -o
-                ${_arg_SCHEMA_FILE} ${_component_name_opt}
+        COMMAND sen::cli_gen json ${_schema_type} stl --depfile ${_schema_dep_file} -b ${_abs_base_path}
+                ${_stl_files} ${_extra_options} -o ${_arg_SCHEMA_FILE} ${_component_name_opt}
         DEPENDS ${_stl_files} sen::cli_gen ${_abs_settings_path}
+        DEPFILE ${_schema_dep_file}
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
         COMMENT "Generating json schema code for ${_arg_TARGET} in ${_arg_SCHEMA_FILE}"
       )
@@ -356,13 +365,18 @@ function(sen_generate_code)
       )
 
       # get the xml files
+      # This list becomes the custom command's OUTPUT, so without CONFIGURE_DEPENDS a FOM file
+      # added after configuring gets no generation rule. STL_FILES names files, not directories.
       file(
-        GLOB _xml_files
+        GLOB _dir_xml_files
         LIST_DIRECTORIES false
-        "${_fom_dir}/*.xml"
+        CONFIGURE_DEPENDS "${_fom_dir}/*.xml"
       )
 
-      foreach(_xml_file ${_xml_files})
+      # Accumulated: the target_sources and DEPENDS uses below are outside this loop.
+      list(APPEND _xml_files ${_dir_xml_files})
+
+      foreach(_xml_file ${_dir_xml_files})
 
         # compute _xml_stem
         get_filename_component(_xml_file_full_name_not_lower ${_xml_file} NAME)
