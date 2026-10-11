@@ -21,7 +21,6 @@ MSVC_RELEASE = ("Basic Windows", "cl", "Release", "windows-2022", "x86")
 GCC_RELWITHDEBINFO = ("Basic GCC (debug information)", "gcc-12", "RelWithDebInfo", "ubuntu-22.04", "x86")
 GCC_DEBUG_BUILD = ("Basic GCC (debug build)", "gcc-12", "Debug", "ubuntu-22.04", "x86")
 MSVC_RELWITHDEBINFO = ("Basic Windows (debug information)", "cl", "RelWithDebInfo", "windows-2022", "x86")
-ARM_DEBUG = ("Basic Ubuntu arm", "gcc-12", "Debug", "ubuntu-24.04-arm", "arm")
 
 
 def job_keys(jobs: list[JobSpecification]) -> list[tuple[str, str, str, str, str]]:
@@ -30,14 +29,12 @@ def job_keys(jobs: list[JobSpecification]) -> list[tuple[str, str, str, str, str
 
 
 def test_standard_test_job_set():
-    """Standard tests run the three Linux x86 legs plus the arm leg."""
+    """The three Linux x86 legs and both Windows ones, which is what a release publishes."""
     jobs = compute_jobs(release=False, conan=False, standard_test=True, target_main=False)
     assert job_keys(jobs) == [
-        CLANG_DEBUG,
         GCC_DEBUG,
         GCC_RELEASE,
         GCC_RELWITHDEBINFO,
-        ARM_DEBUG,
         MSVC_RELEASE,
         MSVC_RELWITHDEBINFO,
     ]
@@ -75,6 +72,28 @@ def test_every_shipped_configuration_is_tested():
     tested = compute_jobs(release=False, conan=False, standard_test=True, target_main=False)
     missing = sorted({built(job) for job in shipped} - {built(job) for job in tested})
     assert not missing, f"shipped but never tested: {missing}"
+
+
+def test_a_pull_request_builds_only_what_a_release_ships():
+    """The converse of the test above, so the two together hold the matrix equal to the release.
+
+    Enrique's rule, 2026-10-11: a pull request does not build a configuration no release
+    publishes. A leg outside that set spends a merge's wall clock and a slice of a 10 GiB cache
+    budget on a binary nobody receives, and the clang and arm legs between them held 57 per cent
+    of all compiler cache while shipping nothing. Both are covered nightly instead.
+
+    Coverage instrumentation is not part of the comparison: the measuring leg's binaries are
+    instrumented and unshippable, but its configuration is one a release builds, which is what
+    test_one_leg_measures_coverage_and_it_is_a_build_we_ship already requires.
+    """
+
+    def built(job):
+        return (job.compiler.cc, job.arch, job.build_type, job.std, job.runner)
+
+    shipped = compute_jobs(release=True, conan=False, standard_test=False, target_main=False)
+    tested = compute_jobs(release=False, conan=False, standard_test=True, target_main=False)
+    extra = sorted({built(job) for job in tested} - {built(job) for job in shipped})
+    assert not extra, f"tested on every pull request but shipped by no release: {extra}"
 
 
 def test_conan_job_set():
@@ -213,19 +232,6 @@ def test_standard_test_specs_in_full():
     jobs = compute_jobs(release=False, conan=False, standard_test=True, target_main=False)
     assert [job.as_json() for job in jobs] == [
         {
-            "name": "Basic Clang",
-            "runner": "ubuntu-24.04",
-            "compiler": {"name": "clang", "version": 20, "cc": "clang-20", "cxx": "clang++-20"},
-            "arch": "x86",
-            "std": 17,
-            "build_type": "Debug",
-            "enable_coverage": False,
-            "enable_examples": True,
-            "runtime_base": "",
-            "check_package": False,
-            "ci_image": "24.04",
-        },
-        {
             "name": "Basic GCC",
             "runner": "ubuntu-22.04",
             "compiler": {"name": "gcc", "version": 12, "cc": "gcc-12", "cxx": "g++-12"},
@@ -263,19 +269,6 @@ def test_standard_test_specs_in_full():
             "runtime_base": "",
             "check_package": True,
             "ci_image": "22.04",
-        },
-        {
-            "name": "Basic Ubuntu arm",
-            "runner": "ubuntu-24.04-arm",
-            "compiler": {"name": "gcc", "version": 12, "cc": "gcc-12", "cxx": "g++-12"},
-            "arch": "arm",
-            "std": 17,
-            "build_type": "Debug",
-            "enable_coverage": False,
-            "enable_examples": True,
-            "runtime_base": "",
-            "check_package": False,
-            "ci_image": "",
         },
         {
             "name": "Basic Windows",
