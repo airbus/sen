@@ -153,6 +153,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aae1478827f25c9db96874d6085f50d2a" id="r_aae1478827f25c9db96874d6085f50d2a"><td class="memItemLeft">size_t&#160;</td><td class="memItemRight"><a class="el" href="#aae1478827f25c9db96874d6085f50d2a">size</a> () const</td></tr>
 <tr class="memitem:a2066a61283230000efb4d9b199d96197" id="r_a2066a61283230000efb4d9b199d96197"><td class="memItemLeft"><a class="el" href="classsen_1_1lang_1_1_type_set_context_1_1_type_set_iterator.html">TypeSetIterator</a>&#160;</td><td class="memItemRight"><a class="el" href="#a2066a61283230000efb4d9b199d96197">begin</a> () const</td></tr>
 <tr class="memitem:af36eaf43126239cfb6a5b19788fe3925" id="r_af36eaf43126239cfb6a5b19788fe3925"><td class="memItemLeft"><a class="el" href="classsen_1_1lang_1_1_type_set_context_1_1_type_set_iterator.html">TypeSetIterator</a>&#160;</td><td class="memItemRight"><a class="el" href="#af36eaf43126239cfb6a5b19788fe3925">end</a> () const</td></tr>
+<tr class="memitem:ac298694dc4d8285b4d2975adf485579e" id="r_ac298694dc4d8285b4d2975adf485579e"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#ac298694dc4d8285b4d2975adf485579e">recordReadFile</a> (const std::filesystem::path &amp;file)</td></tr>
+<tr class="memdesc:ac298694dc4d8285b4d2975adf485579e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Records a file the resolver opened. Sorted, so a depfile is reproducible.  <br /></td></tr>
+<tr class="memitem:a44ca147c57f7dda86825c8909da568dc" id="r_a44ca147c57f7dda86825c8909da568dc"><td class="memItemLeft">const std::set&lt; std::filesystem::path &gt; &amp;&#160;</td><td class="memItemRight"><a class="el" href="#a44ca147c57f7dda86825c8909da568dc">readFiles</a> () const</td></tr>
+<tr class="memdesc:a44ca147c57f7dda86825c8909da568dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Every file read while resolving, transitive imports included.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The set of types used during resolution. </p>
@@ -329,6 +333,60 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac298694dc4d8285b4d2975adf485579e" name="ac298694dc4d8285b4d2975adf485579e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac298694dc4d8285b4d2975adf485579e">&#9670;&#160;</a></span>recordReadFile()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void sen::lang::TypeSetContext::recordReadFile </td>
+          <td>(</td>
+          <td class="paramtype">const std::filesystem::path &amp;</td>          <td class="paramname"><span class="paramname"><em>file</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Records a file the resolver opened. Sorted, so a depfile is reproducible. </p>
+
+</div>
+</div>
+<a id="a44ca147c57f7dda86825c8909da568dc" name="a44ca147c57f7dda86825c8909da568dc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a44ca147c57f7dda86825c8909da568dc">&#9670;&#160;</a></span>readFiles()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const std::set&lt; std::filesystem::path &gt; &amp; sen::lang::TypeSetContext::readFiles </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Every file read while resolving, transitive imports included. </p>
 
 </div>
 </div>

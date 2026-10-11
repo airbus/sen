@@ -2229,8 +2229,9 @@ generators.</p>
 </span><span id="__span-11-7"><a href="#__codelineno-11-7" id="__codelineno-11-7" name="__codelineno-11-7"></a>Options:
 </span><span id="__span-11-8"><a href="#__codelineno-11-8" id="__codelineno-11-8" name="__codelineno-11-8"></a>  -h,--help                        Print this help message and exit
 </span><span id="__span-11-9"><a href="#__codelineno-11-9" id="__codelineno-11-9" name="__codelineno-11-9"></a>  -i,--import TEXT ...             Paths where other STL files can be found
-</span><span id="__span-11-10"><a href="#__codelineno-11-10" id="__codelineno-11-10" name="__codelineno-11-10"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
-</span><span id="__span-11-11"><a href="#__codelineno-11-11" id="__codelineno-11-11" name="__codelineno-11-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
+</span><span id="__span-11-10"><a href="#__codelineno-11-10" id="__codelineno-11-10" name="__codelineno-11-10"></a>  --depfile TEXT                   Write the files read to this make-style depfile
+</span><span id="__span-11-11"><a href="#__codelineno-11-11" id="__codelineno-11-11" name="__codelineno-11-11"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
+</span><span id="__span-11-12"><a href="#__codelineno-11-12" id="__codelineno-11-12" name="__codelineno-11-12"></a>  -s,--settings TEXT:FILE          Code generation settings file
 </span></code></pre></div>
 <h4 id="c-from-hla-foms">C++ from <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Models">FOMs</abbr><a class="headerlink" href="#c-from-hla-foms" title="Permanent link">¶</a></h4>
 <div class="language-text highlight"><span class="filename">sen generate cpp fom</span><pre><span></span><code><span id="__span-12-1"><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a>Process HLA FOM files
@@ -2278,15 +2279,16 @@ generators.</p>
 </span><span id="__span-15-7"><a href="#__codelineno-15-7" id="__codelineno-15-7" name="__codelineno-15-7"></a>Options:
 </span><span id="__span-15-8"><a href="#__codelineno-15-8" id="__codelineno-15-8" name="__codelineno-15-8"></a>  -h,--help                        Print this help message and exit
 </span><span id="__span-15-9"><a href="#__codelineno-15-9" id="__codelineno-15-9" name="__codelineno-15-9"></a>  -i,--import TEXT ...             Paths where other STL files can be found
-</span><span id="__span-15-10"><a href="#__codelineno-15-10" id="__codelineno-15-10" name="__codelineno-15-10"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
-</span><span id="__span-15-11"><a href="#__codelineno-15-11" id="__codelineno-15-11" name="__codelineno-15-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
-</span><span id="__span-15-12"><a href="#__codelineno-15-12" id="__codelineno-15-12" name="__codelineno-15-12"></a>  -o,--output TEXT                 Output PlantUML file
-</span><span id="__span-15-13"><a href="#__codelineno-15-13" id="__codelineno-15-13" name="__codelineno-15-13"></a>  --only-classes Excludes: --only-types --no-enumerators
-</span><span id="__span-15-14"><a href="#__codelineno-15-14" id="__codelineno-15-14" name="__codelineno-15-14"></a>                                   Only generate class diagrams
-</span><span id="__span-15-15"><a href="#__codelineno-15-15" id="__codelineno-15-15" name="__codelineno-15-15"></a>  --only-types Excludes: --only-classes
-</span><span id="__span-15-16"><a href="#__codelineno-15-16" id="__codelineno-15-16" name="__codelineno-15-16"></a>                                   Only generate diagrams for basic types
-</span><span id="__span-15-17"><a href="#__codelineno-15-17" id="__codelineno-15-17" name="__codelineno-15-17"></a>  --no-enumerators Excludes: --only-classes
-</span><span id="__span-15-18"><a href="#__codelineno-15-18" id="__codelineno-15-18" name="__codelineno-15-18"></a>                                   Do not generate enumerations
+</span><span id="__span-15-10"><a href="#__codelineno-15-10" id="__codelineno-15-10" name="__codelineno-15-10"></a>  --depfile TEXT                   Write the files read to this make-style depfile
+</span><span id="__span-15-11"><a href="#__codelineno-15-11" id="__codelineno-15-11" name="__codelineno-15-11"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
+</span><span id="__span-15-12"><a href="#__codelineno-15-12" id="__codelineno-15-12" name="__codelineno-15-12"></a>  -s,--settings TEXT:FILE          Code generation settings file
+</span><span id="__span-15-13"><a href="#__codelineno-15-13" id="__codelineno-15-13" name="__codelineno-15-13"></a>  -o,--output TEXT                 Output PlantUML file
+</span><span id="__span-15-14"><a href="#__codelineno-15-14" id="__codelineno-15-14" name="__codelineno-15-14"></a>  --only-classes Excludes: --only-types --no-enumerators
+</span><span id="__span-15-15"><a href="#__codelineno-15-15" id="__codelineno-15-15" name="__codelineno-15-15"></a>                                   Only generate class diagrams
+</span><span id="__span-15-16"><a href="#__codelineno-15-16" id="__codelineno-15-16" name="__codelineno-15-16"></a>  --only-types Excludes: --only-classes
+</span><span id="__span-15-17"><a href="#__codelineno-15-17" id="__codelineno-15-17" name="__codelineno-15-17"></a>                                   Only generate diagrams for basic types
+</span><span id="__span-15-18"><a href="#__codelineno-15-18" id="__codelineno-15-18" name="__codelineno-15-18"></a>  --no-enumerators Excludes: --only-classes
+</span><span id="__span-15-19"><a href="#__codelineno-15-19" id="__codelineno-15-19" name="__codelineno-15-19"></a>                                   Do not generate enumerations
 </span></code></pre></div>
 <h4 id="uml-from-hla-foms"><abbr title="Unified Modeling Language">UML</abbr> from <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Models">FOMs</abbr><a class="headerlink" href="#uml-from-hla-foms" title="Permanent link">¶</a></h4>
 <div class="language-text highlight"><span class="filename">sen generate uml fom</span><pre><span></span><code><span id="__span-16-1"><a href="#__codelineno-16-1" id="__codelineno-16-1" name="__codelineno-16-1"></a>Process HLA FOM files
@@ -2330,10 +2332,11 @@ generators.</p>
 </span><span id="__span-18-7"><a href="#__codelineno-18-7" id="__codelineno-18-7" name="__codelineno-18-7"></a>Options:
 </span><span id="__span-18-8"><a href="#__codelineno-18-8" id="__codelineno-18-8" name="__codelineno-18-8"></a>  -h,--help                        Print this help message and exit
 </span><span id="__span-18-9"><a href="#__codelineno-18-9" id="__codelineno-18-9" name="__codelineno-18-9"></a>  -i,--import TEXT ...             Paths where other STL files can be found
-</span><span id="__span-18-10"><a href="#__codelineno-18-10" id="__codelineno-18-10" name="__codelineno-18-10"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
-</span><span id="__span-18-11"><a href="#__codelineno-18-11" id="__codelineno-18-11" name="__codelineno-18-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
-</span><span id="__span-18-12"><a href="#__codelineno-18-12" id="__codelineno-18-12" name="__codelineno-18-12"></a>  -o,--output TEXT                 Output file
-</span><span id="__span-18-13"><a href="#__codelineno-18-13" id="__codelineno-18-13" name="__codelineno-18-13"></a>  -t,--title TEXT                  Document title
+</span><span id="__span-18-10"><a href="#__codelineno-18-10" id="__codelineno-18-10" name="__codelineno-18-10"></a>  --depfile TEXT                   Write the files read to this make-style depfile
+</span><span id="__span-18-11"><a href="#__codelineno-18-11" id="__codelineno-18-11" name="__codelineno-18-11"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
+</span><span id="__span-18-12"><a href="#__codelineno-18-12" id="__codelineno-18-12" name="__codelineno-18-12"></a>  -s,--settings TEXT:FILE          Code generation settings file
+</span><span id="__span-18-13"><a href="#__codelineno-18-13" id="__codelineno-18-13" name="__codelineno-18-13"></a>  -o,--output TEXT                 Output file
+</span><span id="__span-18-14"><a href="#__codelineno-18-14" id="__codelineno-18-14" name="__codelineno-18-14"></a>  -t,--title TEXT                  Document title
 </span></code></pre></div>
 <h4 id="mkdocs-from-hla-foms">MKDocs from <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Models">FOMs</abbr><a class="headerlink" href="#mkdocs-from-hla-foms" title="Permanent link">¶</a></h4>
 <div class="language-text highlight"><span class="filename">sen generate mkdocs fom</span><pre><span></span><code><span id="__span-19-1"><a href="#__codelineno-19-1" id="__codelineno-19-1" name="__codelineno-19-1"></a>Process HLA FOM files
@@ -2373,10 +2376,11 @@ needs no server and no network, so the output opens straight from a file.</p>
 </span><span id="__span-21-7"><a href="#__codelineno-21-7" id="__codelineno-21-7" name="__codelineno-21-7"></a>Options:
 </span><span id="__span-21-8"><a href="#__codelineno-21-8" id="__codelineno-21-8" name="__codelineno-21-8"></a>  -h,--help                        Print this help message and exit
 </span><span id="__span-21-9"><a href="#__codelineno-21-9" id="__codelineno-21-9" name="__codelineno-21-9"></a>  -i,--import TEXT ...             Paths where other STL files can be found
-</span><span id="__span-21-10"><a href="#__codelineno-21-10" id="__codelineno-21-10" name="__codelineno-21-10"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
-</span><span id="__span-21-11"><a href="#__codelineno-21-11" id="__codelineno-21-11" name="__codelineno-21-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
-</span><span id="__span-21-12"><a href="#__codelineno-21-12" id="__codelineno-21-12" name="__codelineno-21-12"></a>  -o,--output TEXT REQUIRED        Directory to write the reference into
-</span><span id="__span-21-13"><a href="#__codelineno-21-13" id="__codelineno-21-13" name="__codelineno-21-13"></a>  -t,--title TEXT                  Name of the model, shown on screen
+</span><span id="__span-21-10"><a href="#__codelineno-21-10" id="__codelineno-21-10" name="__codelineno-21-10"></a>  --depfile TEXT                   Write the files read to this make-style depfile
+</span><span id="__span-21-11"><a href="#__codelineno-21-11" id="__codelineno-21-11" name="__codelineno-21-11"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
+</span><span id="__span-21-12"><a href="#__codelineno-21-12" id="__codelineno-21-12" name="__codelineno-21-12"></a>  -s,--settings TEXT:FILE          Code generation settings file
+</span><span id="__span-21-13"><a href="#__codelineno-21-13" id="__codelineno-21-13" name="__codelineno-21-13"></a>  -o,--output TEXT REQUIRED        Directory to write the reference into
+</span><span id="__span-21-14"><a href="#__codelineno-21-14" id="__codelineno-21-14" name="__codelineno-21-14"></a>  -t,--title TEXT                  Name of the model, shown on screen
 </span></code></pre></div>
 <h4 id="html-from-hla-foms">HTML from <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Models">FOMs</abbr><a class="headerlink" href="#html-from-hla-foms" title="Permanent link">¶</a></h4>
 <div class="language-text highlight"><span class="filename">sen generate html fom</span><pre><span></span><code><span id="__span-22-1"><a href="#__codelineno-22-1" id="__codelineno-22-1" name="__codelineno-22-1"></a>Process HLA FOM files
@@ -2419,23 +2423,24 @@ from the model.</p>
 </span><span id="__span-24-7"><a href="#__codelineno-24-7" id="__codelineno-24-7" name="__codelineno-24-7"></a>Options:
 </span><span id="__span-24-8"><a href="#__codelineno-24-8" id="__codelineno-24-8" name="__codelineno-24-8"></a>  -h,--help                        Print this help message and exit
 </span><span id="__span-24-9"><a href="#__codelineno-24-9" id="__codelineno-24-9" name="__codelineno-24-9"></a>  -i,--import TEXT ...             Paths where other STL files can be found
-</span><span id="__span-24-10"><a href="#__codelineno-24-10" id="__codelineno-24-10" name="__codelineno-24-10"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
-</span><span id="__span-24-11"><a href="#__codelineno-24-11" id="__codelineno-24-11" name="__codelineno-24-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
-</span><span id="__span-24-12"><a href="#__codelineno-24-12" id="__codelineno-24-12" name="__codelineno-24-12"></a>  -o,--output TEXT REQUIRED        Directory to write the document into
-</span><span id="__span-24-13"><a href="#__codelineno-24-13" id="__codelineno-24-13" name="__codelineno-24-13"></a>  -t,--title TEXT                  Name of the model, shown on the running header
-</span><span id="__span-24-14"><a href="#__codelineno-24-14" id="__codelineno-24-14" name="__codelineno-24-14"></a>  --include-package TEXT ...       Only document this package; repeatable
-</span><span id="__span-24-15"><a href="#__codelineno-24-15" id="__codelineno-24-15" name="__codelineno-24-15"></a>  --exclude-package TEXT ...       Leave this package out; repeatable
-</span><span id="__span-24-16"><a href="#__codelineno-24-16" id="__codelineno-24-16" name="__codelineno-24-16"></a>  --no-overview{false}             Drop the model overview
-</span><span id="__span-24-17"><a href="#__codelineno-24-17" id="__codelineno-24-17" name="__codelineno-24-17"></a>  --no-hierarchy{false}            Drop the class hierarchy
-</span><span id="__span-24-18"><a href="#__codelineno-24-18" id="__codelineno-24-18" name="__codelineno-24-18"></a>  --no-summaries{false}            Drop the per-package summary lists
-</span><span id="__span-24-19"><a href="#__codelineno-24-19" id="__codelineno-24-19" name="__codelineno-24-19"></a>  --no-index{false}                Drop the index of every type
-</span><span id="__span-24-20"><a href="#__codelineno-24-20" id="__codelineno-24-20" name="__codelineno-24-20"></a>  --no-used-by{false}              Drop the list of what refers to each type
-</span><span id="__span-24-21"><a href="#__codelineno-24-21" id="__codelineno-24-21" name="__codelineno-24-21"></a>  --no-flag-legend{false}          Drop the explanation of the property flags
-</span><span id="__span-24-22"><a href="#__codelineno-24-22" id="__codelineno-24-22" name="__codelineno-24-22"></a>  --no-built-ins{false}            Drop the list of the language's built-in types
-</span><span id="__span-24-23"><a href="#__codelineno-24-23" id="__codelineno-24-23" name="__codelineno-24-23"></a>  --front-matter TEXT:FILE         Typst file to include before the reference, as a title page
-</span><span id="__span-24-24"><a href="#__codelineno-24-24" id="__codelineno-24-24" name="__codelineno-24-24"></a>  --before-reference TEXT:FILE     Typst file to include after the front matter
-</span><span id="__span-24-25"><a href="#__codelineno-24-25" id="__codelineno-24-25" name="__codelineno-24-25"></a>  --after-reference TEXT:FILE      Typst file to include after the reference
-</span><span id="__span-24-26"><a href="#__codelineno-24-26" id="__codelineno-24-26" name="__codelineno-24-26"></a>  --style TEXT:FILE                Typst file defining the look, replacing the one shipped
+</span><span id="__span-24-10"><a href="#__codelineno-24-10" id="__codelineno-24-10" name="__codelineno-24-10"></a>  --depfile TEXT                   Write the files read to this make-style depfile
+</span><span id="__span-24-11"><a href="#__codelineno-24-11" id="__codelineno-24-11" name="__codelineno-24-11"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
+</span><span id="__span-24-12"><a href="#__codelineno-24-12" id="__codelineno-24-12" name="__codelineno-24-12"></a>  -s,--settings TEXT:FILE          Code generation settings file
+</span><span id="__span-24-13"><a href="#__codelineno-24-13" id="__codelineno-24-13" name="__codelineno-24-13"></a>  -o,--output TEXT REQUIRED        Directory to write the document into
+</span><span id="__span-24-14"><a href="#__codelineno-24-14" id="__codelineno-24-14" name="__codelineno-24-14"></a>  -t,--title TEXT                  Name of the model, shown on the running header
+</span><span id="__span-24-15"><a href="#__codelineno-24-15" id="__codelineno-24-15" name="__codelineno-24-15"></a>  --include-package TEXT ...       Only document this package; repeatable
+</span><span id="__span-24-16"><a href="#__codelineno-24-16" id="__codelineno-24-16" name="__codelineno-24-16"></a>  --exclude-package TEXT ...       Leave this package out; repeatable
+</span><span id="__span-24-17"><a href="#__codelineno-24-17" id="__codelineno-24-17" name="__codelineno-24-17"></a>  --no-overview{false}             Drop the model overview
+</span><span id="__span-24-18"><a href="#__codelineno-24-18" id="__codelineno-24-18" name="__codelineno-24-18"></a>  --no-hierarchy{false}            Drop the class hierarchy
+</span><span id="__span-24-19"><a href="#__codelineno-24-19" id="__codelineno-24-19" name="__codelineno-24-19"></a>  --no-summaries{false}            Drop the per-package summary lists
+</span><span id="__span-24-20"><a href="#__codelineno-24-20" id="__codelineno-24-20" name="__codelineno-24-20"></a>  --no-index{false}                Drop the index of every type
+</span><span id="__span-24-21"><a href="#__codelineno-24-21" id="__codelineno-24-21" name="__codelineno-24-21"></a>  --no-used-by{false}              Drop the list of what refers to each type
+</span><span id="__span-24-22"><a href="#__codelineno-24-22" id="__codelineno-24-22" name="__codelineno-24-22"></a>  --no-flag-legend{false}          Drop the explanation of the property flags
+</span><span id="__span-24-23"><a href="#__codelineno-24-23" id="__codelineno-24-23" name="__codelineno-24-23"></a>  --no-built-ins{false}            Drop the list of the language's built-in types
+</span><span id="__span-24-24"><a href="#__codelineno-24-24" id="__codelineno-24-24" name="__codelineno-24-24"></a>  --front-matter TEXT:FILE         Typst file to include before the reference, as a title page
+</span><span id="__span-24-25"><a href="#__codelineno-24-25" id="__codelineno-24-25" name="__codelineno-24-25"></a>  --before-reference TEXT:FILE     Typst file to include after the front matter
+</span><span id="__span-24-26"><a href="#__codelineno-24-26" id="__codelineno-24-26" name="__codelineno-24-26"></a>  --after-reference TEXT:FILE      Typst file to include after the reference
+</span><span id="__span-24-27"><a href="#__codelineno-24-27" id="__codelineno-24-27" name="__codelineno-24-27"></a>  --style TEXT:FILE                Typst file defining the look, replacing the one shipped
 </span></code></pre></div>
 <h4 id="typst-from-hla-foms">Typst from <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Models">FOMs</abbr><a class="headerlink" href="#typst-from-hla-foms" title="Permanent link">¶</a></h4>
 <div class="language-text highlight"><span class="filename">sen generate typst fom</span><pre><span></span><code><span id="__span-25-1"><a href="#__codelineno-25-1" id="__codelineno-25-1" name="__codelineno-25-1"></a>Process HLA FOM files
@@ -2477,10 +2482,11 @@ from the model.</p>
 </span><span id="__span-26-7"><a href="#__codelineno-26-7" id="__codelineno-26-7" name="__codelineno-26-7"></a>Options:
 </span><span id="__span-26-8"><a href="#__codelineno-26-8" id="__codelineno-26-8" name="__codelineno-26-8"></a><span class="w">  </span>-h,--help<span class="w">                        </span>Print<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
 </span><span id="__span-26-9"><a href="#__codelineno-26-9" id="__codelineno-26-9" name="__codelineno-26-9"></a><span class="w">  </span>-i,--import<span class="w"> </span>TEXT<span class="w"> </span>...<span class="w">             </span>Paths<span class="w"> </span>where<span class="w"> </span>other<span class="w"> </span>STL<span class="w"> </span>files<span class="w"> </span>can<span class="w"> </span>be<span class="w"> </span>found
-</span><span id="__span-26-10"><a href="#__codelineno-26-10" id="__codelineno-26-10" name="__codelineno-26-10"></a><span class="w">  </span>-b,--base-path,--base_path<span class="w"> </span>TEXT<span class="w">  </span>Base<span class="w"> </span>path<span class="w"> </span><span class="k">for</span><span class="w"> </span>including<span class="w"> </span>generated<span class="w"> </span>files
-</span><span id="__span-26-11"><a href="#__codelineno-26-11" id="__codelineno-26-11" name="__codelineno-26-11"></a><span class="w">  </span>-s,--settings<span class="w"> </span>TEXT:FILE<span class="w">          </span>Code<span class="w"> </span>generation<span class="w"> </span>settings<span class="w"> </span>file
-</span><span id="__span-26-12"><a href="#__codelineno-26-12" id="__codelineno-26-12" name="__codelineno-26-12"></a><span class="w">  </span>-o,--output<span class="w"> </span>TEXT<span class="w">                 </span>Output<span class="w"> </span>file
-</span><span id="__span-26-13"><a href="#__codelineno-26-13" id="__codelineno-26-13" name="__codelineno-26-13"></a><span class="w">  </span>-n,--name<span class="w"> </span>TEXT<span class="w">                   </span>Name<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>component
+</span><span id="__span-26-10"><a href="#__codelineno-26-10" id="__codelineno-26-10" name="__codelineno-26-10"></a><span class="w">  </span>--depfile<span class="w"> </span>TEXT<span class="w">                   </span>Write<span class="w"> </span>the<span class="w"> </span>files<span class="w"> </span><span class="nb">read</span><span class="w"> </span>to<span class="w"> </span>this<span class="w"> </span>make-style<span class="w"> </span>depfile
+</span><span id="__span-26-11"><a href="#__codelineno-26-11" id="__codelineno-26-11" name="__codelineno-26-11"></a><span class="w">  </span>-b,--base-path,--base_path<span class="w"> </span>TEXT<span class="w">  </span>Base<span class="w"> </span>path<span class="w"> </span><span class="k">for</span><span class="w"> </span>including<span class="w"> </span>generated<span class="w"> </span>files
+</span><span id="__span-26-12"><a href="#__codelineno-26-12" id="__codelineno-26-12" name="__codelineno-26-12"></a><span class="w">  </span>-s,--settings<span class="w"> </span>TEXT:FILE<span class="w">          </span>Code<span class="w"> </span>generation<span class="w"> </span>settings<span class="w"> </span>file
+</span><span id="__span-26-13"><a href="#__codelineno-26-13" id="__codelineno-26-13" name="__codelineno-26-13"></a><span class="w">  </span>-o,--output<span class="w"> </span>TEXT<span class="w">                 </span>Output<span class="w"> </span>file
+</span><span id="__span-26-14"><a href="#__codelineno-26-14" id="__codelineno-26-14" name="__codelineno-26-14"></a><span class="w">  </span>-n,--name<span class="w"> </span>TEXT<span class="w">                   </span>Name<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>component
 </span></code></pre></div>
 <h4 id="json-schemas-for-sen-components-from-hla-foms">JSON schemas for Sen components from <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Models">FOMs</abbr><a class="headerlink" href="#json-schemas-for-sen-components-from-hla-foms" title="Permanent link">¶</a></h4>
 <div class="language-shell highlight"><pre><span></span><code><span id="__span-27-1"><a href="#__codelineno-27-1" id="__codelineno-27-1" name="__codelineno-27-1"></a>Process<span class="w"> </span>HLA<span class="w"> </span>FOM<span class="w"> </span>files
@@ -2507,10 +2513,11 @@ from the model.</p>
 </span><span id="__span-28-7"><a href="#__codelineno-28-7" id="__codelineno-28-7" name="__codelineno-28-7"></a>Options:
 </span><span id="__span-28-8"><a href="#__codelineno-28-8" id="__codelineno-28-8" name="__codelineno-28-8"></a><span class="w">  </span>-h,--help<span class="w">                        </span>Print<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
 </span><span id="__span-28-9"><a href="#__codelineno-28-9" id="__codelineno-28-9" name="__codelineno-28-9"></a><span class="w">  </span>-i,--import<span class="w"> </span>TEXT<span class="w"> </span>...<span class="w">             </span>Paths<span class="w"> </span>where<span class="w"> </span>other<span class="w"> </span>STL<span class="w"> </span>files<span class="w"> </span>can<span class="w"> </span>be<span class="w"> </span>found
-</span><span id="__span-28-10"><a href="#__codelineno-28-10" id="__codelineno-28-10" name="__codelineno-28-10"></a><span class="w">  </span>-b,--base-path,--base_path<span class="w"> </span>TEXT<span class="w">  </span>Base<span class="w"> </span>path<span class="w"> </span><span class="k">for</span><span class="w"> </span>including<span class="w"> </span>generated<span class="w"> </span>files
-</span><span id="__span-28-11"><a href="#__codelineno-28-11" id="__codelineno-28-11" name="__codelineno-28-11"></a><span class="w">  </span>-s,--settings<span class="w"> </span>TEXT:FILE<span class="w">          </span>Code<span class="w"> </span>generation<span class="w"> </span>settings<span class="w"> </span>file
-</span><span id="__span-28-12"><a href="#__codelineno-28-12" id="__codelineno-28-12" name="__codelineno-28-12"></a><span class="w">  </span>-o,--output<span class="w"> </span>TEXT<span class="w">                 </span>Output<span class="w"> </span>file
-</span><span id="__span-28-13"><a href="#__codelineno-28-13" id="__codelineno-28-13" name="__codelineno-28-13"></a><span class="w">  </span>-c,--class<span class="w"> </span>TEXT<span class="w"> </span>...<span class="w">              </span>Classes<span class="w"> </span>implemented<span class="w"> </span>by<span class="w"> </span>the<span class="w"> </span>user
+</span><span id="__span-28-10"><a href="#__codelineno-28-10" id="__codelineno-28-10" name="__codelineno-28-10"></a><span class="w">  </span>--depfile<span class="w"> </span>TEXT<span class="w">                   </span>Write<span class="w"> </span>the<span class="w"> </span>files<span class="w"> </span><span class="nb">read</span><span class="w"> </span>to<span class="w"> </span>this<span class="w"> </span>make-style<span class="w"> </span>depfile
+</span><span id="__span-28-11"><a href="#__codelineno-28-11" id="__codelineno-28-11" name="__codelineno-28-11"></a><span class="w">  </span>-b,--base-path,--base_path<span class="w"> </span>TEXT<span class="w">  </span>Base<span class="w"> </span>path<span class="w"> </span><span class="k">for</span><span class="w"> </span>including<span class="w"> </span>generated<span class="w"> </span>files
+</span><span id="__span-28-12"><a href="#__codelineno-28-12" id="__codelineno-28-12" name="__codelineno-28-12"></a><span class="w">  </span>-s,--settings<span class="w"> </span>TEXT:FILE<span class="w">          </span>Code<span class="w"> </span>generation<span class="w"> </span>settings<span class="w"> </span>file
+</span><span id="__span-28-13"><a href="#__codelineno-28-13" id="__codelineno-28-13" name="__codelineno-28-13"></a><span class="w">  </span>-o,--output<span class="w"> </span>TEXT<span class="w">                 </span>Output<span class="w"> </span>file
+</span><span id="__span-28-14"><a href="#__codelineno-28-14" id="__codelineno-28-14" name="__codelineno-28-14"></a><span class="w">  </span>-c,--class<span class="w"> </span>TEXT<span class="w"> </span>...<span class="w">              </span>Classes<span class="w"> </span>implemented<span class="w"> </span>by<span class="w"> </span>the<span class="w"> </span>user
 </span></code></pre></div>
 <h4 id="json-schemas-for-sen-packages-from-hla-foms">JSON schemas for Sen packages from <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Models">FOMs</abbr><a class="headerlink" href="#json-schemas-for-sen-packages-from-hla-foms" title="Permanent link">¶</a></h4>
 <div class="language-shell highlight"><pre><span></span><code><span id="__span-29-1"><a href="#__codelineno-29-1" id="__codelineno-29-1" name="__codelineno-29-1"></a>Process<span class="w"> </span>HLA<span class="w"> </span>FOM<span class="w"> </span>files
@@ -2560,8 +2567,9 @@ from the model.</p>
 </span><span id="__span-32-7"><a href="#__codelineno-32-7" id="__codelineno-32-7" name="__codelineno-32-7"></a>Options:
 </span><span id="__span-32-8"><a href="#__codelineno-32-8" id="__codelineno-32-8" name="__codelineno-32-8"></a>  -h,--help                        Print this help message and exit
 </span><span id="__span-32-9"><a href="#__codelineno-32-9" id="__codelineno-32-9" name="__codelineno-32-9"></a>  -i,--import TEXT ...             Paths where other STL files can be found
-</span><span id="__span-32-10"><a href="#__codelineno-32-10" id="__codelineno-32-10" name="__codelineno-32-10"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
-</span><span id="__span-32-11"><a href="#__codelineno-32-11" id="__codelineno-32-11" name="__codelineno-32-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
+</span><span id="__span-32-10"><a href="#__codelineno-32-10" id="__codelineno-32-10" name="__codelineno-32-10"></a>  --depfile TEXT                   Write the files read to this make-style depfile
+</span><span id="__span-32-11"><a href="#__codelineno-32-11" id="__codelineno-32-11" name="__codelineno-32-11"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
+</span><span id="__span-32-12"><a href="#__codelineno-32-12" id="__codelineno-32-12" name="__codelineno-32-12"></a>  -s,--settings TEXT:FILE          Code generation settings file
 </span></code></pre></div>
 <h4 id="python-from-hla-foms">Python from <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Models">FOMs</abbr><a class="headerlink" href="#python-from-hla-foms" title="Permanent link">¶</a></h4>
 <div class="language-text highlight"><span class="filename">sen generate py fom</span><pre><span></span><code><span id="__span-33-1"><a href="#__codelineno-33-1" id="__codelineno-33-1" name="__codelineno-33-1"></a>Process HLA FOM files
@@ -2597,9 +2605,10 @@ from the model.</p>
 </span><span id="__span-35-7"><a href="#__codelineno-35-7" id="__codelineno-35-7" name="__codelineno-35-7"></a>Options:
 </span><span id="__span-35-8"><a href="#__codelineno-35-8" id="__codelineno-35-8" name="__codelineno-35-8"></a>  -h,--help                        Print this help message and exit
 </span><span id="__span-35-9"><a href="#__codelineno-35-9" id="__codelineno-35-9" name="__codelineno-35-9"></a>  -i,--import TEXT ...             Paths where other STL files can be found
-</span><span id="__span-35-10"><a href="#__codelineno-35-10" id="__codelineno-35-10" name="__codelineno-35-10"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
-</span><span id="__span-35-11"><a href="#__codelineno-35-11" id="__codelineno-35-11" name="__codelineno-35-11"></a>  -s,--settings TEXT:FILE          Code generation settings file
-</span><span id="__span-35-12"><a href="#__codelineno-35-12" id="__codelineno-35-12" name="__codelineno-35-12"></a>  -d,--out-dir TEXT REQUIRED       Output directory for the generated .ts files
+</span><span id="__span-35-10"><a href="#__codelineno-35-10" id="__codelineno-35-10" name="__codelineno-35-10"></a>  --depfile TEXT                   Write the files read to this make-style depfile
+</span><span id="__span-35-11"><a href="#__codelineno-35-11" id="__codelineno-35-11" name="__codelineno-35-11"></a>  -b,--base-path,--base_path TEXT  Base path for including generated files
+</span><span id="__span-35-12"><a href="#__codelineno-35-12" id="__codelineno-35-12" name="__codelineno-35-12"></a>  -s,--settings TEXT:FILE          Code generation settings file
+</span><span id="__span-35-13"><a href="#__codelineno-35-13" id="__codelineno-35-13" name="__codelineno-35-13"></a>  -d,--out-dir TEXT REQUIRED       Output directory for the generated .ts files
 </span></code></pre></div>
 <h2 id="archiving-utility">Archiving utility<a class="headerlink" href="#archiving-utility" title="Permanent link">¶</a></h2>
 <p>Helps you interact with archives. "Archive" and "recording" are the same thing here: the recorder

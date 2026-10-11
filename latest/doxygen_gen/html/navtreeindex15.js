@@ -1,5 +1,7 @@
 var NAVTREEINDEX15 =
 {
+"namespacemembers_vars.html":[1,1,2],
+"namespacemembers_w.html":[1,1,0,20],
 "namespacepybind11.html":[1,0,0],
 "namespacepybind11_1_1detail.html":[1,0,0,0],
 "namespaces.html":[1,0],
@@ -247,7 +249,5 @@ var NAVTREEINDEX15 =
 "namespacesen_1_1lang_1_1fom.html#a7863599c2dd3d862a5917793a130e69c":[1,0,1,4,0,8],
 "namespacesen_1_1lang_1_1fom.html#a7b228981e05f580a18668a426d13267a":[3,0,0,0,1,0,1,0,4],
 "namespacesen_1_1lang_1_1fom.html#a8123f42e8a1a90acfa33c57c0c50d587":[1,0,1,4,0,7],
-"namespacesen_1_1lang_1_1fom.html#a81b5ffd652cb534cc8421dc9a2b30325":[1,0,1,4,0,20],
-"namespacesen_1_1lang_1_1fom.html#a84b72cd5f45486712932350111c19646":[3,0,0,0,1,0,1,0,3],
-"namespacesen_1_1lang_1_1fom.html#a92d984298ccd86e322e9dd62f27db8b7":[1,0,1,4,0,12]
+"namespacesen_1_1lang_1_1fom.html#a81b5ffd652cb534cc8421dc9a2b30325":[1,0,1,4,0,20]
 };

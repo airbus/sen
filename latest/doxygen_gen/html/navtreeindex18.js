@@ -1,5 +1,7 @@
 var NAVTREEINDEX18 =
 {
+"structsen_1_1_struct_spec.html#ad94419725c829c63293ed36770083fae":[0,0,2,1,29,3],
+"structsen_1_1_struct_spec.html#af137e5850e6cd2e0f2132f9dd581b1e2":[0,0,2,1,29,2],
 "structsen_1_1_struct_traits_base.html":[0,0,2,0,7],
 "structsen_1_1_subscription.html":[0,0,4,25],
 "structsen_1_1_subscription.html#a0f8a64d4a7537bfd72a90346c2da1417":[0,0,4,25,1],
@@ -247,7 +249,5 @@ var NAVTREEINDEX18 =
 "variant__traits_8h_source.html":[3,0,0,0,0,0,0,3,30],
 "variant__type_8h.html":[3,0,0,0,0,0,0,3,31],
 "variant__type_8h_source.html":[3,0,0,0,0,0,0,3,31],
-"vec3_8h.html":[3,0,0,4,1,0,4],
-"vec3_8h_source.html":[3,0,0,4,1,0,4],
-"vm_8h.html":[3,0,0,0,0,0,0,2,10]
+"vec3_8h.html":[3,0,0,4,1,0,4]
 };

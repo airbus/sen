@@ -87,7 +87,9 @@ var group__lang =
       [ "reserve", "classsen_1_1lang_1_1_type_set_context.html#a9dbecd18232f0e4eb7c1f3fe8b81872f", null ],
       [ "size", "classsen_1_1lang_1_1_type_set_context.html#aae1478827f25c9db96874d6085f50d2a", null ],
       [ "begin", "classsen_1_1lang_1_1_type_set_context.html#a2066a61283230000efb4d9b199d96197", null ],
-      [ "end", "classsen_1_1lang_1_1_type_set_context.html#af36eaf43126239cfb6a5b19788fe3925", null ]
+      [ "end", "classsen_1_1lang_1_1_type_set_context.html#af36eaf43126239cfb6a5b19788fe3925", null ],
+      [ "recordReadFile", "classsen_1_1lang_1_1_type_set_context.html#ac298694dc4d8285b4d2975adf485579e", null ],
+      [ "readFiles", "classsen_1_1lang_1_1_type_set_context.html#a44ca147c57f7dda86825c8909da568dc", null ]
     ] ],
     [ "sen::lang::ClassAnnotations", "group__lang.html#structsen_1_1lang_1_1_class_annotations", [
       [ "checkedProperties", "group__lang.html#ad95e3d30302cd5389bc079ddbc2137be", null ],
