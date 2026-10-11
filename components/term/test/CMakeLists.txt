@@ -44,6 +44,18 @@ add_sen_unit_test_suite(
   unit/type_peel_test.cpp
   LINK_DEPS
   ${term_test_deps}
+  # One at a time, for one test in here: TreeNode.BuildingAFlatBusIsNotQuadratic times a build at
+  # two sizes and compares them, and a ratio of two measured phases cannot share a machine. Taking
+  # the minimum of several runs throws away a hiccup inside one phase and not a change in load
+  # between them, which is what the ratio is made of. It read 3.05 against a bound of 3.0 on main
+  # once the suite began running four at a time, and 3.19 in the nightly's flake hunt, which has
+  # always run at every processor.
+  #
+  # The whole suite is about 207 cases and 2.5 seconds, against 197 seconds of wall clock for the
+  # run, so serialising all of it to isolate one measurement costs nothing worth counting.
+  EXTRA_PROPERTIES
+  RUN_SERIAL
+  TRUE
 )
 
 add_subdirectory(integration/packages/term_showcase)
