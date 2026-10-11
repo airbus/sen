@@ -32,16 +32,22 @@ if(${SEN_CTEST_RANDOMIZE_TESTS})
   list(APPEND CMAKE_COMMON_CTEST_ARGUMENTS "--schedule-random")
 endif()
 
-# One at a time, as the suite runs it: --parallel 0 is serial on the cmake this
-# repository used to pin, so nothing has ever run concurrently and nothing is prepared for it.
-# Raising this makes tests share a machine, and the --timeout above was measured when each had
-# one to itself -- on a four-core runner it turns slow tests into timeouts, in numbers. Before
-# changing the default, size that timeout against a real run at the intended count and give the
-# tests that need longer a TIMEOUT of their own, as the jsonrpc and mcp_gateway suites do.
+# One per processor. A runner reports 4 available with 15.6 GiB [run 37926016582], and 4 rather
+# than 0 because 0 needs cmake 3.31 or newer and older ones read it as serial, which would leave
+# the suite running one at a time while reading as changed.
 #
-# 0 means every processor, and needs cmake 3.31 or newer; older ones read it as serial.
+# What this costs is the per-test budget. The --timeout above was sized when each test had the
+# machine to itself, and the slowest single test measures 19.52 seconds against it -- half a
+# second of headroom before contention turns the tail into timeouts. The suites that already
+# needed longer carry a TIMEOUT of their own, as jsonrpc and mcp_gateway do, and the ones that
+# cannot share a machine carry RUN_SERIAL or a RESOURCE_LOCK; together those are 61.6 seconds of
+# the 785 the suite spends, so they bound the floor rather than set it.
+#
+# The tail is what a run at this count has to confirm before any of it merges: which tests breach
+# 20 seconds with three others beside them, and by how much. That measurement belongs on a runner
+# and cannot be taken on an arm64 developer machine, where the CI image runs emulated.
 set(SEN_CTEST_JOBS
-    1
+    4
     CACHE STRING "Tests to run at once. 0 means every processor and needs cmake 3.31."
 )
 set(CTEST_PARALLEL_ARGS "--parallel" ${SEN_CTEST_JOBS})

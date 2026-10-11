@@ -74,15 +74,22 @@ jobs:
         shell: bash
         run: |
           bash .github/scripts/in_environment.sh <<'IN'
+          # SEN_CTEST_JOBS=1: a sanitizer lane runs its suite one test at a time, whatever the
+          # rest of the repository does. A detector's shadow state is per process, and four of
+          # them on a 4-processor runner with 15.6 GiB starves it: TSan at --parallel 4 timed a
+          # unit test out of its 20-second bound, aborted before the flaky pass, and archived no
+          # thread report at all [nightly run 38098378734, against 0 failures and a 75 kB report
+          # on main the night before]. A lane whose purpose is a reproducible inventory of races
+          # cannot be allowed to trade that for speed.
           conan install . --lockfile=.conan/conan.lock -s "&:build_type=Debug" --build=missing \
             -o "sen/*:with_tests=True" \
             -o "sen/*:sanitizer=${{ matrix.sanitizer }}" \
-            -c "tools.cmake.cmaketoolchain:extra_variables={'SEN_SANITIZER_LOG_DIR': '$PWD/sanitizer-reports'}"
+            -c "tools.cmake.cmaketoolchain:extra_variables={'SEN_SANITIZER_LOG_DIR': '$PWD/sanitizer-reports', 'SEN_CTEST_JOBS': '1'}"
           # conan build regenerates the toolchain, so it needs the same options.
           conan build . --lockfile=.conan/conan.lock -s "&:build_type=Debug" \
             -o "sen/*:with_tests=True" \
             -o "sen/*:sanitizer=${{ matrix.sanitizer }}" \
-            -c "tools.cmake.cmaketoolchain:extra_variables={'SEN_SANITIZER_LOG_DIR': '$PWD/sanitizer-reports'}"
+            -c "tools.cmake.cmaketoolchain:extra_variables={'SEN_SANITIZER_LOG_DIR': '$PWD/sanitizer-reports', 'SEN_CTEST_JOBS': '1'}"
           IN
 
       # Without this the lane cannot tell having found nothing from having looked at
@@ -245,15 +252,19 @@ jobs:
         shell: bash
         run: find .cache/ctcache -type f -mtime +14 -delete 2>/dev/null || true
 
+      # On main only, as every other save in this repository is. The key carries no ref, so a
+      # dispatch on a branch used to delete the entry main had written and replace it with its
+      # own: the drop is the half that costs, because a key is immutable and the save would
+      # otherwise be refused. Restoring stays open to every ref, so a branch still reads it.
       - name: Drop the entry this save replaces
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: bash .github/scripts/drop_cache_key.sh "ctcache-clang-20-17-Release"
 
       - name: Save the clang-tidy cache
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: .cache/ctcache
@@ -492,6 +503,61 @@ jobs:
               --build=missing -s "sen/*:compiler.cppstd=20"
           IN
 
+  # arm left the standard-test matrix on 2026-10-11: no release publishes it, so under Enrique's
+  # rule it does not gate a pull request. It still runs, because it buys something no other leg
+  # can. It is the only place `char` is unsigned by default, which once produced *wrong values*
+  # in shared inline definitions rather than a compile error, and the only architecture on which
+  # the NaN test cannot fail -- known only by having an arm leg to compare against.
+  #
+  # Nothing caches it, deliberately. A scheduled run is on main and every compiler-cache save is
+  # gated on main, so a lane carried over unchanged would go on writing the 1012 MB entry this
+  # move exists to stop writing, against a 10 GiB repository budget that cannot be raised. The
+  # cost is that dependencies build from source every night, which is what the timeout is for and
+  # which this lane's duration does not have to answer for.
+  arm:
+    name: "Ubuntu arm"
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 150
+    env:
+      CC: gcc-12
+      CXX: g++-12
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+
+      # The runner path, not prepare_build_in_image: there is no arm CI image, which is also
+      # why releases ship no arm archive.
+      - name: Setup build context
+        uses: ./.github/actions/setup_build_context
+        with:
+          compiler-name: gcc
+          compiler-version: 12
+          arch: arm
+
+      - name: Compile the tree and its tests
+        shell: bash
+        run: |
+          bash .github/scripts/in_environment.sh <<'IN'
+          conan install . --lockfile=.conan/conan.lock -s "&:build_type=Debug" \
+            -s "&:compiler.cppstd=17" --build=missing \
+            -o "sen/*:with_tests=True" -o "sen/*:with_examples=True"
+          conan build . --lockfile=.conan/conan.lock -s "&:build_type=Debug" \
+            -s "&:compiler.cppstd=17" \
+            -o "sen/*:with_tests=True" -o "sen/*:with_examples=True"
+          IN
+
+      - name: Run tests
+        timeout-minutes: 60
+        shell: bash
+        run: |
+          bash .github/scripts/in_environment.sh <<'IN'
+          source build/gcc/Debug/generators/conanbuild.sh
+          cd build/gcc/Debug
+          ctest --parallel 4 --timeout 20 --output-on-failure --schedule-random \
+            --no-tests=error -LE flaky
+          IN
+
   # Pull requests build with gcc-12, the oldest compiler the project supports.
   # A newer release rejects code the older one accepts and warns about more, so
   # the whole tree, examples and tests included, is compiled once a day with the
@@ -645,6 +711,12 @@ jobs:
   publish-coverage:
     name: "Publish the report to the documentation site"
     needs: coverage
+    # On main only. This job pushes to gh-pages, which is the public documentation site, and
+    # nothing about the key or the path says which ref produced the report. A dispatch of this
+    # workflow on a branch therefore replaced main's published coverage with a branch's on
+    # 2026-10-11, gh-pages 0cfecdce0: that report was measured with rest_test disabled, so the
+    # figure on the site was computed without 64 cases until the next run on main replaced it.
+    if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
@@ -724,6 +796,7 @@ jobs:
     timeout-minutes: 10
     needs:
       [
+        arm,
         sanitizers,
         clang-tidy,
         flake-hunt,

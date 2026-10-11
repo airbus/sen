@@ -287,24 +287,65 @@ TEST(Var, boolean)
   }
 }
 
+// One case per type rather than all nine in one. checkNumberValues forks a death test for every
+// value that cannot fit a narrower width, so the combined case ran 13.81 seconds on main and
+// 15.17 under `ctest --parallel 4` [run 38096353194]: the slowest test that can share a machine,
+// and therefore a floor no parallel count could go below. Apart, each is under two seconds, and
+// a failure names the type that broke.
+
 /// @test
-/// Round-trips every integer and floating-point type through Var at min, max, lowest, zero,
-/// and a random sample. Checked getCopyAs to every other width returns the exact value when it
-/// fits and dies in debug with a truncation message when it does not, and each value also
-/// converts to bool and its decimal string.
+/// Round-trips uint8_t through Var at min, max, lowest, zero and a random sample, as
+/// checkNumberValues above describes.
 /// @requirements(SEN-1053)
-TEST(Var, numbers)
-{
-  checkNumberValues<uint8_t>();
-  checkNumberValues<int16_t>();
-  checkNumberValues<uint16_t>();
-  checkNumberValues<int32_t>();
-  checkNumberValues<uint32_t>();
-  checkNumberValues<int64_t>();
-  checkNumberValues<uint64_t>();
-  checkNumberValues<float32_t>();
-  checkNumberValues<float64_t>();
-}
+TEST(Var, numbers_uint8) { checkNumberValues<uint8_t>(); }
+
+/// @test
+/// Round-trips int16_t through Var at min, max, lowest, zero and a random sample, as
+/// checkNumberValues above describes.
+/// @requirements(SEN-1053)
+TEST(Var, numbers_int16) { checkNumberValues<int16_t>(); }
+
+/// @test
+/// Round-trips uint16_t through Var at min, max, lowest, zero and a random sample, as
+/// checkNumberValues above describes.
+/// @requirements(SEN-1053)
+TEST(Var, numbers_uint16) { checkNumberValues<uint16_t>(); }
+
+/// @test
+/// Round-trips int32_t through Var at min, max, lowest, zero and a random sample, as
+/// checkNumberValues above describes.
+/// @requirements(SEN-1053)
+TEST(Var, numbers_int32) { checkNumberValues<int32_t>(); }
+
+/// @test
+/// Round-trips uint32_t through Var at min, max, lowest, zero and a random sample, as
+/// checkNumberValues above describes.
+/// @requirements(SEN-1053)
+TEST(Var, numbers_uint32) { checkNumberValues<uint32_t>(); }
+
+/// @test
+/// Round-trips int64_t through Var at min, max, lowest, zero and a random sample, as
+/// checkNumberValues above describes.
+/// @requirements(SEN-1053)
+TEST(Var, numbers_int64) { checkNumberValues<int64_t>(); }
+
+/// @test
+/// Round-trips uint64_t through Var at min, max, lowest, zero and a random sample, as
+/// checkNumberValues above describes.
+/// @requirements(SEN-1053)
+TEST(Var, numbers_uint64) { checkNumberValues<uint64_t>(); }
+
+/// @test
+/// Round-trips float32_t through Var at min, max, lowest, zero and a random sample, as
+/// checkNumberValues above describes.
+/// @requirements(SEN-1053)
+TEST(Var, numbers_float32) { checkNumberValues<float32_t>(); }
+
+/// @test
+/// Round-trips float64_t through Var at min, max, lowest, zero and a random sample, as
+/// checkNumberValues above describes.
+/// @requirements(SEN-1053)
+TEST(Var, numbers_float64) { checkNumberValues<float64_t>(); }
 
 /// @test
 /// Converts a Var holding a numeric string to every integer and floating-point type, to bool,
