@@ -108,6 +108,10 @@ void setupGenJsonPackage(CLI::App& app)
                                std::ignore = sen::lang::readTypesFile(fileName, args->includePaths, typeSets, {});
                              }
                              writePackageOutput(typeSets, *pkgArgs);
+                             if (!args->depFile.empty())
+                             {
+                               writeDepFile(args->depFile, {pkgArgs->outFile}, typeSets.readFiles());
+                             }
                            });
 
   setupJsonPackageArgs(*stl, *pkgArgs);
@@ -139,6 +143,10 @@ void setupGenJsonComponent(CLI::App& app)
                                std::ignore = sen::lang::readTypesFile(fileName, args->includePaths, typeSets, {});
                              }
                              writeComponentOutput(typeSets, *compArgs);
+                             if (!args->depFile.empty())
+                             {
+                               writeDepFile(args->depFile, {compArgs->outFile}, typeSets.readFiles());
+                             }
                            });
 
   setupJsonComponentArgs(*stl, *compArgs);

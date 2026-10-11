@@ -16,7 +16,9 @@
 #include <fstream>
 #include <ios>
 #include <iterator>
+#include <set>
 #include <string>
+#include <vector>
 
 void openFile(const std::filesystem::path& path, std::ofstream& stream)
 {
@@ -61,6 +63,65 @@ void writeFile(const std::filesystem::path& path, const std::string& body)
     }
   }
 
+  std::ofstream stream;
+  openFile(path, stream);
+  stream << body;
+  SEN_ENSURE(stream.good());
+  stream.close();
+}
+
+namespace
+{
+
+/// Escapes the three characters a depfile reader treats as syntax rather than path.
+std::string escapedForDepFile(const std::filesystem::path& path)
+{
+  std::string escaped;
+  for (const char character: path.string())
+  {
+    switch (character)
+    {
+      case ' ':
+        escaped += "\\ ";
+        break;
+      case '#':
+        escaped += "\\#";
+        break;
+      case '$':
+        escaped += "$$";
+        break;
+      default:
+        escaped += character;
+        break;
+    }
+  }
+  return escaped;
+}
+
+}  // namespace
+
+void writeDepFile(const std::filesystem::path& path,
+                  const std::vector<std::filesystem::path>& targets,
+                  const std::set<std::filesystem::path>& dependencies)
+{
+  // `absolute("")` is the current directory, so an empty target would name a real path.
+  // `-o` is optional on every subcommand, so a caller can reach this.
+  SEN_ENSURE(!targets.empty());
+
+  std::string body;
+  for (const auto& target: targets)
+  {
+    SEN_ENSURE(!target.empty());
+    body += (body.empty() ? "" : " ") + escapedForDepFile(std::filesystem::absolute(target));
+  }
+  body += ":";
+  for (const auto& dependency: dependencies)
+  {
+    body += " " + escapedForDepFile(std::filesystem::absolute(dependency));
+  }
+  body += "\n";
+
+  // writeFile skips an identical write; a depfile must still be newer than its output.
   std::ofstream stream;
   openFile(path, stream);
   stream << body;

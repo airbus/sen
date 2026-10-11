@@ -162,3 +162,13 @@ configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/lang/stl/stl_resolver_test/complex_stl_file.stl
   ${CMAKE_CURRENT_BINARY_DIR}/bin/lang/stl/stl_resolver_test/complex_stl_file.stl COPYONLY
 )
+
+# A pair, because what is under test is that resolving one of them reads both.
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/lang/stl/stl_resolver_test/imported_base.stl
+  ${CMAKE_CURRENT_BINARY_DIR}/bin/lang/stl/stl_resolver_test/imported_base.stl COPYONLY
+)
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/lang/stl/stl_resolver_test/importing_leaf.stl
+  ${CMAKE_CURRENT_BINARY_DIR}/bin/lang/stl/stl_resolver_test/importing_leaf.stl COPYONLY
+)

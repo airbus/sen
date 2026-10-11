@@ -17,6 +17,7 @@
 
 // std
 #include <filesystem>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -165,6 +166,30 @@ class ClassUnderTest
   const auto method {typeSet->types.front()->asClassType()->searchMethodByName("deferredMethod")};
   ASSERT_NE(method, nullptr);
   ASSERT_TRUE(method->getDeferred());
+}
+
+/// @test
+/// Resolving a model records every file it read, transitive imports included.
+TEST_F(AStlResolver, RecordsEveryFileItReadsIncludingTheImportedOnes)
+{
+  // arrange
+  const std::filesystem::path leaf {"lang/stl/stl_resolver_test/importing_leaf.stl"};
+
+  // act (own context, so the record is this call's alone)
+  sen::lang::TypeSetContext context;
+  const sen::lang::TypeSet* typeSet {};
+  ASSERT_NO_THROW(
+    typeSet = sen::lang::readTypesFile(leaf, {"bin"}, context, {}, std::filesystem::current_path().string() + "/bin"));
+  ASSERT_NE(typeSet, nullptr);
+
+  // assert -- by file name, because the recorded paths are absolute and machine-specific
+  std::set<std::string> names;
+  for (const auto& path: context.readFiles())
+  {
+    names.insert(path.filename().string());
+  }
+  const std::set<std::string> expected {"imported_base.stl", "importing_leaf.stl"};
+  EXPECT_EQ(names, expected);
 }
 
 /// @test

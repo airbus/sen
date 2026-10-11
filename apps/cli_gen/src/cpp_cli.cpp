@@ -45,13 +45,18 @@ struct ExportsArgs
   std::vector<std::string> userTypes;
 };
 
-void writeGenerated(const sen::gen::CppGenerator::FileContents& contents)
+/// Writes each generated file, returning the paths so a depfile can name them.
+std::vector<std::filesystem::path> writeGenerated(const sen::gen::CppGenerator::FileContents& contents)
 {
+  std::vector<std::filesystem::path> written;
+  written.reserve(contents.size());
   for (const auto& [path, body]: contents)
   {
     writeFile(path, body);
     std::cout << "stl|cpp> " << path << std::endl;
+    written.emplace_back(path);
   }
+  return written;
 }
 
 void runExports(const ExportsArgs& args)
@@ -108,10 +113,17 @@ void setupCppCli(CLI::App& app)
                              const auto settings = readTypeSettings(args->codegenOptionsFile);
 
                              sen::lang::TypeSetContext context;
+                             std::vector<std::filesystem::path> outputs;
                              for (const auto& fileName: args->inputs)
                              {
                                auto typeSet = sen::lang::readTypesFile(fileName, args->includePaths, context, settings);
-                               writeGenerated(generator.generate(*typeSet, opts));
+                               const auto written = writeGenerated(generator.generate(*typeSet, opts));
+                               outputs.insert(outputs.end(), written.begin(), written.end());
+                             }
+
+                             if (!args->depFile.empty())
+                             {
+                               writeDepFile(args->depFile, outputs, context.readFiles());
                              }
                            });
 

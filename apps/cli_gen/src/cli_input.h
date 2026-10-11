@@ -34,6 +34,8 @@ struct StlArgs
   // can still accept the flags.
   std::string basePath;
   std::string codegenOptionsFile;
+  // Where to record the files read. Empty writes none.
+  std::filesystem::path depFile;
 };
 
 struct FomArgs
