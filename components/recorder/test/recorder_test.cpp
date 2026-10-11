@@ -94,7 +94,13 @@ TEST(RecorderTest, AutoStartRecordsCreationAndDeletionEntries)
 
   setup.objectSource->remove(trackedObject);
   setup.step(2);
+
+  // Two cycles before the stop, one after. The step after the stop is the deferred teardown,
+  // which is what lets a late deletion entry reach the archive. One cycle before the stop passes
+  // whether the teardown is deferred or not, so cutting it would spend margin and gate nothing.
   setup.recorder->stopDirect();
+  setup.step();
+
   sen::db::Input input(setup.archivePath.string(), setup.kernel->getTypes());
 
   bool foundCreation = false;
@@ -150,8 +156,12 @@ TEST(RecorderTest, RecordsPropertyChangesAndEvents)
   ASSERT_NE(setup.recorder, nullptr);
   setup.object->setNextSpeed(250.0);
   setup.object->valueChanged(99.1);
-  setup.step(2);
+  setup.step();
+
+  // The step after the stop is the recorder's deferred teardown. Without it both oracles below
+  // are false, which is what makes this test the gate for that behaviour.
   setup.recorder->stopDirect();
+  setup.step();
 
   sen::db::Input input(setup.archivePath.string(), setup.kernel->getTypes());
 
