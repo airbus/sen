@@ -159,7 +159,9 @@ SPECIFIED_JOBS = [
         ),
         include_in_release_workflow=True,
         include_in_conan_workflow=True,
-        include_in_conan_workflow_on_pull_requests=False,
+        # Also on pull requests: the only leg that packages on MSVC, so nothing else
+        # can refuse a break that only a Windows consumer sees.
+        include_in_conan_workflow_on_pull_requests=True,
         include_in_standard_test_workflow=True,
         include_in_standard_test_workflow_also_main=True,
     ),
