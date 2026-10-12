@@ -295,16 +295,28 @@ function(add_sen_unit_test_suite test_name)
     list(APPEND environment "TSAN_OPTIONS=suppressions=${TSAN_SUPPRESSION_FILE}${SEN_SANITIZER_LOG_OPTION}")
   endif()
 
-  # Build the PROPERTIES key/value list explicitly. Passing empty ENVIRONMENT inline would let
-  # list expansion eat the next args (e.g. EXTRA_PROPERTIES would silently land as ENVIRONMENT's
-  # value), so only append a property when it has a value.
-  set(_test_props LABELS ${labels})
+  # gtest_discover_tests pairs PROPERTIES as key/value, so a value expanding to anything but
+  # one item shifts everything after it. Hence the guard on empty, and the escaped semicolons
+  # so a list arrives as one argument; `labels` is a list once a suite is FLAKY.
+  string(
+    REPLACE ";"
+            "\\;"
+            _labels
+            "${labels}"
+  )
+  set(_test_props LABELS "${_labels}")
   if(environment)
+    string(
+      REPLACE ";"
+              "\\;"
+              _environment
+              "${environment}"
+    )
     list(
       APPEND
       _test_props
       ENVIRONMENT
-      ${environment}
+      "${_environment}"
     )
   endif()
   if(_arg_EXTRA_PROPERTIES)
