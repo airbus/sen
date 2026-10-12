@@ -59,10 +59,8 @@ a stack trace.
 So, for a system that must keep running: **do not throw out of a hook.** Return an error, or handle
 it where it happens. The exception is a method implementation, where throwing is handled by design.
 
-A hook that *returns* an error is treated separately during startup. The kernel logs the component
-and the explanation, dumps a backtrace, and stops the process. A failure while the kernel is coming
-up is handled differently again: what already started is torn down, and the original error is
-reported to whatever asked for the kernel, so a failed start does not leave half a system running.
+A hook that *returns* an error stops the kernel. The component and the reason are reported, and the
+process exits with a non-zero code.
 
 ### What survives a process boundary
 

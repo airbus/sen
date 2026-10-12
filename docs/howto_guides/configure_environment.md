@@ -105,13 +105,12 @@ process was started.
 is processors 2 and 3. The field is 64 bits wide, so processors beyond the first 64 cannot be
 addressed this way.
 
-!!! warning "An affinity Sen cannot apply stops the process"
+!!! warning "An affinity Sen cannot apply stops the kernel"
 
     If the operating system rejects the mask, which is what happens inside a container whose
     processor set does not include the processors you asked for, thread creation fails, and a
-    component that cannot create its thread terminates the whole process instead of continuing
-    without the setting. It is reported before that happens, so the cause is in the log, but the
-    process does not survive it.
+    component that cannot create its thread stops the kernel instead of continuing without the
+    setting. The reason is reported, and the process exits with a non-zero code.
 
     The same configuration can behave differently on a developer machine and in a container: a
     mask that is valid on the host may not be valid inside the container.
