@@ -195,7 +195,19 @@ function(
     message(FATAL_ERROR "add_dependency: both ${target_name} and ${dep_target_name} need to be valid targets!")
   endif()
 
-  copy_target_property(${target_name} ${dep_target_name} SEN_IMPORT_DIRS)
+  # An installed dependency's SEN_IMPORT_DIRS names the tree that built it. A missing search
+  # path is skipped, so this shadows rather than fails: where that tree is present, an import
+  # can resolve from it instead of the installed interfaces.
+  get_target_property(_dep_install_imports ${dep_target_name} INSTALL_SEN_IMPORT_DIRS)
+  if(_dep_install_imports)
+    set_property(
+      TARGET ${target_name}
+      APPEND
+      PROPERTY SEN_IMPORT_DIRS ${_dep_install_imports}
+    )
+  else()
+    copy_target_property(${target_name} ${dep_target_name} SEN_IMPORT_DIRS)
+  endif()
 
   if(scope STREQUAL "PUBLIC")
     # get exported types from dependencies
@@ -335,6 +347,10 @@ function(get_external_interfaces)
 
   # set base_path that should be common to all interfaces
   set_property(TARGET ${_arg_TARGET} PROPERTY INSTALL_BASE_PATH ${_abs_install_dir}/interfaces/)
+
+  # The import path belongs with the other rewritten ones: SEN_IMPORT_DIRS names the tree that
+  # built the package, which does not exist for whoever installed it.
+  set_property(TARGET ${_arg_TARGET} PROPERTY INSTALL_SEN_IMPORT_DIRS -i ${_abs_install_dir}/interfaces/)
 
   # set stl files if found
   if(_build_stl_files)
