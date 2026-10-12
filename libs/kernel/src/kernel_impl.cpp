@@ -111,6 +111,18 @@ int KernelImpl::run(KernelBlockMode blockMode)
   setCrashPhase("running");
 
   isRunning_ = true;
+
+  // requestStop ignores a request made before isRunning_ is set, and a component that fails while
+  // the groups come up makes one. Re-reading the states after the flag notices that failure.
+  // Anything that fails later reaches requestStop directly.
+  const auto& runners = getRunners();
+  const bool aComponentFailed = std::any_of(
+    runners.begin(), runners.end(), [](const auto& runner) { return runner->getState() == ComponentState::error; });
+  if (aComponentFailed)
+  {
+    requestStop(componentFailureExitCode);
+  }
+
   return applyRunMode(blockMode);
 }
 

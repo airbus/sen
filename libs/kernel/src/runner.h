@@ -61,6 +61,10 @@
 namespace sen::kernel::impl
 {
 
+/// What the process exits with when a component fails. cli_run uses 1 to 4 for exceptions that
+/// escape the kernel, so this sits outside that range.
+constexpr int componentFailureExitCode = 70;
+
 /// The calling thread's CPU time, user and system together. Defined in the translation unit so the
 /// platform headers stay out of this one.
 [[nodiscard]] NanoSecs getThreadCpuTime() noexcept;
@@ -256,8 +260,10 @@ private:
   /// Called by the internal thread.
   static void threadFunction(void* arg);
 
-  /// Sets lastError_ and sets the component state as error;
-  [[noreturn]] void toErrorState(const ExecError& err);
+  /// Records the error, puts the component into the error state every lifecycle stage skips, and
+  /// asks the kernel to stop with a non-zero exit code. Used from the component's own thread, which
+  /// has no caller to return an error to.
+  void toErrorState(const ExecError& err);
 
   /// Requests the component to stop execution.
   /// Does nothing if the state is 'stopped' or 'error' and fails if the
