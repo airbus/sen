@@ -70,9 +70,9 @@ target_include_directories(
 
 target_link_libraries(
   explorer_imgui
-  PUBLIC imgui::imgui
-         implot::implot
-         ${backend_libs}
+  PUBLIC $<BUILD_INTERFACE:imgui::imgui>
+         $<BUILD_INTERFACE:implot::implot>
+         $<BUILD_INTERFACE:${backend_libs}>
          core
 )
 
