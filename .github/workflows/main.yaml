@@ -48,8 +48,8 @@ jobs:
         name: Classify changed paths
         shell: bash
         # One of these is set per event: the pull request's base, the queue
-        # entry's, and on a push the commit main moved from. A push used to
-        # pass nothing here, so nothing was ever classified after a merge.
+        # entry's, and on a push the commit main moved from. Without the last
+        # of those, nothing is classified after a merge.
         env:
           BASE_SHA: >-
             ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}

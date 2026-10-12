@@ -11,7 +11,7 @@ the container. These scripts run under `set -u`, so reading a name outside that 
 before its first command, on every leg that uses the image, whatever the name was wanted for.
 
 That is how GITHUB_WORKSPACE, read one line above the test deciding whether it was wanted, stopped
-the Linux legs on 2026-10-08 while the Windows leg it was for ran fine.
+the Linux legs while the Windows leg it was for ran fine.
 """
 
 import re

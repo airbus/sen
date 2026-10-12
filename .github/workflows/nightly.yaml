@@ -253,7 +253,7 @@ jobs:
         run: find .cache/ctcache -type f -mtime +14 -delete 2>/dev/null || true
 
       # On main only, as every other save in this repository is. The key carries no ref, so a
-      # dispatch on a branch used to delete the entry main had written and replace it with its
+      # dispatch on a branch would otherwise delete the entry main wrote and replace it with its
       # own: the drop is the half that costs, because a key is immutable and the save would
       # otherwise be refused. Restoring stays open to every ref, so a branch still reads it.
       - name: Drop the entry this save replaces
@@ -503,8 +503,8 @@ jobs:
               --build=missing -s "sen/*:compiler.cppstd=20"
           IN
 
-  # arm left the standard-test matrix on 2026-10-11: no release publishes it, so under Enrique's
-  # rule it does not gate a pull request. It still runs, because it buys something no other leg
+  # arm is outside the standard-test matrix: no release publishes it, so it does not gate a
+  # pull request. It still runs, because it buys something no other leg
   # can. It is the only place `char` is unsigned by default, which once produced *wrong values*
   # in shared inline definitions rather than a compile error, and the only architecture on which
   # the NaN test cannot fail -- known only by having an arm leg to compare against.
@@ -713,9 +713,9 @@ jobs:
     needs: coverage
     # On main only. This job pushes to gh-pages, which is the public documentation site, and
     # nothing about the key or the path says which ref produced the report. A dispatch of this
-    # workflow on a branch therefore replaced main's published coverage with a branch's on
-    # 2026-10-11, gh-pages 0cfecdce0: that report was measured with rest_test disabled, so the
-    # figure on the site was computed without 64 cases until the next run on main replaced it.
+    # workflow on a branch would otherwise replace main's published coverage with a branch's,
+    # which can be a report built with suites disabled: the figure on the site would then be
+    # computed without them until the next run on main replaced it.
     if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15

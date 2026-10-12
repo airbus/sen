@@ -13,10 +13,10 @@ at once bound it and one saw the other's objects: that is what failed as `shell_
 `--schedule-random` decides whether any two of them overlap. So a green run is not evidence here
 and these assertions are.
 
-The runner copies each config with the port replaced rather than editing the file in place. The
-first attempt put an `@env` placeholder in the configs instead, which `check-yaml` rightly
-refused: `@` cannot start a plain scalar, and the expansion would also have made a typed port
-field a string. Hence the parse assertion below, which is the one that would have caught it.
+The runner copies each config with the port replaced rather than editing the file in place. An
+`@env` placeholder in the configs would not do: `@` cannot start a plain scalar, so `check-yaml`
+refuses it, and the expansion would make a typed port field a string. Hence the parse assertion
+below.
 
 Scope, so it reads as a decision rather than an oversight: other configs still name a port and
 should. Those under `apps` and `components/rest/config` are a product's defaults. The kernel
@@ -64,7 +64,7 @@ def test_the_runner_takes_its_port_from_the_operating_system():
 
 
 def test_a_rendered_config_carries_that_port_as_a_number():
-    """A string here would reach a typed port field, which is how the first attempt failed."""
+    """The rendered config carries the port as a number, not a string."""
     module = runner()
     rendered = Path(module.config_on_this_run_s_port(str(CONFIGS[0])))
     loaded = yaml.safe_load(rendered.read_text(encoding="utf-8"))

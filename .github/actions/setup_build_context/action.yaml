@@ -89,8 +89,7 @@ runs:
         cp .conan/profiles/sen_${COMPILER}_${ARCH} ~/.conan2/profiles/default
         # In global.conf, not appended to the profile: a bare append lands in
         # whichever section the profile ends with, and a profile ending in
-        # [settings] turns these into settings, where they do nothing. That is
-        # how the arm leg ended up refusing to install libgl.
+        # [settings] turns these into settings, where they do nothing.
         printf 'tools.system.package_manager:mode=install\ntools.system.package_manager:sudo=True\n' \
             >> ~/.conan2/global.conf
         # Same reason as the docs action: an upstream tarball host going down fails any

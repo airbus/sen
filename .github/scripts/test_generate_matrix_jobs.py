@@ -59,7 +59,7 @@ def test_every_shipped_configuration_is_tested():
     The document a release delivers is rendered by the run that tested the commit, and the
     release workflow only builds and packages -- it runs no tests of its own. So a shipped
     configuration missing from the matrix below is both untested and invisible in the report,
-    which is how two RelWithDebInfo builds shipped untested until 2026-10-08.
+    which is how a shipped configuration goes untested.
     """
 
     def built(job):
@@ -77,7 +77,7 @@ def test_every_shipped_configuration_is_tested():
 def test_a_pull_request_builds_only_what_a_release_ships():
     """The converse of the test above, so the two together hold the matrix equal to the release.
 
-    Enrique's rule, 2026-10-11: a pull request does not build a configuration no release
+    A pull request does not build a configuration no release
     publishes. A leg outside that set spends a merge's wall clock and a slice of a 10 GiB cache
     budget on a binary nobody receives, and the clang and arm legs between them held 57 per cent
     of all compiler cache while shipping nothing. Both are covered nightly instead.

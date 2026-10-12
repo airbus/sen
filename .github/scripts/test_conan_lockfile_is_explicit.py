@@ -6,9 +6,9 @@
 # ======================================================================================================================
 """Checks that every conan invocation in CI names the lockfile.
 
-The lockfile used to sit at the repository root, where conan loads it for any command run there.
-That pinned a consumer's resolution to recipe revisions their own remote may not carry, and the way
-out was documented nowhere. It now lives under `.conan/`, which conan does not read by itself, so
+The lockfile lives under `.conan/` rather than the repository root, where conan would load it for
+any command run there and pin a consumer's resolution to recipe revisions their own remote may not
+carry. Conan does not read that location by itself, so
 each CI invocation has to ask for it. Miss one and that lane resolves unpinned, silently and green.
 
 Commands printed in the documentation are deliberately not covered: a reader building from a clone

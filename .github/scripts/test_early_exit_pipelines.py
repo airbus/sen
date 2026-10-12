@@ -16,9 +16,8 @@ broken form and the smallest inputs never show it. That is why this reads the
 sources rather than running anything: the size that triggers it is a property of
 the day's data, not of the code.
 
-Found on 2026-09-22 in the standard tests, in clang_tidy_diff.yaml where it would
-have skipped the full sweep on a pull request that edits .clang-tidy, and in
-drop_cache_key.sh. The replacement is a herestring, which has no pipe to close.
+In clang_tidy_diff.yaml it would skip the full sweep on a pull request that edits
+.clang-tidy. The replacement is a herestring, which has no pipe to close.
 """
 
 import re

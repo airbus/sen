@@ -50,8 +50,8 @@ FINDING = re.compile(r"(?:WARNING|ERROR): (\w+Sanitizer): (.+)")
 UBSAN = re.compile(r"^(?P<where>.+?):(?P<line>\d+):(?P<col>\d+): runtime error: (?P<kind>.+?)\s*$", re.M)
 
 # A runtime that could not do its job writes this into the log where a finding would go, and
-# with log_path set it writes nothing to stderr -- so every test goes red and the summary
-# beside them used to say there were no findings.
+# with log_path set it writes nothing to stderr -- so every test goes red while the summary
+# beside them reports no findings unless this is matched.
 MALFUNCTION = re.compile(r"(\w+Sanitizer): (failed to (?:read|parse) suppressions[^\n]*|CHECK failed:[^\n]*)")
 
 # "on vptr" is part of the kind; "on address" is not, nor is a pid or an aside.
@@ -401,7 +401,7 @@ def main() -> int:
                 text.append(child.read_text(encoding="utf-8", errors="replace"))
             except OSError as error:
                 # A container running as root leaves its reports unreadable by the job's
-                # user. Unread is not the same as absent, and used to render as absent.
+                # user, and unread is not the same as absent.
                 unreadable.append(f"{child}: {error.strerror}")
 
     joined = "\n".join(text)
