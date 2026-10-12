@@ -322,7 +322,7 @@ class SenConan(ConanFile):
     def package_info(self):
         """Calculate the conan package info."""
         self.cpp_info.set_property("cmake_find_mode", "none")
-        self.cpp_info.builddirs = [join("cmake", "sen")]
+        self.cpp_info.builddirs = [join("lib", "cmake", "sen")]
         self.cpp_info.set_property("cmake_target_name", "sen::core sen::kernel sen::db sen::util")
 
         # runenv library paths. Executables are in bin, shared objects in lib, which is also

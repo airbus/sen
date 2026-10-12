@@ -68,30 +68,34 @@ setup_two_builds() {
     [ "$SEN_PREFIX" = "$SEN_INSTALL_HOME/$BUILD_A" ]
     [[ "$PATH" == "$SEN_INSTALL_HOME/$BUILD_A/bin:"* ]]
     [[ "$PATH" == *":/usr/local/bin:"* ]]
-    # /cmake, not the bare prefix: the config is at <prefix>/cmake/sen and CMake's search
-    # does not reach it from <prefix>. Asserting the bare prefix here once hid that.
-    [ "$CMAKE_PREFIX_PATH" = "$SEN_INSTALL_HOME/$BUILD_A/cmake:/some/prior/path" ]
+    # Both, bare prefix first: the config is at <prefix>/lib/cmake/sen now and at <prefix>/cmake/sen
+    # in older releases. Order decides which wins where a prefix holds both.
+    [ "$CMAKE_PREFIX_PATH" = "$SEN_INSTALL_HOME/$BUILD_A:$SEN_INSTALL_HOME/$BUILD_A/cmake:/some/prior/path" ]
     # lib first, then bin: one installer installs every release, and releases before the
     # split put the shared libraries in bin.
     [ "$LD_LIBRARY_PATH" = "$SEN_INSTALL_HOME/$BUILD_A/lib:$SEN_INSTALL_HOME/$BUILD_A/bin" ]
 }
 
-@test "find_package(sen) resolves through the CMAKE_PREFIX_PATH set by activate" {
+@test "find_package(sen) resolves through the CMAKE_PREFIX_PATH set by activate alone" {
     if ! command -v cmake >/dev/null 2>&1; then skip "cmake not installed"; fi
     load_install
     local prefix
     prefix="$(make_fake_build "$BUILD_A")"
     # Where a real install puts the package config. Asserting the string CMAKE_PREFIX_PATH holds
     # cannot catch a wrong prefix; letting CMake resolve it can.
-    mkdir -p "$prefix/cmake/sen"
-    printf 'set(sen_FOUND TRUE)\n' > "$prefix/cmake/sen/sen-config.cmake"
+    mkdir -p "$prefix/lib/cmake/sen"
+    printf 'set(sen_FOUND TRUE)\n' > "$prefix/lib/cmake/sen/sen-config.cmake"
     write_activate_scripts "$prefix"
 
     local proj="$SEN_TEST_TMPDIR/probe"
     mkdir -p "$proj"
+    # activate also puts <prefix>/bin on PATH, and CMake turns a PATH entry ending in /bin into
+    # its parent and searches there -- which reaches lib/cmake/sen on its own. Suppressed, or this
+    # passes whatever CMAKE_PREFIX_PATH holds.
     cat > "$proj/CMakeLists.txt" <<'CM'
 cmake_minimum_required(VERSION 3.21)
 project(probe LANGUAGES NONE)
+set(CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH FALSE)
 find_package(sen REQUIRED)
 CM
 
@@ -100,6 +104,36 @@ CM
     . "$prefix/activate"
     run cmake -S "$proj" -B "$SEN_TEST_TMPDIR/probe-build"
     [ "$status" -eq 0 ]
+}
+
+@test "a prefix holding both layouts resolves the current one" {
+    if ! command -v cmake >/dev/null 2>&1; then skip "cmake not installed"; fi
+    load_install
+    local prefix
+    prefix="$(make_fake_build "$BUILD_A")"
+    # Installing a release over an older one leaves its config behind. Each config reports which
+    # it is, because a passing find_package cannot say which of the two answered.
+    mkdir -p "$prefix/lib/cmake/sen" "$prefix/cmake/sen"
+    printf 'set(sen_FOUND TRUE)\nset(SEN_PROBE current)\n' > "$prefix/lib/cmake/sen/sen-config.cmake"
+    printf 'set(sen_FOUND TRUE)\nset(SEN_PROBE older)\n' > "$prefix/cmake/sen/sen-config.cmake"
+    write_activate_scripts "$prefix"
+
+    local proj="$SEN_TEST_TMPDIR/both"
+    mkdir -p "$proj"
+    cat > "$proj/CMakeLists.txt" <<'CM'
+cmake_minimum_required(VERSION 3.21)
+project(both LANGUAGES NONE)
+set(CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH FALSE)
+find_package(sen REQUIRED)
+message(STATUS "PROBE|${SEN_PROBE}")
+CM
+
+    unset CMAKE_PREFIX_PATH
+    # shellcheck disable=SC1091
+    . "$prefix/activate"
+    run cmake -S "$proj" -B "$SEN_TEST_TMPDIR/both-build"
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"PROBE|current"* ]]
 }
 
 @test "re-sourcing the same activate leaves PATH unchanged" {
@@ -164,14 +198,17 @@ CM
     [ "$output" = "$SEN_INSTALL_HOME/$BUILD_A/bin" ]
 }
 
-@test "sourcing activate.fish under fish sets CMAKE_PREFIX_PATH with the /cmake suffix" {
+@test "sourcing activate.fish under fish sets CMAKE_PREFIX_PATH to both layouts" {
     require_fish
     load_install
     make_fake_build "$BUILD_A" >/dev/null
     write_activate_scripts "$SEN_INSTALL_HOME/$BUILD_A"
-    run fish -c "set -e CMAKE_PREFIX_PATH; source $SEN_INSTALL_HOME/$BUILD_A/activate.fish; echo \$CMAKE_PREFIX_PATH"
+    # printenv, not echo: fish splits any variable whose name ends in PATH on colons, so an
+    # unquoted $CMAKE_PREFIX_PATH reaches echo as separate arguments and prints space-separated.
+    # What CMake gets is the exported form, and printenv is that -- it also fails if -x is dropped.
+    run fish -c "set -e CMAKE_PREFIX_PATH; source $SEN_INSTALL_HOME/$BUILD_A/activate.fish; printenv CMAKE_PREFIX_PATH"
     [ "$status" -eq 0 ]
-    [ "$output" = "$SEN_INSTALL_HOME/$BUILD_A/cmake" ]
+    [ "$output" = "$SEN_INSTALL_HOME/$BUILD_A:$SEN_INSTALL_HOME/$BUILD_A/cmake" ]
 }
 
 @test "switching builds under fish drops the previous build's bin/ from PATH" {

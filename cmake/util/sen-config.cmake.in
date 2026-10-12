@@ -10,4 +10,6 @@ include("${CMAKE_CURRENT_LIST_DIR}/sen_targets.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/util/sen_utils.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/util/git_info.cmake")
 
-set(SEN_INSTALL_DIR ${CMAKE_CURRENT_LIST_DIR}/../../)
+# @PACKAGE_INIT@ computes this from the install destination, so it survives the config moving.
+# The trailing slash is the published contract: consumers join onto it without a separator.
+set(SEN_INSTALL_DIR ${PACKAGE_PREFIX_DIR}/)

@@ -26,9 +26,9 @@ REQUIRED_FILES = (
     "LICENSE.txt",
     # sen.exe on Windows; either spelling satisfies this entry.
     "bin/sen",
-    "cmake/sen/sen_targets.cmake",
-    "cmake/sen/sen-config-version.cmake",
-    "cmake/sen/util/sen_utils.cmake",
+    "lib/cmake/sen/sen_targets.cmake",
+    "lib/cmake/sen/sen-config-version.cmake",
+    "lib/cmake/sen/util/sen_utils.cmake",
 )
 
 REQUIRED_DIRECTORIES = (

@@ -153,7 +153,7 @@ not a starting point for your machine.
 
 The recipe sets `cmake_find_mode = "none"` (in `conanfile.py`), so Conan does not generate a
 synthetic `senConfig.cmake` for downstream consumers. Instead, your build picks up Sen's own
-`<prefix>/cmake/sen/sen-config.cmake` via the `CMAKE_PREFIX_PATH` that `CMakeDeps` populates:
+`<prefix>/lib/cmake/sen/sen-config.cmake` via the `CMAKE_PREFIX_PATH` that `CMakeDeps` populates:
 `find_package(sen)` "just works" once the toolchain file is loaded.
 
 1. Add a Conan configuration file (`conanfile.txt` or `conanfile.py`) at the top level of your
@@ -358,12 +358,13 @@ a debugger looks first.
 In your project's `CMakeLists.txt`, point CMake at the prefix and pull Sen in with `find_package`:
 
 ```cmake
-list(APPEND CMAKE_PREFIX_PATH "$ENV{SEN_PREFIX}/cmake")
+list(APPEND CMAKE_PREFIX_PATH "$ENV{SEN_PREFIX}")
 find_package(sen REQUIRED)
 ```
 
-Sen installs its CMake config under `<prefix>/cmake/sen/sen-config.cmake`. CMake's standard search
-does not reach that from `<prefix>` alone, so the `/cmake` suffix is required.
+Sen installs its CMake config under `<prefix>/lib/cmake/sen/sen-config.cmake`, which CMake's standard
+search reaches from the prefix. Older releases installed it under `<prefix>/cmake/sen`, which the
+search does not reach; against one of those, append `/cmake` to the prefix path.
 
 ## Building from source
 
