@@ -106,6 +106,17 @@ else()
         APPEND
         PROPERTY INTERFACE_COMPILE_DEFINITIONS "SPDLOG_FMT_EXTERNAL" "FMT_HEADER_ONLY"
       )
+
+      # fmt's headers carry a static_assert that fails unless the literal encoding is UTF-8, and
+      # MSVC reads a source file as the build machine's ANSI code page without this. Set here
+      # because this is what hands a consumer the fmt headers that require it.
+      if(MSVC)
+        set_property(
+          TARGET spdlog::spdlog
+          APPEND
+          PROPERTY INTERFACE_COMPILE_OPTIONS "/utf-8"
+        )
+      endif()
     endif()
   endif()
 
