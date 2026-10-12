@@ -10,7 +10,9 @@ include(FindPackageHandleStandardArgs)
 # spdlog types appear in the kernel's public signatures, so a component has to compile against the
 # spdlog the kernel was built with -- component_api.h says so where it declares them. The headers
 # installed beside Sen's own are that copy, and their version.h is the record of which one it is.
-get_filename_component(_sen_spdlog_vendored_dir "${CMAKE_CURRENT_LIST_DIR}/../../include" ABSOLUTE)
+# Three levels: this module installs beside the config, at <prefix>/lib/cmake/sen. Hardcoded
+# depth, kept in step by test_findspdlog.py, which builds its fixtures at the same place.
+get_filename_component(_sen_spdlog_vendored_dir "${CMAKE_CURRENT_LIST_DIR}/../../../include" ABSOLUTE)
 
 # Reads MAJOR.MINOR.PATCH from a spdlog header tree, leaving `out_var` empty when none is there.
 function(_sen_read_spdlog_version include_dir out_var)

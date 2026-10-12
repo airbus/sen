@@ -27,7 +27,7 @@ install(TARGETS sen_coverage_flags EXPORT sen_targets)
 set(_cmakedir_desc "Directory relative to CMAKE_INSTALL to install the cmake configuration files")
 
 set(CMAKE_INSTALL_CMAKEDIR
-    "cmake/sen"
+    "${CMAKE_INSTALL_LIBDIR}/cmake/sen"
     CACHE STRING "${_cmakedir_desc}"
 )
 

@@ -539,7 +539,7 @@ function(configure_exportable_packages)
                 auxName
                 "${auxName}"
       )
-      set(CMAKE_INSTALL_CMAKEDIR "cmake/${auxName}")
+      set(CMAKE_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/cmake/${auxName}")
     endif()
 
     configure_package_config_file(

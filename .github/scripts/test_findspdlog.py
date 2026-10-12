@@ -27,8 +27,9 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 MODULE = ROOT / "cmake" / "util" / "Findspdlog.cmake"
 
-# As installed: <prefix>/cmake/sen/Findspdlog.cmake, with the headers at <prefix>/include.
-MODULE_SUBDIR = Path("cmake") / "sen"
+# As installed: <prefix>/lib/cmake/sen/Findspdlog.cmake, with the headers at <prefix>/include. The
+# fixtures only need to resemble that; the module is found through CMAKE_MODULE_PATH, not a search.
+MODULE_SUBDIR = Path("lib") / "cmake" / "sen"
 
 SEN_SPDLOG = "1.17.0"
 OTHER_SPDLOG = "1.9.2"
