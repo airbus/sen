@@ -429,6 +429,39 @@ jobs:
           python .github/scripts/check_package_archive.py build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/
           IN
 
+      # Nothing else installs Sen and then builds against it, which is how a moved config
+      # directory and a stale template both shipped. Linux only: the Windows legs carry
+      # check_package too, but a DLL is found through PATH and that is unmeasured here.
+      - name: Build and run a generated package against the installed Sen
+        if: matrix.check_package && runner.os == 'Linux'
+        shell: bash
+        run: |
+          bash .github/scripts/in_environment.sh <<'IN'
+          source build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/generators/conanbuild.sh
+          prefix="$PWD/build/installed-sen"
+          rm -rf "$prefix"
+          cmake --install build/${{ matrix.compiler.name }}/${{ matrix.build_type }}/ --prefix "$prefix"
+
+          # What the generated CMakeLists.txt reads. The prefix alone: the config installs
+          # where CMake's own search reaches it.
+          export SEN_PREFIX="$prefix"
+          export PATH="$prefix/bin:$PATH"
+
+          work="$PWD/build/generated-package"
+          rm -rf "$work"
+          mkdir -p "$work"
+          cd "$work"
+          sen package init my_package --class MyClass
+          cd my_package
+
+          cmake -S . -B b -G Ninja
+          cmake --build b
+
+          # A subshell, because a component that fails to load ends the process and takes an
+          # un-isolated shell with it before it can report. set -e still fails the step.
+          ( LD_LIBRARY_PATH="$PWD/b/lib:$prefix/lib:$prefix/bin" sen run config.yaml --start-stop )
+          IN
+
       # TODO(SEN-1726): Connect App to Airbus Org.
       # - name: Upload coverage to Codecov
       #   uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238  # v4
