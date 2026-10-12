@@ -959,7 +959,7 @@ set -l _sen_ldlib_path (_sen_strip "\$LD_LIBRARY_PATH")
 # below, for the reason given in the POSIX activate above.
 set -gx PATH \$SEN_PREFIX/bin (string split ':' -- \$_sen_path)
 
-# The /cmake suffix is required, for the reason given in the POSIX activate above.
+# Both locations, bare prefix first, for the reason given in the POSIX activate above.
 if test -n "\$_sen_cmake_path"
     set -gx CMAKE_PREFIX_PATH "\$SEN_PREFIX:\$SEN_PREFIX/cmake:\$_sen_cmake_path"
 else

@@ -203,7 +203,10 @@ CM
     load_install
     make_fake_build "$BUILD_A" >/dev/null
     write_activate_scripts "$SEN_INSTALL_HOME/$BUILD_A"
-    run fish -c "set -e CMAKE_PREFIX_PATH; source $SEN_INSTALL_HOME/$BUILD_A/activate.fish; echo \$CMAKE_PREFIX_PATH"
+    # printenv, not echo: fish splits any variable whose name ends in PATH on colons, so an
+    # unquoted $CMAKE_PREFIX_PATH reaches echo as separate arguments and prints space-separated.
+    # What CMake gets is the exported form, and printenv is that -- it also fails if -x is dropped.
+    run fish -c "set -e CMAKE_PREFIX_PATH; source $SEN_INSTALL_HOME/$BUILD_A/activate.fish; printenv CMAKE_PREFIX_PATH"
     [ "$status" -eq 0 ]
     [ "$output" = "$SEN_INSTALL_HOME/$BUILD_A:$SEN_INSTALL_HOME/$BUILD_A/cmake" ]
 }
