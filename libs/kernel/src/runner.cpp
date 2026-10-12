@@ -69,13 +69,6 @@
 // Helpers
 //--------------------------------------------------------------------------------------------------------------
 
-// NOLINTNEXTLINE
-#define EXCEPTION_WRAP_BLOCK(statements)                                                                               \
-  do                                                                                                                   \
-  {                                                                                                                    \
-    statements                                                                                                         \
-  } while (0);
-
 //--------------------------------------------------------------------------------------------------------------
 // SessionsDiscoverer
 //--------------------------------------------------------------------------------------------------------------
@@ -96,17 +89,37 @@ namespace sen::kernel::impl
 {
 namespace
 {
-template <typename R>
-void terminateIfError(const R& result, const char* operation, const ComponentContext& context)
+/// Logs the component and the operation, then rethrows. The exception must stay in flight. The
+/// crash reporter reads `std::current_exception()`, and in a debug build `throwRuntimeError`
+/// raises a `cpptrace::runtime_error`, which `catch (std::runtime_error&)` does not match.
+template <typename Call>
+void nameTheComponentOnThrow(const char* operation, const ComponentContext& context, Call&& call)
 {
-  if (result.isError())
+  try
   {
-    spdlog::error(
-      "Error detected while {} component {}: {}", operation, context.info.name, result.getError().explanation);
-
-    spdlog::dump_backtrace();
-    std::terminate();
+    call();
   }
+  catch (const std::exception& err)
+  {
+    spdlog::error("error {} component '{}': {}", operation, context.info.name, err.what());
+    throw;
+  }
+  catch (...)
+  {
+    spdlog::error("error {} component '{}': unknown exception", operation, context.info.name);
+    throw;
+  }
+}
+
+/// Prefixes a hook's error with the component and the operation. Executor builds the same sentence
+/// for the startup hooks. The run and unload paths have no caller to report to, so they build it
+/// here.
+ExecError nameTheComponent(const char* operation, const ComponentContext& context, const ExecError& err)
+{
+  std::string msg;
+  msg.append("error ").append(operation).append(" component '").append(context.info.name).append("': ");
+  msg.append(err.explanation);
+  return ExecError {err.category, msg};
 }
 
 }  // namespace
@@ -227,9 +240,14 @@ FuncResult Runner::preload()
 
   FuncResult preloadResult = ::sen::Ok();
 
-  // NOLINTNEXTLINE
-  EXCEPTION_WRAP_BLOCK(preloadResult = component_.instance->preload(PreloadApi(kernel_.getSubject(), this, config_));)
-  terminateIfError(preloadResult, "preloading", component_);
+  nameTheComponentOnThrow(
+    "preloading",
+    component_,
+    [&] { preloadResult = component_.instance->preload(PreloadApi(kernel_.getSubject(), this, config_)); });
+  if (preloadResult.isError())
+  {
+    return preloadResult;  // Executor names the component and brings the kernel down
+  }
 
   state_.store(ComponentState::preloaded);
   return preloadResult;  // done here
@@ -257,9 +275,14 @@ FuncResult Runner::load()
 
   FuncResult loadResult = ::sen::Ok();
 
-  // NOLINTNEXTLINE
-  EXCEPTION_WRAP_BLOCK(loadResult = component_.instance->load(LoadApi(kernel_.getSubject(), this, config_));)
-  terminateIfError(loadResult, "loading", component_);
+  nameTheComponentOnThrow("loading",
+                          component_,
+                          [&]
+                          { loadResult = component_.instance->load(LoadApi(kernel_.getSubject(), this, config_)); });
+  if (loadResult.isError())
+  {
+    return loadResult;  // Executor names the component and brings the kernel down
+  }
 
   state_.store(ComponentState::loaded);
   return loadResult;  // done here
@@ -288,9 +311,14 @@ PassResult Runner::init()
 
   PassResult initResult = ::sen::Ok(OpState {OpFinished {}});
 
-  // NOLINTNEXTLINE
-  EXCEPTION_WRAP_BLOCK(initResult = component_.instance->init(InitApi(kernel_.getSubject(), this, config_));)
-  terminateIfError(initResult, "initializing", component_);
+  nameTheComponentOnThrow("initializing",
+                          component_,
+                          [&]
+                          { initResult = component_.instance->init(InitApi(kernel_.getSubject(), this, config_)); });
+  if (initResult.isError())
+  {
+    return initResult;  // before getValue() below, which an error result has none of
+  }
 
   if (std::holds_alternative<OpFinished>(initResult.getValue()))
   {
@@ -356,7 +384,6 @@ FuncResult Runner::run()
 
     ExecError err {ErrorCategory::runtimeError, msg};
     toErrorState(err);
-    SEN_UNREACHABLE();
     return Err(err);
   }
 
@@ -387,9 +414,31 @@ void Runner::unload()
 
   FuncResult unloadResult = ::sen::Ok();
 
-  // NOLINTNEXTLINE
-  EXCEPTION_WRAP_BLOCK(unloadResult = component_.instance->unload(UnloadApi(kernel_.getSubject(), config_, this));)
-  terminateIfError(unloadResult, "unloading", component_);
+  // Caught here rather than named and rethrown, which is what the other entry points do. An
+  // exception leaving this walk abandons the rest of the shutdown, so later runners never unload
+  // and the kernel is destroyed on top of that, which gcc read as a segfault.
+  try
+  {
+    unloadResult = component_.instance->unload(UnloadApi(kernel_.getSubject(), config_, this));
+  }
+  catch (const std::exception& err)
+  {
+    unloadResult = ::sen::Err(ExecError {ErrorCategory::runtimeError, err.what()});
+  }
+  catch (...)
+  {
+    unloadResult = ::sen::Err(ExecError {ErrorCategory::runtimeError, "unknown exception"});
+  }
+
+  if (unloadResult.isError())
+  {
+    // Recorded, and then the teardown finishes. The kernel is already stopping, so there is no stop
+    // to request, and a runner left short of `unloaded` leaves the rest of the shutdown walking
+    // past resources it expects released.
+    const ExecError named = nameTheComponent("unloading", component_, unloadResult.getError());
+    spdlog::error(named.explanation);
+    lastError_ = named;
+  }
 
   state_.store(ComponentState::unloaded);
 }
@@ -446,7 +495,6 @@ void Runner::stopThread()
   if (!os_.joinThread(thread_))
   {
     toErrorState(ExecError {ErrorCategory::runtimeError, "error joining thread"});
-    SEN_UNREACHABLE();
     return;
   }
 
@@ -521,10 +569,13 @@ void Runner::doRun()
   // We need to initialize time before starting to execute, to ensure everything, even initialize published objects see
   // the correct starting time.
   initializeTime();
-  // NOLINTNEXTLINE
-  EXCEPTION_WRAP_BLOCK(runResult = component_.instance->run(runApi_);)
+  nameTheComponentOnThrow("running", component_, [&] { runResult = component_.instance->run(runApi_); });
   serializableEvents_.clear();
-  terminateIfError(runResult, "running", component_);
+
+  if (runResult.isError())
+  {
+    toErrorState(nameTheComponent("running", component_, runResult.getError()));
+  }
 }
 
 void Runner::threadFunction(void* arg) { static_cast<Runner*>(arg)->doRun(); }
@@ -535,7 +586,11 @@ void Runner::toErrorState(const ExecError& err)
   lastError_ = err;
   state_.store(ComponentState::error);
   spdlog::dump_backtrace();
-  std::terminate();
+
+  // Every lifecycle stage in Executor skips a runner in this state, so the component is out of the
+  // way. The stop request gives the process an orderly shutdown and a non-zero exit code. During
+  // shutdown a request is already recorded and this call does nothing.
+  kernel_.requestStop(componentFailureExitCode);
 }
 
 void Runner::registerObjects(ObjectOwnerId from, Span<std::shared_ptr<NativeObject>> instances)
