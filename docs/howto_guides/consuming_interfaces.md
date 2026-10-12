@@ -63,15 +63,22 @@ later be used to generate code making use of Sen's CMake generation functions (`
 
 ### Generating code using external interfaces
 
-After calling `get_external_interfaces`, CMake will add four additional properties to the given
-`TARGET` that were not present at the time of building:
+After calling `get_external_interfaces`, CMake will add additional properties to the given `TARGET`
+that were not present at the time of building. These two are always set:
 
-- `INSTALL_STL_FILES`: List of paths to each of the component's STL files in the installation dir.
 - `INSTALL_BASE_PATH`: Set BASE_PATH when generating the packages originally but adapted to point at
   the installation dir.
+- `INSTALL_SEN_IMPORT_DIRS`: The `-i` import search path the generator resolves `stl` imports
+  through, pointing at the installation dir rather than the tree that built the package.
+
+The rest are set only when the consumed component has files of that kind:
+
+- `INSTALL_STL_FILES`: List of paths to each of the component's STL files in the installation dir.
 - `INSTALL_HLA_FOM_DIRS`: List of paths to each of the component's defined HLA_FOM_DIRS in the
   installation dir.
 - `INSTALL_HLA_MAPPINGS`: List of paths to the component's HLA mapping files in the installation
+  dir.
+- `INSTALL_HLA_EXTENSIONS`: List of paths to the component's HLA extension files in the installation
   dir.
 
 You can use CMake's `get_target_property` function to fetch the value of these properties into local
