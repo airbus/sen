@@ -7,7 +7,7 @@
 """Module to define how to setup conan packages for Sen."""
 
 from os import getenv
-from os.path import isdir, join
+from os.path import exists, join
 from pathlib import Path
 
 from conan import ConanFile
@@ -208,7 +208,9 @@ class SenConan(ConanFile):
 
     def set_version(self):
         """Defines the version number that should be used."""
-        if isdir(join(self.recipe_folder, ".git")):
+        # A worktree and a submodule have `.git` as a file naming the real git directory, which
+        # git resolves on its own, so presence is the test and not directory-ness.
+        if exists(join(self.recipe_folder, ".git")):
             # sets project version either to the current tag or the
             # last tag with with the diff-commit addition.
             # For example:
