@@ -33,9 +33,13 @@ class SenConan(ConanFile):
     homepage = "https://airbus.github.io/sen/latest/"
     description = "Create and integrate distributed systems with ease"
     license = "Apache-2.0"
-    topics = ("distributed", "simulation", "rpc", "network", "integration", "federation", "framework")
+    topics = ("distributed", "rpc", "network", "integration", "federation", "framework")
 
     # Binary configuration
+    # What a consumer gets: shared libraries, which check_package_archive.py refuses an archive
+    # without. Conan propagates a dependency's requirements differently without this.
+    package_type = "shared-library"
+
     settings = "os", "compiler", "build_type", "arch"
 
     # Allow component discovery from the recipe folder.
@@ -320,6 +324,13 @@ class SenConan(ConanFile):
         """Package Sen into a conan package."""
         cmake = CMake(self)
         cmake.install()
+
+    def package_id(self):
+        """Drops options that fork the package identity without changing what is in it."""
+        # These three leave the installed tree identical: nothing under examples/ installs, and
+        # the other two only change how the build runs.
+        for option in ("with_clang_tidy", "with_docs", "with_examples"):
+            self.info.options.rm_safe(option)
 
     def package_info(self):
         """Calculate the conan package info."""
