@@ -196,8 +196,8 @@ RUNTIME_SYMBOLS = {"address": "__asan_init", "undefined": "__ubsan_handle", "thr
 # named in the failure rather than silently misread as a value.
 COMPLETE_OPERATIONS = ("set",)
 # The partial ones edit an inherited value this check cannot see. Which of them can do
-# harm follows from a key repeated in an option string taking its last occurrence
-# (measured 2026-09-18): an append wins over what it edits, a prepend loses to it.
+# harm follows from a key repeated in an option string taking its last occurrence:
+# an append wins over what it edits, a prepend loses to it.
 APPEND_OPERATIONS = ("string_append", "path_list_append", "cmake_list_append")
 PREPEND_OPERATIONS = ("string_prepend", "path_list_prepend", "cmake_list_prepend")
 DESTRUCTIVE_OPERATIONS = ("unset", "reset")
@@ -571,7 +571,7 @@ def detects(
             if "failed to parse suppressions" in written:
                 return f"{tool} could not parse the suppression file its options name: {written.strip()[:200]}"
             if "failed to read suppressions file" in written:
-                # A distinct cause with its own fix, and it used to arrive as a summariser fault.
+                # A distinct cause with its own fix, and not a summariser fault.
                 return f"{tool} could not read the suppression file its options name: {written.strip()[:160]}"
             if "Suppressions used" in written:
                 return f"{tool} found the canary and a suppression silenced it, so a real finding would be silenced too"

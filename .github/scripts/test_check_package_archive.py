@@ -166,7 +166,7 @@ def test_windows_and_macos_library_spellings_are_accepted(tmp_path):
 
 
 def test_a_library_outside_the_library_directory_does_not_count(tmp_path):
-    """A .so beside the executables is where they used to live, and is no longer the answer."""
+    """A shared library outside the library directory does not satisfy the requirement."""
     members = tuple(m for m in LINUX_MEMBERS if not m.startswith("lib/libcore")) + ("bin/libcore.so",)
     problems = check_archive(write_archive(tmp_path, LINUX_NAME, members))
     assert any("shared library" in problem for problem in problems)
