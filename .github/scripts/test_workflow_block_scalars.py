@@ -8,7 +8,7 @@
 
 A `#` line under `restore-keys: |` is a cache key, not a comment. The file stays valid YAML
 and actionlint stays quiet, so the first thing that notices is the run: a lane failed with
-"Key Validation Error: # Transitional ... cannot contain commas" on 2026-09-21.
+"Key Validation Error: # Transitional ... cannot contain commas".
 """
 
 import re

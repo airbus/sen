@@ -42,16 +42,16 @@ jobs:
     needs: compute-matrix-jobs
     runs-on: ${{ matrix.runner }}
       # Generous on purpose: a cold cache builds every dependency from
-      # source. The cap ends a hang, it does not police duration. Measured
-      # 2026-08-20 on a run whose conan cache missed and whose ccache hit 1.3
-      # per cent: 20 to 30 minutes, so this is around four times the work. That
+      # source. The cap ends a hang, it does not police duration. A run whose
+      # conan cache misses and whose ccache barely hits takes 20 to 30 minutes,
+      # so this is around four times the work. That
       # predates the scoping of the ccache shims, so a cold run should now be
       # faster than the figure this cap was set from.
     timeout-minutes: 120
     strategy:
-      # One failing configuration used to cancel the others, so a pull request
-      # learned one verdict instead of four and a fix could not be checked until
-      # an unrelated one landed.
+      # Without this one failing configuration cancels the others, so a pull
+      # request learns one verdict instead of four and a fix cannot be checked
+      # until an unrelated one lands.
       fail-fast: false
       matrix:
         include: ${{ fromJson(needs.compute-matrix-jobs.outputs.jobs) }}
@@ -229,7 +229,7 @@ jobs:
           IN
 
       # If the bundle built, the tests must be registered. A rename or a missing tool would drop
-      # them and still report success, which is how the baked-docs control went unrun for months.
+      # them and still report success.
       - name: Check the gateway tests are registered
         shell: bash
         run: |

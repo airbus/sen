@@ -9,7 +9,7 @@
 `Checks:` is a folded scalar, so newlines become spaces and a `#` is data. A missing comma
 therefore merges two checks into one glob, and a comment merges with the entry below it.
 clang-tidy accepts both silently: an unmatched glob disables nothing and reports nothing,
-so the check stops running. Three in this file had, from the initial commit until 2026-09-24.
+so the check stops running.
 
 The header filter is a second subject. It is copied into the compiler-driven build and into the
 whole-tree workflow, and a copy left behind narrows what one lane reports without failing anywhere.

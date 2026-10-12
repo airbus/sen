@@ -57,9 +57,9 @@ jobs:
         shell: bash
         run: echo "SEN_CI_IMAGE=$(.github/scripts/image_name.sh base 24.04)" >> "$GITHUB_ENV"
 
-      # Keyed to the image, as pr_sanitizers.yaml explains. This lane used to read the entry the
-      # clang standard test writes; inside the image that entry's binaries are the wrong ones, so
-      # it keeps its own and writes it from main.
+      # Keyed to the image, as pr_sanitizers.yaml explains. The entry the clang standard test
+      # writes holds binaries that are the wrong ones inside the image, so this lane keeps its
+      # own and writes it from main.
       - name: Restore conan packages
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:

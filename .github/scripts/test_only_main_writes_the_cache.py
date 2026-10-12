@@ -12,9 +12,8 @@ writing into it takes room from the lanes that need it. Every save in the reposi
 
 The drop is the half that costs. A cache key is immutable, so a save under an existing key is
 refused and the drop exists to clear the way; a drop on a branch therefore deletes what main
-wrote and leaves its own content in place. Found on 2026-10-11 by asking what a dispatch of
-`nightly.yaml` on a branch would write: the clang-tidy result cache had both halves ungated,
-alone among nineteen cache writes.
+wrote and leaves its own content in place. Of nineteen cache writes, the clang-tidy result cache
+is the one where both halves need the gate.
 
 Restoring is deliberately left open to every ref, so a branch still reads what main built.
 
@@ -80,8 +79,8 @@ def jobs_that_publish() -> list[tuple[Path, str, str]]:
 def test_the_published_report_is_replaced_only_from_main():
     """It overwrites what main published, and the page itself says nothing about the ref.
 
-    This is the one that was missing on 2026-10-11. The cache audit above asked what a branch
-    dispatch writes to the cache; the question was what it writes at all.
+    The audit above asks what a branch dispatch writes to the cache; this asks what it writes
+    at all.
     """
     ungated = [f"{source.name}:{job}" for source, job, condition in jobs_that_publish() if ON_MAIN not in condition]
     assert not ungated, f"jobs pushing to gh-pages without a {ON_MAIN} gate: {ungated}"

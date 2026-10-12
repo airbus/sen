@@ -31,7 +31,7 @@ runs:
         key: conanp-image-docs-22.04-${{ hashFiles('tools/ci/Dockerfile') }}
         # Hash after the suffix, because a restore key is a prefix: with it in the middle
         # nothing could match "this lane, any image", so one Dockerfile line sent the lane
-        # cold and it built every dependency from source. 2026-09-08.
+        # cold and it built every dependency from source.
         # The second rung is transitional: every entry written before the base entered the key
         # is 22.04, so this lane can still reach one. Remove it once main has written an entry
         # under the new prefix.
@@ -91,8 +91,7 @@ runs:
         pip install --quiet -r docs/requirements.txt
         conan config install .conan/profiles/ --target-folder "$CONAN_HOME/profiles/"
         # A dependency's upstream tarball host going down fails any build with a cold cache.
-        # xapian-core, under doxygen, did on 2026-09-08 and blocked the merge queue. Conan
-        # tries ConanCenter's mirror of the same sources first, then the origin.
+        # Conan tries ConanCenter's mirror of the same sources first, then the origin.
         printf 'core.sources:download_urls=["https://c3i.jfrog.io/artifactory/conan-center-backup-sources/", "origin"]\n' \
             >> "$CONAN_HOME/global.conf"
         # --profile:all names both host and build profile. Copying one over `default`

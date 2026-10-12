@@ -65,7 +65,7 @@ jobs:
           key: conanp-image-22.04-clang-20-17-${{ hashFiles('tools/ci/Dockerfile') }}
           # Hash after the suffix, because a restore key is a prefix: with it in the middle
           # nothing could match "this lane, any image", so one Dockerfile line sent the lane
-          # cold and it built every dependency from source. 2026-09-08.
+          # cold and it built every dependency from source.
           # The second rung is transitional, for the same reason as the documentation lane:
           # every entry written before the base entered the key is 22.04. Remove it once main
           # has written one under the new prefix.
