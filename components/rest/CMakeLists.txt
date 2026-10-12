@@ -64,10 +64,11 @@ add_sen_package(
   DESCRIPTION "HTTP server providing a REST API to interact with Sen resources"
   SOURCES ${base_sources}
   STL_FILES stl/configuration.stl stl/options.stl stl/types.stl
-  DEPS asio::asio
-       llhttp::llhttp
-       nlohmann_json::nlohmann_json
-       spdlog::spdlog
+  PRIVATE_DEPS
+    asio::asio
+    llhttp::llhttp
+    nlohmann_json::nlohmann_json
+    spdlog::spdlog
   BASE_PATH ${CMAKE_CURRENT_SOURCE_DIR}
   TEST_TARGET rest_for_testing
   IS_COMPONENT

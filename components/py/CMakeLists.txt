@@ -45,8 +45,8 @@ if(Python3_Development_FOUND)
             src/object_wrapper.cpp
             src/interpreter_obj.h
             src/interpreter_obj.cpp
-    DEPS py_interface Python3::Python pybind11::pybind11
-    PRIVATE_DEPS spdlog::spdlog
+    DEPS py_interface
+    PRIVATE_DEPS Python3::Python pybind11::pybind11 spdlog::spdlog
     IS_COMPONENT
   )
 
@@ -57,8 +57,8 @@ if(Python3_Development_FOUND)
 
   target_link_libraries(
     py
-    PUBLIC pybind11::pybind11
-    PUBLIC Python3::Python
+    PRIVATE $<BUILD_INTERFACE:pybind11::pybind11>
+    PRIVATE $<BUILD_INTERFACE:Python3::Python>
     PRIVATE $<BUILD_INTERFACE:spdlog::spdlog>
   )
 
