@@ -125,12 +125,9 @@ struct TermComponent: public kernel::Component
 
   [[nodiscard]] kernel::FuncResult run(kernel::RunApi& api) override
   {
-    // Refused here and not from init(), and by asking for a stop rather than by returning an error:
-    // Returning here stops this component and leaves the rest of the kernel running, which is what
-    // lets a configuration carry term and still be started headless. Asking the kernel to stop instead
-    // would fail every such run, and reporting an error would be worse still: Runner::terminateIfError
-    // turns any error a component reports into dump_backtrace() plus std::terminate(), so a redirected
-    // stream would be answered with a crash report.
+    // Returning here stops this component and leaves the rest of the kernel running, so a
+    // configuration can carry term and still be started headless. Reporting an error would bring
+    // the whole kernel down with a non-zero exit code and fail every headless run.
     if (!standardStreamsAreATerminal())
     {
       getLogger()->error(
@@ -221,12 +218,13 @@ struct TermComponent: public kernel::Component
                                    stopRequested = true;
                                  }
 
-                                 // The boundary for everything the frame touches. The kernel's
-                                 // EXCEPTION_WRAP_BLOCK wraps nothing, and the thread function below it
-                                 // has no catch either, so a throw from the renderer, a key handler or
-                                 // the discovery drain reached std::terminate and took every other
-                                 // component in the process with it. CommandEngine::execute has its own
-                                 // try for the same reason; this covers the two paths it cannot see.
+                                 // The boundary for everything the frame touches. Neither the
+                                 // kernel nor the thread function below it catches, so a throw from
+                                 // the renderer, a key handler or the discovery drain reached
+                                 // std::terminate and took every other component in the process with
+                                 // it. The runner logs this component's name but does not stop
+                                 // the component. CommandEngine::execute has its own try for the same
+                                 // reason; this covers the two paths it cannot see.
                                  //
                                  // Swallowing a frame is the right trade: the user loses one redraw and
                                  // keeps the session, the kernel, and everything else running.
