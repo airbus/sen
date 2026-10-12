@@ -8,8 +8,7 @@
 
 A reusable workflow cannot hold more than its caller grants. The mismatch is not a failing
 job: the run ends in startup_failure with no jobs and no log, which is why main.yaml carries
-the warning in five places. It happened anyway on 2026-09-21, to the lane whose call site
-holds the warning.
+the warning in five places, including at the call site of the lane it describes.
 """
 
 from pathlib import Path

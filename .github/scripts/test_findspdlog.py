@@ -7,9 +7,9 @@
 """Checks which spdlog `Findspdlog.cmake` picks, and that a mismatch stops the build.
 
 spdlog types are in the kernel's public signatures, so a component compiled against a different
-spdlog than the kernel links and then misbehaves. The module used to search the system before the
-copy Sen installs, and its `REQUIRED_VARS` assertion could not fail because the fallback set the
-variable to a path it never checked: a tree with no spdlog at all reported `Found spdlog`.
+spdlog than the kernel links and then misbehaves, so the module searches the copy Sen installs
+before the system. Its `REQUIRED_VARS` assertion has to name a variable the fallback does not set,
+or a tree with no spdlog at all reports `Found spdlog`.
 
 The module reaches its own copy through `../../include`, so the fixtures reproduce the installed
 layout rather than calling the module directly.

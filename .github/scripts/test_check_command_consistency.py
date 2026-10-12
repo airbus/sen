@@ -111,8 +111,8 @@ def test_disagreeing_versions_are_grouped(tmp_path, monkeypatch):
 
 # --------------------------------------------------------------------------------------------------------------------
 # Path handling. The checker is invoked with relative paths as often as absolute ones,
-# and the guard for that originally lived in only one of the two entry points, so the
-# other raised `ValueError: not in the subpath of` on any relative argument.
+# and both entry points need the guard: without it one raises
+# `ValueError: not in the subpath of` on any relative argument.
 # --------------------------------------------------------------------------------------------------------------------
 
 
@@ -127,7 +127,7 @@ def test_display_path_trims_the_repository_root_from_an_absolute_path():
 
 
 def test_runs_against_a_relative_filename_without_raising(tmp_path, monkeypatch):
-    """The whole point: this is the invocation that used to crash."""
+    """A relative filename reaches the checker without raising."""
     page = tmp_path / "guide.md"
     page.write_text("curl -sSf https://example/install.sh | sh -s -- 0.6.0\n")
     monkeypatch.chdir(tmp_path)
