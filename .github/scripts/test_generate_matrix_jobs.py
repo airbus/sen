@@ -205,9 +205,21 @@ def test_release_legs_build_examples():
 
 
 def test_pull_request_packaging_job_set():
-    """A pull request packages the shipping configuration only."""
+    """A pull request packages the shipping configuration on each operating system."""
     jobs = compute_jobs(release=False, conan=True, standard_test=False, target_main=False, pull_request=True)
-    assert job_keys(jobs) == [GCC_RELEASE]
+    assert job_keys(jobs) == [GCC_RELEASE, MSVC_RELEASE]
+
+
+def test_a_pull_request_packages_on_every_operating_system():
+    """Every operating system the packaging lane runs on main also runs on a pull request.
+
+    An operating system decides the archive, the install tree and the flags a consumer
+    compiles with. One reached only after a merge cannot refuse the change that breaks it.
+    """
+    on_pull_request = compute_jobs(release=False, conan=True, standard_test=False, target_main=False, pull_request=True)
+    on_main = compute_jobs(release=False, conan=True, standard_test=False, target_main=False)
+    systems = {job.runner.split("-")[0] for job in on_main}
+    assert systems <= {job.runner.split("-")[0] for job in on_pull_request}
 
 
 def test_each_operating_system_checks_its_package():
