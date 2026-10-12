@@ -178,13 +178,21 @@ target_link_libraries(
   PUBLIC sen::core
   PUBLIC ${CMAKE_DL_LIBS}
   PUBLIC ${CMAKE_THREAD_LIBS_INIT}
-  PUBLIC spdlog::spdlog
+  PRIVATE spdlog::spdlog
   PRIVATE ryml::ryml
   PRIVATE concurrentqueue::concurrentqueue
   PRIVATE cpptrace::cpptrace
   PRIVATE sen_crashpad
   PRIVATE xenium::xenium
 )
+
+# spdlog's CMake sets both PUBLIC when shared; its conan recipe does not pass them on. Without the
+# define SPDLOG_API is empty against a dllexport build. Without the suppressions MSVC warns on
+# logger's std::string and std::vector members.
+target_compile_definitions(kernel INTERFACE SPDLOG_SHARED_LIB)
+if(MSVC)
+  target_compile_options(kernel INTERFACE /wd4251 /wd4275)
+endif()
 
 # -------------------------------------------------------------------------------------------------------------
 # IDE grouping

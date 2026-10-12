@@ -125,9 +125,10 @@ class SenConan(ConanFile):
         if self.settings.os == "Linux":
             crashpad_options["with_tls"] = False
         self.requires("sentry-crashpad/0.6.5", options=crashpad_options, visible=False)
-        # The one requirement a consumer compiles against: spdlog types cross the kernel's API, so
-        # its version is part of Sen's contract and the copy Sen installs is the one that matches.
-        self.requires("spdlog/1.17.0", visible=True)
+        # component_api.h declares spdlog's types instead of including them, so a consumer does not
+        # compile spdlog. Shared because the registry is a singleton: a static copy gives every shared
+        # library its own, and a component's spdlog::get then does not find the kernel's loggers.
+        self.requires("spdlog/1.17.0", visible=True, transitive_headers=True, options={"shared": True})
 
         # explorer-only: ImGui + ImPlot + SDL.
         # ImGui is overridden to pin the docking branch required by ImPlot.

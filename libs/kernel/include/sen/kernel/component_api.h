@@ -35,10 +35,6 @@
 #include "stl/sen/kernel/basic_types.stl.h"
 #include "stl/sen/kernel/network_footprint.stl.h"
 
-// spdlog
-#include <spdlog/logger.h>
-#include <spdlog/sinks/sink.h>
-
 // std
 #include <atomic>
 #include <cstddef>
@@ -53,6 +49,26 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
+
+// Declared, not included, so compiling against the kernel needs nothing from spdlog. The same
+// declarations spdlog ships in <spdlog/fwd.h>.
+namespace spdlog
+{
+// NOLINTNEXTLINE(readability-identifier-naming): spdlog's own class name
+class logger;
+
+namespace sinks
+{
+// NOLINTNEXTLINE(readability-identifier-naming): spdlog's own class name
+class sink;
+}  // namespace sinks
+
+namespace level
+{
+// NOLINTNEXTLINE(readability-identifier-naming): spdlog's own enum name
+enum level_enum : int;
+}  // namespace level
+}  // namespace spdlog
 
 namespace sen::kernel
 {
@@ -295,16 +311,15 @@ public:
 
   /// The logger state below is per process, not per kernel. The relay sink and the record of what the
   /// console sinks were are statics in libkernel, so they outlive any `Kernel` and are shared by every
-  /// kernel in the process. "Every logger" means every logger in libkernel's registry, which no kernel
-  /// owns. `configureSpdlog` replaces the sink vector of every logger that already exists, so
-  /// `KernelImpl::configure` re-attaches the relay straight afterwards, and a second kernel configured
-  /// in the same process keeps working. A logger made by any route other than `getOrCreateLogger`, a
-  /// direct spdlog factory for instance, is not reached at all.
+  /// kernel in the process. "Every logger" means every logger in spdlog's registry, which is one per
+  /// process and which no kernel owns. `configureSpdlog` replaces the sink vector of every logger that
+  /// already exists, so `KernelImpl::configure` re-attaches the relay straight afterwards, and a second
+  /// kernel configured in the same process keeps working. A logger made by any route other than
+  /// `getOrCreateLogger`, a direct spdlog factory for instance, is not reached at all.
   ///
-  /// spdlog appears in these signatures deliberately. It makes a component's ABI depend on being built
-  /// against the same spdlog as the kernel, which is acceptable because Sen builds the kernel and its
-  /// components from one source tree, and a component that renders logs wants spdlog's own formatting.
-  /// Revisit it first if components ever ship separately from the kernel.
+  /// spdlog appears in these signatures by name: this header declares the types instead of including
+  /// them, so compiling against the kernel does not compile spdlog or fmt. A caller that uses a logger
+  /// includes spdlog itself and links the copy Sen ships, which holds the registry.
   using TerminalOwnership = ::sen::kernel::TerminalOwnership;
 
   /// Sends every logger's output to `sink`, including loggers made afterwards.

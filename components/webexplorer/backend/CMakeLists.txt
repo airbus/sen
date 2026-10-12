@@ -5,6 +5,8 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
+include(tps/spdlog)
+
 set(_webexplorer_stl_files stl/configuration.stl)
 
 # Bake the frontend production bundle (single self-contained HTML produced by Vite +
@@ -31,7 +33,7 @@ add_sen_package(
   SOURCES src/component.cpp
   BASE_PATH ${CMAKE_CURRENT_SOURCE_DIR}
   STL_FILES ${_webexplorer_stl_files}
-  PRIVATE_DEPS sen::kernel jsonrpc
+  PRIVATE_DEPS sen::kernel jsonrpc spdlog::spdlog
   IS_COMPONENT
 )
 

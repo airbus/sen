@@ -11,6 +11,12 @@ find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
 
 if(TARGET spdlog::spdlog)
+  # spdlog's own CMake sets these PUBLIC when it builds shared; its conan recipe does not.
+  target_compile_definitions(spdlog::spdlog INTERFACE SPDLOG_SHARED_LIB)
+  if(MSVC)
+    target_compile_options(spdlog::spdlog INTERFACE /wd4251 /wd4275)
+  endif()
+
   get_target_property(SPDLOG_INCLUDES spdlog::spdlog INTERFACE_INCLUDE_DIRECTORIES)
   string(
     REGEX
