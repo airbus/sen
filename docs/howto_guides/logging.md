@@ -141,6 +141,20 @@ On MSVC with warnings as errors, add `/wd4251 /wd4275` where you compile spdlog'
 `logger` is a dll-interface class with `std::string` and `std::vector` members, and its conan recipe
 does not carry the suppressions spdlog's own CMake sets when it builds shared.
 
+## Where spdlog has to be at run time
+
+Sen links spdlog as a shared library, so it has to be reachable wherever a binary that uses it runs.
+Conan's run environment covers that: activate `conanrun` and spdlog's directory is on the library
+path, on Linux, macOS and Windows alike.
+
+What it does not cover is a binary started without it. On Windows an executable of your own will not
+start, because Windows looks for a DLL beside the executable or on PATH and has no rpath. A container
+or another machine that does not hold your conan cache cannot use the absolute paths the run
+environment exports. An artefact you ship has to carry spdlog with it.
+
+The answer in each case is to put spdlog's library beside your binaries, as Sen's own install does:
+`<prefix>/lib` on Linux and macOS, `<prefix>/bin` on Windows.
+
 ## Compile-time log levels
 
 You will normally use the syntax `logger->info(..)` (or `trace` etc.), but be aware that this won't
