@@ -52,9 +52,9 @@ if(TARGET spdlog::spdlog)
     # every platform; a release-only pattern matches nothing and installs nothing.
     get_filename_component(_spdlog_package_dir "${SPDLOG_INCLUDES}/.." ABSOLUTE)
 
-    # The build tree carries the library as well, beside Sen's own. Integration tests run Sen's
-    # binaries inside containers that mount the workspace and not the conan cache, where the
-    # build-tree rpath points, and on Windows a DLL is found beside the executable.
+    # The build tree carries it too, beside Sen's own libraries. Integration tests run Sen's
+    # binaries in containers that mount the workspace and not the conan cache, where the build-tree
+    # rpath points. On Windows a DLL is found beside the executable.
     if(WIN32)
       file(GLOB _spdlog_runtime "${_spdlog_package_dir}/bin/spdlog*.dll")
       set(_spdlog_runtime_dir "${PROJECT_BINARY_DIR}/bin")
@@ -69,6 +69,12 @@ if(TARGET spdlog::spdlog)
     endif()
     if(_spdlog_runtime)
       file(COPY ${_spdlog_runtime} DESTINATION "${_spdlog_runtime_dir}")
+      # test.cmake copies these beside each test executable: a test binary lives in its own
+      # directory and gtest_discover_tests runs it at build time, where no PATH reaches it.
+      set(SEN_SPDLOG_RUNTIME
+          "${_spdlog_runtime}"
+          CACHE INTERNAL "spdlog's runtime files, to sit beside a binary on Windows"
+      )
     endif()
     if(WIN32)
       install(
