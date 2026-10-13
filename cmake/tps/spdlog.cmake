@@ -51,6 +51,25 @@ if(TARGET spdlog::spdlog)
     # compiling its own. The wildcard before the extension covers the `d` spdlog appends in Debug on
     # every platform; a release-only pattern matches nothing and installs nothing.
     get_filename_component(_spdlog_package_dir "${SPDLOG_INCLUDES}/.." ABSOLUTE)
+
+    # The build tree carries the library as well, beside Sen's own. Integration tests run Sen's
+    # binaries inside containers that mount the workspace and not the conan cache, where the
+    # build-tree rpath points, and on Windows a DLL is found beside the executable.
+    if(WIN32)
+      file(GLOB _spdlog_runtime "${_spdlog_package_dir}/bin/spdlog*.dll")
+      set(_spdlog_runtime_dir "${PROJECT_BINARY_DIR}/bin")
+    else()
+      file(
+        GLOB
+        _spdlog_runtime
+        "${_spdlog_package_dir}/lib/libspdlog*.so*"
+        "${_spdlog_package_dir}/lib/libspdlog*.dylib*"
+      )
+      set(_spdlog_runtime_dir "${PROJECT_BINARY_DIR}/lib")
+    endif()
+    if(_spdlog_runtime)
+      file(COPY ${_spdlog_runtime} DESTINATION "${_spdlog_runtime_dir}")
+    endif()
     if(WIN32)
       install(
         DIRECTORY "${_spdlog_package_dir}/lib/"
