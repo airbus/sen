@@ -28,6 +28,33 @@ namespace
 
 constexpr float64_t piValue = 3.14159265358979323846264338327950288419716939937510;
 
+enum class SIPrefix : uint16_t
+{
+  none = 0,
+  femto = 1 << 0,
+  pico = 1 << 1,
+  nano = 1 << 2,
+  micro = 1 << 3,
+  milli = 1 << 4,
+  centi = 1 << 5,
+  deci = 1 << 6,
+  deca = 1 << 7,
+  hecto = 1 << 8,
+  kilo = 1 << 9,
+  mega = 1 << 10,
+  giga = 1 << 11,
+  tera = 1 << 12,
+  peta = 1 << 13,
+  all = 0xFFFF
+};
+
+constexpr SIPrefix operator|(SIPrefix a, SIPrefix b)
+{
+  return static_cast<SIPrefix>(static_cast<uint16_t>(a) | static_cast<uint16_t>(b));
+}
+
+constexpr bool operator&(SIPrefix a, SIPrefix b) { return (static_cast<uint16_t>(a) & static_cast<uint16_t>(b)) != 0; }
+
 /// Returns the ratio as a float64_t
 template <typename R>
 [[nodiscard]] constexpr float64_t fromRatio() noexcept
@@ -121,32 +148,33 @@ void registerSIUnitElement(UnitRegistry::UnitStorage& list,
   addUnit(list, std::move(spec));
 }
 
-/// Adds the basic SI unit and the ones related to the metric prefixes.
+/// Adds the basic SI unit and the ones related to the given metric prefixes.
 void registerBasicUnit(UnitRegistry::UnitStorage& list,
                        UnitCategory cat,
                        const std::string& name,
                        const std::string& plural,
-                       const std::string& abbrev)
+                       const std::string& abbrev,
+                       SIPrefix prefixes = SIPrefix::all)
 {
   using namespace std::string_literals;
 
   addUnit(list, {cat, name, plural, abbrev, 1.0, 0.0, 0.0});
 
   // clang-format off
-  registerSIUnitElement(list, cat, name, plural, abbrev, "femto", "f", fromRatio<std::femto>());
-  registerSIUnitElement(list, cat, name, plural, abbrev, "pico",  "p", fromRatio<std::pico>());
-  registerSIUnitElement(list, cat, name, plural, abbrev, "nano",  "n", fromRatio<std::nano>());
-  registerSIUnitElement(list, cat, name, plural, abbrev, "micro", "u", fromRatio<std::micro>());
-  registerSIUnitElement(list, cat, name, plural, abbrev, "milli", "m", fromRatio<std::milli>());
-  registerSIUnitElement(list, cat, name, plural, abbrev, "centi", "c", fromRatio<std::centi>());
-  registerSIUnitElement(list, cat, name, plural, abbrev, "deci",  "d", fromRatio<std::deci>());
-  registerSIUnitElement(list, cat, name, plural, abbrev, "deca", "da", fromRatio<std::deca>());
-  registerSIUnitElement(list, cat, name, plural, abbrev, "hecto", "h", fromRatio<std::hecto>());
-  registerSIUnitElement(list, cat, name, plural, abbrev, "kilo",  "k", fromRatio<std::kilo>());
-  registerSIUnitElement(list, cat, name, plural, abbrev, "mega",  "M", fromRatio<std::mega>());
-  registerSIUnitElement(list, cat, name, plural, abbrev, "giga",  "G", fromRatio<std::giga>());
-  registerSIUnitElement(list, cat, name, plural, abbrev, "tera",  "T", fromRatio<std::tera>());
-  registerSIUnitElement(list, cat, name, plural, abbrev, "peta",  "P", fromRatio<std::peta>());
+  if (prefixes & SIPrefix::femto) { registerSIUnitElement(list, cat, name, plural, abbrev, "femto", "f", fromRatio<std::femto>()); }
+  if (prefixes & SIPrefix::pico)  { registerSIUnitElement(list, cat, name, plural, abbrev, "pico",  "p", fromRatio<std::pico>());  }
+  if (prefixes & SIPrefix::nano)  { registerSIUnitElement(list, cat, name, plural, abbrev, "nano",  "n", fromRatio<std::nano>());  }
+  if (prefixes & SIPrefix::micro) { registerSIUnitElement(list, cat, name, plural, abbrev, "micro", "u", fromRatio<std::micro>()); }
+  if (prefixes & SIPrefix::milli) { registerSIUnitElement(list, cat, name, plural, abbrev, "milli", "m", fromRatio<std::milli>()); }
+  if (prefixes & SIPrefix::centi) { registerSIUnitElement(list, cat, name, plural, abbrev, "centi", "c", fromRatio<std::centi>()); }
+  if (prefixes & SIPrefix::deci)  { registerSIUnitElement(list, cat, name, plural, abbrev, "deci",  "d", fromRatio<std::deci>());  }
+  if (prefixes & SIPrefix::deca)  { registerSIUnitElement(list, cat, name, plural, abbrev, "deca", "da", fromRatio<std::deca>());  }
+  if (prefixes & SIPrefix::hecto) { registerSIUnitElement(list, cat, name, plural, abbrev, "hecto", "h", fromRatio<std::hecto>()); }
+  if (prefixes & SIPrefix::kilo)  { registerSIUnitElement(list, cat, name, plural, abbrev, "kilo",  "k", fromRatio<std::kilo>());  }
+  if (prefixes & SIPrefix::mega)  { registerSIUnitElement(list, cat, name, plural, abbrev, "mega",  "M", fromRatio<std::mega>());  }
+  if (prefixes & SIPrefix::giga)  { registerSIUnitElement(list, cat, name, plural, abbrev, "giga",  "G", fromRatio<std::giga>());  }
+  if (prefixes & SIPrefix::tera)  { registerSIUnitElement(list, cat, name, plural, abbrev, "tera",  "T", fromRatio<std::tera>());  }
+  if (prefixes & SIPrefix::peta)  { registerSIUnitElement(list, cat, name, plural, abbrev, "peta",  "P", fromRatio<std::peta>());  }
   // clang-format on
 }
 
@@ -168,16 +196,16 @@ UnitRegistry::UnitRegistry()
   // clang-format off
 
   // basic SI units
-  registerBasicUnit(units_, UnitCategory::length,          "meter",                      "meters",                     "m");
-  registerBasicUnit(units_, UnitCategory::time,            "second",                     "seconds",                    "s");
-  registerBasicUnit(units_, UnitCategory::angle,           "radian",                     "radians",                    "rad");
-  registerBasicUnit(units_, UnitCategory::temperature,     "kelvin",                     "kelvin",                     "k");
-  registerBasicUnit(units_, UnitCategory::mass,            "gram",                       "grams",                      "g");
-  registerBasicUnit(units_, UnitCategory::angularVelocity, "radians_per_second",         "radians_per_second",         "rad_per_s");
-  registerBasicUnit(units_, UnitCategory::density,         "grams_per_centimeters_cube", "grams_per_centimeters_cube", "g_per_cm3");
-  registerBasicUnit(units_, UnitCategory::pressure,        "pascals",                    "pascals",                    "pa");
-  registerBasicUnit(units_, UnitCategory::area,            "square_meter",               "square_meter",               "m_sq");
-  registerBasicUnit(units_, UnitCategory::force,           "newton",                     "newton",                     "nw");
+  registerBasicUnit(units_, UnitCategory::length,          "meter",                      "meters",                     "m", SIPrefix::nano | SIPrefix::micro | SIPrefix::milli | SIPrefix::centi | SIPrefix::kilo);
+  registerBasicUnit(units_, UnitCategory::time,            "second",                     "seconds",                    "s", SIPrefix::femto | SIPrefix::pico | SIPrefix::nano | SIPrefix::micro | SIPrefix::milli);
+  registerBasicUnit(units_, UnitCategory::angle,           "radian",                     "radians",                    "rad", SIPrefix::micro | SIPrefix::milli);
+  registerBasicUnit(units_, UnitCategory::temperature,     "kelvin",                     "kelvin",                     "k", SIPrefix::none);
+  registerBasicUnit(units_, UnitCategory::mass,            "gram",                       "grams",                      "g", SIPrefix::micro | SIPrefix::milli | SIPrefix::kilo);
+  registerBasicUnit(units_, UnitCategory::angularVelocity, "radians_per_second",         "radians_per_second",         "rad_per_s", SIPrefix::none);
+  registerBasicUnit(units_, UnitCategory::density,         "grams_per_centimeters_cube", "grams_per_centimeters_cube", "g_per_cm3", SIPrefix::none);
+  registerBasicUnit(units_, UnitCategory::pressure,        "pascals",                    "pascals",                    "pa", SIPrefix::hecto | SIPrefix::kilo | SIPrefix::mega | SIPrefix::giga);
+  registerBasicUnit(units_, UnitCategory::area,            "square_meter",               "square_meter",               "m_sq", SIPrefix::none);
+  registerBasicUnit(units_, UnitCategory::force,           "newton",                     "newton",                     "nw", SIPrefix::kilo | SIPrefix::mega);
 
   // derived SI units
   addUnit(units_, {UnitCategory::frequency,           "hertz",                      "hertz",                      "hz",           1.0,      0.0, 0.0});
