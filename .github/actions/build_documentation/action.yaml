@@ -90,9 +90,9 @@ runs:
         export PATH="$HOME/docs-venv/bin:$PATH"
         pip install --quiet -r docs/requirements.txt
         conan config install .conan/profiles/ --target-folder "$CONAN_HOME/profiles/"
-        # A dependency's upstream tarball host going down fails any build with a cold cache.
-        # Conan tries ConanCenter's mirror of the same sources first, then the origin.
-        # Upstream first: conan stops at a cache that refuses the request.
+        # ConanCenter's mirror of the sources exists because an upstream tarball host going down
+        # fails any build with a cold cache. Upstream is still first: conan stops at a cache that
+        # refuses the request.
         printf 'core.sources:download_urls=["origin", "https://c3i.jfrog.io/artifactory/conan-center-backup-sources/"]\n' \
             >> "$CONAN_HOME/global.conf"
         # --profile:all names both host and build profile. Copying one over `default`
