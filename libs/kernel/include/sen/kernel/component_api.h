@@ -314,8 +314,9 @@ public:
   /// kernel in the process. "Every logger" means every logger in spdlog's registry, which is one per
   /// process and which no kernel owns. `configureSpdlog` replaces the sink vector of every logger that
   /// already exists, so `KernelImpl::configure` re-attaches the relay straight afterwards, and a second
-  /// kernel configured in the same process keeps working. A logger made by any route other than
-  /// `getOrCreateLogger`, a direct spdlog factory for instance, is not reached at all.
+  /// kernel configured in the same process keeps working. A logger made by a direct spdlog factory
+  /// carries the relay only if it existed when the kernel configured: the sweep there reaches the
+  /// whole registry, and nothing attaches it to a logger made afterwards.
   ///
   /// spdlog appears in these signatures by name: this header declares the types instead of including
   /// them, so compiling against the kernel does not compile spdlog or fmt. A caller that uses a logger
