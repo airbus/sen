@@ -68,7 +68,13 @@ if(TARGET spdlog::spdlog)
       set(_spdlog_runtime_dir "${PROJECT_BINARY_DIR}/lib")
     endif()
     if(_spdlog_runtime)
-      file(COPY ${_spdlog_runtime} DESTINATION "${_spdlog_runtime_dir}")
+      # Default permissions rather than the source's: conan marks its cache read-only on Windows, and
+      # a read-only copy is one the next include of this file cannot overwrite.
+      file(
+        COPY ${_spdlog_runtime}
+        DESTINATION "${_spdlog_runtime_dir}"
+        NO_SOURCE_PERMISSIONS
+      )
       # test.cmake copies these beside each test executable: a test binary lives in its own
       # directory and gtest_discover_tests runs it at build time, where no PATH reaches it.
       set(SEN_SPDLOG_RUNTIME
