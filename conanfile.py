@@ -13,6 +13,7 @@ from pathlib import Path
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import copy
 from conan.tools.scm.git import Git
 from conan.tools.system.package_manager import Apt, Dnf, Yum, Zypper
@@ -288,6 +289,11 @@ class SenConan(ConanFile):
         """Generate the cmake dependency and toolchain files."""
         deps = CMakeDeps(self)
         deps.generate()
+
+        # The build runs binaries it has just built: code generation calls sen. On Windows a DLL is
+        # found through PATH rather than an rpath, so without the dependencies' runtime directories
+        # in the build environment those binaries cannot start.
+        VirtualRunEnv(self).generate(scope="build")
 
         tc = CMakeToolchain(self)
         tc.cache_variables["SEN_DISABLE_CLANG_TIDY"] = "OFF" if self.options.with_clang_tidy else "ON"
