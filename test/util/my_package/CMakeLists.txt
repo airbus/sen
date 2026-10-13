@@ -65,10 +65,12 @@ add_sen_run_smoke_test(
   NO_START_STOP
   CONFIG_FILE config/my_package_monitored.yaml
 )
-add_sen_run_smoke_test(
+add_sen_smoke_test(
   my_package_construction_validation_smoke DESCRIPTION
   "Rejects invalid construction arguments and reports the error without calling the constructor"
-  CONFIG_FILE config/my_package_construction_validation.yaml
+  COMMAND ${CMAKE_COMMAND} -E env $<TARGET_FILE:sen::cli_sen> run
+          ${CMAKE_CURRENT_SOURCE_DIR}/config/my_package_construction_validation.yaml --start-stop
+  WORKING_DIRECTORY $<TARGET_FILE_DIR:sen::cli_sen> REQ_DEPS cli_sen my_package
 )
 # This one polls monitoring from a component thread while the kernel stops, which deadlocks if a
 # reader waits on the lock the shutdown holds across joining those threads, and a deadlock hangs
@@ -90,5 +92,12 @@ if(NOT WIN32)
   add_sen_run_smoke_test(
     my_package_exception DESCRIPTION "Fails the run when a component throws."
     CONFIG_FILE config/my_package_exception.yaml WILL_FAIL
+  )
+
+  append_test_env_modification(
+    my_package_construction_validation_smoke
+    "PATH=path_list_append:$<TARGET_FILE_DIR:sen::cli_sen>"
+    "LD_LIBRARY_PATH=path_list_prepend:$<TARGET_FILE_DIR:sen::core>"
+    "LD_LIBRARY_PATH=path_list_append:$<TARGET_FILE_DIR:sen::cli_sen>"
   )
 endif()
