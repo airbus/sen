@@ -41,12 +41,20 @@ list(APPEND CMAKE_MODULE_PATH "@module_dir@")
 find_package(spdlog REQUIRED)
 get_target_property(_inc spdlog::spdlog INTERFACE_INCLUDE_DIRECTORIES)
 get_target_property(_defs spdlog::spdlog INTERFACE_COMPILE_DEFINITIONS)
+get_target_property(_link spdlog::spdlog INTERFACE_LINK_LIBRARIES)
 message(STATUS "PROBE_INCLUDE=${_inc}")
 message(STATUS "PROBE_DEFINITIONS=${_defs}")
+message(STATUS "PROBE_LINK=${_link}")
 """
 
 
-def write_headers(include_dir: Path, version: str, with_fmt: str | None = None) -> None:
+def write_headers(
+    include_dir: Path,
+    version: str,
+    with_fmt: str | None = None,
+    fmt_version: str = "",
+    fmt_header: str = "base.h",
+) -> None:
     """A spdlog header tree as the module recognises one: the header it finds, and the version."""
     major, minor, patch = version.split(".")
     spdlog = include_dir / "spdlog"
@@ -59,6 +67,11 @@ def write_headers(include_dir: Path, version: str, with_fmt: str | None = None) 
     if with_fmt:
         (include_dir / "fmt").mkdir(parents=True, exist_ok=True)
         (include_dir / "fmt" / with_fmt).write_text("#pragma once\n", encoding="utf-8")
+    if fmt_version:
+        (include_dir / "fmt").mkdir(parents=True, exist_ok=True)
+        (include_dir / "fmt" / fmt_header).write_text(
+            f"#pragma once\n#define FMT_VERSION {fmt_version}\n", encoding="utf-8"
+        )
 
 
 def write_config_package(prefix: Path, version: str | None) -> None:
@@ -68,9 +81,15 @@ def write_config_package(prefix: Path, version: str | None) -> None:
     """
     config_dir = prefix / "lib" / "cmake" / "spdlog"
     config_dir.mkdir(parents=True, exist_ok=True)
+    # A real config package names its include directory inside a per-configuration generator
+    # expression, which is how conan's CMakeDeps writes it. A bare path would let a reader that
+    # cannot evaluate a genex pass.
+    include_dir = (prefix / "include").as_posix()
     (config_dir / "spdlog-config.cmake").write_text(
         (f'set(spdlog_VERSION "{version}")\n' if version else "") + "if(NOT TARGET spdlog::spdlog)\n"
         "  add_library(spdlog::spdlog INTERFACE IMPORTED)\n"
+        "  set_property(TARGET spdlog::spdlog APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES\n"
+        f"               $<$<CONFIG:Release>:{include_dir}>)\n"
         "endif()\n"
         "set(spdlog_FOUND TRUE)\n",
         encoding="utf-8",
@@ -122,6 +141,35 @@ def configure(tmp_path: Path, prefix: Path, extra: list[str] | None = None) -> s
         check=False,
         env=environment,
     )
+
+
+def write_library(prefix: Path, suffix: str = "") -> None:
+    """A library beside the headers, under the names find_library looks for.
+
+    `suffix` is the `d` spdlog appends to the library name in a Debug build, on every platform.
+    """
+    lib = prefix / "lib"
+    lib.mkdir(parents=True, exist_ok=True)
+    for name in (f"libspdlog{suffix}.so", f"libspdlog{suffix}.dylib", f"spdlog{suffix}.lib"):
+        (lib / name).write_bytes(b"")
+
+
+def reported(run: subprocess.CompletedProcess, key: str) -> str:
+    """One `key=value` line the probe printed, raw.
+
+    A property cmake never set reads as the probe variable's own name with -NOTFOUND; a property set
+    to a path that did not resolve reads as that cache variable's name with -NOTFOUND. The two are
+    different strings and only the second reaches a consumer, as a link error, so callers compare
+    the raw value rather than being handed an empty string for either.
+    """
+    match = re.search(rf"PROBE_{key}=(.*)", run.stdout)
+    assert match, f"the probe never reported {key}:\n{run.stdout}\n{run.stderr}"
+    return match.group(1).strip()
+
+
+def warned(run: subprocess.CompletedProcess, phrase: str) -> bool:
+    """Whether cmake warned with `phrase`. cmake wraps message() text, so whitespace is collapsed."""
+    return phrase in " ".join(run.stderr.split())
 
 
 def chosen_include(run: subprocess.CompletedProcess) -> str:
@@ -250,3 +298,102 @@ def test_the_fixtures_ignore_a_spdlog_on_the_host(tmp_path, monkeypatch):
     run = configure(tmp_path, prefix)
     assert run.returncode != 0, f"the host's spdlog answered for the fixture:\n{run.stdout}"
     assert "Could NOT find spdlog" in run.stdout + run.stderr
+
+
+def test_a_library_beside_the_headers_is_linked_and_compiled_mode_declared(tmp_path):
+    """The library Sen installs is linked, and declared as a shared compiled spdlog.
+
+    Linking it is what puts a consumer's loggers in the kernel's registry. The two definitions are
+    both needed: without SPDLOG_COMPILED_LIB spdlog stays header-only whatever else is set, and
+    without SPDLOG_SHARED_LIB its API macro is empty against a library built to export.
+    """
+    prefix = make_prefix(tmp_path, "sen", vendored=SEN_SPDLOG)
+    write_library(prefix)
+
+    run = configure(tmp_path, prefix)
+    assert run.returncode == 0, run.stderr
+
+    link = reported(run, "LINK")
+    assert "NOTFOUND" not in link, link
+    assert Path(link).resolve() in {path.resolve() for path in (prefix / "lib").iterdir()}, link
+
+    definitions = reported(run, "DEFINITIONS")
+    assert "SPDLOG_COMPILED_LIB" in definitions, definitions
+    assert "SPDLOG_SHARED_LIB" in definitions, definitions
+
+
+def test_an_install_with_no_library_stays_header_only(tmp_path):
+    """An install that ships headers and no library must not claim compiled mode.
+
+    Claiming it would leave a consumer referencing definitions that are in no library it links, so
+    the definitions follow the library rather than the headers.
+    """
+    prefix = make_prefix(tmp_path, "sen", vendored=SEN_SPDLOG)
+
+    run = configure(tmp_path, prefix)
+    assert run.returncode == 0, run.stderr
+
+    # The exact unset value, not a list of things it must not be: cmake reports an unset property as
+    # the output variable's own name, so anything else means the module appended something.
+    assert reported(run, "LINK") == "_link-NOTFOUND", reported(run, "LINK")
+    definitions = reported(run, "DEFINITIONS")
+    assert "SPDLOG_COMPILED_LIB" not in definitions, definitions
+    assert "SPDLOG_SHARED_LIB" not in definitions, definitions
+
+    # And it says so: reverting to header-only in silence would leave a consumer with its own
+    # registry and no diagnostic.
+    assert warned(run, "with no library beside them"), run.stderr
+
+
+def test_a_debug_library_is_found_under_its_own_name(tmp_path):
+    """Spdlog appends `d` in Debug, so looking only for the release name finds nothing.
+
+    An install built against Debug dependencies ships `libspdlogd`, and a module searching for
+    `spdlog` alone reports no library and quietly reverts to header-only.
+    """
+    prefix = make_prefix(tmp_path, "sen", vendored=SEN_SPDLOG)
+    write_library(prefix, suffix="d")
+
+    run = configure(tmp_path, prefix)
+    assert run.returncode == 0, run.stderr
+
+    link = reported(run, "LINK")
+    assert "NOTFOUND" not in link, link
+    assert Path(link).resolve() in {path.resolve() for path in (prefix / "lib").iterdir()}, link
+    assert "SPDLOG_COMPILED_LIB" in reported(run, "DEFINITIONS")
+
+
+def test_a_different_fmt_behind_a_matching_spdlog_is_reported(tmp_path):
+    """Equal spdlog versions do not mean equal fmt, and fmt is what renames the symbols.
+
+    fmt's inline namespace carries its version, so a consumer compiling against another fmt gets
+    symbols the kernel does not export. The spdlog version alone cannot see that.
+    """
+    prefix = make_prefix(tmp_path, "sen", vendored=SEN_SPDLOG)
+    write_headers(prefix / "include", SEN_SPDLOG, fmt_version="120100")
+
+    system = tmp_path / "system"
+    write_headers(system / "include", SEN_SPDLOG, fmt_version="110000")
+    write_config_package(system, SEN_SPDLOG)
+
+    run = configure(tmp_path, prefix, [f"-DCMAKE_PREFIX_PATH={system.as_posix()}"])
+    assert run.returncode == 0, run.stderr
+    assert warned(run, "fmt's inline namespace carries its version"), run.stderr
+
+
+def test_an_older_fmt_keeps_its_version_in_core_h(tmp_path):
+    """Fmt split base.h out of core.h at 11.0, so an older fmt has no base.h to read.
+
+    Those are the versions most likely to differ from ours, so reading only base.h would miss the
+    mismatches the comparison is for.
+    """
+    prefix = make_prefix(tmp_path, "sen", vendored=SEN_SPDLOG)
+    write_headers(prefix / "include", SEN_SPDLOG, fmt_version="120100")
+
+    system = tmp_path / "system"
+    write_headers(system / "include", SEN_SPDLOG, fmt_version="90100", fmt_header="core.h")
+    write_config_package(system, SEN_SPDLOG)
+
+    run = configure(tmp_path, prefix, [f"-DCMAKE_PREFIX_PATH={system.as_posix()}"])
+    assert run.returncode == 0, run.stderr
+    assert warned(run, "fmt 90100 sits beside"), run.stderr

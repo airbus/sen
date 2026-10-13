@@ -5,7 +5,7 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
-find_package(spdlog REQUIRED)
+include(tps/spdlog)
 
 add_sen_package(
   TARGET stress_testing_utils

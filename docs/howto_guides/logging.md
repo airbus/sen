@@ -135,7 +135,11 @@ static method called `getOrCreateLogger`:
 `component_api.h` declares spdlog's logger instead of including spdlog's headers, so a component
 that never logs compiles neither spdlog nor fmt. The declaration is enough to hold a logger and pass
 it around; calling a method on one needs the definition, so include `<spdlog/spdlog.h>` where you
-log.
+log. `add_sen_package` links spdlog, so your `CMakeLists.txt` needs nothing.
+
+On MSVC with warnings as errors, add `/wd4251 /wd4275` where you compile spdlog's headers: spdlog's
+`logger` is a dll-interface class with `std::string` and `std::vector` members, and its conan recipe
+does not carry the suppressions spdlog's own CMake sets when it builds shared.
 
 ## Compile-time log levels
 

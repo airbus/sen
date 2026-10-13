@@ -26,7 +26,15 @@ if(TARGET spdlog::spdlog)
             "${SPDLOG_INCLUDES}"
   )
 
-  get_target_property(FMT_INCLUDES fmt::fmt INTERFACE_INCLUDE_DIRECTORIES)
+  # fmt's conan recipe names the target fmt::fmt-header-only when it ships no library, which is how
+  # Sen requires it. Either name carries the include directory.
+  if(TARGET fmt::fmt-header-only)
+    set(_fmt_target fmt::fmt-header-only)
+  else()
+    set(_fmt_target fmt::fmt)
+  endif()
+
+  get_target_property(FMT_INCLUDES ${_fmt_target} INTERFACE_INCLUDE_DIRECTORIES)
   string(
     REGEX
     REPLACE "\\$<\\$<CONFIG:[^>]+>:(.*)>"
@@ -38,5 +46,32 @@ if(TARGET spdlog::spdlog)
   if(SPDLOG_INCLUDES AND FMT_INCLUDES)
     install(DIRECTORY "${SPDLOG_INCLUDES}/spdlog" DESTINATION include)
     install(DIRECTORY "${FMT_INCLUDES}/fmt" DESTINATION include)
+
+    # The library as well as the headers, so a consumer links the copy Sen ships rather than
+    # compiling its own. The wildcard before the extension covers the `d` spdlog appends in Debug on
+    # every platform; a release-only pattern matches nothing and installs nothing.
+    get_filename_component(_spdlog_package_dir "${SPDLOG_INCLUDES}/.." ABSOLUTE)
+    if(WIN32)
+      install(
+        DIRECTORY "${_spdlog_package_dir}/lib/"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        FILES_MATCHING
+        PATTERN "spdlog*.lib"
+      )
+      install(
+        DIRECTORY "${_spdlog_package_dir}/bin/"
+        DESTINATION ${CMAKE_INSTALL_BINDIR}
+        FILES_MATCHING
+        PATTERN "spdlog*.dll"
+      )
+    else()
+      install(
+        DIRECTORY "${_spdlog_package_dir}/lib/"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        FILES_MATCHING
+        PATTERN "libspdlog*.so*"
+        PATTERN "libspdlog*.dylib*"
+      )
+    endif()
   endif()
 endif()

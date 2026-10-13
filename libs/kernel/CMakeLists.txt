@@ -186,13 +186,11 @@ target_link_libraries(
   PRIVATE xenium::xenium
 )
 
-# spdlog's CMake sets both PUBLIC when shared; its conan recipe does not pass them on. Without the
-# define SPDLOG_API is empty against a dllexport build. Without the suppressions MSVC warns on
-# logger's std::string and std::vector members.
+# Which ABI mode spdlog's headers select, rather than a warning setting, so it belongs on the
+# interface. A consumer taking conan's spdlog config gets it from nowhere else, and without it MSVC
+# compiles no dllimport against a shared library. validate() refuses a static spdlog, so the define
+# cannot be wrong.
 target_compile_definitions(kernel INTERFACE SPDLOG_SHARED_LIB)
-if(MSVC)
-  target_compile_options(kernel INTERFACE /wd4251 /wd4275)
-endif()
 
 # -------------------------------------------------------------------------------------------------------------
 # IDE grouping

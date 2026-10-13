@@ -91,6 +91,16 @@ class SenConan(ConanFile):
                 "with_webexplorer requires with_jsonrpc (webexplorer/backend links against the jsonrpc component)."
             )
 
+        # A static spdlog gives every shared object its own copy of the registry. On Windows that
+        # fails to link; on Linux it builds and the kernel's logger configuration stops reaching a
+        # component's loggers.
+        spdlog = self.dependencies.get("spdlog")
+        if spdlog is not None and not spdlog.options.get_safe("shared"):
+            raise ConanInvalidConfiguration(
+                "Sen requires a shared spdlog: its registry is a singleton and the kernel configures "
+                "loggers a component looks up. Remove any -o spdlog/*:shared=False."
+            )
+
     def build_requirements(self):
         """Defines the dependencies only need for building of Sen."""
         self.tool_requires("cmake/3.31.10")
@@ -125,10 +135,22 @@ class SenConan(ConanFile):
         if self.settings.os == "Linux":
             crashpad_options["with_tls"] = False
         self.requires("sentry-crashpad/0.6.5", options=crashpad_options, visible=False)
-        # component_api.h declares spdlog's types instead of including them, so a consumer does not
-        # compile spdlog. Shared because the registry is a singleton: a static copy gives every shared
-        # library its own, and a component's spdlog::get then does not find the kernel's loggers.
-        self.requires("spdlog/1.17.0", visible=True, transitive_headers=True, options={"shared": True})
+        # Shared because the registry is a singleton: a static copy gives every shared library its
+        # own, and a component's spdlog::get then does not find the kernel's loggers. Headers and
+        # libraries both, because a consumer compiles spdlog's templates and has to link what they
+        # call into.
+        #
+        # full_mode because spdlog is in this package's ABI, where a version expression says only
+        # which one to resolve. Without it a new spdlog recipe revision or a change to one of its ABI
+        # options reuses a Sen binary built against a different spdlog.
+        self.requires(
+            "spdlog/1.17.0",
+            visible=True,
+            transitive_headers=True,
+            transitive_libs=True,
+            options={"shared": True},
+            package_id_mode="full_mode",
+        )
 
         # explorer-only: ImGui + ImPlot + SDL.
         # ImGui is overridden to pin the docking branch required by ImPlot.
