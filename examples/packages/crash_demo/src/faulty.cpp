@@ -13,6 +13,9 @@
 #include "sen/core/meta/class_type.h"
 #include "sen/kernel/component_api.h"
 
+// spdlog
+#include <spdlog/spdlog.h>
+
 // std
 #include <stdexcept>
 

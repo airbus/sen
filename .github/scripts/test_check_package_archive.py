@@ -28,6 +28,7 @@ LINUX_MEMBERS = (
     "bin/sen",
     "lib/libcore.so.0.0.0",
     "lib/libshell.so",
+    "lib/libspdlog.so.1.17",
     "cmake/sen/sen_targets.cmake",
     "cmake/sen/sen-config-version.cmake",
     "cmake/sen/util/sen_utils.cmake",
@@ -41,25 +42,46 @@ WINDOWS_SPELLINGS = {
     "bin/sen": "bin/sen.exe",
     "lib/libcore.so.0.0.0": "bin/core.dll",
     "lib/libshell.so": "bin/shell.dll",
+    "lib/libspdlog.so.1.17": "bin/spdlog.dll",
 }
 
 WINDOWS_MEMBERS = tuple(WINDOWS_SPELLINGS.get(member, member) for member in LINUX_MEMBERS)
 
+# The shape cmake writes, with the kernel's exported defines. Written out rather than taken from the
+# checker's constant, for the reason in the module docstring.
+EXPORT_WITH_DEFINES = """set_target_properties(
+  sen::kernel
+  PROPERTIES
+  INTERFACE_COMPILE_DEFINITIONS "SEN_KERNEL_VERSION=\\"0.0.1\\";SPDLOG_SHARED_LIB"
+  INTERFACE_LINK_LIBRARIES "sen::core;dl"
+)
+"""
 
-def write_archive(directory: Path, stem: str, members, suffix: str = ".tar.gz") -> Path:
-    """Writes an archive holding the given files under one top-level directory."""
+
+def write_archive(
+    directory: Path, stem: str, members, suffix: str = ".tar.gz", export_text: str = EXPORT_WITH_DEFINES
+) -> Path:
+    """Writes an archive holding the given files under one top-level directory.
+
+    The cmake export gets its own contents, because the check reads it rather than only naming it.
+    """
     payload = directory / "payload"
     payload.write_text("x", encoding="utf-8")
+    export = directory / "export.cmake"
+    export.write_text(export_text, encoding="utf-8")
+
+    def source(member: str) -> Path:
+        return export if member.rsplit("/", 1)[-1] == "sen_targets.cmake" else payload
 
     archive = directory / f"{stem}{suffix}"
     if suffix == ".zip":
         with zipfile.ZipFile(archive, "w") as zip_file:
             for member in members:
-                zip_file.write(payload, f"{stem}/{member}")
+                zip_file.write(source(member), f"{stem}/{member}")
     else:
         with tarfile.open(archive, "w:gz") as tar:
             for member in members:
-                tar.add(payload, f"{stem}/{member}")
+                tar.add(source(member), f"{stem}/{member}")
 
     return archive
 
@@ -125,10 +147,24 @@ def test_empty_archive_is_reported(tmp_path):
         check_archive(archive)
 
 
+def test_an_export_missing_the_spdlog_define_is_reported(tmp_path):
+    """The define is what gives a conan consumer spdlog's ABI mode."""
+    archive = write_archive(tmp_path, LINUX_NAME, LINUX_MEMBERS, export_text="# an export with no defines\n")
+    assert "cmake export does not carry SPDLOG_SHARED_LIB" in check_archive(archive)
+
+
+def test_a_windows_export_is_read_too(tmp_path):
+    """The zip path reads members the same way, so the check is not Linux-only."""
+    archive = write_archive(tmp_path, WINDOWS_NAME, WINDOWS_MEMBERS, suffix=".zip", export_text="# bare\n")
+    assert "cmake export does not carry SPDLOG_SHARED_LIB" in check_archive(archive)
+
+
 def test_a_symlinked_executable_ships(tmp_path):
     """The sen executable and the versioned libraries ship as symlinks."""
     payload = tmp_path / "payload"
     payload.write_text("x", encoding="utf-8")
+    export = tmp_path / "export.cmake"
+    export.write_text(EXPORT_WITH_DEFINES, encoding="utf-8")
 
     archive = tmp_path / f"{LINUX_NAME}.tar.gz"
     with tarfile.open(archive, "w:gz") as tar:
@@ -139,7 +175,7 @@ def test_a_symlinked_executable_ships(tmp_path):
                 link.linkname = "cli_sen"
                 tar.addfile(link)
             else:
-                tar.add(payload, f"{LINUX_NAME}/{member}")
+                tar.add(export if member.endswith("sen_targets.cmake") else payload, f"{LINUX_NAME}/{member}")
 
     assert check_archive(archive) == []
 
