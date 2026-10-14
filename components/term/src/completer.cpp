@@ -9,7 +9,7 @@
 
 // component
 #include "command_engine.h"
-#include "log_router.h"
+#include "log_levels.h"
 #include "object_store.h"
 #include "parse_utils.h"
 #include "scope.h"
@@ -117,7 +117,7 @@ void Completer::markScopeDirty() { scopeDirty_ = true; }
 void Completer::markListsDirty() { listsDirty_ = true; }
 
 void Completer::setTypeRegistry(const CustomTypeRegistry* registry) { types_ = registry; }
-void Completer::update(const Scope& scope, const ObjectStore& store, LogRouter& logRouter)
+void Completer::update(const Scope& scope, const ObjectStore& store)
 {
   // Object maps are only rebuilt when the scope itself changed. Object add/remove events
   // patch them incrementally via onObjectAdded/onObjectRemoved, so we never pay O(N) per cycle.
@@ -186,22 +186,14 @@ void Completer::update(const Scope& scope, const ObjectStore& store, LogRouter& 
     }
     queryNames_ = std::move(qnames);
   }
-
-  // Remembered, not read. The logger list is rebuilt when `log level <Tab>` asks for it: `listLoggers` goes
-  // through `applyToAllLoggers`, which holds spdlog's process-global logger-map mutex for the whole walk.
-  // Rebuilding it here would make every logger creation and every `registry::get` in the kernel contend
-  // with term thirty times a second, for a list with one consumer.
-  logRouter_ = &logRouter;
 }
 
 void Completer::refreshLoggerNames() const
 {
-  if (logRouter_ == nullptr)
-  {
-    return;
-  }
-
-  auto loggers = logRouter_->listLoggers();
+  // Read here rather than in update(), which runs on every tick: `listLoggers` walks under spdlog's
+  // process-global logger-map mutex, so rebuilding it thirty times a second would make every logger
+  // creation in the kernel contend with term for a list only `log level <Tab>` reads.
+  auto loggers = listLoggers();
   std::vector<std::string> lnames;
   lnames.reserve(loggers.size());
   for (auto& info: loggers)

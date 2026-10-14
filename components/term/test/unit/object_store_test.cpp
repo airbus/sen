@@ -7,7 +7,7 @@
 
 #include "app.h"
 #include "completer.h"
-#include "log_router.h"
+#include "log_levels.h"
 #include "object_store.h"
 #include "scope.h"
 
@@ -295,7 +295,6 @@ TEST_F(ObjectStoreTest, TwoQueriesWithTheSameSelectionAreRefused)
 TEST_F(ObjectStoreTest, CompleterUpdateRebuildsFromTheStore)
 {
   App app([](const std::string&) {});
-  LogRouter router(app);
   Completer completer;
   Scope scope;
 
@@ -303,7 +302,7 @@ TEST_F(ObjectStoreTest, CompleterUpdateRebuildsFromTheStore)
   ASSERT_TRUE(store->createQuery("probes", "SELECT * FROM local.probe").isOk());
 
   // The call itself is the thing under test: before this, nothing in the suite executed it.
-  completer.update(scope, *store, router);
+  completer.update(scope, *store);
 
   auto sources = completer.complete("close ", 6);
   EXPECT_THAT(sources.candidates, ::testing::Not(::testing::IsEmpty()))
@@ -323,12 +322,11 @@ TEST_F(ObjectStoreTest, CompleterUpdateRebuildsFromTheStore)
 TEST_F(ObjectStoreTest, CompleterUpdateNoticesASourceClosing)
 {
   App app([](const std::string&) {});
-  LogRouter router(app);
   Completer completer;
   Scope scope;
 
   ASSERT_TRUE(store->openSource("local.probe").isOk());
-  completer.update(scope, *store, router);
+  completer.update(scope, *store);
 
   // One call, held: two calls would return two temporaries, and pairing begin() from one with end()
   // from the other is undefined. It passed whenever the allocator happened to reuse the address.
@@ -339,7 +337,7 @@ TEST_F(ObjectStoreTest, CompleterUpdateNoticesASourceClosing)
 
   ASSERT_TRUE(store->closeSource("local.probe").isOk());
   completer.markListsDirty();
-  completer.update(scope, *store, router);
+  completer.update(scope, *store);
 
   auto after = completer.complete("close ", 6);
   EXPECT_FALSE(std::any_of(

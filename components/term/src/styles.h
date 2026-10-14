@@ -109,18 +109,6 @@ inline ftxui::Decorator accent() { return ftxui::color(activeTheme().accent); }
 // some palettes (notably light backgrounds).
 inline ftxui::Decorator mutedText() { return ftxui::color(activeTheme().mutedText); }
 
-// Log level styles (for log_router.cpp).
-
-inline ftxui::Decorator logTrace() { return ftxui::color(activeTheme().logTrace); }
-inline ftxui::Decorator logDebug() { return ftxui::color(activeTheme().info); }
-inline ftxui::Decorator logInfo() { return ftxui::color(activeTheme().success); }
-inline ftxui::Decorator logWarn() { return ftxui::color(activeTheme().accent) | ftxui::bold; }
-inline ftxui::Decorator logError() { return ftxui::color(activeTheme().error) | ftxui::bold; }
-inline ftxui::Decorator logCritical()
-{
-  return ftxui::color(activeTheme().logCriticalFg) | ftxui::bold | ftxui::bgcolor(activeTheme().logCriticalBg);
-}
-
 }  // namespace sen::components::term::styles
 
 #endif  // SEN_COMPONENTS_TERM_SRC_STYLES_H

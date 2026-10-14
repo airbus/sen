@@ -1,0 +1,77 @@
+# One emitter per route a program has to the terminal, so a failure names the route that was lost.
+# kernelLog is the control: a logger the kernel made reaches the pane under either design, so a run
+# without it is a broken harness rather than a bug.
+load:
+  - name: ether
+    group: 10
+  - name: term
+    group: 2
+    noLogo: true
+    open:
+      - local.capture
+
+build:
+  - name: kernelRouteComponent
+    freqHz: 10
+    group: 7
+    imports: [log_emitter]
+    objects:
+      - class: log_emitter.EmitterImpl
+        name: kernelLog
+        config:
+          rate: fast
+          output: spdlogOnly
+          prefix: KERNELROUTE
+        bus: local.capture
+
+  - name: stderrRouteComponent
+    freqHz: 10
+    group: 7
+    imports: [log_emitter]
+    objects:
+      - class: log_emitter.EmitterImpl
+        name: stderrLog
+        config:
+          rate: fast
+          output: stderrOnly
+          prefix: STDERRROUTE
+        bus: local.capture
+
+  - name: coutRouteComponent
+    freqHz: 10
+    group: 7
+    imports: [log_emitter]
+    objects:
+      - class: log_emitter.EmitterImpl
+        name: coutLog
+        config:
+          rate: fast
+          output: coutOnly
+          prefix: COUTROUTE
+        bus: local.capture
+
+  - name: printfRouteComponent
+    freqHz: 10
+    group: 7
+    imports: [log_emitter]
+    objects:
+      - class: log_emitter.EmitterImpl
+        name: printfLog
+        config:
+          rate: fast
+          output: printfOnly
+          prefix: PRINTFROUTE
+        bus: local.capture
+
+  - name: plainSpdlogRouteComponent
+    freqHz: 10
+    group: 7
+    imports: [log_emitter]
+    objects:
+      - class: log_emitter.EmitterImpl
+        name: plainLog
+        config:
+          rate: fast
+          output: plainSpdlog
+          prefix: PLAINROUTE
+        bus: local.capture

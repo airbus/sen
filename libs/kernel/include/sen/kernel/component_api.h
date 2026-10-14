@@ -57,12 +57,6 @@ namespace spdlog
 // NOLINTNEXTLINE(readability-identifier-naming): spdlog's own class name
 class logger;
 
-namespace sinks
-{
-// NOLINTNEXTLINE(readability-identifier-naming): spdlog's own class name
-class sink;
-}  // namespace sinks
-
 namespace level
 {
 // NOLINTNEXTLINE(readability-identifier-naming): spdlog's own enum name
@@ -85,36 +79,6 @@ using NetworkFootprintReporter = NetworkFootprint(Span<const BusAddress>) const;
 class SessionsDiscoverer;
 class RunApi;
 class KernelApi;
-
-/// Whether the component registering a log sink owns the terminal.
-///
-/// `shared` leaves console output alone. `owned` silences every console sink, now and on every logger
-/// made while the claim lasts: a console sink writes to the descriptor the component is drawing on, so
-/// its output would land on top of the display and every line would appear twice. Silencing rather than
-/// detaching is what makes it reversible, and `removeLoggerSink` puts every console sink back to the level
-/// it had once no registered sink claims the terminal.
-///
-/// Re-adding a sink that is already registered, with `owned`, claims the terminal for it. A `shared` add
-/// never gives a claim up.
-enum class TerminalOwnership
-{
-  shared,
-  owned
-};
-
-/// What registering a logger sink did.
-///
-/// There is no arbitration: a sink is added, never refused, so two components that both render logs will
-/// each be handed every line, including the other's. Anything that needs exclusivity has to read
-/// `registeredSinks` and decide for itself.
-struct LoggerSinkRegistration
-{
-  bool added = false;                   ///< false when this sink was already registered, so the call only
-                                        ///< changed its terminal ownership
-  bool ownsTerminal = false;            ///< whether this sink now holds the terminal claim
-  bool terminalOwnedElsewhere = false;  ///< whether a *different* registered sink holds the claim
-  std::size_t registeredSinks = 0;      ///< sinks registered behind the relay, this one included
-};
 
 namespace impl
 {
@@ -144,11 +108,6 @@ void remoteProcessLost(RunApi& api, const ProcessInfo& processInfo);
 [[nodiscard]] std::shared_ptr<spdlog::logger> getOrCreateLogger(const std::string& loggerName);
 
 void applyToAllLoggers(std::function<void(std::shared_ptr<spdlog::logger>)>&& func);
-
-[[nodiscard]] Result<LoggerSinkRegistration, ExecError> addLoggerSink(std::shared_ptr<spdlog::sinks::sink> sink,
-                                                                      TerminalOwnership terminal);
-
-[[nodiscard]] FuncResult removeLoggerSink(const std::shared_ptr<spdlog::sinks::sink>& sink);
 
 [[nodiscard]] FuncResult setAllLoggersLevel(spdlog::level::level_enum level);
 
@@ -309,53 +268,14 @@ public:
   /// deadlocks the calling thread. Emitting through a logger `func` was handed is fine.
   static void applyToAllLoggers(std::function<void(std::shared_ptr<spdlog::logger>)>&& func);
 
-  /// The logger state below is per process, not per kernel. The relay sink and the record of what the
-  /// console sinks were are statics in libkernel, so they outlive any `Kernel` and are shared by every
-  /// kernel in the process. "Every logger" means every logger in spdlog's registry, which is one per
-  /// process and which no kernel owns. `configureSpdlog` replaces the sink vector of every logger that
-  /// already exists, so `KernelImpl::configure` re-attaches the relay straight afterwards, and a second
-  /// kernel configured in the same process keeps working. A logger made by a direct spdlog factory
-  /// carries the relay only if it existed when the kernel configured: the sweep there reaches the
-  /// whole registry, and nothing attaches it to a logger made afterwards.
+  /// The level below is the registry's, not a kernel's, and spdlog is one shared library with one
+  /// registry per process. So it reaches every logger in that registry, including one a component made
+  /// through spdlog's own factory. A logger constructed directly and never registered is not in it.
   ///
   /// spdlog appears in these signatures by name: this header declares the types instead of including
   /// them, so compiling against the kernel does not compile spdlog or fmt. A caller that uses a logger
   /// includes spdlog itself and links the copy Sen ships, which holds the registry.
-  using TerminalOwnership = ::sen::kernel::TerminalOwnership;
-
-  /// Sends every logger's output to `sink`, including loggers made afterwards.
   ///
-  /// A component cannot do this by walking the registry itself: spdlog iterates a logger's sink vector
-  /// without a lock and hands out a bare reference, so appending to a logger another thread is emitting
-  /// through is a use-after-free. Appending earlier is no safer, because the kernel starts each group's
-  /// threads before it loads the next group and logs between groups itself. The kernel therefore attaches
-  /// one sink of its own to every logger, in the only window where attaching is safe, and this call
-  /// registers `sink` behind it under a mutex. No logger's sink vector is touched here, so it may be
-  /// called from any thread at any time.
-  ///
-  /// `sink` keeps its own pattern: the relay hands on the unformatted message and each registered sink
-  /// formats it.
-  ///
-  /// The registration has no owner. Sinks are held until removed, so a component that is unloaded must
-  /// call `removeLoggerSink`, and it must stop its sink reaching its own state first, because the sink can
-  /// be running on another thread. Nothing here enforces that order: this is a static function with no
-  /// api object, so the kernel cannot know which component registered what.
-  ///
-  /// A sink left registered is a state hazard rather than a code one only because nothing dlcloses a
-  /// component, so its code stays mapped. If unload is ever made to really unload, every un-removed sink
-  /// becomes a jump into unmapped memory on the next log line.
-  ///
-  /// Returns what the registration did, or an error if `sink` is null. Nothing else can fail.
-  [[nodiscard]] static Result<LoggerSinkRegistration, ExecError> addLoggerSink(
-    std::shared_ptr<spdlog::sinks::sink> sink,
-    TerminalOwnership terminal = TerminalOwnership::shared);
-
-  /// Stops sending output to `sink`. Restores the console sinks if this was the last registered sink
-  /// claiming the terminal. For a component being unloaded.
-  ///
-  /// Removing a sink that was never registered is not an error. A null sink is.
-  [[nodiscard]] static FuncResult removeLoggerSink(const std::shared_ptr<spdlog::sinks::sink>& sink);
-
   /// Sets the level on every logger the kernel knows and on every logger made afterwards.
   ///
   /// Walking the registry with `applyToAllLoggers` reaches only the loggers that exist when it runs, so a

@@ -6,12 +6,13 @@
 // =====================================================================================================================
 
 // component
+#include "ansi_text.h"
 #include "app.h"
 #include "banner.h"
 #include "clipboard.h"
 #include "command_engine.h"
 #include "completer.h"
-#include "log_router.h"
+#include "log_levels.h"
 #include "output_capture.h"
 #include "theme.h"
 #include "util.h"
@@ -173,8 +174,11 @@ struct TermComponent: public kernel::Component
       app->appendOutput("");
     }
 
+    // Rendered rather than appended as text: a captured line arrives formatted by whoever wrote
+    // it, and spdlog's console sink colours by level. Dropping the escapes would throw away the
+    // only thing that still says a warning is a warning.
     auto outputCapture =
-      std::make_unique<OutputCapture>([&app](const std::string& line) { app->appendLogOutput(line); });
+      std::make_unique<OutputCapture>([&app](const std::string& line) { app->appendLogElement(renderAnsiLine(line)); });
 
     auto completer = std::make_unique<Completer>();
     completer->setTypeRegistry(&api.getTypes());
@@ -183,9 +187,7 @@ struct TermComponent: public kernel::Component
     // Create term's own logger up front, so `log` lists it from the first frame.
     getLogger();
 
-    auto logRouter = std::make_unique<LogRouter>(*app);
-
-    auto engine = std::make_unique<CommandEngine>(config_, api, *app, *logRouter, *completer);
+    auto engine = std::make_unique<CommandEngine>(config_, api, *app, *completer);
     enginePtr = engine.get();
     engine->getObjectStore().setObjectAddedCallback(
       [&](const std::shared_ptr<Object>& obj)
@@ -233,7 +235,6 @@ struct TermComponent: public kernel::Component
                                    app->tick();
 
                                    outputCapture->drain();
-                                   logRouter->update();
                                    engine->update();
                                  }
                                  catch (const std::exception& e)
@@ -254,20 +255,10 @@ struct TermComponent: public kernel::Component
 
     outputCapture.reset();
 
-    // One last drain while the screen is still up, so lines that arrived during the final frame are
-    // drawn rather than discarded with the queue.
-    logRouter->update();
-
-    // The engine goes before the router it holds a reference to. Left to unwind at scope exit it would
-    // hold a dangling `LogRouter&` to the end of the function, safe only because `~CommandEngine` happens
-    // not to touch it.
+    // `outputCapture` above put the descriptors back, so from here the rest of the kernel's shutdown
+    // reaches the real console: every other component's stop and unload, the transport goodbye, and
+    // any error raised while term's own group unloads.
     engine.reset();
-
-    // And the router before the screen. Removing its sink is what gives the console sinks back, so doing
-    // it first means the rest of the kernel's shutdown reaches the console: every other component's stop
-    // and unload, the transport goodbye, and any error raised while term's own group unloads. The other
-    // order leaves that phase going nowhere, with no console sink and term's queue already gone.
-    logRouter.reset();
 
     app->shutdown();
 
