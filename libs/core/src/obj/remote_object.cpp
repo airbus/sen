@@ -154,7 +154,7 @@ ConnectionGuard RemoteObject::onEventUntyped(const Event* ev, EventCallback<VarL
     const auto connId = nextConnection_.fetch_add(1U);
     const auto memberHash = ev->getId();
     auto [itr, done] = eventCallbacks_->try_emplace(memberHash, EventCallbackInfo {{}, ev->getTransportMode()});
-    itr->second.list.push_back({connId, std::move(callback)});
+    itr->second.list.push_back({connId, std::make_shared<EventCallback<VarList>>(std::move(callback))});
     return senImplMakeConnectionGuard(connId, memberHash, false);
   }
 
@@ -175,7 +175,7 @@ ConnectionGuard RemoteObject::onPropertyChangedUntyped(const Property* prop, Eve
     const auto connId = nextConnection_.fetch_add(1U);
     const auto memberHash = prop->getId();
     auto [itr, done] = eventCallbacks_->try_emplace(memberHash, EventCallbackInfo {{}, prop->getTransportMode()});
-    itr->second.list.push_back({connId, std::move(callback)});
+    itr->second.list.push_back({connId, std::make_shared<EventCallback<VarList>>(std::move(callback))});
 
     return senImplMakeConnectionGuard(connId, memberHash, false);
   }
@@ -200,7 +200,7 @@ void RemoteObject::senImplRemoveUntypedConnection(ConnId id, MemberHash memberHa
     {
       if (elemItr->id == id.get())
       {
-        elemItr->callback.lock().invalidate();
+        elemItr->callback->lock().invalidate();
         list.erase(elemItr);
         return;
       }
@@ -226,9 +226,12 @@ void RemoteObject::senImplEventEmitted(MemberHash id, std::function<VarList()>&&
       // iterate over all the registered callbacks
       for (const auto& elem: itr->second.list)
       {
-        if (auto callbackLock = elem.callback.lock(); callbackLock.isValid())
+        if (auto callbackLock = elem.callback->lock(); callbackLock.isValid())
         {
-          callbackLock.pushAnswer([argsGetter, info, func = &elem.callback, us]() { func->invoke(info, argsGetter()); },
+          // The work holds the callback rather than a pointer into the list: the entry can be erased
+          // before the queue drains, and a later registration moves the vector's elements. The
+          // arguments go by value too, since argsGetter reads a buffer this thread owns.
+          callbackLock.pushAnswer([callback = elem.callback, info, args, us]() { callback->invoke(info, args); },
                                   impl::cannotBeDropped(itr->second.transportMode));
         }
       }
