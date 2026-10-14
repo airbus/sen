@@ -21,12 +21,23 @@ if(SEN_USE_SANITIZER STREQUAL None)
   list(APPEND CMAKE_COMMON_CTEST_ARGUMENTS "--stop-on-failure")
 endif()
 
+# Sanitizer builds are slower per test.
+set(SEN_CTEST_TIMEOUT 20)
+if(SEN_USE_SANITIZER
+   AND NOT
+       SEN_USE_SANITIZER
+       STREQUAL
+       None
+)
+  set(SEN_CTEST_TIMEOUT 60)
+endif()
+
 list(
   APPEND
   CMAKE_COMMON_CTEST_ARGUMENTS
   "--output-on-failure"
   "--timeout"
-  "20"
+  "${SEN_CTEST_TIMEOUT}"
 )
 if(${SEN_CTEST_RANDOMIZE_TESTS})
   list(APPEND CMAKE_COMMON_CTEST_ARGUMENTS "--schedule-random")
