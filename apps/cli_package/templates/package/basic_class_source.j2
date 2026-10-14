@@ -1,11 +1,16 @@
 #include "{{ class_header_file }}"
 
+// spdlog
+#include <spdlog/spdlog.h>
+
 namespace {{ package_name }}
 {
 
 {{ class_name }}Impl::{{ class_name }}Impl(const std::string& name, const sen::VarMap& args)
   : {{ class_name }}Base(name, args)
 {
+  const auto logger = sen::kernel::KernelApi::getOrCreateLogger("{{ package_name }}");
+  logger->info("{} created", name);
 }
 ## if non_empty_classes
 

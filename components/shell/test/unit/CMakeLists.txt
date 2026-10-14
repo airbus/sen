@@ -28,6 +28,7 @@ add_sen_unit_test_suite(
   terminal_lib
   sen::core
   sen::kernel
+  spdlog::spdlog
   PRIVATE
   shell_test_generated
 )

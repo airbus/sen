@@ -9,6 +9,7 @@ sen_internal_component_guard(NAME shell)
 
 include(tps/asio)
 include(tps/cli11)
+include(tps/spdlog)
 
 # -------------------------------------------------------------------------------------------------------------
 # terminal_lib
@@ -74,6 +75,7 @@ add_sen_package(
           src/shell_service/styles.h
   STL_FILES stl/shell.stl
   DEPS terminal_lib
+  PRIVATE_DEPS spdlog::spdlog
   IS_COMPONENT
 )
 

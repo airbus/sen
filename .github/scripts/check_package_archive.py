@@ -43,7 +43,22 @@ REQUIRED_DIRECTORIES = (
 # core is linked by the sen executable. shell is a component, and a missing component is the
 # silent case: components are opened by name only when a config asks for one. shell ships in
 # basic and full; a barebones package has none.
-REQUIRED_LIBRARIES = ("core", "shell")
+#
+# spdlog is the third-party library a consumer links. Without it the find module falls back to
+# header-only, so a consumer compiles its own registry and the kernel's logger configuration never
+# reaches it. That is a configure warning and nothing afterwards, so the archive is where it is
+# caught.
+REQUIRED_LIBRARIES = ("core", "shell", "spdlog")
+
+# Defines the installed cmake export has to carry, read out of the file rather than inferred from
+# its name. SPDLOG_SHARED_LIB selects which ABI mode spdlog's headers compile against, and on the
+# conan path the kernel's exported interface is the only thing that carries it: the find module
+# declares it on its vendored branch, which a conan consumer does not reach.
+REQUIRED_EXPORT_DEFINES = ("SPDLOG_SHARED_LIB",)
+
+# The export file the defines live in, matched by its tail so that both install layouts answer:
+# lib/cmake/sen on main, cmake/sen on release/0.7.x.
+EXPORT_FILE = "sen_targets.cmake"
 
 # The kernel links Crashpad's handler library and forks itself to run it, so no separate
 # handler program is installed. A test pins that in the build tree; the archive is assembled
@@ -80,6 +95,35 @@ def list_entries(archive: Path) -> list[str]:
         raise SystemExit(f"Error: expected one top-level directory, found {sorted(roots)}")
 
     return [name.split("/", 1)[1] for name in names if "/" in name]
+
+
+def read_member(archive: Path, entry: str) -> str | None:
+    """One member's text, addressed the way `list_entries` reports it, without the top directory."""
+    if archive.suffixes[-2:] == [".tar", ".gz"]:
+        with tarfile.open(archive) as tar:
+            for member in tar.getmembers():
+                if member.isfile() and member.name.split("/", 1)[-1] == entry:
+                    handle = tar.extractfile(member)
+                    return handle.read().decode("utf-8", "replace") if handle else None
+    elif archive.suffix == ".zip":
+        with zipfile.ZipFile(archive) as zip_file:
+            for name in zip_file.namelist():
+                if name.split("/", 1)[-1] == entry:
+                    return zip_file.read(name).decode("utf-8", "replace")
+    return None
+
+
+def missing_export_defines(archive: Path, entries: list[str]) -> list[str]:
+    """Returns the required defines the cmake export does not carry.
+
+    An absent export file is already reported as a missing entry, so this says nothing about it
+    rather than reporting the same gap twice.
+    """
+    exports = [entry for entry in entries if entry.rsplit("/", 1)[-1] == EXPORT_FILE]
+    if not exports:
+        return []
+    text = read_member(archive, exports[0]) or ""
+    return [define for define in REQUIRED_EXPORT_DEFINES if define not in text]
 
 
 def archive_stem(archive: Path) -> str:
@@ -155,6 +199,7 @@ def check_archive(archive: Path) -> list[str]:
     entries = list_entries(archive)
     problems.extend(f"missing entry: {entry}" for entry in missing_entries(entries, stem))
     problems.extend(f"must not ship: {entry}" for entry in forbidden_entries(entries))
+    problems.extend(f"cmake export does not carry {define}" for define in missing_export_defines(archive, entries))
     return problems
 
 

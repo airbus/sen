@@ -65,7 +65,8 @@ runs:
         bash .github/scripts/in_environment.sh <<'IN'
         conan config install .conan/profiles/ --target-folder "$CONAN_HOME/profiles/"
         cp "$CONAN_HOME/profiles/sen_${{ inputs.compiler-name }}_x86" "$CONAN_HOME/profiles/default"
-        printf 'core.sources:download_urls=["https://c3i.jfrog.io/artifactory/conan-center-backup-sources/", "origin"]\n' \
+        # Upstream first: conan stops at a cache that refuses the request.
+        printf 'core.sources:download_urls=["origin", "https://c3i.jfrog.io/artifactory/conan-center-backup-sources/"]\n' \
             >> "$CONAN_HOME/global.conf"
         conan profile show -pr default
         IN

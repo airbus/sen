@@ -349,6 +349,17 @@ function(add_sen_unit_test_suite test_name)
     )
   endif()
 
+  # spdlog needs the same and the expression above cannot see it: conan's target carries a library
+  # path rather than an imported dll with a location. Only when it differs: some test binaries sit
+  # in the directory tps/spdlog.cmake copies into, and a copy here keeps conan's read-only bit.
+  if(WIN32 AND SEN_SPDLOG_RUNTIME)
+    add_custom_command(
+      TARGET ${test_name}
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${SEN_SPDLOG_RUNTIME} $<TARGET_FILE_DIR:${test_name}>
+    )
+  endif()
+
   # NO_PRETTY_VALUES drops gtest's "# GetParam() = ..." from the registered name. Without it a
   # parameter gtest cannot print reaches ctest as a hex dump of the object: 200 names carried one,
   # the longest 613 characters, and the bytes change between builds. The suites that want a readable

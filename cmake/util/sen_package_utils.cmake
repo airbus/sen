@@ -244,6 +244,12 @@ function(add_sen_package)
   # link the target to sen::kernel and sen::core
   target_link_libraries(${_target_to_compile} PUBLIC sen::kernel)
 
+  # spdlog is private to the kernel, so a package that includes spdlog's headers to use a logger has
+  # no path to them. Linking it here means the author writes no cmake for it.
+  if(TARGET spdlog::spdlog)
+    target_link_libraries(${_target_to_compile} PRIVATE spdlog::spdlog)
+  endif()
+
   # set vars needed for the schemas (_exported_classes and _schema_file)
   if(NOT _arg_NO_SCHEMA)
     sen_collect_export_args(
@@ -387,6 +393,11 @@ function(add_sen_package)
     # Also here: the object library is linked PRIVATE above, so the kernel it links PUBLIC stays out
     # of this target's interface, and copy_target_properties forwards includes but not libraries.
     target_link_libraries(${_arg_TARGET} PUBLIC sen::kernel)
+
+    # Same reason as above: the object library's spdlog is PRIVATE, so it does not reach here.
+    if(TARGET spdlog::spdlog)
+      target_link_libraries(${_arg_TARGET} PRIVATE spdlog::spdlog)
+    endif()
     copy_target_properties(${_arg_TARGET} ${_arg_TARGET}_obj)
     set_property(
       TARGET ${_arg_TARGET}
