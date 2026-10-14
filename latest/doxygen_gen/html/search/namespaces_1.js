@@ -24,6 +24,5 @@ var searchData=
   ['sen_3a_3autil_3a_3aimpl_21',['impl',['../namespacesen_1_1util_1_1impl.html',1,'sen::util']]],
   ['spdlog_22',['spdlog',['../namespacespdlog.html',1,'']]],
   ['spdlog_3a_3alevel_23',['level',['../namespacespdlog_1_1level.html',1,'spdlog']]],
-  ['spdlog_3a_3asinks_24',['sinks',['../namespacespdlog_1_1sinks.html',1,'spdlog']]],
-  ['std_25',['std',['../namespacestd.html',1,'']]]
+  ['std_24',['std',['../namespacestd.html',1,'']]]
 ];

@@ -2231,27 +2231,28 @@ nothing.</p>
 </span><span id="__span-11-2"><a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a>sen:/❯ log level info                # the global level
 </span><span id="__span-11-3"><a href="#__codelineno-11-3" id="__codelineno-11-3" name="__codelineno-11-3"></a>sen:/❯ log level myComponent debug   # one logger
 </span></code></pre></div>
-<p>Levels are <code>trace</code>, <code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>, <code>critical</code> and <code>off</code>. Log lines arrive in the same
-stream as everything else, carrying their logger name and level. They carry no timestamp. The term's own
-rows carry a time on the right instead: command echoes, call results and event emissions. If you need a
-timestamp on every log line, a file sink in the kernel's configuration keeps them.</p>
-<p>Two notices say when the term has dropped something rather than shown it. <code>N log lines were dropped:
-they arrived faster than the screen can draw them</code> means the level is letting through more than a screen
+<p>Levels are <code>trace</code>, <code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>, <code>critical</code> and <code>off</code>. A log line arrives as its
+sink wrote it, colours and all, so the logger name, the level and whether there is a timestamp are
+whatever that sink's pattern says rather than something the term adds. The term's own rows do carry a
+time on the right: command echoes, call results and event emissions.</p>
+<p>Two notices say when the term has dropped something rather than shown it. <code>N lines of captured output
+were dropped: they arrived faster than the screen can draw them</code> means more was written than a screen
 can take. <code>N further discovery notices were not shown</code> means a burst of objects arrived. Neither loses
 anything but the notice: the log file sinks and the objects themselves are unaffected.</p>
 <h2 id="logging-from-other-components">Logging from other components<a class="headerlink" href="#logging-from-other-components" title="Permanent link">¶</a></h2>
-<p>Term captures the process's standard error and shows it. It cannot capture standard output, because
-that is what FTXUI draws the interface on — a <code>printf</code>, a <code>std::cout</code> or a <code>write(STDOUT_FILENO, …)</code>
-from any component will land on top of the display.</p>
+<p>Term captures the process's standard output and standard error and shows what arrives on them. A
+<code>printf</code>, a <code>std::cout</code>, a <code>write(STDOUT_FILENO, …)</code> or a logger's console sink all reach the output
+pane rather than landing on top of the display.</p>
 <p>Use spdlog, and take the logger from the kernel:</p>
 <div class="language-cpp highlight"><pre><span></span><code><span id="__span-12-1"><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="c1">// in your component</span>
 </span><span id="__span-12-2"><a href="#__codelineno-12-2" id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="k">auto</span><span class="w"> </span><span class="n">logger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sen</span><span class="o">::</span><span class="n">kernel</span><span class="o">::</span><span class="n">KernelApi</span><span class="o">::</span><span class="n">getOrCreateLogger</span><span class="p">(</span><span class="s">"my_component"</span><span class="p">);</span>
 </span><span id="__span-12-3"><a href="#__codelineno-12-3" id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="n">logger</span><span class="o">-&gt;</span><span class="n">info</span><span class="p">(</span><span class="s">"my message: {}"</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">);</span>
 </span></code></pre></div>
 <p>Most components wrap that call in a <code>getLogger()</code> helper of their own, as
-<a href="../howto_guides/logging.html">Logging</a> shows. Do not call <code>spdlog::</code> free functions instead: those
-reach a different logger registry than the kernel's, so a logger created that way is invisible to
-<code>log</code> and cannot be levelled. To walk every logger, use <code>KernelApi::applyToAllLoggers</code>.</p>
+<a href="../howto_guides/logging.html">Logging</a> shows. A logger made with an spdlog factory instead lands in the
+same registry, so <code>log</code> lists it and <code>log level</code> reaches it, but it misses what the kernel attaches
+when it makes one: the crash reporter's ring. A logger constructed directly and never registered is in
+no registry at all. To walk every logger, use <code>KernelApi::applyToAllLoggers</code>.</p>
 <h2 id="themes">Themes<a class="headerlink" href="#themes" title="Permanent link">¶</a></h2>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a>sen:/❯ theme nord
 </span><span id="__span-13-2"><a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a>  Theme changed to 'nord'.
@@ -2397,7 +2398,7 @@ hand-written list and can drift.</p>
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 28, 2026 05:56:21 UTC">September 28, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 14, 2026 21:28:30 UTC">October 14, 2026</span>
 </span>
 </aside>
 </article>

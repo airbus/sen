@@ -191,7 +191,6 @@ var hierarchy =
     [ "sen::LittleEndian", "namespacesen.html#structsen_1_1_little_endian", null ],
     [ "sen::util::Location", "group__dr.html#structsen_1_1util_1_1_location", null ],
     [ "sen::util::LockedRangeAdapter&lt; LockType, IteratorType, MutexType &gt;", "classsen_1_1util_1_1_locked_range_adapter.html", null ],
-    [ "sen::kernel::LoggerSinkRegistration", "namespacesen_1_1kernel.html#structsen_1_1kernel_1_1_logger_sink_registration", null ],
     [ "sen::lang::fom::MappingDocument", "namespacesen_1_1lang_1_1fom.html#structsen_1_1lang_1_1fom_1_1_mapping_document", null ],
     [ "sen::util::Mat3&lt; T &gt;", "classsen_1_1util_1_1_mat3.html", null ],
     [ "sen::MetaTypeTrait&lt; T &gt;", "group__traits.html#structsen_1_1_meta_type_trait", null ],

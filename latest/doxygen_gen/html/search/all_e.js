@@ -141,9 +141,7 @@ var searchData=
   ['overruncount_138',['overrunCount',['../namespacesen_1_1kernel.html#a53469c27af684bdafd039ee2273c2df9',1,'sen::kernel::ComponentMonitoringInfo']]],
   ['oversleptcount_139',['oversleptCount',['../namespacesen_1_1kernel.html#a6c7ef6a6bf621218c8ffb94f72ae0694',1,'sen::kernel::ComponentMonitoringInfo']]],
   ['overview_140',['overview',['../namespacesen_1_1gen.html#af680d81e6325c83f0ce8fd6b5be92a54',1,'sen::gen::TypstOptions']]],
-  ['owned_141',['owned',['../namespacesen_1_1kernel.html#a33d8256061fa289ca51043f36103a87da8f9a4c5fe0824547590a3fc568f5c7c7',1,'sen::kernel']]],
-  ['owner_142',['owner',['../namespacesen_1_1lang_1_1fom.html#af3b8ff18558e913538d70d9bcd396bfb',1,'sen::lang::fom::Declarations']]],
-  ['ownerid_143',['ownerId',['../group__obj.html#a90c1cefddb442b40624e06806ee39133',1,'sen::ObjectInstanceDiscovery::ownerId'],['../structsen_1_1_remote_object_discovery.html#a9985751cdfb2d7a9aecc220710079e78',1,'sen::RemoteObjectDiscovery::ownerId'],['../group__obj.html#a359c16d408f15641cbc3049db1900d95',1,'sen::ObjectRemoval::ownerId']]],
-  ['owneriscomplete_144',['ownerIsComplete',['../namespacesen_1_1lang_1_1fom.html#a960afc244f570045fa2585df39438fa6',1,'sen::lang::fom::Declarations']]],
-  ['ownsterminal_145',['ownsTerminal',['../namespacesen_1_1kernel.html#a62a3f0f37751c965d4569c18455a8d03',1,'sen::kernel::LoggerSinkRegistration']]]
+  ['owner_141',['owner',['../namespacesen_1_1lang_1_1fom.html#af3b8ff18558e913538d70d9bcd396bfb',1,'sen::lang::fom::Declarations']]],
+  ['ownerid_142',['ownerId',['../group__obj.html#a90c1cefddb442b40624e06806ee39133',1,'sen::ObjectInstanceDiscovery::ownerId'],['../structsen_1_1_remote_object_discovery.html#a9985751cdfb2d7a9aecc220710079e78',1,'sen::RemoteObjectDiscovery::ownerId'],['../group__obj.html#a359c16d408f15641cbc3049db1900d95',1,'sen::ObjectRemoval::ownerId']]],
+  ['owneriscomplete_143',['ownerIsComplete',['../namespacesen_1_1lang_1_1fom.html#a960afc244f570045fa2585df39438fa6',1,'sen::lang::fom::Declarations']]]
 ];
