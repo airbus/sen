@@ -14,6 +14,7 @@
 #include "sen/core/meta/unit.h"
 
 // std
+#include <cstdint>
 #include <optional>
 #include <ratio>
 #include <string>
@@ -30,22 +31,22 @@ constexpr float64_t piValue = 3.141592653589793238462643383279502884197169399375
 
 enum class SIPrefix : uint16_t
 {
-  none = 0,
-  femto = 1 << 0,
-  pico = 1 << 1,
-  nano = 1 << 2,
-  micro = 1 << 3,
-  milli = 1 << 4,
-  centi = 1 << 5,
-  deci = 1 << 6,
-  deca = 1 << 7,
-  hecto = 1 << 8,
-  kilo = 1 << 9,
-  mega = 1 << 10,
-  giga = 1 << 11,
-  tera = 1 << 12,
-  peta = 1 << 13,
-  all = 0xFFFF
+  none = 0U,
+  femto = 1U << 0U,
+  pico = 1U << 1U,
+  nano = 1U << 2U,
+  micro = 1U << 3U,
+  milli = 1U << 4U,
+  centi = 1U << 5U,
+  deci = 1U << 6U,
+  deca = 1U << 7U,
+  hecto = 1U << 8U,
+  kilo = 1U << 9U,
+  mega = 1U << 10U,
+  giga = 1U << 11U,
+  tera = 1U << 12U,
+  peta = 1U << 13U,
+  all = 0xFFFFU
 };
 
 constexpr SIPrefix operator|(SIPrefix a, SIPrefix b)
