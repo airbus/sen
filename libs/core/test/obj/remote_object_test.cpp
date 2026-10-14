@@ -203,6 +203,62 @@ TEST(RemoteObject, IgnoresInvalidatedCallbacks)
 }
 
 /// @test
+/// An event emitted before a second subscription arrives still reaches the first callback.
+///
+/// The work waits in the queue while the subscription list grows, and a vector moves its elements
+/// when it does.
+/// @requirements(SEN-351)
+TEST(RemoteObject, AnEventQueuedBeforeAnotherSubscriptionStillArrives)
+{
+  WorkQueue queue(50, false);
+  queue.enable();
+
+  const auto obj = std::make_shared<TestRemoteObject>(createTestInfo(&queue));
+  const auto* meta = example_class::ExampleClassInterface::meta().type();
+  const auto* prop = meta->searchPropertyByName("prop1");
+
+  int firstCalls = 0;
+  int secondCalls = 0;
+
+  auto firstCb = EventCallback<VarList>(&queue, [&](const sen::EventInfo&, VarList) { ++firstCalls; });
+  auto firstGuard = obj->onPropertyChangedUntyped(prop, std::move(firstCb));
+
+  obj->senImplEventEmitted(prop->getId(), [] { return VarList {}; }, sen::EventInfo {sen::TimeStamp {0}});
+
+  auto secondCb = EventCallback<VarList>(&queue, [&](const sen::EventInfo&, VarList) { ++secondCalls; });
+  auto secondGuard = obj->onPropertyChangedUntyped(prop, std::move(secondCb));
+
+  std::ignore = queue.executeAll();
+
+  EXPECT_EQ(firstCalls, 1) << "the subscription that was live when the event was emitted";
+  EXPECT_EQ(secondCalls, 0) << "this one subscribed after the emission";
+}
+
+/// @test
+/// An event emitted before its subscription ends is dropped, not delivered through the ended one.
+/// @requirements(SEN-351)
+TEST(RemoteObject, AnEventQueuedBeforeItsSubscriptionEndsIsDropped)
+{
+  WorkQueue queue(50, false);
+  queue.enable();
+
+  const auto obj = std::make_shared<TestRemoteObject>(createTestInfo(&queue));
+  const auto* meta = example_class::ExampleClassInterface::meta().type();
+  const auto* prop = meta->searchPropertyByName("prop1");
+
+  int calls = 0;
+  {
+    auto cb = EventCallback<VarList>(&queue, [&](const sen::EventInfo&, VarList) { ++calls; });
+    auto guard = obj->onPropertyChangedUntyped(prop, std::move(cb));
+    obj->senImplEventEmitted(prop->getId(), [] { return VarList {}; }, sen::EventInfo {sen::TimeStamp {0}});
+  }
+
+  std::ignore = queue.executeAll();
+
+  EXPECT_EQ(calls, 0) << "the subscription ended while the work was still queued";
+}
+
+/// @test
 /// Deserializes a successful non-void method response and delivers the decoded Duration value to
 /// the pending callback.
 /// @requirements(SEN-351, SEN-1051)

@@ -225,7 +225,9 @@ private:
   struct EventCallbackData
   {
     uint32_t id;
-    EventCallback<VarList> callback;
+    // Shared, as the event buffer holds its own: work queued for one of these runs after the push
+    // returns, and the vector below moves its elements on the next registration.
+    std::shared_ptr<EventCallback<VarList>> callback;
   };
 
   using EventCallbackList = std::vector<EventCallbackData>;
