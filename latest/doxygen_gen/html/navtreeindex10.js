@@ -1,5 +1,11 @@
 var NAVTREEINDEX10 =
 {
+"classsen_1_1util_1_1_quat.html#af4c6ce3bfd45463898e5a93432d6b670":[2,0,1,7,17,44],
+"classsen_1_1util_1_1_quat.html#af81c24e04a4e2f7428b7169d8d9e990e":[1,0,1,7,17,9],
+"classsen_1_1util_1_1_quat.html#af81c24e04a4e2f7428b7169d8d9e990e":[2,0,1,7,17,9],
+"classsen_1_1util_1_1_quat.html#afd0785aca264dea38aedf287dd2eb18c":[1,0,1,7,17,34],
+"classsen_1_1util_1_1_quat.html#afd0785aca264dea38aedf287dd2eb18c":[2,0,1,7,17,34],
+"classsen_1_1util_1_1_quat.html#afd75ad3601432afe4168d2c09fa65491":[1,0,1,7,17,12],
 "classsen_1_1util_1_1_quat.html#afd75ad3601432afe4168d2c09fa65491":[2,0,1,7,17,12],
 "classsen_1_1util_1_1_settable_dead_reckoner.html":[0,2,0,16],
 "classsen_1_1util_1_1_settable_dead_reckoner.html#a061ad9f8705ef1c9b6dc91e7c5367cb5":[0,2,0,16,1],
@@ -243,11 +249,5 @@ var NAVTREEINDEX10 =
 "dir_fd51a1ab682ba4ab3de86ee508990e91.html":[3,0,0,3,1,0,5,1,0],
 "duration_8h.html":[3,0,0,0,0,0,0,0,6],
 "duration_8h_source.html":[3,0,0,0,0,0,0,0,6],
-"endianness_8h.html":[3,0,0,0,0,0,0,1,0,0],
-"endianness_8h_source.html":[3,0,0,0,0,0,0,1,0,0],
-"enum__traits_8h.html":[3,0,0,0,0,0,0,3,6],
-"enum__traits_8h_source.html":[3,0,0,0,0,0,0,3,6],
-"enum__type_8h.html":[3,0,0,0,0,0,0,3,7],
-"enum__type_8h_source.html":[3,0,0,0,0,0,0,3,7],
-"error__reporter_8h.html":[3,0,0,0,0,0,0,2,1]
+"endianness_8h.html":[3,0,0,0,0,0,0,1,0,0]
 };
