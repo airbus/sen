@@ -86,6 +86,9 @@ void OutputCapture::publishTerminalSize() const
   }
 
   winsize size {};
+  // ioctl is variadic, and TIOCGWINSZ arrives through <sys/ioctl.h> from a kernel header that
+  // nothing should include directly.
+  // NOLINTNEXTLINE(hicpp-vararg,misc-include-cleaner)
   if (::ioctl(savedStdout_, TIOCGWINSZ, &size) != 0 || size.ws_col == 0U || size.ws_row == 0U)
   {
     return;
@@ -183,6 +186,8 @@ private:
     std::size_t written = 0U;
     while (written < count)
     {
+      // The loop has to walk the caller's buffer, and C++17 has no span to walk it with.
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
       const auto chunk = ::write(descriptor, data + written, count - written);
       if (chunk <= 0)
       {

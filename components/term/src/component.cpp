@@ -12,7 +12,6 @@
 #include "clipboard.h"
 #include "command_engine.h"
 #include "completer.h"
-#include "log_levels.h"
 #include "output_capture.h"
 #include "theme.h"
 #include "util.h"

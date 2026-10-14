@@ -177,7 +177,7 @@ void EmitterImpl::emitPrintf()
   // spdlog console sink takes. A capture that catches one and not the other would look like it
   // works.
   auto message = prefix + " printf line #" + std::to_string(counter);
-  std::printf("%s\n", message.c_str());
+  std::printf("%s\n", message.c_str());  // NOLINT(hicpp-vararg)
   std::fflush(stdout);
   setNextLastMessage(message);
   messageEmitted(message, "printf");

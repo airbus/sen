@@ -7,7 +7,6 @@
 
 #include "app.h"
 #include "completer.h"
-#include "log_levels.h"
 #include "object_store.h"
 #include "scope.h"
 

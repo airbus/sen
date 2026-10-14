@@ -21,6 +21,7 @@
 #include <ftxui/screen/screen.hpp>
 
 // google test
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 // std

@@ -8,10 +8,12 @@
 #include "ansi_text.h"
 
 // ftxui
+#include <ftxui/dom/elements.hpp>
 #include <ftxui/screen/color.hpp>
 
 // std
 #include <cstddef>
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -73,6 +75,125 @@ ftxui::Element styled(const std::string& run, const Style& style)
   return element;
 }
 
+/// What one parameter did, since an extended colour abandons the rest of the sequence.
+enum class SgrOutcome : std::uint8_t
+{
+  applied,
+  unknown,
+  abandonSequence,
+};
+
+/// The number a parameter field holds, or nothing when it is not a code this understands.
+///
+/// Four digits or more is refused rather than parsed: the widest code here is three digits, and
+/// the input is whatever a component wrote to the descriptor, so a longer run would overflow the
+/// accumulator.
+std::optional<int> fieldCode(std::string_view field)
+{
+  constexpr std::size_t widestCode = 3U;
+  if (field.empty() || field.size() > widestCode)
+  {
+    return std::nullopt;
+  }
+
+  int code = 0;
+  for (const char character: field)
+  {
+    if (character < '0' || character > '9')
+    {
+      return std::nullopt;
+    }
+    code = (code * 10) + (character - '0');
+  }
+  return code;
+}
+
+/// Bold, dim, underline, blink and inverse, and the codes that turn each of them off again.
+SgrOutcome applyAttribute(int code, Style& style)
+{
+  switch (code)
+  {
+    case 0:
+      style = Style {};
+      break;
+    case 1:
+      style.bold = true;
+      break;
+    case 2:
+      style.dim = true;
+      break;
+    case 4:
+      style.underlined = true;
+      break;
+    case 5:
+      style.blink = true;
+      break;
+    case 7:
+      style.inverted = true;
+      break;
+    case 22:
+      style.bold = false;
+      style.dim = false;
+      break;
+    case 24:
+      style.underlined = false;
+      break;
+    case 25:
+      style.blink = false;
+      break;
+    case 27:
+      style.inverted = false;
+      break;
+    default:
+      return SgrOutcome::unknown;
+  }
+  return SgrOutcome::applied;
+}
+
+/// The foreground and background colours, and the codes that restore the defaults.
+///
+/// 38 and 48 introduce an extended colour whose own parameters follow in the same list. Reading
+/// those as separate codes would turn `38;5;1` into "blink, red". No console sink emits them, so
+/// the sequence is abandoned rather than implemented against nothing.
+SgrOutcome applyColour(int code, Style& style)
+{
+  constexpr int brightOffset = 8;
+
+  if (code >= 30 && code <= 37)
+  {
+    style.foreground = paletteColour(code - 30);
+  }
+  else if (code >= 40 && code <= 47)
+  {
+    style.background = paletteColour(code - 40);
+  }
+  else if (code >= 90 && code <= 97)
+  {
+    style.foreground = paletteColour(code - 90 + brightOffset);
+  }
+  else if (code >= 100 && code <= 107)
+  {
+    style.background = paletteColour(code - 100 + brightOffset);
+  }
+  else if (code == 39)
+  {
+    style.foreground.reset();
+  }
+  else if (code == 49)
+  {
+    style.background.reset();
+  }
+  else if (code == 38 || code == 48)
+  {
+    return SgrOutcome::abandonSequence;
+  }
+  else
+  {
+    return SgrOutcome::unknown;
+  }
+  return SgrOutcome::applied;
+}
+
 /// Applies one SGR sequence's parameters. `parameters` is what sits between `ESC[` and `m`.
 ///
 /// An empty parameter list is a reset: spdlog writes its reset as `ESC[m` rather than `ESC[0m`, so
@@ -91,98 +212,23 @@ void applySgr(std::string_view parameters, Style& style)
     const auto separator = parameters.find(';', cursor);
     const auto field = parameters.substr(cursor, separator - cursor);
 
-    int code = 0;
-    bool numeric = !field.empty();
-    for (const char character: field)
-    {
-      if (character < '0' || character > '9')
-      {
-        numeric = false;
-        break;
-      }
-      code = (code * 10) + (character - '0');
-    }
-
     // An empty field inside a list means zero, which is a reset, by the same rule as `ESC[m`.
     if (field.empty())
     {
       style = Style {};
     }
-    else if (numeric)
+    else if (const auto code = fieldCode(field); code.has_value())
     {
-      if (code == 0)
+      auto outcome = applyAttribute(*code, style);
+      if (outcome == SgrOutcome::unknown)
       {
-        style = Style {};
+        outcome = applyColour(*code, style);
       }
-      else if (code == 1)
+      if (outcome == SgrOutcome::abandonSequence)
       {
-        style.bold = true;
-      }
-      else if (code == 2)
-      {
-        style.dim = true;
-      }
-      else if (code == 4)
-      {
-        style.underlined = true;
-      }
-      else if (code == 5)
-      {
-        style.blink = true;
-      }
-      else if (code == 7)
-      {
-        style.inverted = true;
-      }
-      else if (code == 22)
-      {
-        style.bold = false;
-        style.dim = false;
-      }
-      else if (code == 24)
-      {
-        style.underlined = false;
-      }
-      else if (code == 25)
-      {
-        style.blink = false;
-      }
-      else if (code == 27)
-      {
-        style.inverted = false;
-      }
-      else if (code >= 30 && code <= 37)
-      {
-        style.foreground = paletteColour(code - 30);
-      }
-      else if (code == 39)
-      {
-        style.foreground.reset();
-      }
-      else if (code >= 40 && code <= 47)
-      {
-        style.background = paletteColour(code - 40);
-      }
-      else if (code == 49)
-      {
-        style.background.reset();
-      }
-      else if (code >= 90 && code <= 97)
-      {
-        style.foreground = paletteColour(code - 90 + 8);
-      }
-      else if (code >= 100 && code <= 107)
-      {
-        style.background = paletteColour(code - 100 + 8);
-      }
-      else if (code == 38 || code == 48)
-      {
-        // An extended colour, whose own parameters follow in this same list. Reading them as
-        // separate codes would turn `38;5;1` into "blink, red". No console sink emits these, so
-        // the sequence is abandoned rather than implemented against nothing.
         return;
       }
-      // Anything else is left alone: an unknown code should lose its styling, not the line.
+      // An unknown code is left alone: it should lose its styling, not the line.
     }
 
     if (separator == std::string_view::npos)
