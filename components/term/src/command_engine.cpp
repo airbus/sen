@@ -11,7 +11,7 @@
 #include "app.h"
 #include "arg_form.h"
 #include "completer.h"
-#include "log_router.h"
+#include "log_levels.h"
 #include "parse_utils.h"
 #include "signature_renderer.h"
 #include "styles.h"
@@ -426,12 +426,8 @@ VarList parseArgs(const Method* method, std::string_view args)
 // Construction
 //--------------------------------------------------------------------------------------------------------------
 
-CommandEngine::CommandEngine(const Configuration& config,
-                             kernel::RunApi& api,
-                             App& app,
-                             LogRouter& logRouter,
-                             Completer& completer)
-  : config_(config), api_(api), app_(app), logRouter_(logRouter), completer_(completer), store_(api)
+CommandEngine::CommandEngine(const Configuration& config, kernel::RunApi& api, App& app, Completer& completer)
+  : config_(config), api_(api), app_(app), completer_(completer), store_(api)
 {
   for (const auto& source: config_.open)
   {
@@ -622,7 +618,7 @@ void CommandEngine::update()
     getLogger()->info(n.message);
   }
 
-  completer_.update(scope_, store_, logRouter_);
+  completer_.update(scope_, store_);
 }
 
 const Scope& CommandEngine::getScope() const noexcept { return scope_; }
@@ -1351,11 +1347,11 @@ void CommandEngine::cmdLog(std::string_view args)
   if (args.empty())
   {
     // Show current level and list loggers
-    auto levelName = spdlog::level::to_string_view(LogRouter::getGlobalLevel());
+    auto levelName = spdlog::level::to_string_view(getGlobalLevel());
     app_.appendOutput("Global log level: " + std::string(levelName.data(), levelName.size()));
     app_.appendOutput("");
 
-    auto loggers = logRouter_.listLoggers();
+    auto loggers = listLoggers();
     if (loggers.empty())
     {
       app_.appendOutput("(no loggers registered)");
@@ -1391,7 +1387,7 @@ void CommandEngine::cmdLog(std::string_view args)
     {
       // Global level: log level <level>
       spdlog::level::level_enum level {};
-      if (!LogRouter::parseLevel(first, level))
+      if (!parseLevel(first, level))
       {
         reportError("Invalid Level",
                     "'" + std::string(first) +
@@ -1399,7 +1395,7 @@ void CommandEngine::cmdLog(std::string_view args)
         return;
       }
       auto lvl = spdlog::level::to_string_view(level);
-      if (!logRouter_.setGlobalLevel(level))
+      if (!setGlobalLevel(level))
       {
         reportError("Level Refused", "the kernel refused the level " + std::string(lvl.data(), lvl.size()));
         return;
@@ -1410,14 +1406,14 @@ void CommandEngine::cmdLog(std::string_view args)
     {
       // Per-logger level: log level <logger> <level>
       spdlog::level::level_enum level {};
-      if (!LogRouter::parseLevel(second, level))
+      if (!parseLevel(second, level))
       {
         reportError("Invalid Level",
                     "'" + std::string(second) +
                       "' is not a valid log level.\nValid: trace, debug, info, warn, error, critical, off");
         return;
       }
-      if (!logRouter_.setLoggerLevel(first, level))
+      if (!setLoggerLevel(first, level))
       {
         reportError("Logger Not Found", "No logger named '" + std::string(first) + "'");
         return;

@@ -328,21 +328,21 @@ sen:/❯ log level info                # the global level
 sen:/❯ log level myComponent debug   # one logger
 ```
 
-Levels are `trace`, `debug`, `info`, `warn`, `error`, `critical` and `off`. Log lines arrive in the same
-stream as everything else, carrying their logger name and level. They carry no timestamp. The term's own
-rows carry a time on the right instead: command echoes, call results and event emissions. If you need a
-timestamp on every log line, a file sink in the kernel's configuration keeps them.
+Levels are `trace`, `debug`, `info`, `warn`, `error`, `critical` and `off`. A log line arrives as its
+sink wrote it, colours and all, so the logger name, the level and whether there is a timestamp are
+whatever that sink's pattern says rather than something the term adds. The term's own rows do carry a
+time on the right: command echoes, call results and event emissions.
 
-Two notices say when the term has dropped something rather than shown it. `N log lines were dropped:
-they arrived faster than the screen can draw them` means the level is letting through more than a screen
+Two notices say when the term has dropped something rather than shown it. `N lines of captured output
+were dropped: they arrived faster than the screen can draw them` means more was written than a screen
 can take. `N further discovery notices were not shown` means a burst of objects arrived. Neither loses
 anything but the notice: the log file sinks and the objects themselves are unaffected.
 
 ## Logging from other components
 
-Term captures the process's standard error and shows it. It cannot capture standard output, because
-that is what FTXUI draws the interface on — a `printf`, a `std::cout` or a `write(STDOUT_FILENO, …)`
-from any component will land on top of the display.
+Term captures the process's standard output and standard error and shows what arrives on them. A
+`printf`, a `std::cout`, a `write(STDOUT_FILENO, …)` or a logger's console sink all reach the output
+pane rather than landing on top of the display.
 
 Use spdlog, and take the logger from the kernel:
 
@@ -353,9 +353,10 @@ logger->info("my message: {}", value);
 ```
 
 Most components wrap that call in a `getLogger()` helper of their own, as
-[Logging](../howto_guides/logging.md) shows. Do not call `spdlog::` free functions instead: those
-reach a different logger registry than the kernel's, so a logger created that way is invisible to
-`log` and cannot be levelled. To walk every logger, use `KernelApi::applyToAllLoggers`.
+[Logging](../howto_guides/logging.md) shows. A logger made with an spdlog factory instead lands in the
+same registry, so `log` lists it and `log level` reaches it, but it misses what the kernel attaches
+when it makes one: the crash reporter's ring. A logger constructed directly and never registered is in
+no registry at all. To walk every logger, use `KernelApi::applyToAllLoggers`.
 
 ## Themes
 

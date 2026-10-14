@@ -10,7 +10,7 @@ add_sen_unit_test_suite(
   bus/remote_interest_handler_test.cpp
   build_provenance_test.cpp
   env_substitution_test.cpp
-  logger_sink_registry_test.cpp
+  logger_levels_test.cpp
   stop_from_component_thread_test.cpp
   pipeline_frequency_test.cpp
   precision_sleeper_test.cpp

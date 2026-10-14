@@ -17,6 +17,7 @@
 
 // spdlog
 #include <spdlog/common.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 // std
 #include <cstdio>
@@ -30,8 +31,16 @@ EmitterImpl::EmitterImpl(const std::string& name, const sen::VarMap& args): Emit
 {
   // Through the kernel, not through spdlog directly. A logger made here with
   // `spdlog::stdout_color_mt` lands in the same registry, but misses what the kernel attaches at
-  // creation: the crash reporter's ring, and the relay a component rendering logs registers behind.
+  // creation: the crash reporter's ring.
   logger_ = sen::kernel::KernelApi::getOrCreateLogger("log_emitter." + name);
+
+  // The route the comment above warns against, made on purpose and only when asked for: what a
+  // third-party component does when it reaches for spdlog rather than the kernel, giving a logger
+  // the kernel never made that writes to the descriptor all the same.
+  if (getConfig().output == OutputKind::plainSpdlog)
+  {
+    plainLogger_ = spdlog::stdout_color_mt("plain." + name);
+  }
 
   // Set emission interval based on configured rate
   switch (getConfig().rate)
@@ -65,18 +74,27 @@ void EmitterImpl::update(sen::kernel::RunApi& /*runApi*/)
     case OutputKind::spdlogOnly:
       emitSpdlog();
       break;
-    case OutputKind::stdoutOnly:
-      emitStdout();
+    case OutputKind::stderrOnly:
+      emitStderr();
+      break;
+    case OutputKind::coutOnly:
+      emitCout();
+      break;
+    case OutputKind::printfOnly:
+      emitPrintf();
+      break;
+    case OutputKind::plainSpdlog:
+      emitPlainSpdlog();
       break;
     case OutputKind::mixed:
-      // Alternate between spdlog and stdout
+      // Alternate between the kernel's logger and stderr
       if (counter % 2 == 0)
       {
         emitSpdlog();
       }
       else
       {
-        emitStdout();
+        emitStderr();
       }
       break;
   }
@@ -126,7 +144,7 @@ void EmitterImpl::emitSpdlog()
                  std::string(spdlog::level::to_string_view(static_cast<spdlog::level::level_enum>(levelIndex)).data()));
 }
 
-void EmitterImpl::emitStdout()
+void EmitterImpl::emitStderr()
 {
   auto counter = getCounter();
   const auto& prefix = getConfig().prefix;
@@ -135,6 +153,45 @@ void EmitterImpl::emitStdout()
   std::cerr << message << std::endl;
   setNextLastMessage(message);
   messageEmitted(message, "stderr");
+}
+
+void EmitterImpl::emitCout()
+{
+  auto counter = getCounter();
+  const auto& prefix = getConfig().prefix;
+
+  // Buffered, unlike cerr, so it reaches the descriptor in blocks rather than per line. That
+  // difference is visible as a flicker rather than as clean lines when the renderer owns fd 1.
+  auto message = prefix + " cout line #" + std::to_string(counter);
+  std::cout << message << std::endl;
+  setNextLastMessage(message);
+  messageEmitted(message, "cout");
+}
+
+void EmitterImpl::emitPrintf()
+{
+  auto counter = getCounter();
+  const auto& prefix = getConfig().prefix;
+
+  // Separate from cout because it reaches fd 1 through the C stdout FILE*, which is the route a
+  // spdlog console sink takes. A capture that catches one and not the other would look like it
+  // works.
+  auto message = prefix + " printf line #" + std::to_string(counter);
+  std::printf("%s\n", message.c_str());  // NOLINT(hicpp-vararg)
+  std::fflush(stdout);
+  setNextLastMessage(message);
+  messageEmitted(message, "printf");
+}
+
+void EmitterImpl::emitPlainSpdlog()
+{
+  auto counter = getCounter();
+  const auto& prefix = getConfig().prefix;
+
+  auto message = prefix + " plain spdlog line #" + std::to_string(counter);
+  plainLogger_->info(message);
+  setNextLastMessage(message);
+  messageEmitted(message, "info");
 }
 
 SEN_EXPORT_CLASS(EmitterImpl)

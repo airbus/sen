@@ -58,12 +58,12 @@ add_sen_package(
           src/completer.cpp
           src/tree_view.h
           src/tree_view.cpp
+          src/ansi_text.h
+          src/ansi_text.cpp
           src/output_capture.h
           src/output_capture.cpp
-          src/log_sink.h
-          src/log_sink.cpp
-          src/log_router.h
-          src/log_router.cpp
+          src/log_levels.h
+          src/log_levels.cpp
           src/clipboard.h
           src/clipboard.cpp
           src/text_table.h

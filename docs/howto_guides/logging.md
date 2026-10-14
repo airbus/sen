@@ -58,62 +58,51 @@ build:
         prop1: some value
 ```
 
-!!! warning "A terminal component silences the console sinks"
+!!! note "A terminal component shows your console output in its own pane"
 
-    The configuration above loads *term*, and *term* draws the log lines itself in its own output area.
-    To do that it takes the terminal over. A console sink, whether `Stdout`, `ColorStdout` or `Stderr`,
-    writes to the same descriptor *term* is drawing on, so keeping both would print every line twice and
-    on top of the display. While *term* is running, every console sink is silenced.
+    The configuration above loads *term*, which draws in the terminal and would otherwise paint over
+    anything else written there. Instead of silencing console output, *term* captures the standard
+    output and error descriptors and draws what arrives on them in its own output area.
 
-    In the example above that means `stdout_sink` produces nothing and `file_sink` keeps working. The
-    file is where to look. Console sinks come back when *term* exits.
+    So a console sink keeps working and its lines appear in *term*'s pane, colours included, rather
+    than flashing on screen and being overwritten by the next frame. This holds for anything that
+    reaches those descriptors, not only spdlog: `printf` and `std::cout` arrive the same way, from a
+    logger the kernel has never heard of as readily as from one it made.
 
-    The same applies to any component that claims the terminal. It does not affect a file sink, a
-    network sink, or the crash report's log ring.
+    A file sink, a network sink and the crash report's log ring are unaffected. A logger configured
+    with only a file sink writes nothing to a descriptor, so nothing appears in the pane — which is
+    what asking for a file and not the console means.
 
 ## Rendering the logs in a component
 
-A component that displays log lines itself registers a sink with the kernel rather than walking
-spdlog's registry. The registry is reachable, since spdlog is a shared library with one registry per
-process, but attaching a sink by walking it is not safe: appending to a logger another thread is
-emitting through is a use-after-free, because spdlog iterates a logger's sink vector without a lock.
+A component that draws in the terminal captures the standard output and error descriptors rather
+than registering anything with the kernel's logging. `term` does this in `OutputCapture`: it dups
+each descriptor, puts a pipe in its place, and draws what it reads in its own pane.
 
-The kernel puts one relay sink on every logger, in the only window where that is safe, and a component
-registers behind the relay:
+Capturing is what makes the display complete. A sink reaches spdlog and nothing else: it misses
+`printf` and `std::cout`, which reach the descriptor all the same and would be painted over.
+Capturing the descriptor sees all of them and needs nothing registered, declared or configured by
+whoever wrote the output.
 
-```cpp
-#include <sen/kernel/component_api.h>
+Two things the component has to arrange:
 
-auto sink = std::make_shared<MySink>();
+- **Keep a way back to the real terminal.** Once the descriptor is a pipe, the component's own
+  rendering would be captured along with everything else. `term` dups the original first and sends
+  its renderer's writes there, telling the two apart by the writing thread.
+- **Tell the UI library the terminal size.** ftxui reads it with `ioctl(STDOUT_FILENO, TIOCGWINSZ)`,
+  a descriptor number rather than the terminal, so with a pipe there it silently falls back to
+  80x24. `term` reads the size from the saved descriptor and passes it to `Terminal::SetFallbackSize`
+  on every drain, so a resize is not missed.
 
-// `owned` says this component is drawing on the terminal, so console sinks are silenced while it runs.
-// Use the default, `shared`, for a sink that is not a display, such as a telemetry or audit sink.
-auto registration = kernel::KernelApi::addLoggerSink(sink, kernel::KernelApi::TerminalOwnership::owned);
-if (registration.isError())
-{
-    // Nothing is rendering logs. The console sinks are still live, so say so there.
-}
-else if (registration.getValue().terminalOwnedElsewhere)
-{
-    // Another component is already drawing logs. Registration is not arbitrated: both will draw.
-}
-```
-
-The sink keeps its own pattern, because the relay passes the message on unformatted, and it receives lines
-from loggers created after it registered, which a registry walk cannot do.
-
-**Unregister before the state the sink writes into goes away.** A registered sink is held by the kernel
-until it is removed, and it can be running on another thread at that moment, so stop it reaching your
-state first and then remove it:
-
-```cpp
-sink->detach();                                  // your own: make the sink inert under its own lock
-std::ignore = kernel::KernelApi::removeLoggerSink(sink);
-```
+Captured lines arrive formatted by whoever wrote them, escapes and all. `term` translates the SGR
+sequences into its UI library's own styling, so a console sink's colours survive — which matters
+because the colour is what still says a warning is a warning once nothing carries the level as a
+value.
 
 `KernelApi::setAllLoggersLevel` sets the level on every logger and on every logger made afterwards,
 which is what a user changing the level at runtime needs; `getAllLoggersLevel` reads it back. It
-replaces the per-logger levels the configuration file asked for, with no way back to them.
+replaces the per-logger levels the configuration file asked for, with no way back to them. Levels
+are not something capturing can change from the outside, which is why they stay in the API.
 
 ## Getting a logger
 
