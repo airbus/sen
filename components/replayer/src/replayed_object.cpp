@@ -401,9 +401,18 @@ void ReplayedObject::inject(TimeStamp entryTime, const db::Event& event)
         copyBytes(bufferPtr->data(), span.data(), span.size());
       }
 
+      // The queue is the runner's and is drained at the start of the next cycle, while a replay
+      // removes objects within this one: an entity's last event and its departure arrive in the
+      // same slice. The weak handle keeps the work from reaching an object that has gone.
       addWorkToQueue(
-        [entryTime, ev = event.getEvent(), buffer = std::move(bufferPtr), this]()
+        [entryTime, ev = event.getEvent(), buffer = std::move(bufferPtr), us = weak_from_this(), this]()
         {
+          const auto ourselves = us.lock();
+          if (!ourselves)
+          {
+            return;
+          }
+
           const auto serializedSize = static_cast<uint32_t>(buffer->size());
 
           getOutputEventQueue()->push({ev->getId(),
