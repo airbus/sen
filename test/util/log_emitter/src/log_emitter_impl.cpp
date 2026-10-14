@@ -28,12 +28,9 @@ namespace log_emitter
 
 EmitterImpl::EmitterImpl(const std::string& name, const sen::VarMap& args): EmitterBase(name, args)
 {
-  // Through the kernel, not through spdlog directly. spdlog's registry is a function-local static, so
-  // each shared object that links it gets its own: a logger made here with `spdlog::stdout_color_mt`
-  // lands in this package's registry, where nothing else in the process can see it. Anything that
-  // routes logging for the whole process walks the kernel's registry and would miss it entirely: the crash
-  // reporter's ring, or a component rendering logs in its own display. Being reachable is the point of the
-  // emitter.
+  // Through the kernel, not through spdlog directly. A logger made here with
+  // `spdlog::stdout_color_mt` lands in the same registry, but misses what the kernel attaches at
+  // creation: the crash reporter's ring, and the relay a component rendering logs registers behind.
   logger_ = sen::kernel::KernelApi::getOrCreateLogger("log_emitter." + name);
 
   // Set emission interval based on configured rate

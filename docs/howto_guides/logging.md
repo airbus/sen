@@ -74,10 +74,9 @@ build:
 ## Rendering the logs in a component
 
 A component that displays log lines itself registers a sink with the kernel rather than walking
-spdlog's registry. Walking it does not work and is not safe: each shared library has its own registry,
-so a component's `spdlog::apply_all` never sees the kernel's loggers. Appending to a logger another thread
-is emitting through is also a use-after-free, because spdlog iterates a logger's sink vector without a
-lock.
+spdlog's registry. The registry is reachable, since spdlog is a shared library with one registry per
+process, but attaching a sink by walking it is not safe: appending to a logger another thread is
+emitting through is a use-after-free, because spdlog iterates a logger's sink vector without a lock.
 
 The kernel puts one relay sink on every logger, in the only window where that is safe, and a component
 registers behind the relay:
@@ -125,11 +124,36 @@ static method called `getOrCreateLogger`:
 ```c++ title="getLogger function" linenums="1"
 #include <sen/kernel/component_api.h>
 
+#include <spdlog/spdlog.h>
+
 [[nodiscard]] std::shared_ptr<spdlog::logger> getLogger()
 {
   return sen::kernel::KernelApi::getOrCreateLogger("my_logger");
 }
 ```
+
+`component_api.h` declares spdlog's logger instead of including spdlog's headers, so a component
+that never logs compiles neither spdlog nor fmt. The declaration is enough to hold a logger and pass
+it around; calling a method on one needs the definition, so include `<spdlog/spdlog.h>` where you
+log. `add_sen_package` links spdlog, so your `CMakeLists.txt` needs nothing.
+
+On MSVC with warnings as errors, add `/wd4251 /wd4275` where you compile spdlog's headers: spdlog's
+`logger` is a dll-interface class with `std::string` and `std::vector` members, and its conan recipe
+does not carry the suppressions spdlog's own CMake sets when it builds shared.
+
+## Where spdlog has to be at run time
+
+Sen links spdlog as a shared library, so it has to be reachable wherever a binary that uses it runs.
+Conan's run environment covers that: activate `conanrun` and spdlog's directory is on the library
+path, on Linux, macOS and Windows alike.
+
+What it does not cover is a binary started without it. On Windows an executable of your own will not
+start, because Windows looks for a DLL beside the executable or on PATH and has no rpath. A container
+or another machine that does not hold your conan cache cannot use the absolute paths the run
+environment exports. An artefact you ship has to carry spdlog with it.
+
+The answer in each case is to put spdlog's library beside your binaries, as Sen's own install does:
+`<prefix>/lib` on Linux and macOS, `<prefix>/bin` on Windows.
 
 ## Compile-time log levels
 

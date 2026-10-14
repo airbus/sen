@@ -178,13 +178,19 @@ target_link_libraries(
   PUBLIC sen::core
   PUBLIC ${CMAKE_DL_LIBS}
   PUBLIC ${CMAKE_THREAD_LIBS_INIT}
-  PUBLIC spdlog::spdlog
+  PRIVATE spdlog::spdlog
   PRIVATE ryml::ryml
   PRIVATE concurrentqueue::concurrentqueue
   PRIVATE cpptrace::cpptrace
   PRIVATE sen_crashpad
   PRIVATE xenium::xenium
 )
+
+# Which ABI mode spdlog's headers select, rather than a warning setting, so it belongs on the
+# interface. A consumer taking conan's spdlog config gets it from nowhere else, and without it MSVC
+# compiles no dllimport against a shared library. validate() refuses a static spdlog, so the define
+# cannot be wrong.
+target_compile_definitions(kernel INTERFACE SPDLOG_SHARED_LIB)
 
 # -------------------------------------------------------------------------------------------------------------
 # IDE grouping

@@ -5,6 +5,8 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
+include(tps/spdlog)
+
 add_sen_package(
   TARGET test_helpers
   SOURCES include/test_helpers/helpers.h src/helpers.cpp
@@ -13,6 +15,7 @@ add_sen_package(
   CODEGEN_SETTINGS codegen_settings.json
   PUBLIC_SYMBOLS
   EXPORT_NAME sen.test
+  DEPS spdlog::spdlog
 )
 
 target_include_directories(test_helpers PUBLIC include)

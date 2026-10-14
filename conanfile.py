@@ -13,6 +13,7 @@ from pathlib import Path
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import copy
 from conan.tools.scm.git import Git
 from conan.tools.system.package_manager import Apt, Dnf, Yum, Zypper
@@ -91,6 +92,16 @@ class SenConan(ConanFile):
                 "with_webexplorer requires with_jsonrpc (webexplorer/backend links against the jsonrpc component)."
             )
 
+        # A static spdlog gives every shared object its own copy of the registry. On Windows that
+        # fails to link; on Linux it builds and the kernel's logger configuration stops reaching a
+        # component's loggers.
+        spdlog = self.dependencies.get("spdlog")
+        if spdlog is not None and not spdlog.options.get_safe("shared"):
+            raise ConanInvalidConfiguration(
+                "Sen requires a shared spdlog: its registry is a singleton and the kernel configures "
+                "loggers a component looks up. Remove any -o spdlog/*:shared=False."
+            )
+
     def build_requirements(self):
         """Defines the dependencies only need for building of Sen."""
         self.tool_requires("cmake/3.31.10")
@@ -125,9 +136,22 @@ class SenConan(ConanFile):
         if self.settings.os == "Linux":
             crashpad_options["with_tls"] = False
         self.requires("sentry-crashpad/0.6.5", options=crashpad_options, visible=False)
-        # The one requirement a consumer compiles against: spdlog types cross the kernel's API, so
-        # its version is part of Sen's contract and the copy Sen installs is the one that matches.
-        self.requires("spdlog/1.17.0", visible=True)
+        # Shared because the registry is a singleton: a static copy gives every shared library its
+        # own, and a component's spdlog::get then does not find the kernel's loggers. Headers and
+        # libraries both, because a consumer compiles spdlog's templates and has to link what they
+        # call into.
+        #
+        # full_mode because spdlog is in this package's ABI, where a version expression says only
+        # which one to resolve. Without it a new spdlog recipe revision or a change to one of its ABI
+        # options reuses a Sen binary built against a different spdlog.
+        self.requires(
+            "spdlog/1.17.0",
+            visible=True,
+            transitive_headers=True,
+            transitive_libs=True,
+            options={"shared": True},
+            package_id_mode="full_mode",
+        )
 
         # explorer-only: ImGui + ImPlot + SDL.
         # ImGui is overridden to pin the docking branch required by ImPlot.
@@ -265,6 +289,11 @@ class SenConan(ConanFile):
         """Generate the cmake dependency and toolchain files."""
         deps = CMakeDeps(self)
         deps.generate()
+
+        # The build runs binaries it has just built: code generation calls sen. On Windows a DLL is
+        # found through PATH rather than an rpath, so without the dependencies' runtime directories
+        # in the build environment those binaries cannot start.
+        VirtualRunEnv(self).generate(scope="build")
 
         tc = CMakeToolchain(self)
         tc.cache_variables["SEN_DISABLE_CLANG_TIDY"] = "OFF" if self.options.with_clang_tidy else "ON"

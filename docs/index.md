@@ -114,8 +114,7 @@ an acronym nor an abbreviation, but a noun.
 - Optimized memory management by extensive use of memory pools.
 - Natively integrated with spdlog.
 - Natively integrated with CMake. Compiler and version info is baked into the binaries.
-- Self-contained: the public API of Sen depends on no third-party code apart from spdlog, which
-  provides loggers.
+- Self-contained: no 3rd-party dependencies on the public interface.
 - Code generation template engine that allows extending and enhancing it to our future needs.
 - Container-friendly.
 - Python bindings for accessing recorded data.

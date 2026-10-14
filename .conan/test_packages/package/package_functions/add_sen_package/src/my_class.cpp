@@ -16,6 +16,9 @@
 #include "sen/kernel/component_api.h"
 #include "sen/kernel/tracer.h"
 
+// spdlog
+#include <spdlog/spdlog.h>
+
 // generated code
 #include "stl/my_package/basic_types.stl.h"
 #include "stl/my_package/config.stl.h"
@@ -35,6 +38,10 @@ namespace my_package
 MyClassImpl::MyClassImpl(const std::string& name, const sen::VarMap& args): MyClassBase(name, args)
 {
   logger_ = sen::kernel::KernelApi::getOrCreateLogger("my_logger");
+
+  // The registry is one per process, so this finds the logger the kernel made. A static spdlog
+  // would give this shared object its own registry and the lookup would find nothing.
+  SEN_ASSERT(spdlog::get("my_logger") == logger_);
 
   logger_->info("MyClassImpl with name \"" + name + "\" created");
 
