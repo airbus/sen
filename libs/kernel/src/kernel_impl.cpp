@@ -7,8 +7,6 @@
 
 #include "kernel_impl.h"
 
-#include "logger_relay.h"
-
 // implementation
 #include "crash_reporter.h"
 #include "kernel_component.h"
@@ -284,7 +282,6 @@ void KernelImpl::configure()
 
   // Both after configureSpdlog, which replaces the loggers' sinks, and both before any component thread
   // exists, which is the only moment a logger's sink vector can be appended to safely.
-  impl::installLoggerRelay();
   if (!config_.getParams().crashReportDisabled)
   {
     CrashReporter::get().captureLogs();

@@ -317,10 +317,10 @@ class TestTermSession(unittest.TestCase):
     def test_output_fills_the_pane_from_the_top(self) -> None:
         """Short output sits at the top of the pane, not pushed down against the prompt.
 
-        The premise is established rather than assumed. `clear` empties the pane, so whatever appears
-        next is this test's own output and not kernel log traffic that happened to arrive. Asserting
-        that row 1 is non-empty after a `cd`, which prints nothing, would pass on log lines alone and
-        would pass with the property broken.
+        The property is "no gap above it" rather than a row number. Since term shows what reaches the
+        descriptors, log traffic can legitimately precede the command, and a slow machine adds frame
+        overrun warnings of its own; counting rows asserted the absence of that traffic instead. A
+        pane that filled from the bottom is what leaves the rows above the output empty.
         """
         self.term.send_command("clear", settle=1.0)
         self.term.forget()
@@ -329,7 +329,9 @@ class TestTermSession(unittest.TestCase):
         screen = self.term.grid()
         row = screen.row_of("pwd")
         self.assertNotEqual(0, row, f"the command echo never appeared:\n{screen.numbered()}")
-        self.assertLessEqual(row, 3, f"short output was pushed down the pane:\n{screen.numbered()}")
+        # Row 1 is the blank row the pane opens with; everything between it and the output is used.
+        gap = [r for r in range(2, row) if not screen.line(r).strip()]
+        self.assertEqual([], gap, f"blank rows {gap} above the output:\n{screen.numbered()}")
 
         rule_row: int = self.term.rows - 1
         self.assertEqual(

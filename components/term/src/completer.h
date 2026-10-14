@@ -36,7 +36,6 @@ class CustomTypeRegistry;
 namespace sen::components::term
 {
 
-class LogRouter;
 class ObjectStore;
 class Scope;
 
@@ -90,7 +89,7 @@ public:
   /// Refresh cached completion data if dirty. Called each update cycle.
   /// Full object rebuild only happens when markScopeDirty() was called; object add/remove
   /// events are handled incrementally via onObjectAdded/onObjectRemoved.
-  void update(const Scope& scope, const ObjectStore& store, LogRouter& logRouter);
+  void update(const Scope& scope, const ObjectStore& store);
 
   /// Mark the object map dirty for a full rebuild on the next update(). Needed when the scope
   /// itself changes, since every cached relative name is now stale.
@@ -177,8 +176,8 @@ private:
   [[nodiscard]] const std::vector<Completion>& getMethodCompletions(ConstTypeHandle<ClassType> classType) const;
 
 private:
-  /// Rebuild loggerNames_ from the router. Takes spdlog's global registry mutex, so it is called from
-  /// the one place that reads the list rather than from update().
+  /// Rebuild loggerNames_ from the kernel's loggers. Takes spdlog's global registry mutex, so it is
+  /// called from the one place that reads the list rather than from update().
   void refreshLoggerNames() const;
 
   // Cached data.
@@ -192,7 +191,6 @@ private:
   // Mutable because the list is a cache filled on demand from a const completion call. The alternative
   // was rebuilding it on every cycle, which took spdlog's global registry mutex thirty times a second.
   mutable std::vector<std::string> loggerNames_;  // spdlog logger names (for log level)
-  LogRouter* logRouter_ = nullptr;                // not owned; remembered by update()
 
   // Object name -> Object for leaf objects in current scope
   std::unordered_map<std::string, std::shared_ptr<Object>> objectsByName_;

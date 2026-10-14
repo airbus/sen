@@ -6,6 +6,9 @@
 // =====================================================================================================================
 
 #include "completer.h"
+
+// sen
+#include "sen/kernel/component_api.h"
 #include "test_completer_utils.h"
 #include "test_object_impl.h"
 #include "util.h"
@@ -569,14 +572,19 @@ TEST(CompleterLog, LevelPrefixFilter)
 
 /// @test
 /// After log level, logger names are offered as well as levels.
+///
+/// Through real loggers rather than a seeded cache: the completer reads the kernel's list at the
+/// moment the user asks, so a seeded list is overwritten before the assertion sees it.
 TEST(CompleterLog, LevelAndLoggerNames)
 {
+  auto alpha = kernel::KernelApi::getOrCreateLogger("completer_test.alpha");
+  auto beta = kernel::KernelApi::getOrCreateLogger("completer_test.beta");
+
   Completer c;
-  CompleterTestAccess::setLoggerNames(c, {"kernel", "transport"});
   auto result = c.complete("log level ", 10);
   EXPECT_TRUE(hasCandidate(result, "info"));
-  EXPECT_TRUE(hasCandidate(result, "kernel"));
-  EXPECT_TRUE(hasCandidate(result, "transport"));
+  EXPECT_TRUE(hasCandidate(result, "completer_test.alpha"));
+  EXPECT_TRUE(hasCandidate(result, "completer_test.beta"));
 }
 
 /// @test

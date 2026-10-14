@@ -40,10 +40,10 @@ The component follows a layered design:
 - **Form layer** (`arg_form.*`) builds type-aware guided-input forms for method arguments.
 - **Rendering layer** (`value_formatter.*`, `signature_renderer.*`, `tree_view.*`, `text_table.*`,
   `text_wrap.h`, `byte_format.h`, `unicode.h`) formats Sen values and type metadata as FTXUI elements.
-- **Support** (`log_router.*`, `log_sink.*`, `output_capture.*`, `clipboard.*`, `signal_stack.*`,
-  `suggester.*`, `parse_utils.h`, `type_peel.h`, `util.*`) handles logging, stderr capture, the system
-  clipboard, the alternate signal stack the crash handler needs, edit-distance suggestions, tokenization
-  and alias peeling.
+- **Support** (`log_levels.*`, `output_capture.*`, `ansi_text.*`, `clipboard.*`, `signal_stack.*`,
+  `suggester.*`, `parse_utils.h`, `type_peel.h`, `util.*`) handles log levels, stdout and stderr
+  capture, rendering the escapes captured output carries, the system clipboard, the alternate signal
+  stack the crash handler needs, edit-distance suggestions, tokenization and alias peeling.
 
 ## Key Design Decisions
 
@@ -60,8 +60,8 @@ driven synchronously from the kernel's exec loop callback, so nothing between th
 or a pending queue.
 
 What does run on other threads owns a mutex and a bounded queue that the component thread drains: the
-log router takes lines from whichever thread logged, the stderr capture has a reader thread, and the
-clipboard has one worker so a helper process cannot stall a frame.
+descriptor capture has a reader thread for each of the two, and the clipboard has one worker so a
+helper process cannot stall a frame.
 
 ### Command Table
 
@@ -110,19 +110,20 @@ through the Sen meta-type system (`MetaTypeTrait<ThemeStyle>::meta()`).
 ### Stdout Limitation
 
 FTXUI uses stdout (fd 1) for terminal rendering, including escape sequences for cursor
-positioning, color, and terminal size queries. Stderr is captured via a pipe and drawn in the output
-area, but stdout cannot be redirected without breaking FTXUI's rendering. Components running
-alongside the term must use spdlog for diagnostic output instead of printf or std::cout.
+positioning, color, and terminal size queries. Both descriptors are captured through pipes and drawn
+in the output area, and the renderer keeps the real terminal: `output_capture.*` dups fd 1 before the
+pipe takes its place and sends the rendering thread's writes to the copy, so a printf or a std::cout
+from any component reaches the output area rather than the display.
 
 ## External Dependencies
 
 - **FTXUI** (v7.0.3): TUI framework. Element-based declarative rendering, component/event system,
   and terminal management.
-- **spdlog**: Logging. A custom sink registered with the kernel routes log messages into the output
-  area, and the log router provides per-logger level control. Results, log lines and event emissions
+- **spdlog**: Logging. A console sink's lines reach the output area through the captured descriptor,
+  and `log_levels.*` reads and sets levels through the kernel. Results, log lines and event emissions
   share one stream.
 
-Stderr capture uses raw pipes: `pipe`, `dup2` and `read` on Linux and macOS, and the CRT's `_pipe`,
+Descriptor capture uses raw pipes: `pipe`, `dup2` and `read` on Linux and macOS, and the CRT's `_pipe`,
 `_dup2` and `_read` on Windows. The term links no networking library of its own.
 
 ### The Crash Handler and the Signal Stack
@@ -135,6 +136,6 @@ faults again inside the handler and the process dies with no dump. `signal_stack
 after the terminal is installed, changing nothing else about the handlers.
 
 Term also hands the kernel the descriptor it saved for stderr, so the crash banner goes there rather
-than into the pipe term captured, and the two threads it starts itself, the stderr reader and the
-clipboard worker, ask the kernel for that signal stack when they start, because the kernel did not start
-them.
+than into the pipe term captured, and the three threads it starts itself, the two descriptor readers
+and the clipboard worker, ask the kernel for that signal stack when they start, because the kernel did
+not start them.

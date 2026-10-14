@@ -49,7 +49,6 @@ Theme themeFromPalette(const Palette& p)
   t.treeSession = p.accent;
 
   t.inputBackground = p.background;
-  t.logCriticalFg = p.background;
 
   t.completionCommand = p.command;
   t.treeGroup = p.command;
@@ -57,7 +56,6 @@ Theme themeFromPalette(const Palette& p)
   t.completionBackground = p.completionBackground;
 
   t.error = p.error;
-  t.logCriticalBg = p.error;
 
   t.bannerTitle = p.foreground;
   t.inputForeground = p.foreground;
@@ -67,7 +65,6 @@ Theme themeFromPalette(const Palette& p)
   t.treeObject = p.info;
 
   t.bannerText = p.muted;
-  t.logTrace = p.muted;
   t.mutedText = p.muted;
   t.treeConnector = p.muted;
 

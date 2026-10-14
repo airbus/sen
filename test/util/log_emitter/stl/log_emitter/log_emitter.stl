@@ -8,12 +8,16 @@ enum EmitRate: u8
   fast       // every ~0.2 seconds
 }
 
-// What kind of output to produce
+// What kind of output to produce. Each names one route to the terminal, because the routes are
+// captured by different mechanisms and a mode that mixes them cannot say which one failed.
 enum OutputKind: u8
 {
-  spdlogOnly,  // only spdlog messages
-  stdoutOnly,  // only stdout/stderr writes
-  mixed        // both spdlog and stdout/stderr
+  spdlogOnly,  // a logger made through the kernel
+  stderrOnly,  // std::cerr, which OutputCapture redirects
+  mixed,       // spdlogOnly and stderrOnly alternating
+  coutOnly,    // std::cout, buffered, sharing fd 1 with the renderer
+  printfOnly,  // std::printf, reaching fd 1 through the C stdout FILE*
+  plainSpdlog  // a logger from spdlog's own factory, which the kernel never saw made
 }
 
 // Configuration for the log emitter
@@ -24,9 +28,8 @@ struct EmitterConfig
   prefix : string       // prefix for emitted messages
 }
 
-// A test utility that periodically emits log messages via spdlog at various
-// levels and writes to stdout/stderr. Useful for testing the term component's
-// output capture and log routing.
+// A test utility that periodically emits on one of the routes a program has to the terminal.
+// One mode per route, so a test can tell a route term captures from one it paints over.
 class Emitter
 {
   // configuration
