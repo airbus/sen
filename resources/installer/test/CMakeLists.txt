@@ -9,6 +9,7 @@ find_program(bats_exec NAMES bats)
 
 if(bats_exec)
   add_test(NAME installer_tests COMMAND ${CMAKE_CURRENT_LIST_DIR}/run.sh)
+  set_tests_properties(installer_tests PROPERTIES TIMEOUT 120)
   # ctest counts this suite as one test. run.sh writes the bats cases here instead, so each
   # of them reaches the test report under its own name.
   record_test_description(
