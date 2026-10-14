@@ -539,6 +539,7 @@ jobs:
         shell: bash
         run: |
           bash .github/scripts/in_environment.sh <<'IN'
+          echo 'core.sources:download_urls=["origin"]' >> $(conan config home)/global.conf
           conan install . --lockfile=.conan/conan.lock -s "&:build_type=Debug" \
             -s "&:compiler.cppstd=17" --build=missing \
             -o "sen/*:with_tests=True" -o "sen/*:with_examples=True"
