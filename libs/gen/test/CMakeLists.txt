@@ -10,6 +10,9 @@ set(gen_tests
     html_generator_test.cpp
     typst_generator_test.cpp
     generators_test.cpp
+    mkdocs_fixture_test.h
+    mkdocs_stl_generator_test.cpp
+    mkdocs_fom_generator_test.cpp
     plantuml_fixture_test.h
     plantuml_stl_generator_test.cpp
     plantuml_fom_generator_test.cpp
