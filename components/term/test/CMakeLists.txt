@@ -24,7 +24,7 @@ add_sen_unit_test_suite(
   unit/value_formatter_test.cpp
   unit/signature_renderer_test.cpp
   unit/output_pane_test.cpp
-  unit/log_router_test.cpp
+  unit/log_levels_test.cpp
   unit/signal_stack_test.cpp
   unit/object_store_test.cpp
   unit/suggester_test.cpp
@@ -36,6 +36,7 @@ add_sen_unit_test_suite(
   unit/text_wrap_test.cpp
   unit/tree_view_test.cpp
   unit/clipboard_test.cpp
+  unit/ansi_text_test.cpp
   unit/command_engine_test.cpp
   unit/theme_test.cpp
   unit/byte_format_test.cpp
@@ -61,6 +62,7 @@ add_sen_unit_test_suite(
 add_subdirectory(integration/packages/term_showcase)
 add_subdirectory(integration/repl_session)
 add_subdirectory(integration/ls_sources)
+add_subdirectory(integration/output_capture)
 
 sen_generate_cpp(
   TARGET term_test

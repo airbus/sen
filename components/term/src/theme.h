@@ -57,9 +57,6 @@ struct Theme
   ftxui::Color completionBackground;
 
   // Log levels
-  ftxui::Color logTrace;
-  ftxui::Color logCriticalFg;
-  ftxui::Color logCriticalBg;
 };
 
 /// Atom One Dark theme.

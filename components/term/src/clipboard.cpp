@@ -17,6 +17,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <iostream>
 #include <mutex>
 #include <optional>
 #include <string>
@@ -63,11 +64,13 @@ namespace
 /// terminals but is harmless when ignored.
 void emitTerminalEscape(std::string_view text)
 {
+  // Through std::cout rather than the C stdout: OutputCapture's CoutRouter sends the loop thread's
+  // writes straight to the terminal, and a command runs on that thread. Written to `stdout` these
+  // bytes would land in the output pane as mojibake and copy nothing.
   const auto encoded = base64Encode(text);
-  std::fputs("\x1b]52;cp;", stdout);
-  std::fwrite(encoded.data(), 1U, encoded.size(), stdout);
-  std::fputs("\x07", stdout);
-  std::fflush(stdout);
+  std::cout << "\x1b]52;cp;";
+  std::cout.write(encoded.data(), static_cast<std::streamsize>(encoded.size()));
+  std::cout << "\x07" << std::flush;
 }
 
 #if defined(_WIN32)

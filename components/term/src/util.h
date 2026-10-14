@@ -28,7 +28,8 @@ namespace sen::components::term
 {
 
 /// The component's own logger, so its messages are attributed and can be levelled by name like
-/// every other component's. LogRouter injects the term sink into it, so they render in the output.
+/// every other component's. Its console sink writes to stdout, which term captures, so its lines
+/// render in the output like any other program's.
 std::shared_ptr<spdlog::logger> getLogger();
 
 /// How many bytes of text one line may hold: the command line, one field of a guided-input form, and one

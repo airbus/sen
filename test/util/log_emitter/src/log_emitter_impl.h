@@ -37,9 +37,17 @@ public:
 
 private:
   void emitSpdlog();
-  void emitStdout();
+  void emitStderr();
+  void emitCout();
+  void emitPrintf();
+  void emitPlainSpdlog();
 
+  /// Made through the kernel, so it carries whatever the kernel attaches at creation.
   std::shared_ptr<spdlog::logger> logger_;
+
+  /// Made through spdlog's own factory, so the kernel never saw it made. Null unless the
+  /// configured mode needs it: creating one changes what a registry sweep finds.
+  std::shared_ptr<spdlog::logger> plainLogger_;
   uint64_t cycleCount_ = 0;
   uint64_t emitInterval_ = 30;  // cycles between emissions (depends on rate)
 };

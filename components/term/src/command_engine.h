@@ -11,7 +11,7 @@
 // component
 #include "app.h"
 #include "completer.h"
-#include "log_router.h"
+#include "log_levels.h"
 #include "object_store.h"
 #include "scope.h"
 #include "tree_view.h"
@@ -69,7 +69,7 @@ class CommandEngine final
   SEN_NOCOPY_NOMOVE(CommandEngine)
 
 public:
-  CommandEngine(const Configuration& config, kernel::RunApi& api, App& app, LogRouter& logRouter, Completer& completer);
+  CommandEngine(const Configuration& config, kernel::RunApi& api, App& app, Completer& completer);
   ~CommandEngine() = default;
 
   /// Process a single command string from the user.
@@ -210,7 +210,6 @@ private:
   const Configuration& config_;
   kernel::RunApi& api_;
   App& app_;
-  LogRouter& logRouter_;
   Completer& completer_;
   Scope scope_;
   ObjectStore store_;
