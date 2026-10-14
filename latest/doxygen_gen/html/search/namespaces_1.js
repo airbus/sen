@@ -22,5 +22,8 @@ var searchData=
   ['sen_3a_3atest_3a_3atype_5fclash_19',['type_clash',['../namespacesen_1_1test_1_1type__clash.html',1,'sen::test']]],
   ['sen_3a_3autil_20',['util',['../namespacesen_1_1util.html',1,'sen']]],
   ['sen_3a_3autil_3a_3aimpl_21',['impl',['../namespacesen_1_1util_1_1impl.html',1,'sen::util']]],
-  ['std_22',['std',['../namespacestd.html',1,'']]]
+  ['spdlog_22',['spdlog',['../namespacespdlog.html',1,'']]],
+  ['spdlog_3a_3alevel_23',['level',['../namespacespdlog_1_1level.html',1,'spdlog']]],
+  ['spdlog_3a_3asinks_24',['sinks',['../namespacespdlog_1_1sinks.html',1,'spdlog']]],
+  ['std_25',['std',['../namespacestd.html',1,'']]]
 ];

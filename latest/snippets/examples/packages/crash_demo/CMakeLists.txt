@@ -5,6 +5,8 @@
 #                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 # ======================================================================================================================
 
+include(tps/spdlog)
+
 add_sen_package(
   TARGET crash_demo
   MAINTAINER "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
@@ -12,4 +14,5 @@ add_sen_package(
   DESCRIPTION "an object that fails on purpose, shown in users_guide/crash_reports.md"
   SOURCES src/faulty.h src/faulty.cpp
   STL_FILES stl/crash_demo/faulty.stl
+  PRIVATE_DEPS spdlog::spdlog
 )

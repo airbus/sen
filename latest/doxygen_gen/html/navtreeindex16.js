@@ -131,7 +131,10 @@ var NAVTREEINDEX16 =
 "namespacesen_1_1util.html#af9acd2d3a2d197f22be553af3c7ff553":[3,0,0,4,1,0,3,0,0],
 "namespacesen_1_1util.html#structsen_1_1util_1_1_haversine_data":[3,0,0,4,1,0,3,0],
 "namespacesen_1_1util_1_1impl.html":[1,0,1,7,0],
-"namespacestd.html":[1,0,2],
+"namespacespdlog.html":[1,0,2],
+"namespacespdlog_1_1level.html":[1,0,2,1],
+"namespacespdlog_1_1sinks.html":[1,0,2,0],
+"namespacestd.html":[1,0,3],
 "native__object_8h.html":[3,0,0,0,0,0,0,4,4],
 "native__object_8h_source.html":[3,0,0,0,0,0,0,4,4],
 "native__object__impl_8h.html":[3,0,0,0,0,0,0,4,0,2],
@@ -246,8 +249,5 @@ var NAVTREEINDEX16 =
 "span_8h_source.html":[3,0,0,0,0,0,0,0,19],
 "static__vector_8h.html":[3,0,0,0,0,0,0,0,20],
 "static__vector_8h.html#a09113d4effc24a308a91882f4f0457b1":[3,0,0,0,0,0,0,0,20,0],
-"static__vector_8h_source.html":[3,0,0,0,0,0,0,0,20],
-"stl__expression_8h.html":[3,0,0,0,0,0,0,2,3],
-"stl__expression_8h_source.html":[3,0,0,0,0,0,0,2,3],
-"stl__parser_8h.html":[3,0,0,0,0,0,0,2,4]
+"static__vector_8h_source.html":[3,0,0,0,0,0,0,0,20]
 };

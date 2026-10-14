@@ -1,11 +1,16 @@
 #include "my_class.h"
 
+// spdlog
+#include <spdlog/spdlog.h>
+
 namespace my_package
 {
 
 MyClassImpl::MyClassImpl(const std::string& name, const sen::VarMap& args)
   : MyClassBase(name, args)
 {
+  const auto logger = sen::kernel::KernelApi::getOrCreateLogger("my_package");
+  logger->info("{} created", name);
 }
 
 void MyClassImpl::update(sen::kernel::RunApi& runApi)
