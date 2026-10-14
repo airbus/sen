@@ -167,6 +167,14 @@ jobs:
           BASE_SHA: >-
             ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
         run: |
+          # A manual run has no base to diff against, so no changed lines can be picked out and the
+          # whole compile database is the only scope left that checks anything. Decided before the
+          # fallback below, which reads an empty base as an unreachable commit.
+          if [ -z "$BASE_SHA" ]; then
+            echo "full=true" >> "$GITHUB_OUTPUT"
+            echo "reason=manual" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           # A force-push leaves github.event.before naming the commit it overwrote, which is
           # not reachable from the branch any more, so the diff below cannot resolve it. Fall
           # back to the parent of the new tip, which is the nearest thing to what was replaced.
@@ -178,19 +186,12 @@ jobs:
           # and `.clang-tidy` sorts first, so git is still writing when the pipe closes:
           # past the pipe buffer it dies on SIGPIPE, pipefail makes that the condition's
           # status, and the branch taken is the one for a change that did not happen.
-          # A manual run has no base to diff against, so no changed lines can be picked out.
-          # The whole compile database is the only scope left that checks anything.
-          if [ -z "$BASE_SHA" ]; then
+          changed=$(git diff --name-only "$BASE_SHA...HEAD")
+          if grep -qxF '.clang-tidy' <<<"$changed"; then
             echo "full=true" >> "$GITHUB_OUTPUT"
-            echo "reason=manual" >> "$GITHUB_OUTPUT"
+            echo "reason=config" >> "$GITHUB_OUTPUT"
           else
-            changed=$(git diff --name-only "$BASE_SHA...HEAD")
-            if grep -qxF '.clang-tidy' <<<"$changed"; then
-              echo "full=true" >> "$GITHUB_OUTPUT"
-              echo "reason=config" >> "$GITHUB_OUTPUT"
-            else
-              echo "full=false" >> "$GITHUB_OUTPUT"
-            fi
+            echo "full=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Run clang-tidy on the changed lines
