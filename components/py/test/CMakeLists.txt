@@ -96,6 +96,9 @@ append_test_env_modification(py_open_query_test "PYTHONPATH=path_list_append:${C
 
 append_test_env_modification(py_wait_until_test "PYTHONPATH=path_list_append:${CMAKE_CURRENT_SOURCE_DIR}/src")
 
+# The wait holds the GIL, so the thread that satisfies it has to run before the wait begins.
+set_tests_properties(py_wait_until_test PROPERTIES RUN_SERIAL TRUE)
+
 append_test_env_modification(py_test_event_test "PYTHONPATH=path_list_append:${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 append_test_env_modification(
