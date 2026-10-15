@@ -7,6 +7,7 @@
 """Module to test the waitUntil family of calls through the py component."""
 
 import threading
+import time
 from datetime import timedelta
 
 import sen
@@ -17,6 +18,9 @@ test_objects: list = []
 
 cycle = 0
 
+# Long enough that the wait starts first, so finishing a worker needs the wait to release the GIL.
+WORKER_DELAY = 0.2
+
 
 def change_condition():
     """Condition that is always met, used to check waitUntil returns immediately."""
@@ -25,6 +29,7 @@ def change_condition():
 
 def add_object(name):
     """Create an object with the given name and add it to the test bus."""
+    time.sleep(WORKER_DELAY)
     test_object = sen.api.make("py_open_query.OpenQueryObject", name)
     test_bus.add(test_object)
     test_objects.append(test_object)
@@ -32,6 +37,7 @@ def add_object(name):
 
 def remove_object(position):
     """Remove the object at the given position from the test bus."""
+    time.sleep(WORKER_DELAY)
     test_bus.remove(test_objects[position])
 
 
@@ -41,9 +47,9 @@ def run():
 
     # check waitUntil unblocks before the timeout is reached. This condition is already true, so a
     # tight bound is safe here; the waits below depend on a thread being scheduled and take a
-    # generous one, which bounds a failure rather than measuring anything.
+    # generous one, kept under ctest's own timeout so a failure comes with a message.
     timeout = timedelta(seconds=1)
-    thread_timeout = timedelta(seconds=30)
+    thread_timeout = timedelta(seconds=15)
     not_timed_out = sen.api.waitUntil(change_condition, timeout)
     assert not_timed_out is True, f"waitUntil timed out after {timeout} waiting for change_condition"
 
