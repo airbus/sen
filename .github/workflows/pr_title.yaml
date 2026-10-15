@@ -14,6 +14,7 @@ name: Pull request title check
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review, converted_to_draft, edited]
+  merge_group:
 
 permissions:
   contents: read
@@ -41,7 +42,7 @@ jobs:
       - name: Find what this run will land
         shell: bash
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
         run: |
           if [ "$(git rev-list --parents -n 1 HEAD | wc -w)" -eq 3 ]; then
             base=$(git merge-base HEAD^1 HEAD^2)
@@ -58,6 +59,7 @@ jobs:
       # from the title otherwise -- so linting only the title passed a 62-character one
       # while the 71 it actually used went unchecked, and main carries a 78 [#299].
       - name: Lint what the squash will land
+        if: github.event_name == 'pull_request'
         shell: bash
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
