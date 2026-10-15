@@ -234,14 +234,23 @@ void Session::remoteProcessLost(ProcessId who)
   }
 }
 
+// The dispatcher belongs to the session manager and outlives this session, whose own holder can drop
+// it while work is still queued. Every lambda below reaches the session through `this`, so each takes
+// a weak handle and does nothing once it has gone.
 void Session::remoteParticipantJoinedBus(ParticipantAddr addr,
                                          const ProcessInfo& processInfo,
                                          BusId bus,
                                          std::string busName)
 {
   messageDispatcher_.enqueueMessage(MessageDispatcher::Work(
-    [this, addr, processInfo, bus, busName = std::move(busName)]() mutable
+    [this, us = weak_from_this(), addr, processInfo, bus, busName = std::move(busName)]() mutable
     {
+      const auto ourselves = us.lock();
+      if (!ourselves)
+      {
+        return;
+      }
+
       Lock busesLock(busesMutex_);
 
       // find the bus
@@ -264,9 +273,16 @@ void Session::remoteParticipantJoinedBus(ParticipantAddr addr,
 
 void Session::remoteParticipantLeftBus(ParticipantAddr addr, BusId bus, std::string busName)
 {
+  // As above: this work can outlive the session, so it holds a weak handle.
   messageDispatcher_.enqueueMessage(MessageDispatcher::Work(
-    [this, addr, bus, busName = std::move(busName)]() mutable
+    [this, us = weak_from_this(), addr, bus, busName = std::move(busName)]() mutable
     {
+      const auto ourselves = us.lock();
+      if (!ourselves)
+      {
+        return;
+      }
+
       // ~RemoteParticipant calls back into the bus. Declared before the lock so it is destroyed
       // after it, with no lock of ours held.
       std::shared_ptr<RemoteParticipant> leaving;
@@ -309,9 +325,16 @@ void Session::remoteMessageReceived(ObjectOwnerId to,
                                     ByteBufferHandle buffer,
                                     bool ensureNotDropped)
 {
+  // As above: this work can outlive the session, so it holds a weak handle.
   messageDispatcher_.enqueueMessage(MessageDispatcher::Work(
-    [this, to, busId, msg, buffer = std::move(buffer)]() mutable
+    [this, us = weak_from_this(), to, busId, msg, buffer = std::move(buffer)]() mutable
     {
+      const auto ourselves = us.lock();
+      if (!ourselves)
+      {
+        return;
+      }
+
       Lock busesLock(busesMutex_);
 
       if (auto itr = buses_.find(busId); itr != buses_.end())
@@ -328,9 +351,16 @@ void Session::remoteMessageReceived(ObjectOwnerId to,
 
 void Session::remoteBroadcastMessageReceived(BusId busId, Span<const uint8_t> msg, ByteBufferHandle buffer)
 {
+  // As above: this work can outlive the session, so it holds a weak handle.
   messageDispatcher_.enqueueMessage(MessageDispatcher::Work(
-    [this, busId, msg, buffer = std::move(buffer)]() mutable
+    [this, us = weak_from_this(), busId, msg, buffer = std::move(buffer)]() mutable
     {
+      const auto ourselves = us.lock();
+      if (!ourselves)
+      {
+        return;
+      }
+
       Lock busesLock(busesMutex_);
 
       auto itr = buses_.find(busId);
