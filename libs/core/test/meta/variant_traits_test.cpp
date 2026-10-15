@@ -28,6 +28,7 @@
 #include <array>
 #include <cstdint>
 #include <sstream>
+#include <stdexcept>
 #include <tuple>
 #include <variant>
 #include <vector>
