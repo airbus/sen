@@ -433,6 +433,21 @@ private:
 namespace sen
 {
 
+namespace
+{
+
+// Not done from providerDeleted, which is where it looks like it belongs: a provider can die at
+// the end of a loop body that walks providers_ directly, and erasing there invalidates that
+// loop's iterator. Every caller below holds the lock and is about to start such a walk.
+void pruneExpiredProviders(std::vector<std::weak_ptr<impl::FilteredProvider>>& providers)
+{
+  providers.erase(
+    std::remove_if(providers.begin(), providers.end(), [](const auto& providerw) { return providerw.expired(); }),
+    providers.end());
+}
+
+}  // namespace
+
 ObjectFilter::ObjectFilter(ObjectOwnerId ownerId): ownerId_(ownerId) {}
 
 // defined here to allow FilteredProvider destructor to run
@@ -442,6 +457,8 @@ std::shared_ptr<ObjectProvider> ObjectFilter::getOrCreateNamedProvider(const std
                                                                        std::shared_ptr<Interest> interest)
 {
   std::scoped_lock<std::recursive_mutex> lock(usageMutex_);
+
+  pruneExpiredProviders(providers_);
 
   // check if the provider for this interest already exists
   for (const auto& providerw: providers_)
@@ -521,6 +538,8 @@ void ObjectFilter::addSubscriber(std::shared_ptr<Interest> interest,
                                  bool notifyAboutExisting)
 {
   std::scoped_lock<std::recursive_mutex> lock(usageMutex_);
+
+  pruneExpiredProviders(providers_);
 
   // check if the provider for this interest already exists
   for (const auto& provider: ownedProviders_)
@@ -609,6 +628,8 @@ void ObjectFilter::replaceSubscriber(ObjectProviderListener* oldListener, Object
 void ObjectFilter::evaluate(const ObjectSet& objects)
 {
   std::scoped_lock<std::recursive_mutex> lock(usageMutex_);
+
+  pruneExpiredProviders(providers_);
 
   lastPresentObjects_ = objects.currentObjects;
 
