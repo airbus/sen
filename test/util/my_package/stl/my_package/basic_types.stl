@@ -84,7 +84,7 @@ struct MyStruct
 quantity<u16, m> MetersU16 [min: 0, max: 500];
 
 // Quantities may have no units
-quantity<u16, u16> UnitlessQuantity [min: 0, max: 511];
+quantity<u16> UnitlessQuantity [min: 0, max: 511];
 
 // Optional
 optional<f32> MaybeFloat;
