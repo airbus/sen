@@ -408,22 +408,22 @@ The following units are registered with a restricted set of SI prefixes:
 | `mass`             | `g`           | `gram`                         | `u`, `m`, `k`      |
 | `angularVelocity`  | `rad_per_s`   | `radians_per_second`           | (none)             |
 | `density`          | `g_per_cm3`   | `grams_per_centimeters_cube`   | (none)             |
-| `pressure`         | `pa`          | `pascals`                      | `h`, `k`, `M`, `G` |
+| `pressure`         | `Pa`          | `pascals`                      | `h`, `k`, `M`, `G` |
 | `area`             | `m_sq`        | `square_meter`                 | (none)             |
-| `force`            | `nw`          | `newton`                       | `k`, `M`           |
+| `force`            | `N`           | `newton`                       | `k`, `M`           |
 
 **Prefix abbreviations:** `f` (femto), `p` (pico), `n` (nano), `u` (micro),
 `m` (milli), `c` (centi), `d` (deci), `da` (deca), `h` (hecto), `k` (kilo),
 `M` (mega), `G` (giga), `T` (tera), `P` (peta).
 
 So, for example, `km` is kilometer, `ms` is millisecond, `us` is microsecond,
-`cm` is centimeter, `Mpa` is megapascal (the base abbreviation is `pa`, so the case matters).
+`cm` is centimeter, `MPa` is megapascal (the base abbreviation is `Pa`, so the case matters).
 
 ### Additional units (no SI prefixes)
 
 | Category              | Abbreviation   | Long name                    |
 |-----------------------|----------------|------------------------------|
-| `frequency`           | `hz`           | `hertz`                      |
+| `frequency`           | `Hz`           | `hertz`                      |
 | `velocity`            | `m_per_s`      | `meters_per_second`          |
 | `velocity`            | `dm_per_s`     | `decimeters_per_second`      |
 | `velocity`            | `kph`          | `km_per_hour`                |
