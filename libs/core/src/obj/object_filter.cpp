@@ -82,7 +82,7 @@ public:
       if (checkTypeCondition(native))
       {
         // save the object and create an environment for it
-        trackedObjects_.try_emplace(id, createTrackedObject(native));
+        trackedObjects_.try_emplace(id, createTrackedObject(obj, native));
       }
     }
   }
@@ -139,17 +139,29 @@ public:
     newAdditionsCache_.reserve(trackedObjects_.size());
     newRemovalsCache_.reserve(trackedObjects_.size());
 
+    std::vector<ObjectId> expired;
+
     for (auto& [trackedObjId, trackedObj]: trackedObjects_)
     {
+      // shouldBePresent reads the object's own storage, so it must outlive the iteration
+      const auto instance = trackedObj.instance.lock();
+      if (!instance)
+      {
+        // destroyed while still tracked, so it is gone for the listeners too
+        if (trackedObj.notified)
+        {
+          newRemovalsCache_.emplace_back(ObjectRemoval {interest_->getId(), trackedObjId, owner_->getOwnerId()});
+        }
+
+        expired.push_back(trackedObjId);
+        continue;
+      }
+
       if (shouldBePresent(trackedObj))
       {
         // store it
-        auto [additionsItr, done] =
-          currentAdditions_.try_emplace(trackedObjId,
-                                        ObjectInstanceDiscovery {trackedObj.instance->shared_from_this(),
-                                                                 trackedObj.instance->getId(),
-                                                                 interest_->getId(),
-                                                                 owner_->getOwnerId()});
+        auto [additionsItr, done] = currentAdditions_.try_emplace(
+          trackedObjId, ObjectInstanceDiscovery {instance, trackedObjId, interest_->getId(), owner_->getOwnerId()});
 
         // if not present, make it so
         if (!trackedObj.notified)
@@ -164,13 +176,17 @@ public:
         if (trackedObj.notified)
         {
           // not passing and present, we need to remove it
-          newRemovalsCache_.emplace_back(
-            ObjectRemoval {interest_->getId(), trackedObj.instance->getId(), owner_->getOwnerId()});
+          newRemovalsCache_.emplace_back(ObjectRemoval {interest_->getId(), trackedObjId, owner_->getOwnerId()});
 
           // invalidate the index in the tracked object data
           trackedObj.notified = false;
         }
       }
+    }
+
+    for (const auto& expiredId: expired)
+    {
+      trackedObjects_.erase(expiredId);
     }
 
     // notify users about the new ones
@@ -264,7 +280,9 @@ private:
 
   struct TrackedObject
   {
-    Object* instance = nullptr;
+    // Non-owning: the tracked set must not keep an object alive. The environment getters and
+    // dependantProps read the object directly, so they are valid only while this is locked.
+    std::weak_ptr<Object> instance;
     std::vector<lang::ValueGetter> environment;
     std::vector<const impl::PropertyFlags*> dependantProps;
     bool notified = false;
@@ -333,14 +351,14 @@ private:
                        [](const auto* prop) { return prop->changedInLastCycle(); });
   }
 
-  [[nodiscard]] TrackedObject createTrackedObject(NativeObject* instance)
+  [[nodiscard]] TrackedObject createTrackedObject(const std::shared_ptr<Object>& object, NativeObject* instance)
   {
     auto& queryCode = interest_->getQueryCode();
 
     TrackedObject result;
     result.notified = false;
     result.alreadyEvaluatedOnce = false;
-    result.instance = instance;
+    result.instance = object;
 
     if (!queryCode.isValid() || queryCode.getVariables().empty())
     {
@@ -593,6 +611,14 @@ void ObjectFilter::evaluate(const ObjectSet& objects)
   std::scoped_lock<std::recursive_mutex> lock(usageMutex_);
 
   lastPresentObjects_ = objects.currentObjects;
+
+  // The caller still lists these as current in this pass, so the snapshot would seed a provider
+  // created later with an object that is already gone. Erased before the notifications below,
+  // because a listener can subscribe from inside one.
+  for (const auto& deletedId: objects.deletedObjects)
+  {
+    lastPresentObjects_.erase(deletedId);
+  }
 
   // check the removed objects
   if (!objects.deletedObjects.empty())
