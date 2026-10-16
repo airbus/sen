@@ -184,8 +184,8 @@ quantity<f32, m> Meters;
 
 The second type argument is the **unit abbreviation** (`m`, `rad`, `deg`, `kph`,
 `degC`, ...), not the long form. SI base units are also registered with every
-metric prefix, so `km`, `ms`, `us`, `cm`, `Mpa` all resolve out of the box. Note the case: the
-abbreviation for pascals is `pa`, so megapascals are `Mpa` and `MPa` does not resolve.
+metric prefix, so `km`, `ms`, `us`, `cm`, `MPa` all resolve out of the box. Note the case: the
+abbreviation for pascals is `Pa`, so megapascals are `MPa` and `Mpa` does not resolve.
 
 See the
 [full list of registered units](stl_grammar.md#appendix-a-registered-quantity-units)
