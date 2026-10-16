@@ -296,6 +296,9 @@ class SenConan(ConanFile):
         VirtualRunEnv(self).generate(scope="build")
 
         tc = CMakeToolchain(self)
+        # set_version read this from the recipe folder, which has the repository; the build runs in
+        # the cache, which does not. Unsplit, so the binaries keep an rc marker or a commit suffix.
+        tc.cache_variables["SEN_FORCE_VERSION"] = self.version
         tc.cache_variables["SEN_DISABLE_CLANG_TIDY"] = "OFF" if self.options.with_clang_tidy else "ON"
         tc.cache_variables["SEN_COVERAGE_ENABLE"] = "ON" if self.options.with_coverage else "OFF"
         tc.cache_variables["SEN_BUILD_EXAMPLES"] = "ON" if self.options.with_examples else "OFF"

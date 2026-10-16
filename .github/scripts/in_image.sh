@@ -49,6 +49,10 @@ mkdir -p "$HOME/.conan2" "$HOME/.ccache"
 # binary, `git describe` finds no tag, and the tests that check for either fail for a reason that
 # has nothing to do with the code. Mounting the directory it names, at the path it names, is what
 # makes a worktree behave like a clone in here.
+#
+# Mounting it is not enough on its own: a bind mount reports an owner that is not the caller, so
+# git declines the repository as dubious and `git describe` fails. The build then stamps 0.0.0,
+# which looks exactly like having no repository, so the exception is named here per invocation.
 git_dir_mount=()
 if [ -f "$GITHUB_WORKSPACE/.git" ]; then
     worktree_git_dir=$(sed -n 's/^gitdir: *//p' "$GITHUB_WORKSPACE/.git")
@@ -81,6 +85,9 @@ docker run --rm --interactive \
     ${git_dir_mount[@]+"${git_dir_mount[@]}"} \
     --cap-add=SYS_PTRACE \
     --volume "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" \
+    --env GIT_CONFIG_COUNT=1 \
+    --env GIT_CONFIG_KEY_0=safe.directory \
+    --env "GIT_CONFIG_VALUE_0=$GITHUB_WORKSPACE" \
     --volume "$HOME/.conan2:/conan" \
     --volume "$HOME/.ccache:/ccache" \
     --workdir "$GITHUB_WORKSPACE" \
