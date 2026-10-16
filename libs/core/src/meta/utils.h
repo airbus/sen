@@ -11,11 +11,29 @@
 #include "sen/core/base/assert.h"
 #include "sen/core/meta/callable.h"
 
+// spdlog
+#include <spdlog/logger.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
+
 // std
+#include <memory>
 #include <string>
 
 namespace sen::impl
 {
+
+/// Shared logger for the meta module
+inline std::shared_ptr<spdlog::logger> getLogger()
+{
+  static auto logger = []
+  {
+    constexpr auto loggerName = "sen.meta";
+    auto logger = spdlog::get(loggerName);
+    return logger ? logger : spdlog::stdout_color_mt(loggerName);
+  }();
+  return logger;
+}
 
 /// Helper to capitalize a string
 inline std::string capitalize(const std::string& str) noexcept

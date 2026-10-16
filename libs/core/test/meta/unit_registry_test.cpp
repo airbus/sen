@@ -105,7 +105,7 @@ TEST(UnitRegistry, builtinUnits)
   checkBasicSIUnitWithPrefix("rad", "m", 1.0e-3);
 
   // kelvin
-  checkBasicSIUnitWithPrefix("k", "", 1.0);
+  checkBasicSIUnitWithPrefix("K", "", 1.0);
 
   // grams
   checkBasicSIUnitWithPrefix("g", "", 1.0);
@@ -114,23 +114,28 @@ TEST(UnitRegistry, builtinUnits)
   checkBasicSIUnitWithPrefix("g", "k", 1.0e3);
 
   // pascals
-  checkBasicSIUnitWithPrefix("pa", "", 1.0);
-  checkBasicSIUnitWithPrefix("pa", "h", 1.0e2);
-  checkBasicSIUnitWithPrefix("pa", "k", 1.0e3);
-  checkBasicSIUnitWithPrefix("pa", "M", 1.0e6);
-  checkBasicSIUnitWithPrefix("pa", "G", 1.0e9);
+  checkBasicSIUnitWithPrefix("Pa", "", 1.0);
+  checkBasicSIUnitWithPrefix("Pa", "h", 1.0e2);
+  checkBasicSIUnitWithPrefix("Pa", "k", 1.0e3);
+  checkBasicSIUnitWithPrefix("Pa", "M", 1.0e6);
+  checkBasicSIUnitWithPrefix("Pa", "G", 1.0e9);
 
   // force
-  checkBasicSIUnitWithPrefix("nw", "", 1.0);
-  checkBasicSIUnitWithPrefix("nw", "k", 1.0e3);
-  checkBasicSIUnitWithPrefix("nw", "M", 1.0e6);
+  checkBasicSIUnitWithPrefix("N", "", 1.0);
+  checkBasicSIUnitWithPrefix("N", "k", 1.0e3);
+  checkBasicSIUnitWithPrefix("N", "M", 1.0e6);
+
+  // frequency
+  checkBasicSIUnitWithPrefix("Hz", "", 1.0);
+  checkBasicSIUnitWithPrefix("Hz", "k", 1.0e3);
+  checkBasicSIUnitWithPrefix("Hz", "M", 1.0e6);
+  checkBasicSIUnitWithPrefix("Hz", "G", 1.0e9);
 
   // Non-prefixed basic units
   checkBasicSIUnitWithPrefix("rad_per_s", "", 1.0);
   checkBasicSIUnitWithPrefix("g_per_cm3", "", 1.0);
   checkBasicSIUnitWithPrefix("m_sq", "", 1.0);
 
-  checkSIUnit("hz");
   checkSIUnit("m_per_s");
   checkSIUnit("rad_per_s");
   checkSIUnit("m_per_s_sq");
@@ -242,6 +247,30 @@ TEST(UnitRegistry, builtinUnits)
   {
     checkBuiltinUnit("lb", 2.0, 907.18474, 0.0044);
   }
+}
+
+/// @test
+/// Verify that deprecated aliases return the correctly resolved Unit pointer
+/// and trigger the intended internal code-path without failure.
+/// @requirements(SEN-894)
+TEST(UnitRegistry, deprecatedAliases)
+{
+  auto checkDeprecated = [](std::string_view deprecated, std::string_view correct)
+  {
+    auto unitOld = UnitRegistry::get().searchUnitByAbbreviation(deprecated);
+    auto unitNew = UnitRegistry::get().searchUnitByAbbreviation(correct);
+    ASSERT_TRUE(unitOld.has_value());
+    ASSERT_TRUE(unitNew.has_value());
+    EXPECT_EQ(unitOld.value(), unitNew.value());
+  };
+
+  checkDeprecated("k", "K");
+  checkDeprecated("pa", "Pa");
+  checkDeprecated("kpa", "kPa");
+  checkDeprecated("hz", "Hz");
+  checkDeprecated("khz", "kHz");
+  checkDeprecated("nw", "N");
+  checkDeprecated("knw", "kN");
 }
 
 /// @test
