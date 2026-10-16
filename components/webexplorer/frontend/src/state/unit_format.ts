@@ -7,17 +7,11 @@
 
 // The C++ unit registry uses ASCII-only tokens (no /, sup-2, sup-3, deg, dot) for
 // cross-language plumbing; we convert at the UI boundary. Mappings mirror
-// libs/core/src/meta/unit_registry.cpp. SI-prefixed compounds (kHz, kPa, ...) are
-// handled by tail-matching the basic unit.
 export function formatUnitAbbreviation(s: string | null | undefined): string {
   if (!s) return "";
 
   // Units whose ASCII form has no structural hint to transform from.
   const fullOverrides: Record<string, string> = {
-    nw: "N",
-    pa: "Pa",
-    hz: "Hz",
-    k: "K",
     Nm: "N·m",
     kph: "km/h",
     deg: "°",
@@ -36,18 +30,5 @@ export function formatUnitAbbreviation(s: string | null | undefined): string {
   out = out.replace(/2\b/g, "²");
   // `deg` survives inside compounds after _per_ rewrite (e.g. deg_per_s -> deg/s).
   out = out.replace(/\bdeg\b/g, "°");
-
-  // SI-prefixed basics: re-capitalize the basic-unit tail (khz -> kHz, kpa -> kPa).
-  // Skipped for the bare basic unit (handled by fullOverrides above).
-  const suffixOverrides: Array<[string, string]> = [
-    ["pa", "Pa"],
-    ["nw", "N"],
-    ["hz", "Hz"],
-  ];
-  for (const [from, to] of suffixOverrides) {
-    if (out.length > from.length && out.endsWith(from)) {
-      out = out.slice(0, -from.length) + to;
-    }
-  }
   return out;
 }
