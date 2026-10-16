@@ -1117,7 +1117,11 @@ TYPED_TEST(VectorTestTemplate, insertPositionValue)
 
     EXPECT_TRUE(data.assign(this->sampleData.begin(), this->sampleData.begin() + startingPoint));
 
-    std::vector<T> compareData(this->sampleData.begin(), this->sampleData.begin() + startingPoint);
+    std::vector<T> compareData(startingPoint);
+    for (std::size_t i = 0; i < startingPoint; ++i)
+    {
+      compareData.at(i) = this->sampleData.at(i);
+    }
 
     // insert at the offset
     EXPECT_TRUE(data.insert(data.begin() + offset, this->testValue));
@@ -1159,7 +1163,11 @@ TYPED_TEST(VectorTestTemplate, insertPositionValueMoved)
 
     // assign elements to the 2 vectors
     EXPECT_TRUE(data.assign(this->sampleData.begin(), this->sampleData.begin() + startingPoint));
-    std::vector<T> compareData(this->sampleData.begin(), this->sampleData.begin() + startingPoint);
+    std::vector<T> compareData(startingPoint);
+    for (std::size_t i = 0; i < startingPoint; ++i)
+    {
+      compareData.at(i) = this->sampleData.at(i);
+    }
 
     // insert at the offset
     EXPECT_TRUE(data.insert(data.begin() + offset, T {}));
@@ -1222,7 +1230,11 @@ TYPED_TEST(VectorTestTemplate, insertPositionNValue)
 
     // assign elements to the 2 vectors
     EXPECT_TRUE(data.assign(this->sampleData.begin(), this->sampleData.begin() + startingPoint));
-    std::vector<T> compareData(this->sampleData.begin(), this->sampleData.begin() + startingPoint);
+    std::vector<T> compareData(startingPoint);
+    for (std::size_t i = 0; i < startingPoint; ++i)
+    {
+      compareData.at(i) = this->sampleData.at(i);
+    }
 
     // insert some elements
     EXPECT_TRUE(data.insert(data.begin() + offset, insertSize, this->testValue));
@@ -1281,7 +1293,11 @@ TYPED_TEST(VectorTestTemplate, insertPositionRange)
 
     // assign elements to the 2 vectors
     EXPECT_TRUE(data.assign(this->sampleData.begin(), this->sampleData.begin() + startingPoint));
-    std::vector<T> compareData(this->sampleData.begin(), this->sampleData.begin() + startingPoint);
+    std::vector<T> compareData(startingPoint);
+    for (std::size_t i = 0; i < startingPoint; ++i)
+    {
+      compareData.at(i) = this->sampleData.at(i);
+    }
 
     // insert some elements
     EXPECT_TRUE(data.insert(data.begin() + offset, this->insertData.begin(), this->insertData.end()));
