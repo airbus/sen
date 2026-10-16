@@ -10,9 +10,11 @@
 // implementation
 #include "kernel_impl.h"
 #include "operating_system.h"
+#include "shared_library.h"
 
 // sen
 #include "sen/core/base/assert.h"
+#include "sen/core/base/result.h"
 #include "sen/core/base/span.h"
 #include "sen/core/meta/class_type.h"
 #include "sen/core/meta/custom_type.h"
@@ -64,6 +66,24 @@ namespace
   return !address.sessionName.empty() && !address.busName.empty();
 }
 
+using ConstructionValidatorGetterFunc = ConstructionValidatorFunc (*)();
+
+[[nodiscard]] ConstructionValidatorFunc findConstructionValidator(OperatingSystem& os,
+                                                                  const SharedLibrary library,
+                                                                  const ClassType& type)
+{
+  auto validatorGetterName = ClassType::computeInstanceMakerFuncName(std::string(type.getQualifiedName()));
+  validatorGetterName.append("ConstructionValidator");
+
+  if (auto* validatorGetter = os.getSymbol(library, validatorGetterName); validatorGetter != nullptr)
+  {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    return (*reinterpret_cast<ConstructionValidatorGetterFunc>(validatorGetter))();  // NOSONAR
+  }
+
+  return nullptr;
+}
+
 }  // namespace
 
 //--------------------------------------------------------------------------------------------------------------
@@ -97,7 +117,11 @@ FuncResult PipelineComponent::preload(PreloadApi&& api)
 
 PassResult PipelineComponent::init(InitApi&& api)
 {
-  createObjects(api.getTypes());
+  if (auto result = createObjects(api.getTypes()); result.isError())
+  {
+    return Err(result.getError());
+  }
+
   establishConnections(std::move(api));
   return done();
 }
@@ -164,7 +188,13 @@ void PipelineComponent::openLibs(CustomTypeRegistry& reg)
         // get the maker
         if (maker != nullptr && type->isClassType())
         {
-          reg.addInstanceMaker(*type->asClassType(), maker);
+          const auto* classType = type->asClassType();
+          reg.addInstanceMaker(*classType, maker);
+
+          if (auto validator = findConstructionValidator(*os_, lib, *classType); validator != nullptr)
+          {
+            constructionValidators_.insert({classType, validator});
+          }
         }
 
         spdlog::debug("imported type {} from library {}",
@@ -201,7 +231,7 @@ void PipelineComponent::fetchTypes(CustomTypeRegistry& reg)
   }
 }
 
-void PipelineComponent::lookupType(const std::string& name, CustomTypeRegistry& reg) const
+void PipelineComponent::lookupType(const std::string& name, CustomTypeRegistry& reg)
 {
   const auto allTypes = reg.getAll();
 
@@ -237,6 +267,11 @@ void PipelineComponent::lookupType(const std::string& name, CustomTypeRegistry& 
       reg.addInstanceMaker(
         *classType,
         reinterpret_cast<InstanceMakerFunc>(maker));  // NOSONAR NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+
+      if (auto validator = findConstructionValidator(*os_, lib, *classType); validator != nullptr)
+      {
+        constructionValidators_.insert({classType, validator});
+      }
 
       spdlog::debug("manually imported type {}", type->asCustomType()->getQualifiedName());
       return;
@@ -323,7 +358,7 @@ void PipelineComponent::validateConfig(const CustomTypeRegistry& reg) const
   }
 }
 
-void PipelineComponent::createObjects(const CustomTypeRegistry& reg)
+FuncResult PipelineComponent::createObjects(const CustomTypeRegistry& reg)
 {
   for (const auto& objConfig: config_.objects)
   {
@@ -332,7 +367,24 @@ void PipelineComponent::createObjects(const CustomTypeRegistry& reg)
 
     if (type.value()->isClassType())
     {
-      objects_.push_back(reg.makeInstance(type.value()->asClassType(), objConfig.name, objConfig.params));
+      const auto* classType = type.value()->asClassType();
+
+      if (const auto validator = constructionValidators_.find(classType); validator != constructionValidators_.end())
+      {
+        if (auto validationResult = (*validator->second)(objConfig.name, objConfig.params); validationResult.isError())
+        {
+          std::string err;
+          err.append("cannot create object '");
+          err.append(objConfig.name);
+          err.append("' of class '");
+          err.append(objConfig.className);
+          err.append("': ");
+          err.append(validationResult.getError());
+          return Err(ExecError {ErrorCategory::expectationsNotMet, std::move(err)});
+        }
+      }
+
+      objects_.push_back(reg.makeInstance(classType, objConfig.name, objConfig.params));
       objectConfigs_.insert({objects_.back().get(), &objConfig});
     }
     else
@@ -344,6 +396,8 @@ void PipelineComponent::createObjects(const CustomTypeRegistry& reg)
       throw std::runtime_error(err);
     }
   }
+
+  return Ok();
 }
 
 void PipelineComponent::establishConnections(InitApi&& api)
