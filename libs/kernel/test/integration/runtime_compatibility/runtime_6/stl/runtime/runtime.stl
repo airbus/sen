@@ -3,7 +3,7 @@ package sen.test.runtime;
 sequence<i64, 8> TestSequence;
 sequence<f32, 3> TestSequence2;
 
-quantity<f32, hz> Frequency [min: -100, max: 100]; // defined in hertz
+quantity<f32, Hz> Frequency [min: -100, max: 100]; // defined in hertz
 quantity<f32, rad> Angle [min: 0, max: 3.14]; // defined in radian
 
 enum TestEnum : i32
