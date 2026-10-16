@@ -128,6 +128,7 @@ private:
   void cmdStatus(std::string_view args);
   void cmdVersion(std::string_view args);
   void cmdClear(std::string_view args);
+  void cmdHistory(std::string_view args);
   void cmdTheme(std::string_view args);
   void cmdShutdown(std::string_view args);
 

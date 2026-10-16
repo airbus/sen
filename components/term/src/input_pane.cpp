@@ -239,4 +239,6 @@ bool InputPane::searchHistory(std::string_view query)
   return false;
 }
 
+const std::deque<std::string>& InputPane::getHistory() const noexcept { return history_; }
+
 }  // namespace sen::components::term

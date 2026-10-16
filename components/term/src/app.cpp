@@ -38,6 +38,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cstddef>
+#include <deque>
 #include <filesystem>
 #include <iostream>
 #include <memory>
@@ -287,6 +288,8 @@ void App::clearCommandPane()
   ui_->commandPane.clear();
   requestRedraw();
 }
+
+const std::deque<std::string>& App::getHistory() const { return ui_->inputPane.getHistory(); }
 
 void App::setCompleter(Completer* completer) { completer_ = completer; }
 
