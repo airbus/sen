@@ -44,25 +44,6 @@ void checkBasicSIUnitWithPrefix(std::string_view abbrev, std::string_view prefix
   checkBuiltinUnit(str, val, toSi, fromSi);
 }
 
-void checkBasicSIUnit(std::string_view abbrev)
-{
-  checkBasicSIUnitWithPrefix(abbrev, "", 1.0);
-  checkBasicSIUnitWithPrefix(abbrev, "f", 1.0e-15);
-  checkBasicSIUnitWithPrefix(abbrev, "p", 1.0e-12);
-  checkBasicSIUnitWithPrefix(abbrev, "n", 1.0e-9);
-  checkBasicSIUnitWithPrefix(abbrev, "u", 1.0e-6);
-  checkBasicSIUnitWithPrefix(abbrev, "m", 1.0e-3);
-  checkBasicSIUnitWithPrefix(abbrev, "c", 1.0e-2);
-  checkBasicSIUnitWithPrefix(abbrev, "d", 1.0e-1);
-  checkBasicSIUnitWithPrefix(abbrev, "da", 1.0e1);
-  checkBasicSIUnitWithPrefix(abbrev, "h", 1.0e2);
-  checkBasicSIUnitWithPrefix(abbrev, "k", 1.0e3);
-  checkBasicSIUnitWithPrefix(abbrev, "M", 1.0e6);
-  checkBasicSIUnitWithPrefix(abbrev, "G", 1.0e9);
-  checkBasicSIUnitWithPrefix(abbrev, "T", 1.0e12);
-  checkBasicSIUnitWithPrefix(abbrev, "P", 1.0e15);
-}
-
 void checkSIUnit(std::string_view abbrev)
 {
   const auto val = 1234.56789;
@@ -96,17 +77,58 @@ void checkUnitInGroup(UnitRegistry::UnitList list, std::string name)
 
 /// @test
 /// Finds builtin units by abbreviation and converts sample values to and from SI within
-/// tolerance. Covers base SI units under every metric prefix from femto to peta, identity for
+/// tolerance. Covers base SI units under their specific allowed metric prefixes, identity for
 /// derived SI units, and non-SI time, length, angle, temperature, speed, and mass units such
 /// as hour, ft, deg, degF, kph, and lb.
 /// @requirements(SEN-894)
 TEST(UnitRegistry, builtinUnits)
 {
-  checkBasicSIUnit("m");
-  checkBasicSIUnit("s");
-  checkBasicSIUnit("rad");
-  checkBasicSIUnit("k");
-  checkBasicSIUnit("g");
+  // meters
+  checkBasicSIUnitWithPrefix("m", "", 1.0);
+  checkBasicSIUnitWithPrefix("m", "n", 1.0e-9);
+  checkBasicSIUnitWithPrefix("m", "u", 1.0e-6);
+  checkBasicSIUnitWithPrefix("m", "m", 1.0e-3);
+  checkBasicSIUnitWithPrefix("m", "c", 1.0e-2);
+  checkBasicSIUnitWithPrefix("m", "k", 1.0e3);
+
+  // seconds
+  checkBasicSIUnitWithPrefix("s", "", 1.0);
+  checkBasicSIUnitWithPrefix("s", "f", 1.0e-15);
+  checkBasicSIUnitWithPrefix("s", "p", 1.0e-12);
+  checkBasicSIUnitWithPrefix("s", "n", 1.0e-9);
+  checkBasicSIUnitWithPrefix("s", "u", 1.0e-6);
+  checkBasicSIUnitWithPrefix("s", "m", 1.0e-3);
+
+  // radians
+  checkBasicSIUnitWithPrefix("rad", "", 1.0);
+  checkBasicSIUnitWithPrefix("rad", "u", 1.0e-6);
+  checkBasicSIUnitWithPrefix("rad", "m", 1.0e-3);
+
+  // kelvin
+  checkBasicSIUnitWithPrefix("k", "", 1.0);
+
+  // grams
+  checkBasicSIUnitWithPrefix("g", "", 1.0);
+  checkBasicSIUnitWithPrefix("g", "u", 1.0e-6);
+  checkBasicSIUnitWithPrefix("g", "m", 1.0e-3);
+  checkBasicSIUnitWithPrefix("g", "k", 1.0e3);
+
+  // pascals
+  checkBasicSIUnitWithPrefix("pa", "", 1.0);
+  checkBasicSIUnitWithPrefix("pa", "h", 1.0e2);
+  checkBasicSIUnitWithPrefix("pa", "k", 1.0e3);
+  checkBasicSIUnitWithPrefix("pa", "M", 1.0e6);
+  checkBasicSIUnitWithPrefix("pa", "G", 1.0e9);
+
+  // force
+  checkBasicSIUnitWithPrefix("nw", "", 1.0);
+  checkBasicSIUnitWithPrefix("nw", "k", 1.0e3);
+  checkBasicSIUnitWithPrefix("nw", "M", 1.0e6);
+
+  // Non-prefixed basic units
+  checkBasicSIUnitWithPrefix("rad_per_s", "", 1.0);
+  checkBasicSIUnitWithPrefix("g_per_cm3", "", 1.0);
+  checkBasicSIUnitWithPrefix("m_sq", "", 1.0);
 
   checkSIUnit("hz");
   checkSIUnit("m_per_s");

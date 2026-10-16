@@ -395,24 +395,22 @@ The source of truth is `libs/core/src/meta/unit_registry.cpp`. A
 **abbreviation** (the short form), so the tables below key on the
 abbreviation and list the long name for reference only.
 
-### SI base units (accept all SI prefixes)
+### SI base units
 
-Each of the following units is automatically registered with every SI prefix
-from `femto` through `peta`, producing the prefixed abbreviation by
-concatenation (e.g. `km`, `ms`, `us`, `cm`, `Mpa`).
+The following units are registered with a restricted set of SI prefixes:
 
-| Category           | Abbreviation  | Long name                      |
-| ------------------ | ------------- | ------------------------------ |
-| `length`           | `m`           | `meter`                        |
-| `time`             | `s`           | `second`                       |
-| `angle`            | `rad`         | `radian`                       |
-| `temperature`      | `k`           | `kelvin`                       |
-| `mass`             | `g`           | `gram`                         |
-| `angularVelocity`  | `rad_per_s`   | `radians_per_second`           |
-| `density`          | `g_per_cm3`   | `grams_per_centimeters_cube`   |
-| `pressure`         | `pa`          | `pascals`                      |
-| `area`             | `m_sq`        | `square_meter`                 |
-| `force`            | `nw`          | `newton`                       |
+| Category           | Abbreviation  | Long name                      | Supported Prefixes |
+| ------------------ | ------------- | ------------------------------ | ------------------ |
+| `length`           | `m`           | `meter`                        | `n`, `u`, `m`, `c`, `k` |
+| `time`             | `s`           | `second`                       | `f`, `p`, `n`, `u`, `m` |
+| `angle`            | `rad`         | `radian`                       | `u`, `m`           |
+| `temperature`      | `k`           | `kelvin`                       | (none)             |
+| `mass`             | `g`           | `gram`                         | `u`, `m`, `k`      |
+| `angularVelocity`  | `rad_per_s`   | `radians_per_second`           | (none)             |
+| `density`          | `g_per_cm3`   | `grams_per_centimeters_cube`   | (none)             |
+| `pressure`         | `pa`          | `pascals`                      | `h`, `k`, `M`, `G` |
+| `area`             | `m_sq`        | `square_meter`                 | (none)             |
+| `force`            | `nw`          | `newton`                       | `k`, `M`           |
 
 **Prefix abbreviations:** `f` (femto), `p` (pico), `n` (nano), `u` (micro),
 `m` (milli), `c` (centi), `d` (deci), `da` (deca), `h` (hecto), `k` (kilo),

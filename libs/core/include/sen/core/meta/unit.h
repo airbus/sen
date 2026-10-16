@@ -30,7 +30,8 @@ enum class UnitCategory
 {
   // Base measurements
   length,
-  mass,
+  mass,  // Note: Base unit is gram (g), not kilogram (kg). This keeps internal consistency with density (g/cm3), though
+         // it differs from the SI-canonical base (kg)
   time,
   angle,
   temperature,
