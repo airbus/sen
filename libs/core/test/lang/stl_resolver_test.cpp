@@ -92,7 +92,7 @@ TEST_F(AStlResolver, CorrectlyResolvesAValidComplexStlFile)
   const sen::lang::TypeSet* typeSet {};
   ASSERT_NO_THROW(typeSet = resolve(stlFileWithComplexDeclarations));
   ASSERT_NE(typeSet, nullptr);
-  ASSERT_EQ(typeSet->types.size(), 11);
+  ASSERT_EQ(typeSet->types.size(), 12);
   ASSERT_TRUE(typeSet->types[0]->isSequenceType());
   ASSERT_TRUE(typeSet->types[1]->isSequenceType());
   ASSERT_TRUE(typeSet->types[2]->isSequenceType());
@@ -101,9 +101,10 @@ TEST_F(AStlResolver, CorrectlyResolvesAValidComplexStlFile)
   ASSERT_TRUE(typeSet->types[5]->isOptionalType());
   ASSERT_TRUE(typeSet->types[6]->isVariantType());
   ASSERT_TRUE(typeSet->types[7]->isQuantityType());
-  ASSERT_TRUE(typeSet->types[8]->isAliasType());
-  ASSERT_TRUE(typeSet->types[9]->isClassType());
+  ASSERT_TRUE(typeSet->types[8]->isQuantityType());
+  ASSERT_TRUE(typeSet->types[9]->isAliasType());
   ASSERT_TRUE(typeSet->types[10]->isClassType());
+  ASSERT_TRUE(typeSet->types[11]->isClassType());
 }
 
 /// @test
