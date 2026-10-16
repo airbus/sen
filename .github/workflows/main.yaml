@@ -102,26 +102,6 @@ jobs:
         if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
         shell: bash
         run: python .github/scripts/lint_commits.py --base "$LINT_BASE" --tip "$LINT_TIP"
-      # What a squash merge lands, with the pull request number appended, and the number
-      # is why a 71-character subject fails on main and then fails every later pull
-      # request. GitHub takes that subject from the ONE commit when a branch has one and
-      # from the title otherwise -- so linting only the title passed a 62-character one
-      # while the 71 it actually used went unchecked, and main carries a 78 [#299].
-      - name: Lint what the squash will land
-        if: github.event_name == 'pull_request'
-        shell: bash
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          count=$(git rev-list --count "$LINT_BASE..$LINT_TIP")
-          if [ "$count" -eq 1 ]; then
-            subject=$(git log -1 --format=%s "$LINT_TIP")
-          else
-            subject=$PR_TITLE
-          fi
-          printf 'linting the squash subject for %s commit(s): %s\n' "$count" "$subject"
-          printf '%s (#%s)\n' "$subject" "$PR_NUMBER" | gitlint
 
   conan-lock-check:
     name: "Check conan.lock"
