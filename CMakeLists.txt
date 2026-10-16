@@ -12,6 +12,7 @@ cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # build options
+option(SEN_FORCE_VERSION "Override SCM version" "0.0.0")
 option(SEN_BUILD_EXAMPLES "Build examples" ON)
 option(SEN_BUILD_TESTS "Build tests" ON)
 option(SEN_BUILD_BENCHMARKS "Build benchmarks" OFF)
@@ -49,8 +50,16 @@ include(util/sen_utils)
 include(util/git_info)
 
 # obtain the version
-set(SEN_VERSION)
-get_version_from_git(SEN_VERSION)
+set(SEN_VERSION ${SEN_FORCE_VERSION})
+string(FIND "${SEN_VERSION}" "-" hyphen_index)
+if(NOT hyphen_index EQUAL -1)
+  string(SUBSTRING "${SEN_VERSION}" 0 ${hyphen_index} SEN_VERSION)
+endif()
+unset(hyphen_index)
+if(SEN_FORCE_VERSION STREQUAL "0.0.0")
+  get_version_from_git(SEN_VERSION)
+endif()
+message(STATUS "Sen detected version: ${SEN_VERSION}")
 
 # MSVC keeps debug information in one program database per target directory, and every parallel
 # cl.exe contends for it. /FS is meant to serialise that through mspdbsrv and does not when the

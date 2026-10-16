@@ -296,6 +296,9 @@ class SenConan(ConanFile):
         VirtualRunEnv(self).generate(scope="build")
 
         tc = CMakeToolchain(self)
+        # When performing a conan create the sources are copied to the cache but the git repo information
+        # is lost in the process, this line forwards the version information computed by conan to cmake
+        tc.cache_variables["SEN_FORCE_VERSION"] = self.version
         tc.cache_variables["SEN_DISABLE_CLANG_TIDY"] = "OFF" if self.options.with_clang_tidy else "ON"
         tc.cache_variables["SEN_COVERAGE_ENABLE"] = "ON" if self.options.with_coverage else "OFF"
         tc.cache_variables["SEN_BUILD_EXAMPLES"] = "ON" if self.options.with_examples else "OFF"

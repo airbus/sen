@@ -12,7 +12,11 @@ include(tps/cpptrace)
 include(tps/pugixml)
 include(tps/xenium)
 
-get_version_from_git_raw(SEN_VERSION_STRING)
+if(SEN_FORCE_VERSION STREQUAL "0.0.0")
+  get_version_from_git_raw(SEN_VERSION_STRING)
+else()
+  set(SEN_VERSION_STRING ${SEN_VERSION})
+endif()
 configure_file(
   src/base/version.h.in ${CMAKE_CURRENT_BINARY_DIR}/include/sen/core/base/version.h @ONLY NEWLINE_STYLE UNIX
 )
