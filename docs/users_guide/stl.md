@@ -180,12 +180,14 @@ quantity<f64, deg> Lon [min: -180.0, max: 180.0];
 quantity<f32, m_per_s> Speed;
 quantity<f32, rad> Angle;
 quantity<f32, m> Meters;
+
+quantity<f32> Fraction;
 ```
 
 The second type argument is the **unit abbreviation** (`m`, `rad`, `deg`, `kph`,
-`degC`, ...), not the long form. SI base units are also registered with every
-metric prefix, so `km`, `ms`, `us`, `cm`, `MPa` all resolve out of the box. Note the case: the
-abbreviation for pascals is `Pa`, so megapascals are `MPa` and `Mpa` does not resolve.
+`degC`, ...), not the long form and is optional. Omit it entirely when dealing with unitless quantities.
+SI base units are also registered with every metric prefix, so `km`, `ms`, `us`, `cm`, `MPa` all resolve out of the box.
+Note the case: the abbreviation for pascals is `Pa`, so megapascals are `MPa` and `Mpa` does not resolve.
 
 See the
 [full list of registered units](stl_grammar.md#appendix-a-registered-quantity-units)
