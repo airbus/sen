@@ -450,8 +450,14 @@ void pruneExpiredProviders(std::vector<std::weak_ptr<impl::FilteredProvider>>& p
 
 ObjectFilter::ObjectFilter(ObjectOwnerId ownerId): ownerId_(ownerId) {}
 
-// defined here to allow FilteredProvider destructor to run
-ObjectFilter::~ObjectFilter() = default;
+ObjectFilter::~ObjectFilter()
+{
+  // Defined here so FilteredProvider is complete. usageMutex_ is declared last, so it dies
+  // before ownedProviders_, whose destructors reach providerDeleted and lock it: released here
+  // while it is alive, by swap rather than clear because a listener can re-enter removeSubscriber.
+  std::vector<std::shared_ptr<impl::FilteredProvider>> dying;
+  dying.swap(ownedProviders_);
+}
 
 std::shared_ptr<ObjectProvider> ObjectFilter::getOrCreateNamedProvider(const std::string& name,
                                                                        std::shared_ptr<Interest> interest)
