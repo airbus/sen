@@ -25,6 +25,7 @@
 
 // pybind11
 #include <pybind11/detail/common.h>
+#include <pybind11/gil.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
 
@@ -41,6 +42,19 @@
 
 namespace sen::components::py
 {
+
+namespace
+{
+
+// A C++ condition runs no Python bytecode, so nothing else hands the GIL to the thread that
+// satisfies it. Only the sleep gives it up: the calls around it deliver results into Python.
+void sleepReleasingTheGil(Duration period)
+{
+  pybind11::gil_scoped_release release;
+  std::this_thread::sleep_for(period.toChrono());
+}
+
+}  // namespace
 
 // -------------------------------------------------------------------------------------------------------------
 // Logging
@@ -175,7 +189,7 @@ bool RunApi::waitUntilCpp(std::function<bool()>&& condition, std::chrono::nanose
     {
       runApi_->drainInputs();
       runApi_->update();
-      std::this_thread::sleep_for(updatePeriod_.toChrono());
+      sleepReleasingTheGil(updatePeriod_);
       runApi_->commit();
     }
     return true;
@@ -193,7 +207,7 @@ bool RunApi::waitUntilCpp(std::function<bool()>&& condition, std::chrono::nanose
 
     runApi_->drainInputs();
     runApi_->update();
-    std::this_thread::sleep_for(updatePeriod_.toChrono());
+    sleepReleasingTheGil(updatePeriod_);
     runApi_->commit();
   }
 
