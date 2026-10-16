@@ -112,12 +112,14 @@ void writeDepFile(const std::filesystem::path& path,
   for (const auto& target: targets)
   {
     SEN_ENSURE(!target.empty());
-    body += (body.empty() ? "" : " ") + escapedForDepFile(std::filesystem::absolute(target));
+    body += body.empty() ? "" : " ";
+    body += escapedForDepFile(std::filesystem::absolute(target));
   }
   body += ":";
   for (const auto& dependency: dependencies)
   {
-    body += " " + escapedForDepFile(std::filesystem::absolute(dependency));
+    body += " ";
+    body += escapedForDepFile(std::filesystem::absolute(dependency));
   }
   body += "\n";
 
