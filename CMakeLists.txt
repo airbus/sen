@@ -48,9 +48,43 @@ set(SEN_INTERNAL_BUILD YES)
 include(util/sen_utils)
 include(util/git_info)
 
-# obtain the version
-set(SEN_VERSION)
-get_version_from_git(SEN_VERSION)
+# obtain the version. `conan create` builds from a copy with no .git, so the recipe reads the
+# repository the build cannot and passes the answer in. Both forms resolve here, once: asking
+# twice is what left the binaries at 0.0.0 inside a correctly versioned package.
+set(SEN_FORCE_VERSION
+    ""
+    CACHE STRING "Version to stamp instead of asking the repository"
+)
+
+if(SEN_FORCE_VERSION STREQUAL "")
+  get_version_from_git(SEN_VERSION)
+  get_version_from_git_raw(SEN_VERSION_STRING)
+  # Both helpers answer 0.0.0 for a repository that is absent and for one that refuses, which is
+  # what a container with a foreign uid gets. Silence is how that version reached a user.
+  if(SEN_VERSION_STRING STREQUAL "0.0.0")
+    message(
+      WARNING
+        "the repository gave no version, so everything here is stamped 0.0.0. Pass -DSEN_FORCE_VERSION=<version>, or build through the conan recipe, which reads the repository on the build's behalf."
+    )
+  endif()
+else()
+  # The full string reaches the binaries, so an rc keeps its marker; project() takes only the
+  # three numbers it accepts, and refuses rather than ship a package stamped with a wrong one.
+  set(SEN_VERSION_STRING "${SEN_FORCE_VERSION}")
+  string(
+    REGEX MATCH
+          "^[0-9]+\\.[0-9]+\\.[0-9]+"
+          SEN_VERSION
+          "${SEN_FORCE_VERSION}"
+  )
+  if(SEN_VERSION STREQUAL "")
+    message(
+      FATAL_ERROR "SEN_FORCE_VERSION is \"${SEN_FORCE_VERSION}\", which does not start with major.minor.patch"
+    )
+  endif()
+endif()
+
+message(STATUS "Sen version: ${SEN_VERSION_STRING} (package ${SEN_VERSION})")
 
 # MSVC keeps debug information in one program database per target directory, and every parallel
 # cl.exe contends for it. /FS is meant to serialise that through mspdbsrv and does not when the
