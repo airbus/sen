@@ -16,6 +16,7 @@
 // std
 #include <memory>
 #include <optional>
+#include <string>
 #include <string_view>  // for string_view
 #include <vector>       // for vector
 
@@ -62,7 +63,14 @@ private:
   ~UnitRegistry() = default;
 
 private:
+  struct DeprecatedAbbreviation
+  {
+    std::string abbreviation;
+    const Unit* targetUnit;
+  };
+
   UnitStorage units_;
+  std::vector<DeprecatedAbbreviation> deprecatedAbbreviations_;
 };
 
 /// @}
