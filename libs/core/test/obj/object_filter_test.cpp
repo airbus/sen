@@ -262,6 +262,93 @@ TEST(ObjectFilter, Evaluate_AddsAndRemoves)
 }
 
 /// @test
+/// A subscriber added after an object was removed is not seeded with that object, although the
+/// caller still lists it as current in the pass that announces the removal.
+/// @requirements(SEN-363)
+TEST(ObjectFilter, Evaluate_ARemovedObjectDoesNotSeedALaterSubscriber)
+{
+  MockListener listener;
+  MockListener lateListener;
+
+  TestObjectFilter filter(getTestOwnerId());
+
+  filter.addSubscriber(createEmptyInterest(), &listener, false);
+
+  auto obj = std::make_shared<TestOwner>("TestObj1");
+  const auto objId = obj->getId();
+
+  // scoped, because an ObjectSet holds a reference of its own
+  {
+    TestObjectFilter::ObjectSet addSet;
+    addSet.newObjects[objId] = obj;
+    addSet.currentObjects[objId] = obj;
+    filter.evaluate(addSet);
+  }
+
+  ASSERT_EQ(listener.added.size(), 1U);
+
+  // the caller still lists the object as current in the pass that announces its removal
+  {
+    TestObjectFilter::ObjectSet remSet;
+    remSet.currentObjects[objId] = obj;
+    remSet.deletedObjects.insert(objId);
+    filter.evaluate(remSet);
+  }
+
+  ASSERT_EQ(listener.removed.size(), 1U);
+
+  // the last reference the test controls
+  obj.reset();
+
+  // a different interest, so this takes the path that creates a provider and seeds it
+  filter.addSubscriber(
+    createInterestWithRegistry("SELECT example_class.ExampleClass FROM session.bus"), &lateListener, true);
+
+  EXPECT_TRUE(lateListener.added.empty());
+
+  // and nothing in the pass below may touch the object that is now gone
+  TestObjectFilter::ObjectSet emptySet;
+  EXPECT_NO_THROW({ filter.evaluate(emptySet); });
+  EXPECT_TRUE(lateListener.added.empty());
+}
+
+/// @test
+/// An object destroyed while the filter still tracks it leaves the tracked set, and a listener
+/// that was told about it is told it is gone.
+/// @requirements(SEN-363)
+TEST(ObjectFilter, Evaluate_AnObjectDestroyedWhileTrackedIsReportedRemoved)
+{
+  MockListener listener;
+
+  TestObjectFilter filter(getTestOwnerId());
+
+  filter.addSubscriber(createEmptyInterest(), &listener, false);
+
+  auto obj = std::make_shared<TestOwner>("TestObj1");
+  const auto objId = obj->getId();
+
+  {
+    TestObjectFilter::ObjectSet addSet;
+    addSet.newObjects[objId] = obj;
+    addSet.currentObjects[objId] = obj;
+    filter.evaluate(addSet);
+  }
+
+  ASSERT_EQ(listener.added.size(), 1U);
+  ASSERT_TRUE(listener.removed.empty());
+
+  // the snapshot and the provider's own addition are the last holders, and the pass below
+  // releases both before it walks the tracked objects
+  obj.reset();
+
+  TestObjectFilter::ObjectSet emptySet;
+  EXPECT_NO_THROW({ filter.evaluate(emptySet); });
+
+  ASSERT_EQ(listener.removed.size(), 1U);
+  EXPECT_EQ(listener.removed[0], objId);
+}
+
+/// @test
 /// Ignores remote proxy objects during evaluate, only native objects produce added notifications.
 /// @requirements(SEN-363)
 TEST(ObjectFilter, Evaluate_IgnoresNonNativeObjects)
