@@ -11,6 +11,7 @@
 #include "sen/core/io/buffer_writer.h"
 #include "sen/core/io/input_stream.h"
 #include "sen/core/io/output_stream.h"
+#include "sen/core/lang/vm.h"
 #include "sen/core/meta/var.h"
 
 // generated code
@@ -30,6 +31,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <tuple>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -263,6 +265,48 @@ TEST(AVariantBeingPrinted, keepsItsFieldIndentation)
   out << makeMockVariant<u32>();
 
   EXPECT_EQ(out.str(), "  type:  u32\n  value: 32");
+}
+
+/// @test
+/// A field getter for an alternative that is not held returns VariantAccessError without throwing.
+TEST(VariantFieldValueGetter, ReturnsVariantAccessErrorForAnAlternativeNotHeld)
+{
+  // arrange
+  const MockVariant holdingU32 {std::in_place_index<2>, 7U};
+  std::array<uint16_t, 1UL> f64Alternative {1};
+  std::array<uint16_t, 2UL> structField {0, 0};
+  const auto readF64 = sen::VariantTraits<MockVariant>::getFieldValueGetterFunction(sen::makeSpan(f64Alternative));
+  const auto readStructField = sen::VariantTraits<MockVariant>::getFieldValueGetterFunction(sen::makeSpan(structField));
+
+  // act and assert
+  sen::lang::Value value;
+  ASSERT_NO_THROW(value = readF64(&holdingU32));
+  EXPECT_TRUE(std::holds_alternative<sen::lang::VariantAccessError>(value));
+  ASSERT_NO_THROW(value = readStructField(&holdingU32));
+  EXPECT_TRUE(std::holds_alternative<sen::lang::VariantAccessError>(value));
+}
+
+/// @test
+/// A field getter for the alternative that is held returns its value.
+TEST(VariantFieldValueGetter, ReturnsTheValueOfTheAlternativeHeld)
+{
+  // arrange
+  const MockVariant holdingF64 {std::in_place_index<1>, 2.5};
+  const MockVariant holdingStruct {std::in_place_index<0>, MockStruct {42U, "x"}};
+  std::array<uint16_t, 1UL> f64Alternative {1};
+  std::array<uint16_t, 2UL> structField {0, 0};
+
+  // act
+  const auto f64Value =
+    sen::VariantTraits<MockVariant>::getFieldValueGetterFunction(sen::makeSpan(f64Alternative))(&holdingF64);
+  const auto fieldValue =
+    sen::VariantTraits<MockVariant>::getFieldValueGetterFunction(sen::makeSpan(structField))(&holdingStruct);
+
+  // assert
+  ASSERT_TRUE(std::holds_alternative<float64_t>(f64Value));
+  EXPECT_EQ(std::get<float64_t>(f64Value), 2.5);
+  ASSERT_TRUE(std::holds_alternative<uint32_t>(fieldValue));
+  EXPECT_EQ(std::get<uint32_t>(fieldValue), 42U);
 }
 
 }  // namespace

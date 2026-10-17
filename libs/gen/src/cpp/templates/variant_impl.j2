@@ -131,20 +131,21 @@ std::function<::sen::lang::Value(const void*)> sen::VariantTraits<{{ qualType }}
 ## else
   expectAtLeastOneField("{{ qualType }}", fields);
 
+  // A field of an alternative that is not held reads as VariantAccessError, without throwing.
   switch(fields[0])
   {
 ## for field in fields
     case {{ loop.index }}:
 ## if field.isStructType or field.isVariantType
-      return [fieldGetter = ::sen::VariantTraits<{{ field.qualType }}>::getFieldValueGetterFunction(fields.subspan(1U))](const void* variantAddr){ return fieldGetter(&std::get<{{ field.key }}>(*static_cast<const {{ qualType }}*>(variantAddr))); };
+      return [fieldGetter = ::sen::VariantTraits<{{ field.qualType }}>::getFieldValueGetterFunction(fields.subspan(1U))](const void* variantAddr) -> ::sen::lang::Value { const auto* held = std::get_if<{{ field.key }}>(static_cast<const {{ qualType }}*>(variantAddr)); if (held == nullptr) { return ::sen::lang::VariantAccessError {}; } return fieldGetter(held); };
 ## else if field.isNativeType
-      return [](const void* variantAddr){ return std::get<{{ field.key }}>(*static_cast<const {{ qualType }}*>(variantAddr)); };
+      return [](const void* variantAddr) -> ::sen::lang::Value { const auto* held = std::get_if<{{ field.key }}>(static_cast<const {{ qualType }}*>(variantAddr)); if (held == nullptr) { return ::sen::lang::VariantAccessError {}; } return *held; };
 ## else if field.isEnum
-      return [](const void* variantAddr){ return static_cast<std::underlying_type_t<{{ field.qualType }}>>(std::get<{{ field.key }}>(*static_cast<const {{ qualType }}*>(variantAddr))); };
+      return [](const void* variantAddr) -> ::sen::lang::Value { const auto* held = std::get_if<{{ field.key }}>(static_cast<const {{ qualType }}*>(variantAddr)); if (held == nullptr) { return ::sen::lang::VariantAccessError {}; } return static_cast<std::underlying_type_t<{{ field.qualType }}>>(*held); };
 ## else if field.isDurationType
-      return [](const void* variantAddr){ return std::get<{{ field.key }}>(*static_cast<const {{ qualType }}*>(variantAddr)).toSeconds(); };
+      return [](const void* variantAddr) -> ::sen::lang::Value { const auto* held = std::get_if<{{ field.key }}>(static_cast<const {{ qualType }}*>(variantAddr)); if (held == nullptr) { return ::sen::lang::VariantAccessError {}; } return held->toSeconds(); };
 ## else if field.isQuantityType
-      return [](const void* variantAddr){ return std::get<{{ field.key }}>(*static_cast<const {{ qualType }}*>(variantAddr)).get(); };
+      return [](const void* variantAddr) -> ::sen::lang::Value { const auto* held = std::get_if<{{ field.key }}>(static_cast<const {{ qualType }}*>(variantAddr)); if (held == nullptr) { return ::sen::lang::VariantAccessError {}; } return held->get(); };
 ## else
       throwNonNativeField("{{ qualType }}", "{{ field.qualType }}");
       break;
