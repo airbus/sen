@@ -33,7 +33,6 @@
 #include <string>
 #include <string_view>
 #include <tuple>
-#include <type_traits>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -376,19 +375,25 @@ bool compare(const Value& a, const Value& b, C op)  // NOLINT
 /// only whether the value is zero or minus one. Anything else reads as zero.
 [[nodiscard]] int64_t integerValue(const Value& value) noexcept
 {
-  return std::visit(
-    [](const auto& held) -> int64_t
-    {
-      if constexpr (std::is_integral_v<std::decay_t<decltype(held)>>)
-      {
-        return static_cast<int64_t>(held);
-      }
-      else
-      {
-        return 0;
-      }
-    },
-    value);
+  // get_if rather than visit or get: both of those can throw on a valueless variant, and this is
+  // called from a noexcept guard on the division path.
+  // NOLINTNEXTLINE
+#define INTEGER_VALUE(type)                                                                                            \
+  if (const auto* held = std::get_if<type>(&value))                                                                    \
+  {                                                                                                                    \
+    return static_cast<int64_t>(*held);                                                                                \
+  }
+
+  INTEGER_VALUE(int32_t)
+  INTEGER_VALUE(uint32_t)
+  INTEGER_VALUE(int64_t)
+  INTEGER_VALUE(uint64_t)
+  INTEGER_VALUE(uint8_t)
+  INTEGER_VALUE(int16_t)
+  INTEGER_VALUE(uint16_t)
+#undef INTEGER_VALUE
+
+  return 0;
 }
 
 /// Whether dividing by -1 overflows. The divisor is signed, so the quotient is computed in the
