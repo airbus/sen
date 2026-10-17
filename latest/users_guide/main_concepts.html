@@ -1757,8 +1757,8 @@ nutshell,</p>
   is talking to lives in your process or on another machine.</p>
 </li>
 </ul>
-<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/object_light.svg#only-light"><img alt="Screenshot" src="../assets/images/object_light.svg#only-light" style="width:900px"/></a>
-<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/object_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/object_dark.svg#only-dark" style="width:900px"/></a></p>
+<p>
+</p>
 <p>You can discover objects published by other components, examine their properties, call their methods
 and react to their events. You can also publish your own objects, so that other components can "see"
 you, call you, and react to your changes.</p>
@@ -1808,8 +1808,8 @@ the object.</p>
   inter-process events.</p>
 </li>
 </ul>
-<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/tcp_udp_light.svg#only-light"><img alt="Screenshot" src="../assets/images/tcp_udp_light.svg#only-light" style="width:250px; float: right;"/></a>
-<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/tcp_udp_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/tcp_udp_dark.svg#only-dark" style="width:250px; float: right;"/></a></p>
+<p>
+</p>
 <p>Sen's guarantees line up with those of <abbr title="Transmission Control Protocol">TCP</abbr> and <abbr title="User Datagram Protocol">UDP</abbr>. In controlled environments, a single computer,
 a local area network with bounded traffic, or basically anything that is not the internet, you are
 very likely fine with best effort: packet loss there is a sign of an infrastructure or load
@@ -1890,8 +1890,8 @@ order to implement your logic.</p>
 <p>In Sen, you can define your types using a very small language called Sen Type Language (<abbr title="Sen Type Language">STL</abbr>, more on
 this later). For those interested in simulation, you can also use <abbr title="High Level Architecture">HLA</abbr> <abbr title="Federation Object Model">FOM</abbr>.</p>
 <h2 id="components">Components<a class="headerlink" href="#components" title="Permanent link">¶</a></h2>
-<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/component_light.svg#only-light"><img alt="Screenshot" src="../assets/images/component_light.svg#only-light" style="width:600px; float: right;"/></a>
-<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/component_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/component_dark.svg#only-dark" style="width:600px; float: right;"/></a></p>
+<p>
+</p>
 <p>A component holds:</p>
 <ol>
 <li>An <em>interface</em>, used to interact with other components.</li>
@@ -1903,17 +1903,17 @@ When components need to talk to each other, they will declare it and Sen will pr
 visibility.</p>
 <p>A system needs a context to run in and a way for components to talk to
 each other. In Sen, the inter-connection mechanism for components is called a kernel.</p>
-<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/one_process_light.svg#only-light"><img alt="Screenshot" src="../assets/images/one_process_light.svg#only-light" style="width:700px"/></a>
-<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/one_process_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/one_process_dark.svg#only-dark" style="width:700px"/></a></p>
+<p>
+</p>
 <p>Components are also relocatable. This means that they can be moved to other execution contexts
 (processes or threads) without having to change a single line of code.</p>
-<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/two_processes_light.svg#only-light"><img alt="Screenshot" src="../assets/images/two_processes_light.svg#only-light" style="width:1200px"/></a>
-<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/two_processes_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/two_processes_dark.svg#only-dark" style="width:1200px"/></a></p>
+<p>
+</p>
 <p>When components are separated by process boundaries, Sen will take care of transparently handling
 the inter-process-communication (<abbr title="inter-process communication">IPC</abbr>) while respecting their quality-of-service requirements.</p>
 <h3 id="moving-components">Moving components<a class="headerlink" href="#moving-components" title="Permanent link">¶</a></h3>
-<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/container_light.svg#only-light"><img alt="Screenshot" src="../assets/images/container_light.svg#only-light" style="width:450px; float: right;"/></a>
-<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/container_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/container_dark.svg#only-dark" style="width:450px; float: right;"/></a></p>
+<p>
+</p>
 <p>In Sen, you are free to run your components in the same or different thread, process or computer.
 This gives you a great degree of flexibility to adapt. Just keep in mind that:</p>
 <ul>
@@ -2050,8 +2050,8 @@ channel. Let's now dive a bit deeper and see how the communication takes place.<
 <li>Inside a bus, components can find (and publish) <em>objects</em>. Being a distributed object-oriented
   system, objects are the basic element in Sen.</li>
 </ul>
-<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/zoom_light.svg#only-light"><img alt="Screenshot" src="../assets/images/zoom_light.svg#only-light" style="width:1400px"/></a>
-<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/zoom_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/zoom_dark.svg#only-dark" style="width:1400px"/></a></p>
+<p>
+</p>
 <p>This creates a system where a bus is addressed as <code>&lt;session&gt;.&lt;bus&gt;</code>, and an object within it adds
 its own name: <code>&lt;session&gt;.&lt;bus&gt;.&lt;object&gt;</code>.</p>
 <p>For example, a building monitoring system may use a session named "monitoring", and then have a bus
@@ -2129,8 +2129,8 @@ boilerplate code.</p>
       objects, outgoing method calls, emitted events or property changes of the owned objects).</li>
 <li>Commit those outputs so that other components can react to them.</li>
 </ol>
-<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/wheel_light.svg#only-light"><img alt="Screenshot" src="../assets/images/wheel_light.svg#only-light" style="width:250px; float: right;"/></a>
-<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/wheel_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/wheel_dark.svg#only-dark" style="width:250px; float: right;"/></a></p>
+<p>
+</p>
 <p>If we don't do something about it, every Sen user will likely do the previous steps in slightly
 different ways, using different approaches, getting the configuration data from different sources in
 different formats and therefore ending up re-doing the same work many (<em>many</em>) times across an
@@ -2146,8 +2146,8 @@ components that do all of this in a structured way.</p>
 <li>The criteria you use to discover other objects.</li>
 </ul>
 <p>Sen lets you define all of this in a configuration file, so your code is left with the logic.</p>
-<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/parametrization.svg#only-light"><img alt="Screenshot" src="../assets/images/parametrization.svg#only-light" style="width:900px;"/></a>
-<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/parametrization_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/parametrization_dark.svg#only-dark" style="width:900px;"/></a></p>
+<p>
+</p>
 <p>Keep in mind that the configuration file can contain the information for instantiating multiple
 components in your process.</p>
 <p>Being able to build and instantiate custom components based on a set of packages and a configuration

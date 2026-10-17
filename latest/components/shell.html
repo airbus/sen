@@ -1706,8 +1706,8 @@
 </div>
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
-<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/shell_light.svg#only-light"><img alt="Screenshot" src="../assets/images/shell_light.svg#only-light" style="width:150px; float: right;"/></a>
-<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/shell_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/shell_dark.svg#only-dark" style="width:150px; float: right;"/></a></p>
+<p>
+</p>
 <h1 id="the-sen-shell">The Sen shell<a class="headerlink" href="#the-sen-shell" title="Permanent link">¶</a></h1>
 <div class="admonition warning">
 <p class="admonition-title">Deprecated in 0.8.0</p>
@@ -1777,7 +1777,7 @@ get auto-complete, error-checking, argument parsing and even the ability to read
 </span></code></pre></div>
 <p>Once you start the shell, you can use tab to auto-complete and to see the available commands. If you
 type <code>help</code> you will see more info about all the options you have.</p>
-<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shell_help.gif"><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shell_help.gif" style="width:900px"/></a></p>
+<p></p>
 <p>To shut down, type Ctrl+D on an empty line, or use the <code>shutdown</code> command. Both stop the whole
 kernel. If you loaded the shell next to other components, those stop too.</p>
 <h2 id="command-reference">Command reference<a class="headerlink" href="#command-reference" title="Permanent link">¶</a></h2>
@@ -1888,7 +1888,7 @@ by the shell.</p>
 sessions. You need to open sessions and their buses so that the shell can start discovering objects.</p>
 <p>The <code>open</code> command can be used to connect to a bus or to open a session and discover the available
 buses. This command has auto-complete capabilities to help you. Try it.</p>
-<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shell_open_ls_close.gif"><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shell_open_ls_close.gif" style="width:900px"/></a></p>
+<p></p>
 <p>You can see that the shell lets you know when objects are discovered. The <code>ls</code> command shows them.
 The <code>close</code> command does the inverse.</p>
 <p>Sometimes you will find yourself having to open some buses every time you load the shell. This is
@@ -1906,7 +1906,7 @@ object, then the method, then the arguments:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a>my.tutorial.calc1.add 10, 5
 </span></code></pre></div>
 <p>The animation below shows the same thing against an object's <code>addNumbers</code> method.</p>
-<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/instantiate_class.gif"><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/instantiate_class.gif" style="width:1200px"/></a></p>
+<p></p>
 <p>The shell is meant to be an interactive interface. For scripting, see <a href="index.html#what-ships-with-sen">what ships with
 Sen</a>; several of those components expose the same objects to code.</p>
 <h2 id="introspecting-the-system">Introspecting the system<a class="headerlink" href="#introspecting-the-system" title="Permanent link">¶</a></h2>
@@ -1915,7 +1915,7 @@ object to find out the available types, units and the build information of the k
 components.</p>
 <p>And there's also a method named <code>info</code>, that you can use to inspect all the details of the available
 types (the built-in types, and also any type received over the network during execution).</p>
-<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shell_introspection.gif"><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shell_introspection.gif" style="width:1200px"/></a></p>
+<p></p>
 <h2 id="creating-queries">Creating queries<a class="headerlink" href="#creating-queries" title="Permanent link">¶</a></h2>
 <p>When you <code>open</code> a bus, you are declaring an interest in all the objects that are published in it.
 You can inspect the list of active interests by using the <code>src</code> command. Calling
@@ -1928,7 +1928,7 @@ bus.</p>
 <p>You can create your own queries, and therefore use the shell to monitor certain objects. For
 example, create a query that only notifies about entities in the se.env bus whose force ID property
 is "neutral" or "friendly", named "friendly_fire":</p>
-<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shell_query.gif"><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shell_query.gif" style="width:1200px;"/></a></p>
+<p></p>
 <p>You can now see that the shell automatically opened the se.env bus and created a query named
 se.env.friendly_fire.</p>
 <p>As soon as the query is active, Sen automatically evaluates the objects on the bus. The shell will:</p>
@@ -1967,7 +1967,7 @@ commands from it.</p>
 terminal is Windows and the Sen process is on a Linux computer.</p>
 <p>This starts a Sen process hosting a shell reachable only from outside, then connects to it with
 <code>sen rshell</code>.</p>
-<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shell_remote.gif"><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shell_remote.gif" style="width:1200px;"/></a></p>
+<p></p>
 <p>To configure your shell to accept remote connections you need to set the <code>serverEnabled</code> and
 <code>serverPort</code> parameters. The last example used the following:</p>
 <div class="language-yaml highlight"><span class="filename">configuring a remote shell</span><pre><span></span><code><span id="__span-10-1"><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="c1"># A shell meant to be reached remotely, via serverEnabled. serverPort is</span>

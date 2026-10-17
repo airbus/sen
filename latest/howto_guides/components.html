@@ -1971,17 +1971,17 @@ configuration ahead of your own component:</p>
 </span></code></pre></div>
 <p>Groups run in order, so the term is up before your component starts. <code>shutdown</code> then stops the
 kernel, and your component's <code>unload()</code> runs.</p>
-<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shutdown.gif"><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/shutdown.gif" style="width:1200px"/></a></p>
+<p></p>
 <p>When Sen finishes without error it prints a <img alt="😃" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f603.svg" title=":smiley:"/> and returns zero. If it detects an error it can
 handle, it prints a <img alt="🙁" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f641.svg" title=":slightly_frowning_face:"/> and returns non-zero. This is independent of any
 component.</p>
 <p><code>ls</code> shows the objects currently published. The kernel publishes one per running component in the
 <code>local.kernel</code> bus, so your component appears there without doing anything.</p>
-<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/component_ls.gif"><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/component_ls.gif" style="width:1200px"/></a></p>
+<p></p>
 <p>Inspecting that object shows the metadata baked into your binary at build time. Some comes from your
 <code>CMakeLists.txt</code>, the rest from the build environment: git revision and status, compiler and flags,
 word size. The <code>config</code> field holds what the kernel is using to run you.</p>
-<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/print_component_info.gif"><img alt="Screenshot" src="https://raw.githubusercontent.com/airbus/sen/refs/heads/docs-assets/print_component_info.gif" style="width:1200px"/></a></p>
+<p></p>
 <h2 id="the-execution-loop">The execution loop<a class="headerlink" href="#the-execution-loop" title="Permanent link">¶</a></h2>
 <p>The kernel does not call your component every cycle. You own the loop. Three calls drive it:
 <code>RunApi::drainInputs()</code> takes in everything that arrived since last time, <code>RunApi::update()</code> runs
