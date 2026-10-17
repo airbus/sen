@@ -20,11 +20,6 @@
 // google test
 #include <gtest/gtest.h>
 
-// cpptrace
-#ifndef NDEBUG
-#  include "cpptrace/exceptions.hpp"
-#endif
-
 // std
 #include <array>
 #include <cstdint>
@@ -86,11 +81,7 @@ TYPED_TEST(TestVariantTraitsBaseViaVariantTraits, ThrowsIfNoFieldIndexIsPassedTo
 
   // act and assert
   ASSERT_TRUE(fields.empty());
-#ifndef NDEBUG
-  ASSERT_THROW(sen::VariantTraits<MockVariant>::getFieldValueGetterFunction(fieldIndices), cpptrace::runtime_error);
-#else
   ASSERT_THROW(sen::VariantTraits<MockVariant>::getFieldValueGetterFunction(fields), std::runtime_error);
-#endif
 }
 
 /// @test
@@ -102,11 +93,7 @@ TYPED_TEST(TestVariantTraitsBaseViaVariantTraits, ThrowsIfNonNativeFieldIsAccess
   const auto fields {sen::makeSpan(fieldIndexWithNonNativeType)};
 
   // act and assert
-#ifndef NDEBUG
-  ASSERT_THROW(sen::VariantTraits<MockVariant>::getFieldValueGetterFunction(fields), cpptrace::runtime_error);
-#else
   ASSERT_THROW(sen::VariantTraits<MockVariant>::getFieldValueGetterFunction(fields), std::runtime_error);
-#endif
 }
 
 /// @test
@@ -118,11 +105,7 @@ TYPED_TEST(TestVariantTraitsBaseViaVariantTraits, ThrowsIfAnInvalidFieldIndexIsP
   const auto fields {sen::makeSpan(invalidFieldIndex)};
 
   // act and assert
-#ifndef NDEBUG
-  ASSERT_THROW(sen::VariantTraits<MockVariant>::getFieldValueGetterFunction(fields), cpptrace::runtime_error);
-#else
   ASSERT_THROW(sen::VariantTraits<MockVariant>::getFieldValueGetterFunction(fields), std::runtime_error);
-#endif
 }
 
 /// @test
@@ -220,11 +203,7 @@ TYPED_TEST(TestVariantTraitsBaseViaVariantTraits, ThrowsDuringConversionFromVarT
   MockVariant mockVariant {};
 
   // act and assert
-#ifndef NDEBUG
-  ASSERT_THROW(sen::VariantTraits<MockVariant>::variantToValue(mockVar, mockVariant), cpptrace::runtime_error);
-#else
   ASSERT_THROW(sen::VariantTraits<MockVariant>::variantToValue(mockVar, mockVariant), std::runtime_error);
-#endif
 }
 
 template <typename VariantType>
