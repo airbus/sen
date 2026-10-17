@@ -1057,7 +1057,10 @@ void RemoteParticipant::remoteInterestStarted(InterestStarted& msg)
   }
   catch (const std::exception& err)
   {
-    logger_->error(err.what());
+    // The peer keeps waiting for objects that will never arrive, and the only trace is this line,
+    // so it carries what identifies the interest on both sides.
+    logger_->error(
+      "RP {}: refused remote interest {} for query '{}': {}", getDebugName(), msg.id, msg.query, err.what());
   }
 }
 
