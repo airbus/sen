@@ -1,5 +1,6 @@
 var NAVTREEINDEX17 =
 {
+"strong__type_8h_source.html":[3,0,0,0,0,0,0,0,21],
 "struct__traits_8h.html":[3,0,0,0,0,0,0,3,18],
 "struct__traits_8h_source.html":[3,0,0,0,0,0,0,3,18],
 "struct__type_8h.html":[3,0,0,0,0,0,0,3,19],
@@ -248,6 +249,5 @@ var NAVTREEINDEX17 =
 "structsen_1_1_struct_traits_base.html":[0,0,2,0,7],
 "structsen_1_1_subscription.html":[0,0,4,25],
 "structsen_1_1_subscription.html#a0f8a64d4a7537bfd72a90346c2da1417":[0,0,4,25,1],
-"structsen_1_1_subscription.html#a4cf03a561c26b52e6374b3e7e7fb4aca":[0,0,4,25,7],
-"structsen_1_1_subscription.html#a9ed3fc0eedba9a8fb4c2a39231367889":[0,0,4,25,6]
+"structsen_1_1_subscription.html#a4cf03a561c26b52e6374b3e7e7fb4aca":[0,0,4,25,7]
 };

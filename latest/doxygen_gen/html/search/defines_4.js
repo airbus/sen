@@ -28,6 +28,7 @@ var searchData=
   ['sen_5fstrong_5ftype_5fhashable_25',['SEN_STRONG_TYPE_HASHABLE',['../strong__type_8h.html#a794ac49b006d5e22f4fe4bb12f4dff3e',1,'strong_type.h']]],
   ['sen_5ftrace_5fzone_26',['SEN_TRACE_ZONE',['../tracer_8h.html#ac5867f4ccdc3d500f97ab9033d9495bc',1,'tracer.h']]],
   ['sen_5ftrace_5fzone_5fnamed_27',['SEN_TRACE_ZONE_NAMED',['../tracer_8h.html#a9a8078875e28b888b907fb7671479d18',1,'tracer.h']]],
-  ['sen_5fvector_5ftry_28',['SEN_VECTOR_TRY',['../static__vector_8h.html#a09113d4effc24a308a91882f4f0457b1',1,'static_vector.h']]],
-  ['set_5frow_29',['SET_ROW',['../mat3_8h.html#a61d6c1d2afe2c6e4676bc661c3881bbe',1,'mat3.h']]]
+  ['sen_5fvector_5fcheck_28',['SEN_VECTOR_CHECK',['../static__vector_8h.html#a3f12a4f3a82c3eac1055b6e4d365aa1e',1,'static_vector.h']]],
+  ['sen_5fvector_5ftry_29',['SEN_VECTOR_TRY',['../static__vector_8h.html#a09113d4effc24a308a91882f4f0457b1',1,'static_vector.h']]],
+  ['set_5frow_30',['SET_ROW',['../mat3_8h.html#a61d6c1d2afe2c6e4676bc661c3881bbe',1,'mat3.h']]]
 ];

@@ -159,6 +159,7 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-define-members" class="groupheader"><a id="define-members" name="define-members"></a>
 Macros</h2></td></tr>
+<tr class="memitem:a3f12a4f3a82c3eac1055b6e4d365aa1e" id="r_a3f12a4f3a82c3eac1055b6e4d365aa1e"><td class="memItemLeft">#define&#160;</td><td class="memItemRight"><a class="el" href="#a3f12a4f3a82c3eac1055b6e4d365aa1e">SEN_VECTOR_CHECK</a>(expr,  type)</td></tr>
 <tr class="memitem:a09113d4effc24a308a91882f4f0457b1" id="r_a09113d4effc24a308a91882f4f0457b1"><td class="memItemLeft">#define&#160;</td><td class="memItemRight"><a class="el" href="#a09113d4effc24a308a91882f4f0457b1">SEN_VECTOR_TRY</a>(...)</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-enum-members" class="groupheader"><a id="enum-members" name="enum-members"></a>
@@ -188,6 +189,29 @@ Functions</h2></td></tr>
 <tr class="memdesc:ga9382b2f520e4eeaec99dccca6fcfef12"><td class="mdescLeft">&#160;</td><td class="mdescRight">Takes in a type that can be passed to a contiguous range and returns a <a class="el" href="classsen_1_1_span.html" title="Contiguous view of elements of type T. Inspired by http://www.open-std.org/jtc1/sc22/wg21/docs/papers...">Span</a>. The element types will be const qualified. Declared here rather than with the other overloads, to keep <a class="el" href="span_8h.html">span.h</a> from including this header.  <br /></td></tr>
 </table>
 <a name="doc-define-members" id="doc-define-members"></a><h2 id="header-doc-define-members" class="groupheader">Macro Definition Documentation</h2>
+<a id="a3f12a4f3a82c3eac1055b6e4d365aa1e" name="a3f12a4f3a82c3eac1055b6e4d365aa1e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3f12a4f3a82c3eac1055b6e4d365aa1e">&#9670;&#160;</a></span>SEN_VECTOR_CHECK</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define SEN_VECTOR_CHECK</td>
+          <td>(</td>
+          <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>expr</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>type</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">((expr) ? <span class="keyword">static_cast&lt;</span><span class="keywordtype">void</span><span class="keyword">&gt;</span>(0) : ::sen::impl::senCheckImpl(<span class="keyword">false</span>, ::sen::impl::CheckType::type, #expr, <a class="code hl_define" href="group__util.html#ga67f9d625678e6053a67e1111ab985477">SEN_SL</a>()))</div>
+<div class="ttc" id="agroup__util_html_ga67f9d625678e6053a67e1111ab985477"><div class="ttname"><a href="group__util.html#ga67f9d625678e6053a67e1111ab985477">SEN_SL</a></div><div class="ttdeci">#define SEN_SL()</div><div class="ttdoc">Convenience macro including the source location info. NOLINTNEXTLINE(cppcoreguidelines-macro-usage).</div><div class="ttdef"><b>Definition</b> source_location.h:61</div></div>
+</div><!-- fragment -->
+</div>
+</div>
 <a id="a09113d4effc24a308a91882f4f0457b1" name="a09113d4effc24a308a91882f4f0457b1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a09113d4effc24a308a91882f4f0457b1">&#9670;&#160;</a></span>SEN_VECTOR_TRY</h2>
 

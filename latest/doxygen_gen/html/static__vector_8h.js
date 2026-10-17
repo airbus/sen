@@ -1,5 +1,6 @@
 var static__vector_8h =
 [
+    [ "SEN_VECTOR_CHECK", "static__vector_8h.html#a3f12a4f3a82c3eac1055b6e4d365aa1e", null ],
     [ "SEN_VECTOR_TRY", "static__vector_8h.html#a09113d4effc24a308a91882f4f0457b1", null ],
     [ "sen::StaticVectorError", "group__util.html#ga63ebc9e6480040f24a518a6edea180ec", [
       [ "sen::StaticVectorError::full", "group__util.html#gga63ebc9e6480040f24a518a6edea180ecae9dc924f238fa6cc29465942875fe8f0", null ],
