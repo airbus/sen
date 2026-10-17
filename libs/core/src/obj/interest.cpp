@@ -23,6 +23,7 @@
 #include <cstdint>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -221,36 +222,51 @@ std::shared_ptr<Interest> Interest::make(std::string_view query, const CustomTyp
 const VarInfoList& Interest::getOrComputeVarInfoList(const ClassType* classType) const
 {
   std::lock_guard lock(varInfoListMutex_);
-  if (varInfoList_.has_value())
+
+  const auto key = classType->getHash();
+  if (const auto itr = varInfoLists_.find(key); itr != varInfoLists_.end())
   {
-    return varInfoList_.value();
+    // The caller tracks one object at a time, so without a negative entry this walk and its
+    // throw would repeat for every object of the class.
+    if (!itr->second.has_value())
+    {
+      throwRuntimeError("the query does not resolve against class '" + std::string(classType->getQualifiedName()) +
+                        "'");
+    }
+    return itr->second.value();
   }
 
   // if there's no code, set an empty list
   if (!code_.isValid())
   {
-    varInfoList_ = VarInfoList {};
-    return varInfoList_.value();
+    return varInfoLists_.emplace(key, VarInfoList {}).first->second.value();
   }
 
   VarInfoList list;
   list.reserve(code_.getVariables().size());
 
-  for (const auto& var: code_.getVariables())
+  try
   {
-    // ignore built-in variables
-    if (var == "name" || var == "id")
+    for (const auto& var: code_.getVariables())
     {
-      list.emplace_back();
-    }
-    else
-    {
-      list.push_back(findFieldIndexes(classType, var));
+      // ignore built-in variables
+      if (var == "name" || var == "id")
+      {
+        list.emplace_back();
+      }
+      else
+      {
+        list.push_back(findFieldIndexes(classType, var));
+      }
     }
   }
+  catch (const std::exception&)
+  {
+    varInfoLists_.emplace(key, std::nullopt);
+    throw;
+  }
 
-  varInfoList_.emplace(std::move(list));
-  return varInfoList_.value();
+  return varInfoLists_.emplace(key, std::move(list)).first->second.value();
 }
 
 bool Interest::operator==(const Interest& other) const noexcept { return queryString_ == other.queryString_; }

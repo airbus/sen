@@ -33,6 +33,7 @@
 #include <string>
 #include <string_view>
 #include <tuple>
+#include <type_traits>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -359,6 +360,50 @@ bool compare(const Value& a, const Value& b, C op)  // NOLINT
 #undef OP_TYPE
 
   throw std::logic_error("invalid value for comparison");
+}
+
+/// True for the variant's integer alternatives. mathOperation divides as integers only when both
+/// sides are, and has no bool branch, so a bool never reaches the division.
+[[nodiscard]] bool holdsInteger(const Value& value) noexcept
+{
+  return std::holds_alternative<int32_t>(value) || std::holds_alternative<uint32_t>(value) ||
+         std::holds_alternative<int64_t>(value) || std::holds_alternative<uint64_t>(value) ||
+         std::holds_alternative<uint8_t>(value) || std::holds_alternative<int16_t>(value) ||
+         std::holds_alternative<uint16_t>(value);
+}
+
+/// An integer alternative reinterpreted into int64_t, modular above that range, so it answers
+/// only whether the value is zero or minus one. Anything else reads as zero.
+[[nodiscard]] int64_t integerValue(const Value& value) noexcept
+{
+  return std::visit(
+    [](const auto& held) -> int64_t
+    {
+      if constexpr (std::is_integral_v<std::decay_t<decltype(held)>>)
+      {
+        return static_cast<int64_t>(held);
+      }
+      else
+      {
+        return 0;
+      }
+    },
+    value);
+}
+
+/// Whether dividing by -1 overflows. The divisor is signed, so the quotient is computed in the
+/// wider of the two types, unless one side is uint64_t and the whole division is unsigned.
+[[nodiscard]] bool divisionOverflows(const Value& a, const Value& b) noexcept
+{
+  if (std::holds_alternative<uint64_t>(a) || std::holds_alternative<uint64_t>(b))
+  {
+    return false;
+  }
+
+  const auto dividend = integerValue(a);
+  const bool computedWide = std::holds_alternative<int64_t>(a) || std::holds_alternative<int64_t>(b);
+  return computedWide ? dividend == std::numeric_limits<int64_t>::min()
+                      : dividend == std::numeric_limits<int32_t>::min();
 }
 
 }  // namespace
@@ -762,6 +807,22 @@ void VM::divide()
 {
   const auto b = pop();
   const auto a = pop();
+
+  // Integer division by zero is undefined, and on x86-64 it traps where no catch can reach it.
+  if (holdsInteger(a) && holdsInteger(b))
+  {
+    if (integerValue(b) == 0)
+    {
+      throw std::logic_error("division by zero");
+    }
+
+    // The same instruction traps on the most negative value divided by -1.
+    if (integerValue(b) == -1 && divisionOverflows(a, b))
+    {
+      throw std::logic_error("division overflows");
+    }
+  }
+
   mathOperation(a, b, std::divides<>());
 }
 
