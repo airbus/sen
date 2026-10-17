@@ -89,9 +89,8 @@ namespace sen::kernel::impl
 {
 namespace
 {
-/// Logs the component and the operation, then rethrows. The exception must stay in flight. The
-/// crash reporter reads `std::current_exception()`, and in a debug build `throwRuntimeError`
-/// raises a `cpptrace::runtime_error`, which `catch (std::runtime_error&)` does not match.
+/// Logs the component and the operation, then rethrows. The exception must stay in flight,
+/// because the crash reporter reads `std::current_exception()`.
 template <typename Call>
 void nameTheComponentOnThrow(const char* operation, const ComponentContext& context, Call&& call)
 {

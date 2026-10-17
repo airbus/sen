@@ -8,6 +8,7 @@
 #include "crash_reporter.h"
 
 // sen
+#include "sen/core/base/assert.h"
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/detail/assert_impl.h"
 #include "sen/core/base/span.h"
@@ -1106,9 +1107,11 @@ void CrashReporter::collectLogs()
   }
 }
 
-void CrashReporter::collectStackTrace(const cpptrace::stacktrace& trace)
+void CrashReporter::collectStackTrace(const cpptrace::stacktrace& trace) { collectStackTrace(trace.to_string()); }
+
+void CrashReporter::collectStackTrace(const std::string& trace)
 {
-  const auto lines = sen::impl::split(trace.to_string(), '\n');
+  const auto lines = sen::impl::split(trace, '\n');
   if (lines.size() > 1)
   {
     StringList bt;
@@ -1199,6 +1202,12 @@ void CrashReporter::collectExceptionData()
     catch (const std::logic_error& e)
     {
       report_.errorData.exceptionData = makeExceptionData(e.what(), ExceptionKind::logic);
+    }
+    catch (const sen::TracedRuntimeError& e)
+    {
+      report_.errorData.exceptionData = makeExceptionData(e.what(), ExceptionKind::runtime);
+      collectStackTrace(e.getTrace());
+      hasOwnTrace = true;
     }
     catch (const std::runtime_error& e)
     {
