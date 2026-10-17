@@ -146,6 +146,8 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('group__error__
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-nested-classes" class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
+<tr class="memitem:sen_3A_3ATracedRuntimeError" id="r_sen_3A_3ATracedRuntimeError"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1_traced_runtime_error.html">sen::TracedRuntimeError</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A runtime error carrying the stack trace of where it was thrown.  <a href="classsen_1_1_traced_runtime_error.html#details">More...</a><br /></td></tr>
 <tr class="memitem:sen_3A_3AResult_3C_20T_2C_20E_20_3E" id="r_sen_3A_3AResult_3C_20T_2C_20E_20_3E"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1_result.html">sen::Result&lt; T, E &gt;</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Result&lt;T, E&gt; is a template type that can be used to return and propagate errors. The intent is to replace exceptions in this context. Result&lt;T, E&gt; is an algebraic data type of Ok(T) that represents success and Err(E) representing an error.  <a href="classsen_1_1_result.html#details">More...</a><br /></td></tr>
 </table><table class="memberdecls">
@@ -170,7 +172,7 @@ Functions</h2></td></tr>
 <tr class="memitem:gad79d10d8f842efdfe11a5762effc423c" id="r_gad79d10d8f842efdfe11a5762effc423c"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#gad79d10d8f842efdfe11a5762effc423c">sen::registerTerminateHandler</a> ()</td></tr>
 <tr class="memdesc:gad79d10d8f842efdfe11a5762effc423c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Installs a custom termination handler.  <br /></td></tr>
 <tr class="memitem:gac4f878f792821f786237e910f2501d6f" id="r_gac4f878f792821f786237e910f2501d6f"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#gac4f878f792821f786237e910f2501d6f">sen::throwRuntimeError</a> (const std::string &amp;err)</td></tr>
-<tr class="memdesc:gac4f878f792821f786237e910f2501d6f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Throws std::exception that attempts to collect the stack trace. We also wrap it to avoid including stdexcept.  <br /></td></tr>
+<tr class="memdesc:gac4f878f792821f786237e910f2501d6f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Throws an exception that attempts to collect the stack trace.  <br /></td></tr>
 <tr class="memitem:gaf7bdb466894cc82bc5006a56a24ce177" id="r_gaf7bdb466894cc82bc5006a56a24ce177"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#gaf7bdb466894cc82bc5006a56a24ce177">sen::trace</a> ()</td></tr>
 <tr class="memdesc:gaf7bdb466894cc82bc5006a56a24ce177"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints the current stack trace to stderr.  <br /></td></tr>
 <tr class="memitem:ga3a069900890fed0b69006729c3e12a7c" id="r_ga3a069900890fed0b69006729c3e12a7c"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#ga3a069900890fed0b69006729c3e12a7c">sen::trace</a> (std::string preMessage)</td></tr>
@@ -321,7 +323,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Throws std::exception that attempts to collect the stack trace. We also wrap it to avoid including stdexcept. </p>
+<p>Throws an exception that attempts to collect the stack trace. </p>
 
 </div>
 </div>

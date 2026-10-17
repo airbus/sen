@@ -147,44 +147,61 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('assert_8h_sour
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &quot;<a class="code" href="assert__impl_8h.html">sen/core/base/detail/assert_impl.h</a>&quot;</span></div>
 <div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span> </div>
 <div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="comment">// std</span></div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#include &lt;string&gt;</span></div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
-<div class="foldopen" id="foldopen00016" data-start="{" data-end="}">
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno"><a class="line" href="namespacesen.html">   16</a></span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacesen.html">sen</a></div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>{</div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span></div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span></div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span></div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno"><a class="line" href="group__error__handling.html#ga96b740f5a1fbffc3c9537b906a5bca1c">   36</a></span><span class="preprocessor">#define SEN_EXPECT(expr) ::sen::impl::senCheckImpl((expr), ::sen::impl::CheckType::expect, #expr, SEN_SL())</span></div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span></div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno"><a class="line" href="group__error__handling.html#ga3efb47f576c2155c4b4109b6c0e07c8f">   39</a></span><span class="preprocessor">#define SEN_ASSERT(expr) ::sen::impl::senCheckImpl((expr), ::sen::impl::CheckType::assert, #expr, SEN_SL())</span></div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span></div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="preprocessor">#if defined(DEBUG)</span></div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="preprocessor">#  define SEN_DEBUG_ASSERT(expr) ::sen::impl::senCheckImpl((expr), ::sen::impl::CheckType::assert, #expr, SEN_SL())</span></div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno"><a class="line" href="group__error__handling.html#ga7fd0cc85598f5fcb52f96fd5ea585d5e">   45</a></span><span class="preprocessor">#  define SEN_DEBUG_ASSERT(expr)</span></div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span></div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno"><a class="line" href="group__error__handling.html#ga9199ffedb8fe6ce34227721483506a57">   49</a></span><span class="preprocessor">#define SEN_ENSURE(expr) ::sen::impl::senCheckImpl((expr), ::sen::impl::CheckType::ensure, #expr, SEN_SL())</span></div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span></div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno"><a class="line" href="group__error__handling.html#gad79d10d8f842efdfe11a5762effc423c">   52</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__error__handling.html#gad79d10d8f842efdfe11a5762effc423c">registerTerminateHandler</a>();</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span></div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno"><a class="line" href="group__error__handling.html#gac4f878f792821f786237e910f2501d6f">   55</a></span>[[noreturn]] <span class="keywordtype">void</span> <a class="code hl_function" href="group__error__handling.html#gac4f878f792821f786237e910f2501d6f">throwRuntimeError</a>(<span class="keyword">const</span> std::string&amp; err);</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span></div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno"><a class="line" href="group__error__handling.html#gaf7bdb466894cc82bc5006a56a24ce177">   58</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__error__handling.html#gaf7bdb466894cc82bc5006a56a24ce177">trace</a>();</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span></div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno"><a class="line" href="group__error__handling.html#ga3a069900890fed0b69006729c3e12a7c">   63</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__error__handling.html#gaf7bdb466894cc82bc5006a56a24ce177">trace</a>(std::string preMessage);</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span></div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span> </div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>}  <span class="comment">// namespace sen</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#include &lt;memory&gt;</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="preprocessor">#include &lt;stdexcept&gt;</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="preprocessor">#include &lt;string&gt;</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
+<div class="foldopen" id="foldopen00018" data-start="{" data-end="}">
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno"><a class="line" href="namespacesen.html">   18</a></span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacesen.html">sen</a></div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>{</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span></div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span></div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno"><a class="line" href="group__error__handling.html#ga96b740f5a1fbffc3c9537b906a5bca1c">   38</a></span><span class="preprocessor">#define SEN_EXPECT(expr) ::sen::impl::senCheckImpl((expr), ::sen::impl::CheckType::expect, #expr, SEN_SL())</span></div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno"><a class="line" href="group__error__handling.html#ga3efb47f576c2155c4b4109b6c0e07c8f">   41</a></span><span class="preprocessor">#define SEN_ASSERT(expr) ::sen::impl::senCheckImpl((expr), ::sen::impl::CheckType::assert, #expr, SEN_SL())</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="preprocessor">#if defined(DEBUG)</span></div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="preprocessor">#  define SEN_DEBUG_ASSERT(expr) ::sen::impl::senCheckImpl((expr), ::sen::impl::CheckType::assert, #expr, SEN_SL())</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno"><a class="line" href="group__error__handling.html#ga7fd0cc85598f5fcb52f96fd5ea585d5e">   47</a></span><span class="preprocessor">#  define SEN_DEBUG_ASSERT(expr)</span></div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span></div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno"><a class="line" href="group__error__handling.html#ga9199ffedb8fe6ce34227721483506a57">   51</a></span><span class="preprocessor">#define SEN_ENSURE(expr) ::sen::impl::senCheckImpl((expr), ::sen::impl::CheckType::ensure, #expr, SEN_SL())</span></div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span></div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno"><a class="line" href="group__error__handling.html#gad79d10d8f842efdfe11a5762effc423c">   54</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__error__handling.html#gad79d10d8f842efdfe11a5762effc423c">registerTerminateHandler</a>();</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span></div>
+<div class="foldopen" id="foldopen00065" data-start="{" data-end="};">
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno"><a class="line" href="classsen_1_1_traced_runtime_error.html">   65</a></span><span class="keyword">class </span><a class="code hl_function" href="classsen_1_1_traced_runtime_error.html#a0047a32ad0a207336219196775a2ad3d">TracedRuntimeError</a>: <span class="keyword">public</span> std::runtime_error</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>{</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno"><a class="line" href="classsen_1_1_traced_runtime_error.html#a0047a32ad0a207336219196775a2ad3d">   68</a></span>  <span class="keyword">explicit</span> <a class="code hl_function" href="classsen_1_1_traced_runtime_error.html#a0047a32ad0a207336219196775a2ad3d">TracedRuntimeError</a>(<span class="keyword">const</span> std::string&amp; err);</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span></div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno"><a class="line" href="classsen_1_1_traced_runtime_error.html#a3830e1a0067bb4d6cce079757220706f">   71</a></span>  [[nodiscard]] std::string <a class="code hl_function" href="classsen_1_1_traced_runtime_error.html#a3830e1a0067bb4d6cce079757220706f">getTrace</a>(<span class="keywordtype">bool</span> color = <span class="keyword">false</span>) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span> </div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>  std::shared_ptr&lt;const void&gt; trace_;</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>};</div>
 </div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span> </div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span><span class="preprocessor">#endif  </span><span class="comment">// SEN_CORE_BASE_ASSERT_H</span></div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span></div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno"><a class="line" href="group__error__handling.html#gac4f878f792821f786237e910f2501d6f">   78</a></span>[[noreturn]] <span class="keywordtype">void</span> <a class="code hl_function" href="group__error__handling.html#gac4f878f792821f786237e910f2501d6f">throwRuntimeError</a>(<span class="keyword">const</span> std::string&amp; err);</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span></div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno"><a class="line" href="group__error__handling.html#gaf7bdb466894cc82bc5006a56a24ce177">   81</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__error__handling.html#gaf7bdb466894cc82bc5006a56a24ce177">trace</a>();</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span></div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno"><a class="line" href="group__error__handling.html#ga3a069900890fed0b69006729c3e12a7c">   86</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="group__error__handling.html#gaf7bdb466894cc82bc5006a56a24ce177">trace</a>(std::string preMessage);</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span></div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span> </div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>}  <span class="comment">// namespace sen</span></div>
+</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span><span class="preprocessor">#endif  </span><span class="comment">// SEN_CORE_BASE_ASSERT_H</span></div>
 <div class="ttc" id="aassert__impl_8h_html"><div class="ttname"><a href="assert__impl_8h.html">assert_impl.h</a></div></div>
-<div class="ttc" id="agroup__error__handling_html_gac4f878f792821f786237e910f2501d6f"><div class="ttname"><a href="group__error__handling.html#gac4f878f792821f786237e910f2501d6f">sen::throwRuntimeError</a></div><div class="ttdeci">void throwRuntimeError(const std::string &amp;err)</div><div class="ttdoc">Throws std::exception that attempts to collect the stack trace. We also wrap it to avoid including st...</div></div>
+<div class="ttc" id="aclasssen_1_1_traced_runtime_error_html_a0047a32ad0a207336219196775a2ad3d"><div class="ttname"><a href="classsen_1_1_traced_runtime_error.html#a0047a32ad0a207336219196775a2ad3d">sen::TracedRuntimeError::TracedRuntimeError</a></div><div class="ttdeci">TracedRuntimeError(const std::string &amp;err)</div></div>
+<div class="ttc" id="aclasssen_1_1_traced_runtime_error_html_a3830e1a0067bb4d6cce079757220706f"><div class="ttname"><a href="classsen_1_1_traced_runtime_error.html#a3830e1a0067bb4d6cce079757220706f">sen::TracedRuntimeError::getTrace</a></div><div class="ttdeci">std::string getTrace(bool color=false) const</div><div class="ttdoc">The throw site&#39;s trace, symbolised on each call.</div></div>
+<div class="ttc" id="agroup__error__handling_html_gac4f878f792821f786237e910f2501d6f"><div class="ttname"><a href="group__error__handling.html#gac4f878f792821f786237e910f2501d6f">sen::throwRuntimeError</a></div><div class="ttdeci">void throwRuntimeError(const std::string &amp;err)</div><div class="ttdoc">Throws an exception that attempts to collect the stack trace.</div></div>
 <div class="ttc" id="agroup__error__handling_html_gad79d10d8f842efdfe11a5762effc423c"><div class="ttname"><a href="group__error__handling.html#gad79d10d8f842efdfe11a5762effc423c">sen::registerTerminateHandler</a></div><div class="ttdeci">void registerTerminateHandler()</div><div class="ttdoc">Installs a custom termination handler.</div></div>
 <div class="ttc" id="agroup__error__handling_html_gaf7bdb466894cc82bc5006a56a24ce177"><div class="ttname"><a href="group__error__handling.html#gaf7bdb466894cc82bc5006a56a24ce177">sen::trace</a></div><div class="ttdeci">void trace()</div><div class="ttdoc">Prints the current stack trace to stderr.</div></div>
-<div class="ttc" id="anamespacesen_html"><div class="ttname"><a href="namespacesen.html">sen</a></div><div class="ttdef"><b>Definition</b> assert.h:17</div></div>
+<div class="ttc" id="anamespacesen_html"><div class="ttname"><a href="namespacesen.html">sen</a></div><div class="ttdef"><b>Definition</b> assert.h:19</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 </div><!-- container -->

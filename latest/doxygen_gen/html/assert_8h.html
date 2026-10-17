@@ -138,10 +138,17 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('assert_8h.html
 <p>The following macros implement a replacement of <span class="tt">assert</span> that is connected to the overall fault handling mechanism present in the runtime. It avoids conditional compilation (debug vs no debug). These macros are very rough and simple approximation to the idea of contracts, as they allow expressing pre-conditions, post-conditions and invariants and perform some checks during execution. Take into account that a failed 'expect', 'assert' or 'ensure' indicate a bug in the software and means that the process is in a state that was not reasoned about when writing the code. For most applications this implies that no decision can be made at that point and therefore the usual approach is to terminate or restart.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="assert__impl_8h_source.html">sen/core/base/detail/assert_impl.h</a>&quot;</code><br />
+<code>#include &lt;memory&gt;</code><br />
+<code>#include &lt;stdexcept&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
 </div>
 <p><a href="assert_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-nested-classes" class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:sen_3A_3ATracedRuntimeError" id="r_sen_3A_3ATracedRuntimeError"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classsen_1_1_traced_runtime_error.html">sen::TracedRuntimeError</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A runtime error carrying the stack trace of where it was thrown.  <a href="classsen_1_1_traced_runtime_error.html#details">More...</a><br /></td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-namespaces" class="groupheader"><a id="namespaces" name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:sen" id="r_sen"><td class="memItemLeft">namespace &#160;</td><td class="memItemRight"><a class="el" href="namespacesen.html">sen</a></td></tr>
@@ -162,7 +169,7 @@ Functions</h2></td></tr>
 <tr class="memitem:gad79d10d8f842efdfe11a5762effc423c" id="r_gad79d10d8f842efdfe11a5762effc423c"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="group__error__handling.html#gad79d10d8f842efdfe11a5762effc423c">sen::registerTerminateHandler</a> ()</td></tr>
 <tr class="memdesc:gad79d10d8f842efdfe11a5762effc423c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Installs a custom termination handler.  <br /></td></tr>
 <tr class="memitem:gac4f878f792821f786237e910f2501d6f" id="r_gac4f878f792821f786237e910f2501d6f"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="group__error__handling.html#gac4f878f792821f786237e910f2501d6f">sen::throwRuntimeError</a> (const std::string &amp;err)</td></tr>
-<tr class="memdesc:gac4f878f792821f786237e910f2501d6f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Throws std::exception that attempts to collect the stack trace. We also wrap it to avoid including stdexcept.  <br /></td></tr>
+<tr class="memdesc:gac4f878f792821f786237e910f2501d6f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Throws an exception that attempts to collect the stack trace.  <br /></td></tr>
 <tr class="memitem:gaf7bdb466894cc82bc5006a56a24ce177" id="r_gaf7bdb466894cc82bc5006a56a24ce177"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="group__error__handling.html#gaf7bdb466894cc82bc5006a56a24ce177">sen::trace</a> ()</td></tr>
 <tr class="memdesc:gaf7bdb466894cc82bc5006a56a24ce177"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints the current stack trace to stderr.  <br /></td></tr>
 <tr class="memitem:ga3a069900890fed0b69006729c3e12a7c" id="r_ga3a069900890fed0b69006729c3e12a7c"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="group__error__handling.html#ga3a069900890fed0b69006729c3e12a7c">sen::trace</a> (std::string preMessage)</td></tr>

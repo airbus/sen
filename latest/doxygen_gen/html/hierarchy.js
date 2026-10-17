@@ -116,6 +116,7 @@ var hierarchy =
     [ "sen::EventSpec", "group__types.html#structsen_1_1_event_spec", null ],
     [ "std::exception", null, [
       [ "std::runtime_error", null, [
+        [ "sen::TracedRuntimeError", "classsen_1_1_traced_runtime_error.html", null ],
         [ "sen::lang::StlParser::ParseError", "structsen_1_1lang_1_1_stl_parser_1_1_parse_error.html", null ]
       ] ]
     ] ],

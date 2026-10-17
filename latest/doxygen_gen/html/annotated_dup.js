@@ -347,6 +347,7 @@ var annotated_dup =
       [ "Subscription", "structsen_1_1_subscription.html", "structsen_1_1_subscription" ],
       [ "TimeStamp", "classsen_1_1_time_stamp.html", "classsen_1_1_time_stamp" ],
       [ "TimestampType", "classsen_1_1_timestamp_type.html", "classsen_1_1_timestamp_type" ],
+      [ "TracedRuntimeError", "classsen_1_1_traced_runtime_error.html", "classsen_1_1_traced_runtime_error" ],
       [ "Type", "classsen_1_1_type.html", "classsen_1_1_type" ],
       [ "TypeHandle", "classsen_1_1_type_handle.html", "classsen_1_1_type_handle" ],
       [ "TypeMatchIssue", "group__type__utils.html#structsen_1_1_type_match_issue", "group__type__utils_structsen_1_1_type_match_issue" ],

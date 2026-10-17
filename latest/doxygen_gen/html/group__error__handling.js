@@ -1,5 +1,9 @@
 var group__error__handling =
 [
+    [ "sen::TracedRuntimeError", "classsen_1_1_traced_runtime_error.html", [
+      [ "TracedRuntimeError", "classsen_1_1_traced_runtime_error.html#a0047a32ad0a207336219196775a2ad3d", null ],
+      [ "getTrace", "classsen_1_1_traced_runtime_error.html#a3830e1a0067bb4d6cce079757220706f", null ]
+    ] ],
     [ "sen::Result&lt; T, E &gt;", "classsen_1_1_result.html", [
       [ "ValueType", "classsen_1_1_result.html#a7e4bed6720a4716936928d593a1ede03", null ],
       [ "ErrorType", "classsen_1_1_result.html#ac7b555de0fa98789f41fbd75a3d51b98", null ],
