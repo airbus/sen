@@ -20,6 +20,10 @@
 #include <memory>
 #include <utility>
 
+// Like SEN_EXPECT and SEN_ASSERT, but a passing check makes no call into the library. NOLINTNEXTLINE
+#define SEN_VECTOR_CHECK(expr, type)                                                                                   \
+  ((expr) ? static_cast<void>(0) : ::sen::impl::senCheckImpl(false, ::sen::impl::CheckType::type, #expr, SEN_SL()))
+
 namespace sen
 {
 
@@ -31,7 +35,7 @@ template <typename T, typename Range, typename Index>
 inline T& index(Range&& range, Index&& i) noexcept
 {
   // check that the index is within the range
-  SEN_EXPECT(static_cast<ptrdiff_t>(i) < (std::end(range) - std::begin(range)));
+  SEN_VECTOR_CHECK(static_cast<ptrdiff_t>(i) < (std::end(range) - std::begin(range)), expect);
 
   // go to the beginning of the range and fetch the element at index i
   // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
@@ -43,7 +47,7 @@ template <typename T, typename Range, typename Index>
 inline const T& cindex(Range&& range, Index&& i) noexcept
 {
   // check that the index is within the range
-  SEN_EXPECT(static_cast<ptrdiff_t>(i) < (std::end(range) - std::begin(range)));
+  SEN_VECTOR_CHECK(static_cast<ptrdiff_t>(i) < (std::end(range) - std::begin(range)), expect);
 
   // go to the beginning of the range and fetch the element at index i
   // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
@@ -280,7 +284,7 @@ public:  // position-based value accessors
   /// @pre !empty()
   [[nodiscard]] reference front() noexcept
   {
-    SEN_EXPECT(!empty());
+    SEN_VECTOR_CHECK(!empty(), expect);
     return impl::index<value_type>(*this, 0U);
   }
 
@@ -290,7 +294,7 @@ public:  // position-based value accessors
   /// @pre !empty()
   [[nodiscard]] const_reference front() const noexcept
   {
-    SEN_EXPECT(!empty());
+    SEN_VECTOR_CHECK(!empty(), expect);
     return impl::cindex<value_type>(*this, 0U);
   }
 
@@ -300,7 +304,7 @@ public:  // position-based value accessors
   /// @pre !empty()
   [[nodiscard]] reference back() noexcept
   {
-    SEN_EXPECT(!empty());
+    SEN_VECTOR_CHECK(!empty(), expect);
     return impl::index<value_type>(*this, size() - 1);
   }
 
@@ -310,7 +314,7 @@ public:  // position-based value accessors
   /// @pre !empty()
   [[nodiscard]] const_reference back() const noexcept
   {
-    SEN_EXPECT(!empty());
+    SEN_VECTOR_CHECK(!empty(), expect);
     return impl::cindex<value_type>(*this, size() - 1);
   }
 
@@ -540,7 +544,7 @@ private:  // implementation details
 protected:
   StaticVectorBase(std::size_t capacity, void* dataPtr) noexcept: capacity_(capacity), dataPtr_(dataPtr)
   {
-    SEN_EXPECT(dataPtr != nullptr);
+    SEN_VECTOR_CHECK(dataPtr != nullptr, expect);
   }
   virtual ~StaticVectorBase() noexcept { internalDestroyAll(); }
 
@@ -939,15 +943,18 @@ inline typename StaticVectorBase<T>::MaybeIterator StaticVectorBase<T>::insert(i
 
   auto pEnd = end();
 
-  if (insertEnd > size())
+  // Elements after the position. insertBegin <= size() is checked above, so no count below wraps.
+  const size_t tailN = size() - insertBegin;
+
+  if (insertN > tailN)
   {
     copyOldN = 0;
-    constructOldN = size() - insertBegin;
+    constructOldN = tailN;
     pConstructOld = begin() + insertEnd;  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   }
   else
   {
-    copyOldN = size() - insertBegin - insertN;
+    copyOldN = tailN - insertN;
     constructOldN = insertN;
     pConstructOld = pEnd;
   }
@@ -1034,15 +1041,18 @@ inline typename StaticVectorBase<T>::MaybeIterator StaticVectorBase<T>::insert(S
 
   auto pEnd = end();
 
-  if (insertEnd > size())
+  // Elements after the position. insertBegin <= size() is checked above, so no count below wraps.
+  const size_t tailN = size() - insertBegin;
+
+  if (insertN > tailN)
   {
     copyOldN = 0;
-    constructOldN = size() - insertBegin;
+    constructOldN = tailN;
     pConstructOld = begin() + insertEnd;  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   }
   else
   {
-    copyOldN = size() - insertBegin - insertN;
+    copyOldN = tailN - insertN;
     constructOldN = insertN;
     pConstructOld = pEnd;
   }
@@ -1103,15 +1113,18 @@ StaticVectorBase<T>::move_insert(iterator position, InputIt first, InputIt last)
   iterator pConstructOld;
   auto pEnd = end();
 
-  if (insertEnd > size())
+  // Elements after the position. insertBegin <= size() is checked above, so no count below wraps.
+  const size_t tailN = size() - insertBegin;
+
+  if (insertN > tailN)
   {
     moveOldN = 0;
-    constructOldN = size() - insertBegin;  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    pConstructOld = begin() + insertEnd;   // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    constructOldN = tailN;
+    pConstructOld = begin() + insertEnd;  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   }
   else
   {
-    moveOldN = size() - insertBegin - insertN;
+    moveOldN = tailN - insertN;
     constructOldN = insertN;
     pConstructOld = pEnd;
   }
@@ -1247,7 +1260,7 @@ inline typename StaticVectorBase<T>::Maybe StaticVectorBase<T>::emplaceMultiple(
   nothrowDefaultCons)
 {
   const size_type newSize = size() + n;
-  SEN_EXPECT(newSize <= capacity());
+  SEN_VECTOR_CHECK(newSize <= capacity(), expect);
 
   while (newSize != size())
   {
@@ -1285,7 +1298,7 @@ inline typename StaticVectorBase<T>::Maybe StaticVectorBase<T>::checkIteratorPai
 template <typename T>
 inline void StaticVectorBase<T>::internalSetSize(std::size_t newSize) noexcept
 {
-  SEN_EXPECT(newSize <= capacity());  // newSize out-of-bounds [0, Capacity)
+  SEN_VECTOR_CHECK(newSize <= capacity(), expect);  // newSize out-of-bounds [0, Capacity)
   size_ = newSize;
 }
 
@@ -1293,10 +1306,10 @@ template <typename T>
 template <class InputIt>
 inline void StaticVectorBase<T>::internalDestroy(InputIt first, InputIt last) noexcept(nothrowDes)
 {
-  SEN_EXPECT(first >= data());
-  SEN_EXPECT(first <= end());
-  SEN_EXPECT(last >= data());
-  SEN_EXPECT(last <= end());
+  SEN_VECTOR_CHECK(first >= data(), expect);
+  SEN_VECTOR_CHECK(first <= end(), expect);
+  SEN_VECTOR_CHECK(last >= data(), expect);
+  SEN_VECTOR_CHECK(last <= end(), expect);
 
   for (; first != last; ++first)  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   {
@@ -1310,7 +1323,7 @@ template <typename T, std::size_t c>
 inline StaticVector<T, c>::StaticVector(std::size_t n) noexcept: StaticVectorBase<T>(c, &data_)
 {
   auto result = this->resize(n);
-  SEN_ASSERT(result.isOk());
+  SEN_VECTOR_CHECK(result.isOk(), assert);
   std::ignore = result;
 }
 
@@ -1319,7 +1332,7 @@ inline StaticVector<T, c>::StaticVector(std::size_t n, const T& value) noexcept(
   : StaticVectorBase<T>(c, &data_)
 {
   auto result = this->resize(n, value);
-  SEN_ASSERT(result.isOk());
+  SEN_VECTOR_CHECK(result.isOk(), assert);
   std::ignore = result;
 }
 
@@ -1328,7 +1341,7 @@ inline StaticVector<T, c>::StaticVector(std::initializer_list<T> list) noexcept(
   : StaticVectorBase<T>(c, &data_)
 {
   auto result = this->assign(std::move(list));
-  SEN_ASSERT(result.isOk());
+  SEN_VECTOR_CHECK(result.isOk(), assert);
   std::ignore = result;
 }
 
@@ -1338,7 +1351,7 @@ inline StaticVector<T, c>::StaticVector(InputIt first, InputIt last) noexcept(Ba
   : StaticVectorBase<T>(c, &data_)
 {
   auto result = this->assign(first, last);
-  SEN_ASSERT(result.isOk());
+  SEN_VECTOR_CHECK(result.isOk(), assert);
   std::ignore = result;
 }
 
@@ -1347,7 +1360,7 @@ inline StaticVector<T, c>::StaticVector(const StaticVector& other) noexcept(Base
   : StaticVectorBase<T>(c, &data_)
 {
   auto result = this->insert(this->begin(), other.begin(), other.end());
-  SEN_ASSERT(result.isOk());
+  SEN_VECTOR_CHECK(result.isOk(), assert);
   std::ignore = result;
 }
 
@@ -1355,7 +1368,7 @@ template <typename T, std::size_t c>
 inline StaticVector<T, c>::StaticVector(StaticVector&& other) noexcept: StaticVectorBase<T>(c, &data_)
 {
   auto result = this->move_insert(this->begin(), other.begin(), other.end());
-  SEN_ASSERT(result.isOk());
+  SEN_VECTOR_CHECK(result.isOk(), assert);
   std::ignore = result;
   other.internalSetSize(0U);
 }
@@ -1368,7 +1381,7 @@ inline StaticVector<T, c>& StaticVector<T, c>::operator=(const StaticVector& oth
     // clear and insert the elements at the beginning
     this->clear();
     auto result = this->insert(this->begin(), other.begin(), other.end());
-    SEN_ASSERT(result.isOk());
+    SEN_VECTOR_CHECK(result.isOk(), assert);
     std::ignore = result;
   }
   return *this;
@@ -1382,7 +1395,7 @@ inline StaticVector<T, c>& StaticVector<T, c>::operator=(StaticVector&& other) n
     // clear and move-insert the elements at the beginning
     this->clear();
     auto result = this->move_insert(this->begin(), other.begin(), other.end());
-    SEN_ASSERT(result.isOk());
+    SEN_VECTOR_CHECK(result.isOk(), assert);
     std::ignore = result;
     other.internalSetSize(0U);
   }
@@ -1400,5 +1413,6 @@ inline void StaticVector<T, c>::swap(StaticVector& other) noexcept
 }  // namespace sen
 
 #undef SEN_VECTOR_TRY
+#undef SEN_VECTOR_CHECK
 
 #endif  // SEN_CORE_BASE_STATIC_VECTOR_H
