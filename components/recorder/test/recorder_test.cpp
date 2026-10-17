@@ -76,6 +76,24 @@ TEST(RecorderTest, StartThrowsWhenSelectionHasNoSource)
 }
 
 /// @test
+/// A configuration whose selection the query parser refuses puts the recording into the error
+/// state. start() is asynchronous and the object machinery catches what it throws into the
+/// method's result, so without a callback to read that result the recording stays stopped and
+/// nothing anywhere says why.
+/// @requirements(SEN-364)
+TEST(RecorderTest, AutoStartReportsASelectionTheParserRefuses)
+{
+  RecorderSetup setup({"SELECT * FROM"}, true);
+
+  // Enough cycles for the queued start to run, its callback to be answered, and the state to
+  // reach the property's current value.
+  EXPECT_NO_THROW(setup.step(10));
+
+  ASSERT_NE(setup.recorder, nullptr);
+  EXPECT_EQ(setup.recorder->getState(), RecorderState::error);
+}
+
+/// @test
 /// Writes a creation entry naming the tracked object's session and bus when an object is
 /// added during an auto-started recording, and a deletion entry carrying its object id when
 /// it is removed.
