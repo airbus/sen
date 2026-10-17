@@ -17,9 +17,9 @@
 
 // std
 #include <cstdlib>
-#include <exception>
 #include <filesystem>
 #include <fstream>
+#include <stdexcept>
 #include <string>
 
 using sen::kernel::impl::replaceEnvPattern;
