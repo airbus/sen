@@ -15,6 +15,7 @@
 
 // std
 #include <cstdint>
+#include <limits>
 #include <string>
 #include <utility>
 #include <variant>
@@ -372,6 +373,55 @@ TEST(VmTest, AQueryDeeperThanTheValueStackIsRefused)
 
   ASSERT_TRUE(result.isError()) << "a query " << (2 * levels + 1) << " operands deep was evaluated";
   EXPECT_NE(result.getError().what.find("too deep"), std::string::npos) << result.getError().what;
+}
+
+/// @test
+/// An integer division by zero fails the query, while a real one still answers with infinity.
+///
+/// `std::divides<>` on two integers is undefined for a zero divisor. On x86-64 it is a hardware
+/// trap, which no catch in the VM can reach, so the process dies rather than the query failing.
+/// The divisor is checked only when both sides are integers, because that is the only case
+/// `mathOperation` divides as integers.
+TEST(VmTest, IntegerDivisionByZeroFailsTheQuery)
+{
+  std::vector<ValueGetter> counted {[]() { return Value {int64_t {12}}; }};
+  const auto byLiteral = run(query("value / 0 > 3"), counted);
+  ASSERT_TRUE(byLiteral.isError()) << "an integer divided by a literal zero was answered";
+  EXPECT_NE(byLiteral.getError().what.find("division by zero"), std::string::npos) << byLiteral.getError().what;
+
+  std::vector<ValueGetter> zeroDivisor {[]() { return Value {int32_t {0}}; }};
+  EXPECT_TRUE(run(query("12 / value > 3"), zeroDivisor).isError())
+    << "an integer divided by a zero property was answered";
+
+  // the control: with a real on either side the division is real, and infinity is the right answer
+  std::vector<ValueGetter> realValue {[]() { return Value {float64_t {12.0}}; }};
+  EXPECT_TRUE(evaluate(query("value / 0.0 > 3"), realValue));
+
+  std::vector<ValueGetter> realOverIntegerZero {[]() { return Value {float64_t {12.0}}; }};
+  EXPECT_TRUE(evaluate(query("value / 0 > 3"), realOverIntegerZero));
+}
+
+/// @test
+/// The one division that overflows fails the query as well, and only where it does.
+///
+/// The most negative value of a signed type has no positive counterpart, so dividing it by -1 is
+/// undefined on the same instruction as dividing by zero. It overflows only when the division is
+/// computed in that same width: a literal is int64, so a 32-bit dividend against it is widened
+/// and well defined.
+TEST(VmTest, DividingTheMostNegativeValueByMinusOneIsRefused)
+{
+  std::vector<ValueGetter> mostNegative {[]() { return Value {std::numeric_limits<int64_t>::min()}; }};
+  const auto overflowed = run(query("value / -1 > 0"), mostNegative);
+  ASSERT_TRUE(overflowed.isError()) << "the overflowing division was answered";
+  EXPECT_NE(overflowed.getError().what.find("division overflows"), std::string::npos) << overflowed.getError().what;
+
+  // a 32-bit dividend against the int64 literal -1 widens, so the quotient fits and is answered
+  std::vector<ValueGetter> narrow {[]() { return Value {std::numeric_limits<int32_t>::min()}; }};
+  EXPECT_TRUE(evaluate(query("value / -1 > 0"), narrow));
+
+  // the ordinary case still answers
+  std::vector<ValueGetter> ordinary {[]() { return Value {int64_t {-12}}; }};
+  EXPECT_TRUE(evaluate(query("value / -1 > 0"), ordinary));
 }
 
 }  // namespace sen::lang::test

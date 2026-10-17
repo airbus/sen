@@ -312,11 +312,6 @@ private:
 
   [[nodiscard]] bool shouldBePresent(TrackedObject& track) const
   {
-    if (invalidQuery_)
-    {
-      return false;
-    }
-
     const auto& queryCode = interest_->getQueryCode();
     if (!queryCode.isValid())
     {
@@ -369,20 +364,23 @@ private:
     result.dependantProps.reserve(vars.size());
     result.environment.reserve(vars.size());
 
+    // A variable the class cannot supply. The VM reads it as a value that compares false, so the
+    // query decides the object rather than the environment being short.
+    const auto missing = []() { return lang::Value {lang::VariantAccessError {}}; };
+
     VarInfoList varInfoList;
+    bool classResolves = true;
 
     try
     {
       varInfoList = interest_->getOrComputeVarInfoList(instance->getClass().type());
+      SEN_ASSERT(varInfoList.size() == vars.size());
     }
     catch (const std::exception& err)
     {
       std::ignore = err;
-      invalidQuery_ = true;
-      return result;
+      classResolves = false;
     }
-
-    SEN_ASSERT(varInfoList.size() == vars.size());
 
     for (std::size_t varIndex = 0U; varIndex < vars.size(); ++varIndex)
     {
@@ -400,13 +398,29 @@ private:
         continue;
       }
 
-      auto& varInfo = varInfoList.at(varIndex);
-      auto fieldData = instance->senImplGetFieldValueGetter(varInfo.property->getId(), varInfo.fieldIndexes);
-      result.environment.emplace_back(fieldData.getterFunc);
-
-      if (fieldData.flags)
+      if (!classResolves)
       {
-        result.dependantProps.push_back(fieldData.flags);
+        result.environment.emplace_back(missing);
+        continue;
+      }
+
+      // The getter throws for a property the class declares but cannot read, such as an optional
+      // or a replayed property the creation snapshot omitted. Only that variable is missing.
+      try
+      {
+        auto& varInfo = varInfoList.at(varIndex);
+        auto fieldData = instance->senImplGetFieldValueGetter(varInfo.property->getId(), varInfo.fieldIndexes);
+        result.environment.emplace_back(fieldData.getterFunc);
+
+        if (fieldData.flags)
+        {
+          result.dependantProps.push_back(fieldData.flags);
+        }
+      }
+      catch (const std::exception& err)
+      {
+        std::ignore = err;
+        result.environment.emplace_back(missing);
       }
     }
 
@@ -417,7 +431,6 @@ private:
   ObjectFilter* owner_;
   std::shared_ptr<Interest> interest_;
   std::string name_;
-  bool invalidQuery_ = false;
   std::unordered_map<ObjectId, ObjectAddition> currentAdditions_;
   std::unordered_map<ObjectId, TrackedObject> trackedObjects_;
   std::vector<ObjectAddition> newAdditionsCache_;
