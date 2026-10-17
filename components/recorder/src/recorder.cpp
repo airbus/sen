@@ -38,6 +38,7 @@
 
 // std
 #include <cstddef>
+#include <exception>
 #include <functional>
 #include <memory>
 #include <set>
@@ -76,7 +77,7 @@ void RecorderImpl::update(sen::kernel::RunApi& runApi)
     // auto start if needed
     if (getSettings().autoStart)
     {
-      start();
+      autoStart();
     }
   }
 
@@ -110,9 +111,38 @@ void RecorderImpl::registered(sen::kernel::RegistrationApi& api)
   {
     if (getSettings().autoStart)
     {
-      start();
+      autoStart();
     }
   }
+}
+
+void RecorderImpl::autoStart()
+{
+  // start() queues the work and the object machinery catches whatever it throws into the method's
+  // result. With no callback that result is dropped, so a selection the configuration got wrong
+  // leaves the recording quietly not running.
+  start(sen::MethodCallback<void> {this,
+                                   [this](const auto&, const auto& result)
+                                   {
+                                     if (result.isError())
+                                     {
+                                       reportStartFailure(result.getError());
+                                     }
+                                   }});
+}
+
+void RecorderImpl::reportStartFailure(const std::exception_ptr& error)
+{
+  try
+  {
+    std::rethrow_exception(error);
+  }
+  catch (const std::exception& err)
+  {
+    sen::components::recorder::getLogger()->error("recording '{}' did not start: {}", getSettings().name, err.what());
+  }
+
+  setNextState(sen::components::recorder::RecorderState::error);
 }
 
 void RecorderImpl::startImpl()

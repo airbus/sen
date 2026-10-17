@@ -403,17 +403,45 @@ ShellImpl::ShellImpl(const std::string& name,
   // open the initial sources
   for (const auto& elem: config.open)
   {
-    doOpen(elem);
+    // doOpen throws for a source it cannot open as well as for a query the parser refuses, and
+    // this runs in the constructor, so an unguarded one takes the session with it.
+    try
+    {
+      doOpen(elem);
+    }
+    catch (const std::exception& err)
+    {
+      printer_.printError("open '%s': %s", elem.c_str(), err.what());  // NOLINT
+      lineEdit_->refresh();
+    }
   }
 
   std::string logQuery = "SELECT sen.components.logmaster.LogMaster FROM ";
   logQuery.append(config.logBus);
-  logMasterSub_.attachTo(api.getSource(config.logBus), Interest::make(logQuery, api.getTypes()), true);
+  try
+  {
+    logMasterSub_.attachTo(api.getSource(config.logBus), Interest::make(logQuery, api.getTypes()), true);
+  }
+  catch (const std::exception& err)
+  {
+    // logBus is configuration too, and a refusal here would cost the session rather than the pane.
+    printer_.printError("log bus '%s': %s", config.logBus.c_str(), err.what());  // NOLINT
+  }
 
   // create the initial queries
   for (const auto& elem: config.query)
   {
-    doQuery(elem.name, elem.selection);
+    // A refused query is a mistake in a configuration file. Unguarded it reaches std::terminate
+    // through the runner, so the user never reaches the prompt where they could fix it.
+    try
+    {
+      doQuery(elem.name, elem.selection);
+    }
+    catch (const std::exception& err)
+    {
+      printer_.printError("query '%s': %s", elem.name.c_str(), err.what());  // NOLINT
+      lineEdit_->refresh();
+    }
   }
 }
 
