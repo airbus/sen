@@ -361,6 +361,56 @@ bool compare(const Value& a, const Value& b, C op)  // NOLINT
   throw std::logic_error("invalid value for comparison");
 }
 
+/// True for the variant's integer alternatives. mathOperation divides as integers only when both
+/// sides are, and has no bool branch, so a bool never reaches the division.
+[[nodiscard]] bool holdsInteger(const Value& value) noexcept
+{
+  return std::holds_alternative<int32_t>(value) || std::holds_alternative<uint32_t>(value) ||
+         std::holds_alternative<int64_t>(value) || std::holds_alternative<uint64_t>(value) ||
+         std::holds_alternative<uint8_t>(value) || std::holds_alternative<int16_t>(value) ||
+         std::holds_alternative<uint16_t>(value);
+}
+
+/// An integer alternative reinterpreted into int64_t, modular above that range, so it answers
+/// only whether the value is zero or minus one. Anything else reads as zero.
+[[nodiscard]] int64_t integerValue(const Value& value) noexcept
+{
+  // get_if rather than visit or get: both of those can throw on a valueless variant, and this is
+  // called from a noexcept guard on the division path.
+  // NOLINTNEXTLINE
+#define INTEGER_VALUE(type)                                                                                            \
+  if (const auto* held = std::get_if<type>(&value))                                                                    \
+  {                                                                                                                    \
+    return static_cast<int64_t>(*held);                                                                                \
+  }
+
+  INTEGER_VALUE(int32_t)
+  INTEGER_VALUE(uint32_t)
+  INTEGER_VALUE(int64_t)
+  INTEGER_VALUE(uint64_t)
+  INTEGER_VALUE(uint8_t)
+  INTEGER_VALUE(int16_t)
+  INTEGER_VALUE(uint16_t)
+#undef INTEGER_VALUE
+
+  return 0;
+}
+
+/// Whether dividing by -1 overflows. The divisor is signed, so the quotient is computed in the
+/// wider of the two types, unless one side is uint64_t and the whole division is unsigned.
+[[nodiscard]] bool divisionOverflows(const Value& a, const Value& b) noexcept
+{
+  if (std::holds_alternative<uint64_t>(a) || std::holds_alternative<uint64_t>(b))
+  {
+    return false;
+  }
+
+  const auto dividend = integerValue(a);
+  const bool computedWide = std::holds_alternative<int64_t>(a) || std::holds_alternative<int64_t>(b);
+  return computedWide ? dividend == std::numeric_limits<int64_t>::min()
+                      : dividend == std::numeric_limits<int32_t>::min();
+}
+
 }  // namespace
 
 // -------------------------------------------------------------------------------------------------------------
@@ -762,6 +812,22 @@ void VM::divide()
 {
   const auto b = pop();
   const auto a = pop();
+
+  // Integer division by zero is undefined, and on x86-64 it traps where no catch can reach it.
+  if (holdsInteger(a) && holdsInteger(b))
+  {
+    if (integerValue(b) == 0)
+    {
+      throw std::logic_error("division by zero");
+    }
+
+    // The same instruction traps on the most negative value divided by -1.
+    if (integerValue(b) == -1 && divisionOverflows(a, b))
+    {
+      throw std::logic_error("division overflows");
+    }
+  }
+
   mathOperation(a, b, std::divides<>());
 }
 
