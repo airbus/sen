@@ -113,13 +113,13 @@ void exitOnAbort(int /*signal*/) { std::_Exit(0); }
   }
 }
 
-[[noreturn]] void triggerTerminateCpptraceException()
+[[noreturn]] void triggerTerminateThrowRuntimeError()
 {
   sen::registerTerminateHandler();
   std::signal(SIGABRT, exitOnAbort);
   try
   {
-    sen::throwRuntimeError("mock_cpptrace_error");
+    sen::throwRuntimeError("mock_thrown_error");
   }
   catch (...)
   {
@@ -292,9 +292,9 @@ TEST(AssertDeathTest, terminate_handler_standard_exception)
 /// The registered terminate handler prints the message of an in-flight exception thrown via
 /// throwRuntimeError, then aborts.
 /// @requirements(SEN-908)
-TEST(AssertDeathTest, terminate_handler_cpptrace_exception)
+TEST(AssertDeathTest, terminate_handler_throw_runtime_error)
 {
-  EXPECT_EXIT(triggerTerminateCpptraceException(), ::testing::ExitedWithCode(0), "mock_cpptrace_error");
+  EXPECT_EXIT(triggerTerminateThrowRuntimeError(), ::testing::ExitedWithCode(0), "mock_thrown_error");
 }
 
 /// @test
@@ -306,6 +306,52 @@ TEST(AssertDeathTest, terminate_handler_unknown_exception)
   EXPECT_EXIT(triggerTerminateUnknownException(),
               ::testing::ExitedWithCode(0),
               "Terminate called after throwing an instance of an unknown exception");
+}
+
+/// @test
+/// An exception from throwRuntimeError is caught by a handler for std::runtime_error, and by one
+/// for std::exception, whatever the build configuration.
+///
+/// cpptrace's error types reach std::exception without being a std::runtime_error, so a handler
+/// for the latter misses what this function throws. cli_run picks its exit code that way, which
+/// made the code depend on the configuration.
+/// @requirements(SEN-908)
+TEST_F(AssertTest, throw_runtime_error_is_catchable_as_runtime_error)
+{
+  EXPECT_THROW(sen::throwRuntimeError("mock_catchable"), std::runtime_error);
+  EXPECT_THROW(sen::throwRuntimeError("mock_catchable"), std::exception);
+
+  try
+  {
+    sen::throwRuntimeError("mock_catchable");
+  }
+  catch (const std::runtime_error& err)
+  {
+    EXPECT_STREQ(err.what(), "mock_catchable");
+  }
+}
+
+/// @test
+/// The exception carries a resolvable trace of its throw site where one is attached.
+///
+/// The crash reporter reads it to say where the error was raised. Without it the report falls back
+/// to a trace of the terminate path, which says nothing about the cause.
+/// @requirements(SEN-908)
+TEST_F(AssertTest, throw_runtime_error_carries_its_throw_site)
+{
+#ifndef NDEBUG
+  try
+  {
+    sen::throwRuntimeError("mock_traced");
+    FAIL() << "throwRuntimeError returned";
+  }
+  catch (const sen::TracedRuntimeError& err)
+  {
+    EXPECT_FALSE(err.getTrace().empty());
+  }
+#else
+  GTEST_SKIP() << "the trace is attached in debug builds only";
+#endif
 }
 
 /// @test

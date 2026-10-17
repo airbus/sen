@@ -11,6 +11,8 @@
 #include "sen/core/base/detail/assert_impl.h"
 
 // std
+#include <memory>
+#include <stdexcept>
 #include <string>
 
 namespace sen
@@ -51,7 +53,28 @@ namespace sen
 /// Installs a custom termination handler.
 void registerTerminateHandler();
 
-/// Throws std::exception that attempts to collect the stack trace. We also wrap it to avoid including stdexcept.
+/// A runtime error carrying the stack trace of where it was thrown.
+///
+/// It derives from std::runtime_error alone, so it has a single std::exception base and every
+/// handler for either of those matches it. cpptrace's own error types reach std::exception by a
+/// separate path, which is why the trace is held rather than inherited.
+///
+/// The trace is held behind an opaque pointer and read as text, because this header is included
+/// almost everywhere and naming a cpptrace type here would put that library on every consumer's
+/// include path.
+class TracedRuntimeError: public std::runtime_error
+{
+public:
+  explicit TracedRuntimeError(const std::string& err);
+
+  /// The throw site's trace, symbolised on each call.
+  [[nodiscard]] std::string getTrace(bool color = false) const;
+
+private:
+  std::shared_ptr<const void> trace_;
+};
+
+/// Throws an exception that attempts to collect the stack trace.
 [[noreturn]] void throwRuntimeError(const std::string& err);
 
 /// Prints the current stack trace to stderr.
