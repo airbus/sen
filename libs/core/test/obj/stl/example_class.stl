@@ -5,3 +5,26 @@ class ExampleClass
   var prop1 : string [writable, confirmed];
   var prop2 : u32 [writable];
 }
+
+// Two classes whose cfg struct orders the same fields in opposite ways
+struct ConfigAB
+{
+  timeout : u32,
+  retries : u32
+}
+
+struct ConfigBA
+{
+  retries : u32,
+  timeout : u32
+}
+
+class FirstOrder
+{
+  var cfg : ConfigAB [writable];
+}
+
+class SecondOrder
+{
+  var cfg : ConfigBA [writable];
+}

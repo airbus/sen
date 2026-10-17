@@ -18,6 +18,7 @@
 
 // generated code
 #include "stl/example_class.stl.h"
+#include "stl/query_test.stl.h"
 
 // google test
 #include <gtest/gtest.h>
@@ -36,6 +37,35 @@ struct TestOwner final: example_class::ExampleClassBase
 {
   explicit TestOwner(std::string name): ExampleClassBase(std::move(name)) { sen::impl::getWorkQueue(this)->enable(); }
   using ExampleClassBase::commit;
+};
+
+/// A second class on the same bus, with none of ExampleClass's properties.
+struct OtherClassOwner final: query_test::QueryTestClassBase
+{
+  explicit OtherClassOwner(std::string name): QueryTestClassBase(std::move(name))
+  {
+    sen::impl::getWorkQueue(this)->enable();
+  }
+  using QueryTestClassBase::commit;
+};
+
+/// Two classes whose `cfg` struct orders timeout and retries differently.
+struct FirstOrderOwner final: example_class::FirstOrderBase
+{
+  explicit FirstOrderOwner(std::string name): FirstOrderBase(std::move(name))
+  {
+    sen::impl::getWorkQueue(this)->enable();
+  }
+  using FirstOrderBase::commit;
+};
+
+struct SecondOrderOwner final: example_class::SecondOrderBase
+{
+  explicit SecondOrderOwner(std::string name): SecondOrderBase(std::move(name))
+  {
+    sen::impl::getWorkQueue(this)->enable();
+  }
+  using SecondOrderBase::commit;
 };
 
 class TestObjectFilter: public sen::ObjectFilter
@@ -539,6 +569,185 @@ TEST(ObjectFilter, Evaluate_InvalidQueryHandledSafely)
   filter.evaluate(set);
 
   EXPECT_TRUE(listener.added.empty());
+}
+
+/// @test
+/// A class that cannot answer the query stops that class's objects matching, and leaves objects of
+/// a class that can answer still matching.
+///
+/// An interest with no type condition sees every class on the bus, so one class that cannot
+/// supply a named property must not decide membership for the others.
+/// @requirements(SEN-363)
+TEST(ObjectFilter, Evaluate_AClassThatCannotAnswerDoesNotDisableTheInterest)
+{
+  TestObjectFilter filter(getTestOwnerId());
+  auto interest = createInterestWithRegistry("SELECT * FROM session.bus WHERE prop2 > 10");
+
+  MockListener listener;
+  filter.addSubscriber(interest, &listener, false);
+
+  // seen first, and it has no prop2
+  auto other = std::make_shared<OtherClassOwner>("OtherObj");
+  TestObjectFilter::ObjectSet firstSet;
+  firstSet.newObjects[other->getId()] = other;
+  firstSet.currentObjects[other->getId()] = other;
+  filter.evaluate(firstSet);
+
+  EXPECT_TRUE(listener.added.empty());
+
+  auto obj = std::make_shared<TestOwner>("TestObj1");
+  obj->setNextProp2(15U);
+  obj->commit(sen::TimeStamp {100});
+
+  TestObjectFilter::ObjectSet secondSet;
+  secondSet.newObjects[obj->getId()] = obj;
+  secondSet.currentObjects[obj->getId()] = obj;
+  secondSet.currentObjects[other->getId()] = other;
+  filter.evaluate(secondSet);
+
+  ASSERT_EQ(listener.added.size(), 1U) << "the answerable object did not match";
+  EXPECT_EQ(listener.added[0], obj->getId());
+}
+
+/// @test
+/// A class that cannot answer the query arriving after one that can leaves the filter running.
+///
+/// A variable list shared across classes reads the second class with the first's property, and
+/// the generated getter throws for an id that class does not carry.
+/// @requirements(SEN-363)
+TEST(ObjectFilter, Evaluate_AClassThatCannotAnswerArrivingSecondDoesNotThrow)
+{
+  TestObjectFilter filter(getTestOwnerId());
+  auto interest = createInterestWithRegistry("SELECT * FROM session.bus WHERE prop2 > 10");
+
+  MockListener listener;
+  filter.addSubscriber(interest, &listener, false);
+
+  auto obj = std::make_shared<TestOwner>("TestObj1");
+  obj->setNextProp2(15U);
+  obj->commit(sen::TimeStamp {100});
+
+  TestObjectFilter::ObjectSet firstSet;
+  firstSet.newObjects[obj->getId()] = obj;
+  firstSet.currentObjects[obj->getId()] = obj;
+  filter.evaluate(firstSet);
+
+  ASSERT_EQ(listener.added.size(), 1U);
+
+  auto other = std::make_shared<OtherClassOwner>("OtherObj");
+  TestObjectFilter::ObjectSet secondSet;
+  secondSet.newObjects[other->getId()] = other;
+  secondSet.currentObjects[other->getId()] = other;
+  secondSet.currentObjects[obj->getId()] = obj;
+  filter.evaluate(secondSet);
+
+  EXPECT_EQ(listener.added.size(), 1U) << "the class with no prop2 matched";
+  EXPECT_TRUE(listener.removed.empty()) << "the matching object was dropped";
+}
+
+/// @test
+/// Matches a negated comparison on a property the class cannot supply.
+///
+/// A missing property compares false under every operator, and NOT complements that, so a query
+/// that excludes an object by value includes it by negation.
+/// @requirements(SEN-363)
+TEST(ObjectFilter, Evaluate_ANegatedQueryOnAMissingPropertyMatches)
+{
+  TestObjectFilter filter(getTestOwnerId());
+  auto interest = createInterestWithRegistry("SELECT * FROM session.bus WHERE NOT (prop2 > 10)");
+
+  MockListener listener;
+  filter.addSubscriber(interest, &listener, false);
+
+  auto other = std::make_shared<OtherClassOwner>("OtherObj");
+  TestObjectFilter::ObjectSet set;
+  set.newObjects[other->getId()] = other;
+  set.currentObjects[other->getId()] = other;
+  filter.evaluate(set);
+
+  ASSERT_EQ(listener.added.size(), 1U) << "the class with no prop2 did not match the negated query";
+  EXPECT_EQ(listener.added[0], other->getId());
+
+  // the control: a class that can answer, with a value the comparison accepts, stays out
+  auto obj = std::make_shared<TestOwner>("TestObj1");
+  obj->setNextProp2(15U);
+  obj->commit(sen::TimeStamp {100});
+
+  TestObjectFilter::ObjectSet secondSet;
+  secondSet.newObjects[obj->getId()] = obj;
+  secondSet.currentObjects[obj->getId()] = obj;
+  secondSet.currentObjects[other->getId()] = other;
+  filter.evaluate(secondSet);
+
+  EXPECT_EQ(listener.added.size(), 1U) << "prop2 over the threshold matched a negated comparison";
+}
+
+/// @test
+/// Treats a property whose getter cannot read it as missing, leaving the other variables alone.
+///
+/// The generated getter has no branch for an optional and throws for it. The class still resolves,
+/// so only that one variable is missing and a query naming another still answers.
+/// @requirements(SEN-363)
+TEST(ObjectFilter, Evaluate_APropertyTheGetterCannotReadIsMissing)
+{
+  TestObjectFilter filter(getTestOwnerId());
+  auto interest = createInterestWithRegistry("SELECT * FROM session.bus WHERE NOT (targetStatus = 1)");
+
+  MockListener listener;
+  filter.addSubscriber(interest, &listener, false);
+
+  auto other = std::make_shared<OtherClassOwner>("OtherObj");
+  TestObjectFilter::ObjectSet set;
+  set.newObjects[other->getId()] = other;
+  set.currentObjects[other->getId()] = other;
+
+  EXPECT_NO_THROW({ filter.evaluate(set); });
+
+  ASSERT_EQ(listener.added.size(), 1U) << "the optional was not read as missing";
+  EXPECT_EQ(listener.added[0], other->getId());
+}
+
+/// @test
+/// Reads a dotted query against each class's own field positions.
+///
+/// A property id is hashed from the property name alone, so two classes with a same-named struct
+/// property share it and neither the id lookup nor the field index is rejected. A variable list
+/// computed for one class and reused for the other therefore reads a different field of the same
+/// struct, and answers the query on the wrong value with no error.
+/// @requirements(SEN-363)
+TEST(ObjectFilter, Evaluate_ADottedQueryResolvesFieldPositionsPerClass)
+{
+  TestObjectFilter filter(getTestOwnerId());
+  auto interest = createInterestWithRegistry("SELECT * FROM session.bus WHERE cfg.timeout > 10");
+
+  MockListener listener;
+  filter.addSubscriber(interest, &listener, false);
+
+  // timeout is over the threshold, retries is not; the other class reverses the field order, so
+  // reading it at the first class's position gives retries and the wrong answer.
+  auto first = std::make_shared<FirstOrderOwner>("FirstOrderObj");
+  first->setNextCfg(example_class::ConfigAB {99U, 0U});
+  first->commit(sen::TimeStamp {100});
+
+  auto second = std::make_shared<SecondOrderOwner>("SecondOrderObj");
+  second->setNextCfg(example_class::ConfigBA {0U, 99U});
+  second->commit(sen::TimeStamp {100});
+
+  TestObjectFilter::ObjectSet set;
+  set.newObjects[first->getId()] = first;
+  set.currentObjects[first->getId()] = first;
+  filter.evaluate(set);
+
+  ASSERT_EQ(listener.added.size(), 1U) << "the first class did not match on its own timeout";
+
+  TestObjectFilter::ObjectSet secondSet;
+  secondSet.newObjects[second->getId()] = second;
+  secondSet.currentObjects[second->getId()] = second;
+  secondSet.currentObjects[first->getId()] = first;
+  filter.evaluate(secondSet);
+
+  ASSERT_EQ(listener.added.size(), 2U) << "the second class was read at the first class's field position";
+  EXPECT_EQ(listener.added[1], second->getId());
 }
 
 /// @test
