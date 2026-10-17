@@ -23,6 +23,7 @@
 #include <cstdlib>
 #include <exception>
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -122,6 +123,13 @@ void senCheckImpl(bool checkResult,
     fputs(e.what(), stderr);
     fputs("\n", stderr);
   }
+  catch (const TracedRuntimeError& e)
+  {
+    fputs(e.what(), stderr);
+    fputs("\n", stderr);
+    fputs(e.getTrace(cpptrace::isatty(cpptrace::stderr_fileno)).c_str(), stderr);
+    fputs("\n", stderr);
+  }
   catch (const std::runtime_error& e)
   {
     fputs("Terminate called after throwing an instance of std::runtime_error: ", stderr);
@@ -150,10 +158,20 @@ namespace sen
 
 void registerTerminateHandler() { std::set_terminate(sen::impl::terminateHandler); }
 
+TracedRuntimeError::TracedRuntimeError(const std::string& err)
+  : std::runtime_error(err), trace_(std::make_shared<const cpptrace::raw_trace>(cpptrace::generate_raw_trace()))
+{
+}
+
+std::string TracedRuntimeError::getTrace(bool color) const
+{
+  return std::static_pointer_cast<const cpptrace::raw_trace>(trace_)->resolve().to_string(color);
+}
+
 void throwRuntimeError(const std::string& err)
 {
 #ifndef NDEBUG
-  throw cpptrace::runtime_error(err.c_str());
+  throw TracedRuntimeError(err);
 #else
   throw std::runtime_error(err.c_str());
 #endif

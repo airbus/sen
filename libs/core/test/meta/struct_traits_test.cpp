@@ -16,11 +16,6 @@
 // google test
 #include <gtest/gtest.h>
 
-// cpptrace
-#ifndef NDEBUG
-#  include "cpptrace/exceptions.hpp"
-#endif
-
 // std
 #include <array>
 #include <cstdint>
@@ -67,11 +62,7 @@ TYPED_TEST(StructTraitsBaseTest, ThrowsIfTryingToAccessFieldValueGetterFunctionO
   // act and assert
   if constexpr (std::is_same_v<TypeParam, MyEmptyStruct>)
   {
-#ifndef NDEBUG
-    ASSERT_THROW(sen::VariantTraits<MyEmptyStruct>::getFieldValueGetterFunction(fields), cpptrace::runtime_error);
-#else
     ASSERT_THROW(sen::VariantTraits<MyEmptyStruct>::getFieldValueGetterFunction(fields), std::runtime_error);
-#endif
   }
   else
   {
@@ -89,11 +80,7 @@ TYPED_TEST(StructWithFieldsTraitsTest, ThrowsIfNoFieldIndexIsPassedToFieldValueG
   ASSERT_TRUE(fields.empty());
 
   // act and assert
-#ifndef NDEBUG
-  ASSERT_THROW(sen::VariantTraits<TypeParam>::getFieldValueGetterFunction({}), cpptrace::runtime_error);
-#else
   ASSERT_THROW(sen::VariantTraits<TypeParam>::getFieldValueGetterFunction(fields), std::runtime_error);
-#endif
 }
 
 /// @test
@@ -105,11 +92,7 @@ TYPED_TEST(StructWithFieldsTraitsTest, ThrowsIfAnInvalidFieldIndexIsPassedToFiel
   const auto fields {sen::makeSpan(invalidFieldIndex)};
 
   // act and assert
-#ifndef NDEBUG
-  ASSERT_THROW(sen::VariantTraits<TypeParam>::getFieldValueGetterFunction(fields), cpptrace::runtime_error);
-#else
   ASSERT_THROW(sen::VariantTraits<TypeParam>::getFieldValueGetterFunction(fields), std::runtime_error);
-#endif
 }
 
 /// @test
@@ -128,11 +111,7 @@ TYPED_TEST(StructWithFieldsTraitsTest, ThrowsIfNonNativeFieldIsAccessedViaFieldV
   }
   else
   {
-#ifndef NDEBUG
-    ASSERT_THROW(sen::VariantTraits<TypeParam>::getFieldValueGetterFunction(fields), cpptrace::runtime_error);
-#else
     ASSERT_THROW(sen::VariantTraits<TypeParam>::getFieldValueGetterFunction(fields), std::runtime_error);
-#endif
   }
 }
 
