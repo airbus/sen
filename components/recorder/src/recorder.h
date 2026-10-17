@@ -20,6 +20,9 @@
 // component
 #include "util.h"
 
+// std
+#include <exception>
+
 namespace recorder
 {
 
@@ -40,6 +43,10 @@ protected:
   void update(sen::kernel::RunApi& runApi) override;
 
 private:
+  /// Starts an auto-start recording with a callback, so a failure is reported rather than dropped.
+  void autoStart();
+  /// Logs why a recording did not start and moves it to the error state.
+  void reportStartFailure(const std::exception_ptr& error);
   void teardown();
   void objectAdded(Object* object);
   void subscribeToEvents(Object* object);
