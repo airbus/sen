@@ -14,6 +14,7 @@
 // std
 #include <cmath>
 #include <cstdint>
+#include <exception>
 #include <limits>
 #include <string>
 #include <tuple>
@@ -157,7 +158,7 @@ TEST(CheckedConversionsTest, CheckedConversionSuccessWithinBounds)
 /// @requirements(SEN-1054)
 TEST(CheckedConversionsDeathTest, ReportPolicyAssertionTerminatesOnNegative)
 {
-  EXPECT_DEATH(triggerNegativeOverflowAssertion(), "Needed to truncate `from` as it's value was to small for ToType.");
+  EXPECT_DEATH(triggerNegativeOverflowAssertion(), "the value is too small for the target type");
 }
 
 /// @test
@@ -166,7 +167,7 @@ TEST(CheckedConversionsDeathTest, ReportPolicyAssertionTerminatesOnNegative)
 /// @requirements(SEN-1054)
 TEST(CheckedConversionsDeathTest, ReportPolicyAssertionTerminatesOnPositive)
 {
-  EXPECT_DEATH(triggerPositiveOverflowAssertion(), "Needed to truncate `from` as it's value was to big for ToType.");
+  EXPECT_DEATH(triggerPositiveOverflowAssertion(), "the value is too large for the target type");
 }
 
 /// @test
@@ -175,8 +176,8 @@ TEST(CheckedConversionsDeathTest, ReportPolicyAssertionTerminatesOnPositive)
 /// @requirements(SEN-1054)
 TEST(CheckedConversionsDeathTest, ReportPolicyAssertionTerminatesOnFloatToIntTruncation)
 {
-  EXPECT_DEATH(triggerFloatToIntPositiveOverflow(), "Needed to truncate `from` as it's value was to big for ToType.");
-  EXPECT_DEATH(triggerFloatToIntNegativeOverflow(), "Needed to truncate `from` as it's value was to small for ToType.");
+  EXPECT_DEATH(triggerFloatToIntPositiveOverflow(), "the value is too large for the target type");
+  EXPECT_DEATH(triggerFloatToIntNegativeOverflow(), "the value is too small for the target type");
 }
 
 /// @test
@@ -185,10 +186,8 @@ TEST(CheckedConversionsDeathTest, ReportPolicyAssertionTerminatesOnFloatToIntTru
 /// @requirements(SEN-1054)
 TEST(CheckedConversionsDeathTest, ReportPolicyAssertionTerminatesOnDoubleToFloatTruncation)
 {
-  EXPECT_DEATH(triggerDoubleToFloatPositiveOverflow(),
-               "Needed to truncate `from` as it's value was to big for ToType.");
-  EXPECT_DEATH(triggerDoubleToFloatNegativeOverflow(),
-               "Needed to truncate `from` as it's value was to small for ToType.");
+  EXPECT_DEATH(triggerDoubleToFloatPositiveOverflow(), "the value is too large for the target type");
+  EXPECT_DEATH(triggerDoubleToFloatNegativeOverflow(), "the value is too small for the target type");
 }
 
 /// @test
@@ -220,7 +219,7 @@ TEST(CheckedConversionsTest, ReportPolicyLogWritesWarning)
 
   EXPECT_EQ(result, 0);
   EXPECT_FALSE(output.empty());
-  EXPECT_NE(output.find("Needed to truncate"), std::string::npos);
+  EXPECT_NE(output.find("the value is too"), std::string::npos);
 }
 
 /// @test
@@ -234,5 +233,33 @@ TEST(CheckedConversionsTest, ReportPolicyTraceEmitsMessage)
   const std::string output = testing::internal::GetCapturedStderr();
 
   EXPECT_EQ(result, 0);
-  EXPECT_TRUE(output.find("Needed to truncate") != std::string::npos);
+  EXPECT_TRUE(output.find("the value is too") != std::string::npos);
+}
+
+/// @test
+/// ReportPolicyThrow refuses the conversion instead of clamping, and the message names the
+/// direction. Every other policy returns a value the caller never asked for.
+/// @requirements(SEN-1054)
+TEST(CheckedConversionsTest, ReportPolicyThrowRefusesOutOfRange)
+{
+  try
+  {
+    std::ignore = sen::std_util::checkedConversion<uint8_t, sen::std_util::ReportPolicyThrow>(-1);
+    FAIL() << "expected a throw for a value below the target range";
+  }
+  catch (const std::exception& error)
+  {
+    EXPECT_NE(std::string(error.what()).find("too small"), std::string::npos);
+  }
+
+  EXPECT_THROW(std::ignore = (sen::std_util::checkedConversion<uint8_t, sen::std_util::ReportPolicyThrow>(300)),
+               std::exception);
+}
+
+/// @test
+/// A value the target can hold passes through ReportPolicyThrow untouched.
+/// @requirements(SEN-1054)
+TEST(CheckedConversionsTest, ReportPolicyThrowLeavesAValueThatFits)
+{
+  EXPECT_EQ((sen::std_util::checkedConversion<uint8_t, sen::std_util::ReportPolicyThrow>(42)), 42);
 }

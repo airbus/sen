@@ -89,15 +89,11 @@ void checkNonOverflowingConversion(Var var, T value)  // NOLINT(readability-func
 
   if (sen::std_util::cmp_less(value, std::numeric_limits<TargetType>::lowest()))
   {
-    EXPECT_DEBUG_DEATH(
-      { EXPECT_EQ(copyAsWrapper(var), std::numeric_limits<TargetType>::lowest()); },
-      "Needed to truncate `from` as it's value was to small for ToType.");
+    EXPECT_THROW(std::ignore = copyAsWrapper(var), std::exception);
   }
   else if (sen::std_util::cmp_greater(value, std::numeric_limits<TargetType>::max()))
   {
-    EXPECT_DEBUG_DEATH(
-      { EXPECT_EQ(copyAsWrapper(var), std::numeric_limits<TargetType>::max()); },
-      "Needed to truncate `from` as it's value was to big for ToType.");
+    EXPECT_THROW(std::ignore = copyAsWrapper(var), std::exception);
   }
   else
   {
@@ -114,16 +110,12 @@ void checkNonOverflowingConversionFloat(Var var, T value)  // NOLINT(readability
   if (sen::std_util::ignoredLossyConversion<float64_t>(value) <
       sen::std_util::ignoredLossyConversion<float64_t>(std::numeric_limits<TargetType>::lowest()))
   {
-    EXPECT_DEBUG_DEATH(
-      { EXPECT_EQ(copyAsWrapper(var), std::numeric_limits<TargetType>::lowest()); },
-      "Needed to truncate `from` as it's value was to small for ToType.");
+    EXPECT_THROW(std::ignore = copyAsWrapper(var), std::exception);
   }
   else if (sen::std_util::ignoredLossyConversion<float64_t>(value) >
            sen::std_util::ignoredLossyConversion<float64_t>(std::numeric_limits<TargetType>::max()))
   {
-    EXPECT_DEBUG_DEATH(
-      { EXPECT_EQ(copyAsWrapper(var), std::numeric_limits<TargetType>::max()); },
-      "Needed to truncate `from` as it's value was to big for ToType.");
+    EXPECT_THROW(std::ignore = copyAsWrapper(var), std::exception);
   }
   else
   {
@@ -822,12 +814,20 @@ TEST(Var, checkedConversions)
     EXPECT_NO_THROW(std::ignore = (getCopyAs<std::monostate, true>(var)));
   }
 
-#ifndef NDEBUG
   // Checked Conversions: Overflow
   {
     const Var var {300};
-    EXPECT_DEATH(std::ignore = (getCopyAs<uint8_t, true>(var)),
-                 "Needed to truncate `from` as it's value was to big for ToType.");
+    EXPECT_THROW(std::ignore = (getCopyAs<uint8_t, true>(var)), std::exception);
   }
-#endif
+}
+
+/// @test
+/// The member overload passes its own checkedConversion argument to the free function. It used to
+/// drop it, so a caller asking the Var for a checked conversion got an unchecked one.
+TEST(Var, theMemberOverloadForwardsTheCheckedArgument)
+{
+  const Var var {300};
+
+  EXPECT_THROW(std::ignore = (var.getCopyAs<uint8_t, true>()), std::exception);
+  EXPECT_EQ((var.getCopyAs<uint8_t, false>()), std::numeric_limits<uint8_t>::max());
 }
