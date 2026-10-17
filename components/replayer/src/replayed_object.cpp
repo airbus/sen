@@ -457,7 +457,8 @@ void ReplayedObject::inject(TimeStamp entryTime, const db::Snapshot& snapshot)
         const auto& currentBuffer = bufferCache_.find(prop->getId())->second;
 
         // check if the property has changed, and store the change if needed
-        if (currentBuffer.size() != span.size() && std::memcmp(currentBuffer.data(), span.data(), span.size()) != 0)
+        if (currentBuffer.size() != span.size() ||
+            (!span.empty() && std::memcmp(currentBuffer.data(), span.data(), span.size()) != 0))
         {
           auto itr = changedProperties_.find(prop.get());
           if (itr == changedProperties_.end())
