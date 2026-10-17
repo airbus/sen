@@ -17,9 +17,9 @@
 
 // std
 #include <cstdlib>
-#include <exception>
 #include <filesystem>
 #include <fstream>
+#include <stdexcept>
 #include <string>
 
 using sen::kernel::impl::replaceEnvPattern;
@@ -131,8 +131,7 @@ TEST_F(AnEnvPattern, acceptsSpacesAroundTheComma)
 
 /// @test
 /// An unset variable with no default stops the load rather than substituting nothing, and the error
-/// names the variable. The type is only std::exception: throwRuntimeError throws cpptrace::runtime_error
-/// in Debug and std::runtime_error otherwise, and those share no closer base.
+/// names the variable.
 TEST_F(AnEnvPattern, throwsWhenTheVariableIsUnsetAndHasNoDefault)
 {
   try
@@ -140,7 +139,7 @@ TEST_F(AnEnvPattern, throwsWhenTheVariableIsUnsetAndHasNoDefault)
     static_cast<void>(replaceEnvPattern("value: @env(SEN_TEST_UNSET)"));
     FAIL() << "expected a throw for an unset variable with no default";
   }
-  catch (const std::exception& error)
+  catch (const std::runtime_error& error)
   {
     EXPECT_NE(std::string(error.what()).find("SEN_TEST_UNSET"), std::string::npos);
   }
