@@ -734,7 +734,7 @@ private:
     checkDeprecatedInit(&type, suggestion);
     try
     {
-      var_ = var_.getCopyAs<T, /*checkedConversion=*/false>();
+      var_ = var_.getCopyAs<T, /*checkedConversion=*/true>();
     }
     catch (const std::exception& e)
     {
