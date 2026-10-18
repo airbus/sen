@@ -345,6 +345,57 @@ TEST(Parser, queryCondition)
 }
 
 /// @test
+/// Refuses a query carrying text after its condition, naming the first token left over. Unchecked,
+/// `lat = 8 lon = 4` runs as `lat = 8` and `elapsed > 500 ms` runs as `elapsed > 500`, which a
+/// duration reads as seconds.
+/// @requirements(SEN-363)
+TEST(Parser, queryWithTextAfterItsCondition)
+{
+  const std::vector<std::tuple<std::string, std::string>> refused = {
+    {R"(SELECT rpr.PhysicalEntity FROM se.env WHERE lat = 8 lon = 4)", "lon"},
+    {R"(SELECT rpr.PhysicalEntity FROM se.env WHERE elapsed > 500 ms)", "ms"},
+    {R"(SELECT rpr.PhysicalEntity FROM se.env WHERE lat = 8, lon = 4)", ","}};
+
+  for (const auto& [program, leftover]: refused)
+  {
+    StlScanner scanner(program);
+    auto tokens = scanner.scanTokens();
+    StlParser parser(tokens);
+
+    try
+    {
+      std::ignore = parser.parseQuery();
+      FAIL() << "expected '" << program << "' to be refused";
+    }
+    catch (const StlParser::ParseError& error)
+    {
+      EXPECT_NE(std::string(error.what()).find("'" + leftover + "'"), std::string::npos)
+        << "the message did not name the leftover token: " << error.what();
+    }
+  }
+}
+
+/// @test
+/// The same queries with the missing word supplied still parse, so the check above refuses only
+/// what it should.
+/// @requirements(SEN-363)
+TEST(Parser, queryThatUsesEveryToken)
+{
+  const std::vector<std::string> accepted = {R"(SELECT rpr.PhysicalEntity FROM se.env WHERE lat = 8 AND lon = 4)",
+                                             R"(SELECT rpr.PhysicalEntity FROM se.env WHERE elapsed > 500)",
+                                             R"(SELECT rpr.PhysicalEntity FROM se.env)"};
+
+  for (const auto& program: accepted)
+  {
+    StlScanner scanner(program);
+    auto tokens = scanner.scanTokens();
+    StlParser parser(tokens);
+
+    EXPECT_NO_THROW(std::ignore = parser.parseQuery()) << program;
+  }
+}
+
+/// @test
 /// Attaches leading and inline comments to class properties, methods and events as their
 /// descriptions, and throws when a method parameter is documented twice or a documented parameter
 /// does not exist.
