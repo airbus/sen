@@ -298,7 +298,7 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('var_8h_source.
 <div class="foldopen" id="foldopen00203" data-start="{" data-end="}">
 <div class="line"><a id="l00203" name="l00203"></a><span class="lineno"><a class="line" href="structsen_1_1_var.html#a70cd01bf384767dc18dbf5f52377c6af">  203</a></span>  [[nodiscard]] T <a class="code hl_function" href="structsen_1_1_var.html#a70cd01bf384767dc18dbf5f52377c6af">getCopyAs</a>()<span class="keyword"> const</span></div>
 <div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span><span class="keyword">  </span>{</div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>    return ::sen::getCopyAs&lt;T&gt;(*<span class="keyword">this</span>);</div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>    return ::sen::getCopyAs&lt;T, checkedConversion&gt;(*<span class="keyword">this</span>);</div>
 <div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>  }</div>
 </div>
 <div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span></div>

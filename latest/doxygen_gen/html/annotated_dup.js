@@ -170,6 +170,7 @@ var annotated_dup =
         [ "ReportPolicyAssertion", "structsen_1_1std__util_1_1_report_policy_assertion.html", null ],
         [ "ReportPolicyIgnore", "structsen_1_1std__util_1_1_report_policy_ignore.html", null ],
         [ "ReportPolicyLog", "structsen_1_1std__util_1_1_report_policy_log.html", null ],
+        [ "ReportPolicyThrow", "structsen_1_1std__util_1_1_report_policy_throw.html", null ],
         [ "ReportPolicyTrace", "structsen_1_1std__util_1_1_report_policy_trace.html", null ]
       ] ],
       [ "test", "namespacesen_1_1test.html", [

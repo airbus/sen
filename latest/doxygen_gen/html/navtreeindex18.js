@@ -114,8 +114,10 @@ var NAVTREEINDEX18 =
 "structsen_1_1std__util_1_1_report_policy_ignore.html":[2,0,1,5,4],
 "structsen_1_1std__util_1_1_report_policy_log.html":[1,0,1,5,6],
 "structsen_1_1std__util_1_1_report_policy_log.html":[2,0,1,5,5],
-"structsen_1_1std__util_1_1_report_policy_trace.html":[1,0,1,5,7],
-"structsen_1_1std__util_1_1_report_policy_trace.html":[2,0,1,5,6],
+"structsen_1_1std__util_1_1_report_policy_throw.html":[1,0,1,5,7],
+"structsen_1_1std__util_1_1_report_policy_throw.html":[2,0,1,5,6],
+"structsen_1_1std__util_1_1_report_policy_trace.html":[1,0,1,5,8],
+"structsen_1_1std__util_1_1_report_policy_trace.html":[2,0,1,5,7],
 "structsen_1_1std__util_1_1detail_1_1_is_in_place_type.html":[1,0,1,5,0,0],
 "structsen_1_1std__util_1_1detail_1_1_is_in_place_type.html":[2,0,1,5,0,0],
 "structsen_1_1std__util_1_1detail_1_1_is_in_place_type_3_01std_1_1in__place__type__t_3_01_t_01_4_01_4.html":[1,0,1,5,0,1],
@@ -247,7 +249,5 @@ var NAVTREEINDEX18 =
 "variant__type_8h.html":[3,0,0,0,0,0,0,3,31],
 "variant__type_8h_source.html":[3,0,0,0,0,0,0,3,31],
 "vec3_8h.html":[3,0,0,4,1,0,4],
-"vec3_8h_source.html":[3,0,0,4,1,0,4],
-"vm_8h.html":[3,0,0,0,0,0,0,2,10],
-"vm_8h_source.html":[3,0,0,0,0,0,0,2,10]
+"vec3_8h_source.html":[3,0,0,4,1,0,4]
 };

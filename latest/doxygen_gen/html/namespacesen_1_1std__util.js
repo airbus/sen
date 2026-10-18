@@ -9,6 +9,7 @@ var namespacesen_1_1std__util =
     [ "ReportPolicyAssertion", "structsen_1_1std__util_1_1_report_policy_assertion.html", null ],
     [ "ReportPolicyIgnore", "structsen_1_1std__util_1_1_report_policy_ignore.html", null ],
     [ "ReportPolicyLog", "structsen_1_1std__util_1_1_report_policy_log.html", null ],
+    [ "ReportPolicyThrow", "structsen_1_1std__util_1_1_report_policy_throw.html", null ],
     [ "ReportPolicyTrace", "structsen_1_1std__util_1_1_report_policy_trace.html", null ],
     [ "move_only_function", "namespacesen_1_1std__util.html#aaea089b38ac05157e62c53d1e4489f70", null ],
     [ "bit_cast", "namespacesen_1_1std__util.html#acb24a1ebd1bfaa2e66f4037578c69be1", null ],

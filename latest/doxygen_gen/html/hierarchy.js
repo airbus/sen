@@ -276,6 +276,7 @@ var hierarchy =
     [ "sen::std_util::ReportPolicyAssertion", "structsen_1_1std__util_1_1_report_policy_assertion.html", null ],
     [ "sen::std_util::ReportPolicyIgnore", "structsen_1_1std__util_1_1_report_policy_ignore.html", null ],
     [ "sen::std_util::ReportPolicyLog", "structsen_1_1std__util_1_1_report_policy_log.html", null ],
+    [ "sen::std_util::ReportPolicyThrow", "structsen_1_1std__util_1_1_report_policy_throw.html", null ],
     [ "sen::std_util::ReportPolicyTrace", "structsen_1_1std__util_1_1_report_policy_trace.html", null ],
     [ "sen::gen::test::ResolvedModel", "classsen_1_1gen_1_1test_1_1_resolved_model.html", null ],
     [ "sen::lang::ResolverContext", "group__lang.html#structsen_1_1lang_1_1_resolver_context", null ],

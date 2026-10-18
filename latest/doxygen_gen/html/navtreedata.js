@@ -83,7 +83,7 @@ var NAVTREEINDEX =
 "namespacesen_1_1lang_1_1fom.html#a9f776f8185c9a1c27d438d3618788041",
 "strong__type_8h.html",
 "structsen_1_1_subscription.html",
-"work__queue_8h.html"
+"vm_8h.html"
 ];
 
 const SYNCONMSG = 'click to disable panel synchronization';
