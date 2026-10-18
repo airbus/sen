@@ -112,37 +112,21 @@ struct ConvertToUint8: public VariantAdapterTestBase<uint8_t>
 };
 
 /// @test
-/// Every numeric type converts to uint8. A value above the range caps at the maximum and one
-/// below it caps at the minimum, rather than wrapping.
+/// Every numeric type whose value fits converts to uint8.
 TEST_P(ConvertToUint8, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
   VariantAdapterTest,
   ConvertToUint8,
-  ::testing::Values(
-    make_tuple(UInt8Type::get(), Var(uint8_t {42}), UInt8Type::get(), uint8_t {42}),
-    make_tuple(UInt16Type::get(), Var(uint16_t {42}), UInt8Type::get(), uint8_t {42}),
-    make_tuple(UInt32Type::get(), Var(uint32_t {42}), UInt8Type::get(), uint8_t {42}),
-    make_tuple(UInt64Type::get(), Var(uint64_t {42}), UInt8Type::get(), uint8_t {42}),
-    make_tuple(Int16Type::get(), Var(int16_t {42}), UInt8Type::get(), uint8_t {42}),
-    make_tuple(Int32Type::get(), Var(int32_t {42}), UInt8Type::get(), uint8_t {42}),
-    make_tuple(Int64Type::get(), Var(int64_t {42}), UInt8Type::get(), uint8_t {42}),
-    make_tuple(Float32Type::get(), Var(float32_t {42}), UInt8Type::get(), uint8_t {42}),
-    make_tuple(Float64Type::get(), Var(float64_t {42}), UInt8Type::get(), uint8_t {42}),
-    /* overflow conversions: we expect capping to max target type */
-    make_tuple(UInt16Type::get(), Var(uint16_t {35535}), UInt8Type::get(), numeric_limits<uint8_t>::max()),
-    make_tuple(UInt32Type::get(), Var(uint32_t {65536}), UInt8Type::get(), numeric_limits<uint8_t>::max()),
-    make_tuple(UInt64Type::get(), Var(uint64_t {65536}), UInt8Type::get(), numeric_limits<uint8_t>::max()),
-    make_tuple(Int16Type::get(), Var(int32_t {31234}), UInt8Type::get(), numeric_limits<uint8_t>::max()),
-    make_tuple(Int32Type::get(), Var(int32_t {65536}), UInt8Type::get(), numeric_limits<uint8_t>::max()),
-    make_tuple(Int64Type::get(), Var(int64_t {65536}), UInt8Type::get(), numeric_limits<uint8_t>::max()),
-    /* underflow conversions: we expect capping to lowest target type */
-    make_tuple(Int16Type::get(), Var(int16_t {-42}), UInt8Type::get(), numeric_limits<uint8_t>::lowest()),
-    make_tuple(Int32Type::get(), Var(int32_t {-42}), UInt8Type::get(), numeric_limits<uint8_t>::lowest()),
-    make_tuple(Int64Type::get(), Var(int64_t {-42}), UInt8Type::get(), numeric_limits<uint8_t>::lowest()),
-    /* underflow/rounding conversions: we expect capping to max target type */
-    make_tuple(Float32Type::get(), Var(float32_t {-4.2}), UInt8Type::get(), numeric_limits<uint8_t>::lowest()),
-    make_tuple(Float64Type::get(), Var(float64_t {-4.2}), UInt8Type::get(), numeric_limits<uint8_t>::lowest())),
+  ::testing::Values(make_tuple(UInt8Type::get(), Var(uint8_t {42}), UInt8Type::get(), uint8_t {42}),
+                    make_tuple(UInt16Type::get(), Var(uint16_t {42}), UInt8Type::get(), uint8_t {42}),
+                    make_tuple(UInt32Type::get(), Var(uint32_t {42}), UInt8Type::get(), uint8_t {42}),
+                    make_tuple(UInt64Type::get(), Var(uint64_t {42}), UInt8Type::get(), uint8_t {42}),
+                    make_tuple(Int16Type::get(), Var(int16_t {42}), UInt8Type::get(), uint8_t {42}),
+                    make_tuple(Int32Type::get(), Var(int32_t {42}), UInt8Type::get(), uint8_t {42}),
+                    make_tuple(Int64Type::get(), Var(int64_t {42}), UInt8Type::get(), uint8_t {42}),
+                    make_tuple(Float32Type::get(), Var(float32_t {42}), UInt8Type::get(), uint8_t {42}),
+                    make_tuple(Float64Type::get(), Var(float64_t {42}), UInt8Type::get(), uint8_t {42})),
   [](const testing::TestParamInfo<ConvertToUint8::ParamType>& info)
   { return convertTypesToTestCaseName(std::get<0>(info.param), std::get<1>(info.param), std::get<2>(info.param)); });
 
@@ -155,34 +139,21 @@ struct ConvertToUint16: public VariantAdapterTestBase<uint16_t>
 };
 
 /// @test
-/// Every numeric type converts to uint16, capping at the limits rather than wrapping.
+/// Every numeric type whose value fits converts to uint16.
 TEST_P(ConvertToUint16, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
   VariantAdapterTest,
   ConvertToUint16,
-  ::testing::Values(
-    make_tuple(UInt16Type::get(), Var(uint16_t {42}), UInt16Type::get(), uint16_t {42}),
-    make_tuple(UInt8Type::get(), Var(uint8_t {42}), UInt16Type::get(), uint16_t {42}),
-    make_tuple(UInt32Type::get(), Var(uint32_t {42}), UInt16Type::get(), uint16_t {42}),
-    make_tuple(UInt64Type::get(), Var(uint64_t {42}), UInt16Type::get(), uint16_t {42}),
-    make_tuple(Int16Type::get(), Var(int16_t {42}), UInt16Type::get(), uint16_t {42}),
-    make_tuple(Int32Type::get(), Var(int32_t {42}), UInt16Type::get(), uint16_t {42}),
-    make_tuple(Int64Type::get(), Var(int64_t {42}), UInt16Type::get(), uint16_t {42}),
-    make_tuple(Float32Type::get(), Var(float32_t {42}), UInt16Type::get(), uint16_t {42}),
-    make_tuple(Float64Type::get(), Var(float64_t {42}), UInt16Type::get(), uint16_t {42}),
-    /* overflow conversions: we expect capping to max target type */
-    make_tuple(UInt32Type::get(), Var(uint32_t {65536}), UInt16Type::get(), numeric_limits<uint16_t>::max()),
-    make_tuple(UInt64Type::get(), Var(uint64_t {65536}), UInt16Type::get(), numeric_limits<uint16_t>::max()),
-    make_tuple(Int32Type::get(), Var(int32_t {65536}), UInt16Type::get(), numeric_limits<uint16_t>::max()),
-    make_tuple(Int64Type::get(), Var(int64_t {65536}), UInt16Type::get(), numeric_limits<uint16_t>::max()),
-    /* underflow conversions: we expect capping to lowest target type */
-    make_tuple(Int16Type::get(), Var(int16_t {-42}), UInt16Type::get(), numeric_limits<uint16_t>::lowest()),
-    make_tuple(Int32Type::get(), Var(int32_t {-42}), UInt16Type::get(), numeric_limits<uint16_t>::lowest()),
-    make_tuple(Int64Type::get(), Var(int64_t {-42}), UInt16Type::get(), numeric_limits<uint16_t>::lowest()),
-    /* underflow/rounding conversions: we expect capping to max target type */
-    make_tuple(Float32Type::get(), Var(float32_t {-4.2}), UInt16Type::get(), numeric_limits<uint16_t>::lowest()),
-    make_tuple(Float64Type::get(), Var(float64_t {-4.2}), UInt16Type::get(), numeric_limits<uint16_t>::lowest())),
+  ::testing::Values(make_tuple(UInt16Type::get(), Var(uint16_t {42}), UInt16Type::get(), uint16_t {42}),
+                    make_tuple(UInt8Type::get(), Var(uint8_t {42}), UInt16Type::get(), uint16_t {42}),
+                    make_tuple(UInt32Type::get(), Var(uint32_t {42}), UInt16Type::get(), uint16_t {42}),
+                    make_tuple(UInt64Type::get(), Var(uint64_t {42}), UInt16Type::get(), uint16_t {42}),
+                    make_tuple(Int16Type::get(), Var(int16_t {42}), UInt16Type::get(), uint16_t {42}),
+                    make_tuple(Int32Type::get(), Var(int32_t {42}), UInt16Type::get(), uint16_t {42}),
+                    make_tuple(Int64Type::get(), Var(int64_t {42}), UInt16Type::get(), uint16_t {42}),
+                    make_tuple(Float32Type::get(), Var(float32_t {42}), UInt16Type::get(), uint16_t {42}),
+                    make_tuple(Float64Type::get(), Var(float64_t {42}), UInt16Type::get(), uint16_t {42})),
   [](const testing::TestParamInfo<ConvertToUint16::ParamType>& info)
   { return convertTypesToTestCaseName(std::get<0>(info.param), std::get<1>(info.param), std::get<2>(info.param)); });
 
@@ -195,32 +166,21 @@ struct ConvertToUint32: public VariantAdapterTestBase<uint32_t>
 };
 
 /// @test
-/// Every numeric type converts to uint32, capping at the limits rather than wrapping.
+/// Every numeric type whose value fits converts to uint32.
 TEST_P(ConvertToUint32, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
   VariantAdapterTest,
   ConvertToUint32,
-  ::testing::Values(
-    make_tuple(UInt32Type::get(), Var(uint32_t {42}), UInt32Type::get(), uint32_t {42}),
-    make_tuple(UInt8Type::get(), Var(uint8_t {42}), UInt32Type::get(), uint32_t {42}),
-    make_tuple(UInt16Type::get(), Var(uint16_t {42}), UInt32Type::get(), uint32_t {42}),
-    make_tuple(UInt64Type::get(), Var(uint64_t {42}), UInt32Type::get(), uint32_t {42}),
-    make_tuple(Int16Type::get(), Var(int16_t {42}), UInt32Type::get(), uint32_t {42}),
-    make_tuple(Int32Type::get(), Var(int32_t {42}), UInt32Type::get(), uint32_t {42}),
-    make_tuple(Int64Type::get(), Var(int64_t {42}), UInt32Type::get(), uint32_t {42}),
-    make_tuple(Float32Type::get(), Var(float32_t {42}), UInt32Type::get(), uint32_t {42}),
-    make_tuple(Float64Type::get(), Var(float64_t {42}), UInt32Type::get(), uint32_t {42}),
-    /* overflow conversions: we expect capping to max target type */
-    make_tuple(UInt64Type::get(), Var(uint64_t {4294967296ULL}), UInt32Type::get(), numeric_limits<uint32_t>::max()),
-    make_tuple(Int64Type::get(), Var(int64_t {4294967296LL}), UInt32Type::get(), numeric_limits<uint32_t>::max()),
-    /* underflow conversions: we expect capping to lowest target type */
-    make_tuple(Int16Type::get(), Var(int16_t {-42}), UInt32Type::get(), numeric_limits<uint32_t>::lowest()),
-    make_tuple(Int32Type::get(), Var(int32_t {-42}), UInt32Type::get(), numeric_limits<uint32_t>::lowest()),
-    make_tuple(Int64Type::get(), Var(int64_t {-42}), UInt32Type::get(), numeric_limits<uint32_t>::lowest()),
-    /* underflow/rounding conversions: we expect capping to max target type */
-    make_tuple(Float32Type::get(), Var(float32_t {-4.2}), UInt32Type::get(), numeric_limits<uint32_t>::lowest()),
-    make_tuple(Float64Type::get(), Var(float64_t {-4.2}), UInt32Type::get(), numeric_limits<uint32_t>::lowest())),
+  ::testing::Values(make_tuple(UInt32Type::get(), Var(uint32_t {42}), UInt32Type::get(), uint32_t {42}),
+                    make_tuple(UInt8Type::get(), Var(uint8_t {42}), UInt32Type::get(), uint32_t {42}),
+                    make_tuple(UInt16Type::get(), Var(uint16_t {42}), UInt32Type::get(), uint32_t {42}),
+                    make_tuple(UInt64Type::get(), Var(uint64_t {42}), UInt32Type::get(), uint32_t {42}),
+                    make_tuple(Int16Type::get(), Var(int16_t {42}), UInt32Type::get(), uint32_t {42}),
+                    make_tuple(Int32Type::get(), Var(int32_t {42}), UInt32Type::get(), uint32_t {42}),
+                    make_tuple(Int64Type::get(), Var(int64_t {42}), UInt32Type::get(), uint32_t {42}),
+                    make_tuple(Float32Type::get(), Var(float32_t {42}), UInt32Type::get(), uint32_t {42}),
+                    make_tuple(Float64Type::get(), Var(float64_t {42}), UInt32Type::get(), uint32_t {42})),
   [](const testing::TestParamInfo<ConvertToUint32::ParamType>& info)
   { return convertTypesToTestCaseName(std::get<0>(info.param), std::get<1>(info.param), std::get<2>(info.param)); });
 
@@ -233,31 +193,21 @@ struct ConvertToUint64: public VariantAdapterTestBase<uint64_t>
 };
 
 /// @test
-/// Every numeric type converts to uint64, negative values capping at the lowest limit rather than
-/// wrapping.
+/// Every numeric type whose value fits converts to uint64.
 TEST_P(ConvertToUint64, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
   VariantAdapterTest,
   ConvertToUint64,
-  ::testing::Values(
-    make_tuple(UInt64Type::get(), Var(uint64_t {42}), UInt64Type::get(), uint64_t {42}),
-    make_tuple(UInt8Type::get(), Var(uint8_t {42}), UInt64Type::get(), uint64_t {42}),
-    make_tuple(UInt16Type::get(), Var(uint16_t {42}), UInt64Type::get(), uint64_t {42}),
-    make_tuple(UInt32Type::get(), Var(uint32_t {42}), UInt64Type::get(), uint64_t {42}),
-    make_tuple(Int16Type::get(), Var(int16_t {42}), UInt64Type::get(), uint64_t {42}),
-    make_tuple(Int32Type::get(), Var(int32_t {42}), UInt64Type::get(), uint64_t {42}),
-    make_tuple(Int64Type::get(), Var(int64_t {42}), UInt64Type::get(), uint64_t {42}),
-    make_tuple(Float32Type::get(), Var(float32_t {42}), UInt64Type::get(), uint64_t {42}),
-    make_tuple(Float64Type::get(), Var(float64_t {42}), UInt64Type::get(), uint64_t {42}),
-    /* overflow conversions: we expect capping to max target type */
-    /* underflow conversions: we expect capping to lowest target type */
-    make_tuple(Int16Type::get(), Var(int16_t {-42}), UInt64Type::get(), numeric_limits<uint64_t>::lowest()),
-    make_tuple(Int32Type::get(), Var(int32_t {-42}), UInt64Type::get(), numeric_limits<uint64_t>::lowest()),
-    make_tuple(Int64Type::get(), Var(int64_t {-42}), UInt64Type::get(), numeric_limits<uint64_t>::lowest()),
-    /* underflow/rounding conversions: we expect capping to max target type */
-    make_tuple(Float32Type::get(), Var(float32_t {-4.2}), UInt64Type::get(), numeric_limits<uint64_t>::lowest()),
-    make_tuple(Float64Type::get(), Var(float64_t {-4.2}), UInt64Type::get(), numeric_limits<uint64_t>::lowest())),
+  ::testing::Values(make_tuple(UInt64Type::get(), Var(uint64_t {42}), UInt64Type::get(), uint64_t {42}),
+                    make_tuple(UInt8Type::get(), Var(uint8_t {42}), UInt64Type::get(), uint64_t {42}),
+                    make_tuple(UInt16Type::get(), Var(uint16_t {42}), UInt64Type::get(), uint64_t {42}),
+                    make_tuple(UInt32Type::get(), Var(uint32_t {42}), UInt64Type::get(), uint64_t {42}),
+                    make_tuple(Int16Type::get(), Var(int16_t {42}), UInt64Type::get(), uint64_t {42}),
+                    make_tuple(Int32Type::get(), Var(int32_t {42}), UInt64Type::get(), uint64_t {42}),
+                    make_tuple(Int64Type::get(), Var(int64_t {42}), UInt64Type::get(), uint64_t {42}),
+                    make_tuple(Float32Type::get(), Var(float32_t {42}), UInt64Type::get(), uint64_t {42}),
+                    make_tuple(Float64Type::get(), Var(float64_t {42}), UInt64Type::get(), uint64_t {42})),
   [](const testing::TestParamInfo<ConvertToUint64::ParamType>& info)
   { return convertTypesToTestCaseName(std::get<0>(info.param), std::get<1>(info.param), std::get<2>(info.param)); });
 
@@ -270,37 +220,21 @@ struct ConvertToInt16: public VariantAdapterTestBase<int16_t>
 };
 
 /// @test
-/// Every numeric type converts to int16, capping at the limits rather than wrapping.
+/// Every numeric type whose value fits converts to int16.
 TEST_P(ConvertToInt16, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
   VariantAdapterTest,
   ConvertToInt16,
-  ::testing::Values(
-    make_tuple(Int16Type::get(), Var(int16_t {42}), Int16Type::get(), int16_t {42}),
-    make_tuple(UInt8Type::get(), Var(uint8_t {42}), Int16Type::get(), int16_t {42}),
-    make_tuple(UInt16Type::get(), Var(uint16_t {42}), Int16Type::get(), int16_t {42}),
-    make_tuple(UInt32Type::get(), Var(uint32_t {42}), Int16Type::get(), int16_t {42}),
-    make_tuple(UInt64Type::get(), Var(uint64_t {42}), Int16Type::get(), int16_t {42}),
-    make_tuple(Int32Type::get(), Var(int32_t {42}), Int16Type::get(), int16_t {42}),
-    make_tuple(Int64Type::get(), Var(int64_t {42}), Int16Type::get(), int16_t {42}),
-    make_tuple(Float32Type::get(), Var(float32_t {42}), Int16Type::get(), int16_t {42}),
-    make_tuple(Float64Type::get(), Var(float64_t {42}), Int16Type::get(), int16_t {42}),
-    /* overflow conversions: we expect capping to max target type */
-    make_tuple(UInt16Type::get(), Var(uint32_t {55535}), Int16Type::get(), numeric_limits<int16_t>::max()),
-    make_tuple(UInt32Type::get(), Var(uint32_t {65536}), Int16Type::get(), numeric_limits<int16_t>::max()),
-    make_tuple(UInt64Type::get(), Var(uint64_t {65536}), Int16Type::get(), numeric_limits<int16_t>::max()),
-    make_tuple(Int32Type::get(), Var(int32_t {65536}), Int16Type::get(), numeric_limits<int16_t>::max()),
-    make_tuple(Int64Type::get(), Var(int64_t {65536}), Int16Type::get(), numeric_limits<int16_t>::max()),
-    /* underflow conversions: we expect capping to lowest target type */
-    make_tuple(Int32Type::get(), Var(int32_t {-42768}), Int16Type::get(), numeric_limits<int16_t>::lowest()),
-    make_tuple(Int64Type::get(), Var(int64_t {-3147483648LL}), Int16Type::get(), numeric_limits<int16_t>::lowest()),
-    /* underflow/rounding conversions: we expect capping to max target type */
-    make_tuple(Float32Type::get(), Var(float32_t {-42768}), Int16Type::get(), numeric_limits<int16_t>::lowest()),
-    make_tuple(Float64Type::get(),
-               Var(float64_t {-3147483648.0L}),
-               Int16Type::get(),
-               numeric_limits<int16_t>::lowest())),
+  ::testing::Values(make_tuple(Int16Type::get(), Var(int16_t {42}), Int16Type::get(), int16_t {42}),
+                    make_tuple(UInt8Type::get(), Var(uint8_t {42}), Int16Type::get(), int16_t {42}),
+                    make_tuple(UInt16Type::get(), Var(uint16_t {42}), Int16Type::get(), int16_t {42}),
+                    make_tuple(UInt32Type::get(), Var(uint32_t {42}), Int16Type::get(), int16_t {42}),
+                    make_tuple(UInt64Type::get(), Var(uint64_t {42}), Int16Type::get(), int16_t {42}),
+                    make_tuple(Int32Type::get(), Var(int32_t {42}), Int16Type::get(), int16_t {42}),
+                    make_tuple(Int64Type::get(), Var(int64_t {42}), Int16Type::get(), int16_t {42}),
+                    make_tuple(Float32Type::get(), Var(float32_t {42}), Int16Type::get(), int16_t {42}),
+                    make_tuple(Float64Type::get(), Var(float64_t {42}), Int16Type::get(), int16_t {42})),
   [](const testing::TestParamInfo<ConvertToInt16::ParamType>& info)
   { return convertTypesToTestCaseName(std::get<0>(info.param), std::get<1>(info.param), std::get<2>(info.param)); });
 
@@ -313,37 +247,21 @@ struct ConvertToInt32: public VariantAdapterTestBase<int32_t>
 };
 
 /// @test
-/// Every numeric type converts to int32, capping at the limits rather than wrapping.
+/// Every numeric type whose value fits converts to int32.
 TEST_P(ConvertToInt32, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
   VariantAdapterTest,
   ConvertToInt32,
-  ::testing::Values(
-    make_tuple(Int32Type::get(), Var(int32_t {42}), Int32Type::get(), int32_t {42}),
-    make_tuple(UInt8Type::get(), Var(uint8_t {42}), Int32Type::get(), int32_t {42}),
-    make_tuple(UInt16Type::get(), Var(uint16_t {42}), Int32Type::get(), int32_t {42}),
-    make_tuple(UInt32Type::get(), Var(uint32_t {42}), Int32Type::get(), int32_t {42}),
-    make_tuple(UInt64Type::get(), Var(uint64_t {42}), Int32Type::get(), int32_t {42}),
-    make_tuple(Int16Type::get(), Var(int16_t {42}), Int32Type::get(), int32_t {42}),
-    make_tuple(Int64Type::get(), Var(int64_t {42}), Int32Type::get(), int32_t {42}),
-    make_tuple(Float32Type::get(), Var(float32_t {42}), Int32Type::get(), int32_t {42}),
-    make_tuple(Float64Type::get(), Var(float64_t {42.0L}), Int32Type::get(), int32_t {42}),
-    /* overflow conversions: we expect capping to max target type */
-    make_tuple(UInt32Type::get(), Var(uint32_t {3147483647}), Int32Type::get(), numeric_limits<int32_t>::max()),
-    make_tuple(UInt64Type::get(), Var(uint64_t {3147483647}), Int32Type::get(), numeric_limits<int32_t>::max()),
-    make_tuple(Int64Type::get(), Var(int64_t {3147483647LL}), Int32Type::get(), numeric_limits<int32_t>::max()),
-    /* underflow conversions: we expect capping to lowest target type */
-    make_tuple(Int64Type::get(), Var(int64_t {-3147483648LL}), Int32Type::get(), numeric_limits<int32_t>::lowest()),
-    /* underflow/rounding conversions: we expect capping to max target type */
-    make_tuple(Float32Type::get(),
-               Var(float32_t {-3147483648.0F}),
-               Int32Type::get(),
-               numeric_limits<int32_t>::lowest()),
-    make_tuple(Float64Type::get(),
-               Var(float64_t {-3147483648.0L}),
-               Int32Type::get(),
-               numeric_limits<int32_t>::lowest())),
+  ::testing::Values(make_tuple(Int32Type::get(), Var(int32_t {42}), Int32Type::get(), int32_t {42}),
+                    make_tuple(UInt8Type::get(), Var(uint8_t {42}), Int32Type::get(), int32_t {42}),
+                    make_tuple(UInt16Type::get(), Var(uint16_t {42}), Int32Type::get(), int32_t {42}),
+                    make_tuple(UInt32Type::get(), Var(uint32_t {42}), Int32Type::get(), int32_t {42}),
+                    make_tuple(UInt64Type::get(), Var(uint64_t {42}), Int32Type::get(), int32_t {42}),
+                    make_tuple(Int16Type::get(), Var(int16_t {42}), Int32Type::get(), int32_t {42}),
+                    make_tuple(Int64Type::get(), Var(int64_t {42}), Int32Type::get(), int32_t {42}),
+                    make_tuple(Float32Type::get(), Var(float32_t {42}), Int32Type::get(), int32_t {42}),
+                    make_tuple(Float64Type::get(), Var(float64_t {42.0L}), Int32Type::get(), int32_t {42})),
   [](const testing::TestParamInfo<ConvertToInt32::ParamType>& info)
   { return convertTypesToTestCaseName(std::get<0>(info.param), std::get<1>(info.param), std::get<2>(info.param)); });
 
@@ -356,7 +274,7 @@ struct ConvertToInt64: public VariantAdapterTestBase<int64_t>
 };
 
 /// @test
-/// Every numeric type converts to int64, capping at the limits rather than wrapping.
+/// Every numeric type whose value fits converts to int64.
 TEST_P(ConvertToInt64, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
@@ -370,23 +288,7 @@ INSTANTIATE_TEST_SUITE_P(
                     make_tuple(Int16Type::get(), Var(int16_t {42}), Int64Type::get(), int64_t {42}),
                     make_tuple(Int32Type::get(), Var(int32_t {42}), Int64Type::get(), int64_t {42}),
                     make_tuple(Float32Type::get(), Var(float32_t {42}), Int64Type::get(), int64_t {42}),
-                    make_tuple(Float64Type::get(), Var(float64_t {42}), Int64Type::get(), int64_t {42}),
-                    /* overflow conversions: we expect capping to max target type */
-                    make_tuple(UInt64Type::get(),
-                               Var(uint64_t {10223372036854775807UL}),
-                               Int64Type::get(),
-                               numeric_limits<int64_t>::max()),
-                    /* underflow/rounding conversions: we expect capping to max target type */
-                    make_tuple(Float32Type::get(),
-                               Var(float32_t {-10223372036854775808.0F
-
-                               }),
-                               Int64Type::get(),
-                               numeric_limits<int64_t>::lowest()),
-                    make_tuple(Float64Type::get(),
-                               Var(float64_t {-10223372036854775808.0L}),
-                               Int64Type::get(),
-                               numeric_limits<int64_t>::lowest())),
+                    make_tuple(Float64Type::get(), Var(float64_t {42}), Int64Type::get(), int64_t {42})),
   [](const testing::TestParamInfo<ConvertToInt64::ParamType>& info)
   { return convertTypesToTestCaseName(std::get<0>(info.param), std::get<1>(info.param), std::get<2>(info.param)); });
 
@@ -399,8 +301,7 @@ struct ConvertToFloat32: public VariantAdapterTestBase<float32_t>
 };
 
 /// @test
-/// Every numeric type converts to float32, and a float64 outside the range caps at the float32
-/// limit.
+/// Every numeric type whose value fits converts to float32.
 TEST_P(ConvertToFloat32, ConversionTest) { runComparison(); }
 
 INSTANTIATE_TEST_SUITE_P(
@@ -414,17 +315,7 @@ INSTANTIATE_TEST_SUITE_P(
                     make_tuple(Int16Type::get(), Var(int16_t {42}), Float32Type::get(), float32_t {42}),
                     make_tuple(Int32Type::get(), Var(int32_t {42}), Float32Type::get(), float32_t {42}),
                     make_tuple(Int64Type::get(), Var(int64_t {42}), Float32Type::get(), float32_t {42}),
-                    make_tuple(Float64Type::get(), Var(float64_t {42.2}), Float32Type::get(), float32_t {42.2}),
-                    /* overflow conversions: we expect capping to max target type */
-                    make_tuple(Float64Type::get(),
-                               Var(numeric_limits<float64_t>::max()),
-                               Float32Type::get(),
-                               numeric_limits<float32_t>::max()),
-                    /* underflow conversions: we expect capping to max target type */
-                    make_tuple(Float64Type::get(),
-                               Var(numeric_limits<float64_t>::lowest()),
-                               Float32Type::get(),
-                               numeric_limits<float32_t>::lowest())),
+                    make_tuple(Float64Type::get(), Var(float64_t {42.2}), Float32Type::get(), float32_t {42.2})),
   [](const testing::TestParamInfo<ConvertToFloat32::ParamType>& info)
   { return convertTypesToTestCaseName(std::get<0>(info.param), std::get<1>(info.param), std::get<2>(info.param)); });
 
@@ -497,3 +388,83 @@ INSTANTIATE_TEST_SUITE_P(VariantAdapterTest,
                            return convertTypesToTestCaseName(
                              std::get<0>(info.param), std::get<1>(info.param), std::get<2>(info.param));
                          });
+
+//--------------------------------------------------------------------------------------------------------------
+// ConversionTests: values the target cannot hold
+//--------------------------------------------------------------------------------------------------------------
+
+struct RefuseOutOfRange: public testing::TestWithParam<std::tuple<sen::ConstTypeHandle<>, Var, sen::ConstTypeHandle<>>>
+{
+};
+
+/// @test
+/// A value the target type cannot hold is refused and the Var is left as it was. It used to be
+/// replaced by the nearest limit and reported as a success.
+TEST_P(RefuseOutOfRange, ConversionIsRefused)
+{
+  Var var = std::get<1>(GetParam());
+  const Var original = var;
+
+  const auto result = sen::impl::adaptVariant(*std::get<2>(GetParam()), var, std::get<0>(GetParam()));
+
+  EXPECT_TRUE(result.isError());
+  EXPECT_EQ(var, original);
+}
+
+INSTANTIATE_TEST_SUITE_P(
+  VariantAdapterTest,
+  RefuseOutOfRange,
+  ::testing::Values(make_tuple(UInt16Type::get(), Var(uint16_t {35535}), UInt8Type::get()),
+                    make_tuple(UInt32Type::get(), Var(uint32_t {65536}), UInt8Type::get()),
+                    make_tuple(UInt64Type::get(), Var(uint64_t {65536}), UInt8Type::get()),
+                    make_tuple(Int16Type::get(), Var(int32_t {31234}), UInt8Type::get()),
+                    make_tuple(Int32Type::get(), Var(int32_t {65536}), UInt8Type::get()),
+                    make_tuple(Int64Type::get(), Var(int64_t {65536}), UInt8Type::get()),
+                    make_tuple(Int16Type::get(), Var(int16_t {-42}), UInt8Type::get()),
+                    make_tuple(Int32Type::get(), Var(int32_t {-42}), UInt8Type::get()),
+                    make_tuple(Int64Type::get(), Var(int64_t {-42}), UInt8Type::get()),
+                    make_tuple(Float32Type::get(), Var(float32_t {-4.2}), UInt8Type::get()),
+                    make_tuple(Float64Type::get(), Var(float64_t {-4.2}), UInt8Type::get()),
+                    make_tuple(UInt32Type::get(), Var(uint32_t {65536}), UInt16Type::get()),
+                    make_tuple(UInt64Type::get(), Var(uint64_t {65536}), UInt16Type::get()),
+                    make_tuple(Int32Type::get(), Var(int32_t {65536}), UInt16Type::get()),
+                    make_tuple(Int64Type::get(), Var(int64_t {65536}), UInt16Type::get()),
+                    make_tuple(Int16Type::get(), Var(int16_t {-42}), UInt16Type::get()),
+                    make_tuple(Int32Type::get(), Var(int32_t {-42}), UInt16Type::get()),
+                    make_tuple(Int64Type::get(), Var(int64_t {-42}), UInt16Type::get()),
+                    make_tuple(Float32Type::get(), Var(float32_t {-4.2}), UInt16Type::get()),
+                    make_tuple(Float64Type::get(), Var(float64_t {-4.2}), UInt16Type::get()),
+                    make_tuple(UInt64Type::get(), Var(uint64_t {4294967296ULL}), UInt32Type::get()),
+                    make_tuple(Int64Type::get(), Var(int64_t {4294967296LL}), UInt32Type::get()),
+                    make_tuple(Int16Type::get(), Var(int16_t {-42}), UInt32Type::get()),
+                    make_tuple(Int32Type::get(), Var(int32_t {-42}), UInt32Type::get()),
+                    make_tuple(Int64Type::get(), Var(int64_t {-42}), UInt32Type::get()),
+                    make_tuple(Float32Type::get(), Var(float32_t {-4.2}), UInt32Type::get()),
+                    make_tuple(Float64Type::get(), Var(float64_t {-4.2}), UInt32Type::get()),
+                    make_tuple(Int16Type::get(), Var(int16_t {-42}), UInt64Type::get()),
+                    make_tuple(Int32Type::get(), Var(int32_t {-42}), UInt64Type::get()),
+                    make_tuple(Int64Type::get(), Var(int64_t {-42}), UInt64Type::get()),
+                    make_tuple(Float32Type::get(), Var(float32_t {-4.2}), UInt64Type::get()),
+                    make_tuple(Float64Type::get(), Var(float64_t {-4.2}), UInt64Type::get()),
+                    make_tuple(UInt16Type::get(), Var(uint32_t {55535}), Int16Type::get()),
+                    make_tuple(UInt32Type::get(), Var(uint32_t {65536}), Int16Type::get()),
+                    make_tuple(UInt64Type::get(), Var(uint64_t {65536}), Int16Type::get()),
+                    make_tuple(Int32Type::get(), Var(int32_t {65536}), Int16Type::get()),
+                    make_tuple(Int64Type::get(), Var(int64_t {65536}), Int16Type::get()),
+                    make_tuple(Int32Type::get(), Var(int32_t {-42768}), Int16Type::get()),
+                    make_tuple(Int64Type::get(), Var(int64_t {-3147483648LL}), Int16Type::get()),
+                    make_tuple(Float32Type::get(), Var(float32_t {-42768}), Int16Type::get()),
+                    make_tuple(Float64Type::get(), Var(float64_t {-3147483648.0L}), Int16Type::get()),
+                    make_tuple(UInt32Type::get(), Var(uint32_t {3147483647}), Int32Type::get()),
+                    make_tuple(UInt64Type::get(), Var(uint64_t {3147483647}), Int32Type::get()),
+                    make_tuple(Int64Type::get(), Var(int64_t {3147483647LL}), Int32Type::get()),
+                    make_tuple(Int64Type::get(), Var(int64_t {-3147483648LL}), Int32Type::get()),
+                    make_tuple(Float32Type::get(), Var(float32_t {-3147483648.0F}), Int32Type::get()),
+                    make_tuple(Float64Type::get(), Var(float64_t {-3147483648.0L}), Int32Type::get()),
+                    make_tuple(UInt64Type::get(), Var(uint64_t {10223372036854775807UL}), Int64Type::get()),
+                    make_tuple(Float32Type::get(), Var(float32_t {-10223372036854775808.0F}), Int64Type::get()),
+                    make_tuple(Float64Type::get(), Var(float64_t {-10223372036854775808.0L}), Int64Type::get()),
+                    make_tuple(Float64Type::get(), Var(numeric_limits<float64_t>::max()), Float32Type::get()),
+                    make_tuple(Float64Type::get(), Var(numeric_limits<float64_t>::lowest()), Float32Type::get())),
+  [](const testing::TestParamInfo<RefuseOutOfRange::ParamType>& info)
+  { return convertTypesToTestCaseName(std::get<0>(info.param), std::get<1>(info.param), std::get<2>(info.param)); });

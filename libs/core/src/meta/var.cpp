@@ -506,11 +506,10 @@ private:
       {
         if constexpr (checkedConversion)
         {
-#if NDEBUG
-          return sen::std_util::checkedConversion<To, std_util::ReportPolicyLog>(from);
-#else
-          return sen::std_util::checkedConversion<To, std_util::ReportPolicyAssertion>(from);
-#endif
+          // getCopyAs is declared to throw when a conversion cannot be made, and a caller
+          // checking input it did not produce needs that, not a clamped value. Same in both
+          // configurations.
+          return sen::std_util::checkedConversion<To, std_util::ReportPolicyThrow>(from);
         }
         else
         {

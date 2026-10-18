@@ -53,6 +53,12 @@ struct ReportPolicyIgnore
   static void report(std::string_view message) { std::ignore = message; }
 };
 
+/// Refuses the conversion instead of returning a clamped value.
+struct ReportPolicyThrow
+{
+  static void report(std::string_view message) { throwRuntimeError(std::string(message)); }
+};
+
 namespace impl
 {
 /// Safely convert between two different integral types. If the value stored in
@@ -87,20 +93,20 @@ ToType conversionImpl(FromType from)
       {
         if (std::isnan(static_cast<float64_t>(from)))
         {
-          ReportPolicy::report("Needed to convert `from` to zero as it is not a number.");
+          ReportPolicy::report("the value is not a number");
           return ToType {};
         }
       }
 
       if (std::isless(static_cast<float64_t>(from), static_cast<float64_t>(std::numeric_limits<ToType>::lowest())))
       {
-        ReportPolicy::report("Needed to truncate `from` as it's value was to small for ToType.");
+        ReportPolicy::report("the value is too small for the target type");
         return std::numeric_limits<ToType>::lowest();
       }
 
       if (std::isgreater(static_cast<float64_t>(from), static_cast<float64_t>(std::numeric_limits<ToType>::max())))
       {
-        ReportPolicy::report("Needed to truncate `from` as it's value was to big for ToType.");
+        ReportPolicy::report("the value is too large for the target type");
         return std::numeric_limits<ToType>::max();
       }
 
@@ -111,13 +117,13 @@ ToType conversionImpl(FromType from)
   {
     if (sen::std_util::cmp_less(from, std::numeric_limits<ToType>::lowest()))
     {
-      ReportPolicy::report("Needed to truncate `from` as it's value was to small for ToType.");
+      ReportPolicy::report("the value is too small for the target type");
       return std::numeric_limits<ToType>::lowest();
     }
 
     if (sen::std_util::cmp_greater(from, std::numeric_limits<ToType>::max()))
     {
-      ReportPolicy::report("Needed to truncate `from` as it's value was to big for ToType.");
+      ReportPolicy::report("the value is too large for the target type");
       return std::numeric_limits<ToType>::max();
     }
 
