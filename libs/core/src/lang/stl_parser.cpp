@@ -1037,6 +1037,13 @@ QueryStatement StlParser::parseQuery()
     statement.condition = expression();
   }
 
+  // Without this the rest is dropped: `a = 1 b = 2` runs as `a = 1`, and `elapsed > 500 ms`
+  // runs as `elapsed > 500`, which a duration reads as seconds.
+  if (!isAtEnd())
+  {
+    throw error(peek(), "Unexpected '" + peek().lexeme() + "' after the query condition");
+  }
+
   return statement;
 }
 
@@ -1087,9 +1094,10 @@ std::shared_ptr<StlExpr> StlParser::equality()
 {
   auto expr = comparison();
 
-  while (match({StlTokenType::bangEqual, StlTokenType::equal}))
+  // Two of the three tokens mean equality, so the test below is for the one that does not.
+  while (match({StlTokenType::bangEqual, StlTokenType::equal, StlTokenType::equalEqual}))
   {
-    auto op = previous().type() == StlTokenType::equal ? StlBinaryOperator::eq : StlBinaryOperator::ne;
+    auto op = previous().type() == StlTokenType::bangEqual ? StlBinaryOperator::ne : StlBinaryOperator::eq;
     auto rhs = comparison();
     expr = std::make_shared<StlExpr>(StlExpr {StlExprVal {StlBinaryExpr {expr, op, rhs}}});
   }
