@@ -121,6 +121,7 @@ The operators in the `WHERE` clause are:
 | Operator              | Description                         |
 | --------------------- | ----------------------------------- |
 | `=`                   | Equal                               |
+| `==`                  | Equal, the same as `=`              |
 | `!=`                  | Not equal                           |
 | `>`                   | Greater than                        |
 | `<`                   | Less than                           |
