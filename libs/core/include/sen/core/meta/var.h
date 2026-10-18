@@ -202,7 +202,7 @@ public:
   template <typename T, bool checkedConversion = false>
   [[nodiscard]] T getCopyAs() const
   {
-    return ::sen::getCopyAs<T>(*this);
+    return ::sen::getCopyAs<T, checkedConversion>(*this);
   }
 
   /// Same as std::get<T>(this->value);.
