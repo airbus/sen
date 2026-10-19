@@ -146,7 +146,8 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
   # Avoid GCC 14 false positive warnings in std::vector internals
   if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 14.0 AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 15.0)
-    target_compile_options(core_test PRIVATE -Wno-array-bounds -Wno-nonnull -Wno-stringop-overread)
+    target_compile_options(core_test PRIVATE -Wno-array-bounds -Wno-nonnull -Wno-stringop-overread
+                                             -Wno-stringop-overflow)
   endif()
 endif()
 

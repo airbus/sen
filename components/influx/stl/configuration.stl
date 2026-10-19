@@ -8,6 +8,21 @@ enum Protocol: u8
   tcp
 }
 
+struct NoCompression;
+
+// GZip compression
+struct GZip
+{
+  level : i32  // forwarded to GZIP's compression-level parameter
+}
+
+// Type of compression applied
+variant Compression
+{
+  NoCompression,
+  GZip
+}
+
 // Overall component configuration
 struct Configuration
 {
@@ -16,5 +31,6 @@ struct Configuration
   telegrafAddress : string,         // ip or name of the Telegraf server
   telegrafPort    : u16,            // port used by the Telegraf server
   protocol        : Protocol,       // protocol used
-  batchSize       : u32             // points to batch before emission (0 means no batching)
+  batchSize       : u32,            // points to batch before emission (0 means no batching)
+  compression     : Compression     // to compress the data
 }

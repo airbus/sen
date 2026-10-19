@@ -31,8 +31,9 @@ public:
   TCP(asio::io_context& ioContext, const std::string& hostname, int port);
   ~TCP() override = default;
 
-public:
-  void send(std::string&& message) override;
+protected:
+  void doSend(sen::Span<const char> data) override;
+  [[nodiscard]] bool requiresLineSeparator() const noexcept override { return true; }
 
 private:
   /// Closes the socket and dials the endpoint once. False when the far end is still gone.
@@ -84,10 +85,9 @@ inline bool TCP::reconnect()
   return !error;
 }
 
-inline void TCP::send(std::string&& message)
+inline void TCP::doSend(sen::Span<const char> data)
 {
-  message.append("\n");
-  const auto buffer = asio::buffer(message, message.size());
+  const auto buffer = asio::buffer(data.data(), data.size());
 
   asio::error_code error;
   asio::write(socket_, buffer, error);
