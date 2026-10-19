@@ -42,7 +42,8 @@ class RecordingTransport final: public Transport
 public:
   explicit RecordingTransport(std::vector<std::string>& sink): sink_(sink) {}
 
-  void send(std::string&& message) override { sink_.emplace_back(std::move(message)); }
+protected:
+  void doSend(sen::Span<const char> message) override { sink_.emplace_back(message.data()); }
 
 private:
   std::vector<std::string>& sink_;

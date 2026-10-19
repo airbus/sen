@@ -28,8 +28,8 @@ public:
   UDP(asio::io_context& ioContext, const std::string& hostname, int port);
   ~UDP() override = default;
 
-public:
-  void send(std::string&& message) override;
+protected:
+  void doSend(sen::Span<const char> data) override;
 
 private:
   asio::io_context& ioContext_;
@@ -51,11 +51,11 @@ inline UDP::UDP(asio::io_context& ioContext, const std::string& hostname, int po
   }
 }
 
-inline void UDP::send(std::string&& message)
+inline void UDP::doSend(sen::Span<const char> data)
 {
   try
   {
-    socket_.send_to(asio::buffer(message, message.size()), endpoint_);
+    socket_.send_to(asio::buffer(data.data(), data.size()), endpoint_);
   }
   catch (const asio::system_error& e)
   {

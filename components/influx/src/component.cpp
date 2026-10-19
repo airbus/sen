@@ -74,6 +74,11 @@ public:
         break;
     }
 
+    // set the compression, if any
+    std::visit(::sen::Overloaded {[&](const GZip& value) { transport->setCompressionEnabled(true, value.level); },
+                                  [](const NoCompression&) {}},
+               config.compression);
+
     // create the database
     auto database = std::make_unique<Database>(std::move(transport));
     if (config.batchSize != 0)

@@ -123,10 +123,12 @@ class SenConan(ConanFile):
         self.requires("concurrentqueue/1.0.4", visible=False)
         self.requires("inja/3.5.0", visible=False)
         self.requires("lz4/1.9.4", visible=False)
+        self.requires("zlib/1.3.2", visible=False)
         self.requires("nlohmann_json/3.11.3", visible=False)
         self.requires("pugixml/1.14", visible=False)
         self.requires("rapidyaml/0.5.0", visible=False)
         self.requires("cpptrace/1.0.4", visible=False)
+
         # Crashpad writes the minidump out of process. Sentry's fork is the maintained packaging.
         # Sen never uploads a report, so the handler's TLS support is off -- that option exists only
         # on Linux -- and so is libcurl's, which crashpad links there and which otherwise pulls
@@ -136,6 +138,7 @@ class SenConan(ConanFile):
         if self.settings.os == "Linux":
             crashpad_options["with_tls"] = False
         self.requires("sentry-crashpad/0.6.5", options=crashpad_options, visible=False)
+
         # Shared because the registry is a singleton: a static copy gives every shared library its
         # own, and a component's spdlog::get then does not find the kernel's loggers. Headers and
         # libraries both, because a consumer compiles spdlog's templates and has to link what they

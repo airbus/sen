@@ -8,6 +8,7 @@
 sen_internal_component_guard(NAME influx)
 
 include(tps/spdlog)
+include(tps/zlib)
 include(tps/asio)
 
 add_sen_package(
@@ -30,6 +31,7 @@ add_sen_package(
   PRIVATE_DEPS asio::asio spdlog::spdlog
   TEST_TARGET influx_for_testing
   IS_COMPONENT
+  PRIVATE_DEPS ZLIB::ZLIB
 )
 
 sen_enable_static_analysis(influx)

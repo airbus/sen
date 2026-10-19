@@ -16,6 +16,9 @@
 #include "sen/core/base/numbers.h"
 #include "sen/core/base/timestamp.h"
 
+// zlib
+#include <zlib.h>
+
 // std
 #include <cstddef>
 #include <cstdint>
@@ -26,6 +29,80 @@
 
 namespace sen::components::influx
 {
+
+void Transport::setCompressionEnabled(bool enabled, int level) noexcept
+{
+  compressionEnabled_ = enabled;
+  compressionLevel_ = level;
+}
+
+bool Transport::getCompressionEnabled() const noexcept { return compressionEnabled_; }
+
+std::vector<char> Transport::compressGzip(std::string& str, int compressionLevel)
+{
+  z_stream zs = {};
+  std::memset(&zs, 0, sizeof(zs));
+
+  // windowBits = 15 + 16 forces zlib to write a standard gzip header/trailer
+  if (deflateInit2(&zs, compressionLevel, Z_DEFLATED, 15 + 16, 8, Z_DEFAULT_STRATEGY) != Z_OK)
+  {
+    throw std::runtime_error("deflateInit2 failed while initializing gzip.");
+  }
+
+  zs.next_in = reinterpret_cast<Bytef*>(str.data());  // NOLINT
+  zs.avail_in = str.size();
+
+  constexpr std::size_t maxBufferSize = 32768;
+
+  int ret;
+  char outBuffer[maxBufferSize];
+  std::vector<char> outputData;
+
+  // Retrieve the compressed data blocks
+  do
+  {
+    zs.next_out = reinterpret_cast<Bytef*>(outBuffer);  // NOLINT
+    zs.avail_out = sizeof(outBuffer);
+
+    ret = deflate(&zs, Z_FINISH);
+
+    if (outputData.size() < zs.total_out)
+    {
+      // Append the new compressed block to our container NOLINTNEXTLINE
+      outputData.insert(outputData.end(), outBuffer, outBuffer + sizeof(outBuffer) - zs.avail_out);
+    }
+  } while (ret == Z_OK);
+
+  deflateEnd(&zs);
+
+  if (ret != Z_STREAM_END)
+  {
+    throw std::runtime_error("Exception occurred while compressing to gzip");
+  }
+
+  return outputData;
+}
+
+void Transport::send(std::string&& message)
+{
+  if (compressionEnabled_)
+  {
+    if (requiresLineSeparator())
+    {
+      message.append("\n");
+    }
+
+    doSend(makeConstSpan(compressGzip(message, compressionLevel_)));
+  }
+  else
+  {
+    doSend(makeConstSpan(message.data(), message.size()));
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+// Database
+//----------------------------------------------------------------------------------------------------------------------
 
 std::string Database::joinLineProtocolBatch() const
 {

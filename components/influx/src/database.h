@@ -10,8 +10,15 @@
 
 #include "data_point.h"
 
+// sen
+#include "sen/core/base/span.h"
+
 namespace sen::components::influx
 {
+
+//----------------------------------------------------------------------------------------------------------------------
+// Transport
+//----------------------------------------------------------------------------------------------------------------------
 
 class Transport
 {
@@ -22,8 +29,24 @@ public:
   virtual ~Transport() = default;
 
 public:
-  virtual void send(std::string&& message) = 0;
+  void send(std::string&& message);
+  void setCompressionEnabled(bool enabled, int level) noexcept;
+
+  [[nodiscard]] bool getCompressionEnabled() const noexcept;
+
+protected:
+  virtual void doSend(sen::Span<const char> data) = 0;
+  [[nodiscard]] virtual bool requiresLineSeparator() const noexcept { return false; }
+  [[nodiscard]] static std::vector<char> compressGzip(std::string& str, int compressionLevel);
+
+private:
+  bool compressionEnabled_;
+  int compressionLevel_ = 0;
 };
+
+//----------------------------------------------------------------------------------------------------------------------
+// Database
+//----------------------------------------------------------------------------------------------------------------------
 
 class Database
 {
@@ -104,7 +127,17 @@ inline void Database::flushBatch()
   }
 }
 
-inline void Database::transmit(std::string&& point) { transport_->send(std::move(point)); }
+inline void Database::transmit(std::string&& point)
+{
+  //-->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  //-->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  //-->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  //-->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  //-->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  //-->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  //-->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  transport_->send(std::move(point));
+}
 
 inline void Database::addPointToBatch(DataPoint&& point)
 {
