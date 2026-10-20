@@ -585,6 +585,13 @@ bool App::handleInputKey(const ftxui::Event& event)
     ui_->clearCompletion();
     return true;
   }
+  if (event == ftxui::Event::CtrlK)
+  {
+    buf.erase(cursor());
+    ui_->inputTruncated = false;
+    ui_->clearCompletion();
+    return true;
+  }
   // Recall by substring, so an earlier command can be found without pressing Up until it appears. The
   // query is whatever is already on the line, which needs no search prompt, and the typed line comes
   // back on ArrowDown.
@@ -999,8 +1006,8 @@ bool App::handleFormEvent(ftxui::Event event)
   //
   // Anything else returns false, and the caller then offers it to the scroll, copy and help handlers.
   return event == ftxui::Event::Delete || event == ftxui::Event::Backspace || event == ftxui::Event::Home ||
-         event == ftxui::Event::End || event == ftxui::Event::CtrlW || event == ftxui::Event::ArrowLeftCtrl ||
-         event == ftxui::Event::ArrowRightCtrl;
+         event == ftxui::Event::End || event == ftxui::Event::CtrlK || event == ftxui::Event::CtrlW ||
+         event == ftxui::Event::ArrowLeftCtrl || event == ftxui::Event::ArrowRightCtrl;
 }
 
 void App::insertPastedText(std::string_view text)
