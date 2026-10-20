@@ -51,10 +51,13 @@
 #include <array>
 #include <cctype>
 #include <cstddef>
+#include <cstdint>
 #include <exception>
+#include <iomanip>
 #include <iterator>
 #include <memory>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -1453,14 +1456,14 @@ void CommandEngine::cmdHistory(std::string_view args)
   {
     try
     {
-      long long parsed_limit = std::stoll(std::string(args));
+      int64_t parsedLimit = std::stoll(std::string(args));
 
-      if (parsed_limit <= 0)
+      if (parsedLimit <= 0)
       {
         throw std::invalid_argument("Not a positive number");
       }
 
-      limit = static_cast<std::size_t>(parsed_limit);
+      limit = static_cast<std::size_t>(parsedLimit);
     }
     catch (...)
     {
