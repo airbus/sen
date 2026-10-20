@@ -79,9 +79,9 @@ struct UnixGram
 // well-formed lines and rejected the rest, so it is not a refusal; its reason text says which.
 struct Http
 {
-  address : string,  // ip or name of the Telegraf server
-  port    : u16,     // port the Telegraf listener serves
-  path : string,  // request target, "/write" unless Telegraf was given another
+  address        : string,  // ip or name of the Telegraf server
+  port           : u16,     // port the Telegraf listener serves
+  path           : string,  // request target, "/write" unless Telegraf was given another
   maxMessageSize : u32,     // bytes one request body may carry, 0 for Telegraf's own 32 MiB limit
   username       : string,  // basic authentication, when the listener asks for it; empty for none
   password       : string   // sent with the username, so keep this file where a password may live
