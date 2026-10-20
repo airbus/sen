@@ -45,19 +45,14 @@
 namespace sen::components::influx
 {
 
-/// Telegraf's influxdb_listener over HTTP. The body is framed by its length, so this transport
-/// needs neither a line separator nor a datagram bound, and the answer says whether the batch was
-/// accepted.
+/// Telegraf's influxdb_listener over HTTP/1.1. The body is framed by its length, so this transport
+/// needs no line separator and no datagram bound, and the answer says whether the batch was taken.
 ///
-/// Only what a write to /write needs. It speaks HTTP/1.1 in the clear, with basic authentication
-/// when a username is configured; it does not do TLS, because that would put OpenSSL on every
-/// consumer of Sen. It does not follow redirects, reporting a 3xx instead, and it sends no chunked
-/// request body. A chunked answer closes the connection rather than risk reading the next one at
-/// the wrong offset; an answer with a declared length is drained and its text reported, which is
-/// how a refused batch says more than its status code.
-/// The largest field block and the largest answer body this will read. The buffer maximum and the
-/// declared-length check use the same figure for the body, because two literals can drift and a
-/// limit above the buffer's maximum leaves a read unable to satisfy its completion condition.
+/// No TLS, which would put OpenSSL on every consumer of Sen; no redirects, reported as a 3xx; no
+/// chunked request body. A chunked answer ends the connection, since its extent cannot be known
+/// without parsing its framing.
+/// The largest field block and answer body this will read. One figure for the body, used by both
+/// the buffer's maximum and the declared-length check, so the two cannot disagree.
 constexpr std::size_t httpFieldBlockLimit = 16U * 1024U;
 constexpr std::size_t httpAnswerBodyLimit = 64U * 1024U;
 
@@ -88,12 +83,9 @@ private:
     fateUnknown
   };
 
-  /// What one bounded operation did.
-  ///
-  /// `handedToSocket` is what the kernel accepted into the send buffer, not what Telegraf received:
-  /// a complete write against a peer that closed ten seconds ago is ordinary. It is still the
-  /// figure that decides a retry, because Telegraf's listener stores each line as it parses it, so
-  /// a body that partly left this host may already be points while one that never left cannot be.
+  /// What one bounded operation did. `handedToSocket` is what the kernel accepted, not what
+  /// Telegraf received -- a complete write to a peer that closed long ago is ordinary -- but it is
+  /// what decides a retry, since the listener stores each line as it parses it.
   struct Bounded
   {
     asio::error_code error;
@@ -108,12 +100,11 @@ private:
   [[nodiscard]] Bounded runBounded(Start&& start);
 
   [[nodiscard]] bool connect();
-  /// True when a connection that was already open cannot be used as it stands -- either the far
-  /// end has closed it, or it is alive but out of step, which a byte waiting to be read on an idle
-  /// connection is evidence of. Both answers mean the same thing to the caller: dial again.
+  /// True when an already-open connection cannot be used as it stands: the far end has closed it,
+  /// or a byte waiting on an idle connection shows it is out of step. Either way, dial again.
   ///
-  /// Asked before writing, which is the only moment either is unambiguous: afterwards an
-  /// end-of-file cannot be told apart from a listener that read the batch and then died.
+  /// Asked before writing, the only moment the answer is unambiguous: afterwards an end-of-file
+  /// cannot be told from a listener that read the batch and died.
   [[nodiscard]] bool connectionUnusable();
   /// Reads until the delimiter, or exactly `exactly` bytes when no delimiter is given. False when
   /// it failed or ran out of time, and the caller then ends the connection: a half-read answer
@@ -128,15 +119,12 @@ private:
   {
     /// A status line was read.
     read,
-    /// The far end closed having sent nothing. This does not establish that the request was never
-    /// seen -- a listener that read the batch, stored every line and died before writing its
-    /// status looks the same from here. What makes a retry reasonable is the caller's further
-    /// knowledge that the connection was an idle one being reused, which a server drops far more
-    /// often than it crashes inside that window. The qualifier carries the argument, not this.
+    /// The far end closed having sent nothing. On its own this does not mean the request was
+    /// unseen -- a listener that stored every line and died before answering looks the same -- so
+    /// only the caller's knowledge that the connection was an idle reused one justifies a retry.
     peerClosed,
-    /// The deadline ran out, or what arrived could not be read. Says nothing about whether
-    /// Telegraf took the batch: it answers only after its parse loop, and its own notion of slow
-    /// is ten seconds, so a batch it is still working through looks exactly like this.
+    /// The deadline ran out, or what arrived could not be read. Says nothing about whether the
+    /// batch was taken.
     noAnswer
   };
 
@@ -227,8 +215,7 @@ inline HttpTransport::HttpTransport(const std::string& hostname,
     authorization_.append(sen::std_util::base64Encode(credentials)).append("\r\n");
   }
 
-  // Synchronous, and deliberately so: this runs once while the component loads, not on a
-  // recording cycle, and the other transports resolve the same way.
+  // Synchronous: this runs once while the component loads, not on a recording cycle.
   asio::ip::tcp::resolver resolver(ioContext_);
   endpoints_ = resolver.resolve(hostname, std::to_string(port));
 
@@ -339,14 +326,9 @@ inline bool HttpTransport::connectionUnusable()
   asio::error_code restoring;
   std::ignore = socket_.non_blocking(false, restoring);
 
-  // Nothing readable yet is the healthy state of an idle keep-alive connection.
-  //
-  // Anything else means this connection cannot be used as it stands. An error, or a read of zero
-  // bytes, is the far end gone. A byte actually waiting is not health either: Go sends nothing
-  // unsolicited on an idle keep-alive connection -- on its read timeout it closes without
-  // replying -- so a readable byte means the previous answer was mis-framed and this connection's
-  // offsets are no longer known. Either way a new connection is the only way back to a known
-  // position, which is what a true here asks the caller for.
+  // Go sends nothing unsolicited on an idle keep-alive connection, so a byte waiting here is not
+  // health: it means the previous answer was mis-framed and the offsets are no longer known. An
+  // error or a zero-byte read is the far end gone. Only would_block says the connection is usable.
   return asking != asio::error::would_block;
 }
 
@@ -558,7 +540,7 @@ inline int HttpTransport::readAnswer(std::string& reason, AnswerOutcome& outcome
     if (closed && !closedUnread)
     {
       // Part of a field block arrived and then the peer closed: not a deadline, and not an unread
-      // request either. Worth saying, because it means the listener died mid-answer.
+      // request either: the listener died mid-answer.
       reason = "the listener closed part way through its answer";
     }
 
@@ -581,10 +563,8 @@ inline int HttpTransport::readAnswer(std::string& reason, AnswerOutcome& outcome
   int status = 0;
   stream >> version >> status;
 
-  // The reason phrase is still in the buffer, and it may legally contain a colon, so without this
-  // the first header read is the tail of the status line parsed as a header of its own. Untidy
-  // rather than harmful -- it consumes no real header -- so no test distinguishes the two, which
-  // was checked rather than assumed.
+  // The reason phrase is still in the buffer and may legally contain a colon, which would make the
+  // tail of the status line parse as a header of its own.
   std::string reasonPhrase;
   std::ignore = std::getline(stream, reasonPhrase);
 
@@ -632,12 +612,10 @@ inline int HttpTransport::readAnswer(std::string& reason, AnswerOutcome& outcome
     return status;
   }
 
-  // No declared length and no chunked framing leaves the body's extent unknown, so anything that
-  // follows would be read as the next answer. 204 and 304 are exempt because they cannot carry a
-  // body at all -- and that exemption is load-bearing rather than tidiness: Telegraf answers a
-  // successful write with 204 and Go omits Content-Length on one, so treating a missing length as
-  // unknown would tear down every healthy connection. The tests here send an explicit
-  // "Content-Length: 0" and would not have shown it.
+  // No declared length and no chunked framing leaves the body's extent unknown, so what follows
+  // would be read as the next answer. 204 and 304 cannot carry a body and must stay exempt:
+  // Telegraf answers a successful write with 204 and Go omits the length on one, so without the
+  // exemption every healthy connection is torn down.
   constexpr auto noContent = 204;
   constexpr auto notModified = 304;
   if (!lengthSeen && !chunked && status != noContent && status != notModified)
@@ -775,23 +753,18 @@ inline HttpTransport::SendOutcome HttpTransport::exchange(const std::string& req
     return SendOutcome::delivered;
   }
 
-  // A connection that was already open, closed with nothing sent: the listener dropped it while it
-  // was idle, which it does before reading, so the request was never seen. The peek in doSend
-  // catches most of these before the write; this covers one that closed in between.
-  //
-  // A deadline that ran out is deliberately not this case. Telegraf answers only once its parse
-  // loop has ended and treats ten seconds as slow, so a batch it took and is still working through
-  // arrives here looking identical, and sending that again delivers it twice.
+  // A reused connection closed with nothing sent: the listener drops an idle one before reading
+  // it, so the request was never seen. A deadline is deliberately not this case -- Telegraf answers
+  // only after its parse loop and treats ten seconds as slow, so a batch it is still working
+  // through looks identical, and resending it delivers it twice.
   if (outcome == AnswerOutcome::peerClosed && reusedConnection)
   {
     return SendOutcome::notSent;
   }
 
-  // A connection dialled for this request and then closed with nothing sent is most likely a
-  // listener going down, and almost certainly never read the batch -- but "almost" is the whole
-  // difficulty: the same bytes appear if it read the batch, stored every line and died before
-  // answering. The batch is dropped rather than risk the duplicate, and the operator is told which
-  // of the two unanswered cases this was, because they point at different things.
+  // A fresh connection closed with nothing sent is most likely a listener going down, but the same
+  // bytes appear if it stored every line and died before answering, so the batch is dropped rather
+  // than risk a duplicate. The cause is reported, since the two point at different things.
   if (outcome == AnswerOutcome::peerClosed)
   {
     reason = reason.empty() ? "the listener closed the connection without answering" : reason;
@@ -862,10 +835,9 @@ inline void HttpTransport::doSend(sen::Span<const char> data)
 {
   const auto request = makeRequest(data.size());
 
-  // Two attempts, and the second only where Telegraf cannot have seen the request. A write usually
-  // succeeds even against a connection the far end has closed, because the kernel takes the bytes
-  // and the failure surfaces on the read instead; so the case worth retrying shows up as an answer
-  // that never started on a connection that was already open, not as a failed write.
+  // Two attempts, the second only where Telegraf cannot have seen the request. A write succeeds
+  // even against a closed connection, because the kernel takes the bytes, so the signal is how much
+  // of the request went out and whether an answer started -- not whether the write failed.
   for (auto attempt = 0; attempt < 2; ++attempt)
   {
     // Asked before writing rather than inferred afterwards. A connection the listener closed while

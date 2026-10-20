@@ -66,11 +66,9 @@
 
 namespace influx::test
 
-// asio's umbrella headers forward to impl headers, so misc-include-cleaner cannot map
-// asio::read, asio::write, asio::read_until or asio::transfer_exactly to the header that
-// declares them. Stated once for the whole of this test code rather than per line: the line
-// suppressions kept being rewrapped away from their target, and each new listener needed its
-// own. This suppresses that one check and nothing else.
+// asio's umbrella headers forward to impl headers, so misc-include-cleaner cannot map asio::read,
+// asio::write, asio::read_until or asio::transfer_exactly to the header declaring them. One block
+// for the file: a suppression per line gets rewrapped away from its target.
 // NOLINTBEGIN(misc-include-cleaner)
 {
 
@@ -714,7 +712,7 @@ TEST(InfluxUnixTransportTest, AStreamArrivesWithItsSeparator)
     awaitBounded(io, [&](auto&& handler) { acceptor.async_accept(peer, std::forward<decltype(handler)>(handler)); });
   ASSERT_FALSE(acceptError) << acceptError.message();
 
-  // Up to the separator the stream listener splits on, which is what this test is about.
+  // Up to the separator a stream listener splits on.
   asio::streambuf incoming;
   const auto readError = awaitBounded(
     io,
@@ -881,10 +879,8 @@ TEST(InfluxHttpTransportTest, ARefusedBatchIsReported)
 /// reported. The status alone cannot distinguish a clean refusal from a batch whose well-formed
 /// lines were kept, so this text is the only thing that can.
 ///
-/// The answer also carries a colon in its reason phrase, which is legal. That is here as an input
-/// worth covering rather than as a guard: parsing the status line naively turns its tail into an
-/// extra header of its own, which is untidy but consumes no real header, so this test passes either
-/// way. It was checked by removing the fix and watching it still pass.
+/// The colon in the reason phrase is legal, and covered here as an input rather than as a guard:
+/// the header that matters is found either way.
 TEST(InfluxHttpTransportTest, TheListenersReasonIsReportedAndAColonInTheReasonPhraseDoesNotHideIt)
 {
   asio::io_context listenerIo;
@@ -979,10 +975,8 @@ TEST(InfluxHttpTransportTest, AnAnswerWithBareLineFeedsIsStillRead)
 /// paths where its handler leaves the body unread -- a 413, or a gzip body it could not open -- so
 /// a transport that ignores it sends the next batch on a socket the server has finished with.
 ///
-/// The listener deliberately holds its first socket open after answering. An earlier version of
-/// this test let it fall out of scope each iteration, which closed the connection from the server
-/// side and made the assertion pass whether the header was honoured or not; it was planted to find
-/// that out.
+/// The listener holds its first socket open after answering, so only the transport can end that
+/// connection. A listener that closed it would make the assertion pass either way.
 TEST(InfluxHttpTransportTest, AnAnswerAskingToCloseIsNotReused)
 {
   asio::io_context listenerIo;
@@ -1043,7 +1037,7 @@ TEST(InfluxHttpTransportTest, AnAnswerAskingToCloseIsNotReused)
 /// carry a body -- so a transport that treated a missing length as an unknown body extent would
 /// reconnect on every healthy batch.
 ///
-/// Every other test here sends an explicit "Content-Length: 0" and so would not show it.
+/// Every other test here sends an explicit "Content-Length: 0", which would hide it.
 TEST(InfluxHttpTransportTest, ASuccessWithNoDeclaredLengthKeepsTheConnection)
 {
   asio::io_context listenerIo;
@@ -1106,9 +1100,8 @@ TEST(InfluxHttpTransportTest, ASuccessWithNoDeclaredLengthKeepsTheConnection)
 /// still working through looks, from here, exactly like a connection it never read. Sending that
 /// again delivers every point in it twice, silently.
 ///
-/// The defect needs a *reused* connection, so the first batch must be answered promptly to leave
-/// one open: on a freshly dialled connection the misclassification cannot fire, and a test that
-/// sends only one batch passes whether the bug is present or not. This was checked by planting it.
+/// The first batch is answered promptly to leave a connection open: the misclassification needs a
+/// reused one, so a single batch on a freshly dialled connection would prove nothing.
 TEST(InfluxHttpTransportTest, ASlowAnswerOnAReusedConnectionIsNotTakenForAnUnreadRequest)
 {
   asio::io_context listenerIo;
@@ -1505,10 +1498,8 @@ TEST(InfluxBatchBoundTest, CompressionRaisesTheBatchBoundAndZeroStaysUnbounded)
 /// the value changing. This records the measurement the constant rests on, so a change in what Sen
 /// emits that invalidated it fails here rather than quietly costing packets.
 ///
-/// Asserted only where the cap governs. At 32 points the batch is a couple of kilobytes and flushes
-/// on point count long before any byte cap is near, so its ratio is recorded and not asserted:
-/// holding the threshold down to accommodate a regime the cap never reaches would have let the band
-/// between that ratio and the constant pass, which is exactly the state this test exists to report.
+/// Asserted only where the cap governs. At 32 points the batch flushes on point count long before
+/// any byte cap is near, so that ratio is recorded and not asserted.
 TEST(InfluxCompressionRatioTest, SenLineProtocolCompressesPastTheBatchMultiple)
 {
   // The multiple component.cpp uses. The transport has to split a compressed payload only where
