@@ -135,8 +135,8 @@ struct Identity
 // when the caller opted in. `schema` is empty when not requested.
 struct TypeLookupResult
 {
-  spec : sen.kernel.CustomTypeSpec,
-  schema : string                       // JSON-encoded schema fragment; "" when withSchema=false
+  spec   : sen.kernel.CustomTypeSpec,
+  schema : string                      // JSON-encoded schema fragment; "" when withSchema=false
 }
 
 // JsonRpcServer -- the JSON-RPC over WebSocket external API, expressed as a Sen class.

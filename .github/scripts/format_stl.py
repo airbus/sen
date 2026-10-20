@@ -32,8 +32,11 @@ MEMBER = re.compile(
 def split_member(line: str) -> dict[str, str] | None:
     """The fields of a member declaration, or None when the line is something else."""
     # A quoted string can hold a colon or a comment marker, and splitting on those would move text
-    # rather than whitespace.
-    if '"' in line:
+    # rather than whitespace. Only the code can do that, so a quote in the trailing comment is
+    # harmless: testing the whole line left any member whose comment mentioned a quoted value
+    # unaligned, and broke the run around it. A quoted string containing "//" still bails, because
+    # its opening quote precedes the marker this splits on.
+    if '"' in line.split("//", maxsplit=1)[0]:
         return None
     match = MEMBER.match(line.rstrip())
     if match is None or not line.strip():

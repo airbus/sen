@@ -38,13 +38,13 @@ sequence<string> NameList;
 struct Configuration
 {
   initialScope : string,       // initial scope, e.g. "local.demo"; its bus must be in open too. Empty means root.
-  timeStyle   : TimeStyle,    // how to display time (default: utc)
-  theme       : ThemeStyle,   // color theme (default: catppuccinMocha)
-  noLogo      : bool,         // true to suppress the welcome banner
-  open        : SourcesList,  // sources to open automatically at startup
-  query       : QueryList,    // named queries to create automatically at startup
-  listen      : NameList,     // event listeners to register at startup (object or object.event)
-  callTimeout : Duration,     // async call timeout (default: 30s)
+  timeStyle    : TimeStyle,    // how to display time (default: utc)
+  theme        : ThemeStyle,   // color theme (default: catppuccinMocha)
+  noLogo       : bool,         // true to suppress the welcome banner
+  open         : SourcesList,  // sources to open automatically at startup
+  query        : QueryList,    // named queries to create automatically at startup
+  listen       : NameList,     // event listeners to register at startup (object or object.event)
+  callTimeout  : Duration,     // async call timeout (default: 30s)
 }
 // --8<-- [end:config]
 
