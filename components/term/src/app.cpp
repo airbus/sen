@@ -31,6 +31,7 @@
 #include <ftxui/component/event.hpp>
 #include <ftxui/component/loop.hpp>
 #include <ftxui/dom/elements.hpp>
+#include <ftxui/screen/box.hpp>
 #include <ftxui/screen/string.hpp>
 #include <ftxui/screen/terminal.hpp>
 
@@ -142,6 +143,10 @@ struct App::UiState
   // Submitting a line that was cut sends an argument the user never finished, and the failure is then
   // reported as a parse error naming text they did not type.
   bool inputTruncated = false;
+
+  // Captured bounding box of the command pane from the previous frame. Used to know the exact height available for soft
+  // clear.
+  ftxui::Box lastCommandBox;
 
   /// Record the span a completion candidate replaces, and the state of the buffer it was measured
   /// against.
@@ -787,7 +792,14 @@ ftxui::Component App::createRenderer(ftxui::Component wrappedInput)
     wrappedInput,
     [this, wrappedInput]() -> ftxui::Element
     {
-      auto commandArea = ui_->commandPane.render() | styles::inputBg() | styles::inputFg();
+      int availableHeight = ui_->lastCommandBox.y_max - ui_->lastCommandBox.y_min + 1;
+      if (availableHeight > 1 && ui_->commandPane.getVisibleHeight() != availableHeight)
+      {
+        ui_->commandPane.setVisibleHeight(availableHeight);
+      }
+
+      auto commandArea =
+        ui_->commandPane.render() | ftxui::reflect(ui_->lastCommandBox) | styles::inputBg() | styles::inputFg();
       if (toastVisible())
       {
         commandArea = ftxui::dbox(
@@ -847,7 +859,8 @@ ftxui::Component App::createEventHandler(ftxui::Component renderer)
                                // than all of handleGlobalEvent: Ctrl+D here would end the process with a
                                // half-filled form on screen.
                                if (event == ftxui::Event::PageUp || event == ftxui::Event::PageDown ||
-                                   event == ftxui::Event::F1 || event == ftxui::Event::CtrlY)
+                                   event == ftxui::Event::F1 || event == ftxui::Event::CtrlY ||
+                                   event == ftxui::Event::CtrlL)
                                {
                                  return handleGlobalEvent(event);
                                }
@@ -1352,6 +1365,13 @@ bool App::handleGlobalEvent(ftxui::Event event)
   {
     ui_->exitConfirmPending = false;
     requestRedraw();
+  }
+
+  if (event == ftxui::Event::CtrlL)
+  {
+    ui_->commandPane.softClear();
+    requestRedraw();
+    return true;
   }
 
   if (event == ftxui::Event::F1)

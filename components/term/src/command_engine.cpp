@@ -739,6 +739,7 @@ void CommandEngine::cmdHelp(std::string_view args)
     {"Tab / Shift+Tab", "Cycle through completions"},
     {"Enter / .", "Accept completion (drill into paths)"},
     {"Escape", "Cancel completion / clear the line / arm exit"},
+    {"Ctrl+L", "Scroll output out of view"},
     {"Ctrl+W", "Erase the word before the cursor"},
     {"Ctrl+R", "Recall the last command containing the line"},
     {"PageUp / PageDown", "Scroll the output ten rows"},
