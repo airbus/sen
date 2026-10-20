@@ -13,6 +13,8 @@ add_sen_unit_test_suite(
   LINK_DEPS
   sen::core
   influx_for_testing
+  ZLIB::ZLIB
+  asio::asio
 )
 
 # The component's headers are private to it, and the line protocol is only reachable through them.

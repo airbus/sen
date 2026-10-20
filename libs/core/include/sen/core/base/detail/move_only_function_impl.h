@@ -5,6 +5,10 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
+// No include guard, on purpose: move_only_function.h includes this file once per combination of
+// GENERATE_WITH_CV and GENERATE_WITH_REF to stamp out each specialization. A guard would keep the
+// first and silently drop the rest.
+
 // NOLINTBEGIN(misc-include-cleaner)
 // Due to the include stamping trick, the checker gets confused here
 

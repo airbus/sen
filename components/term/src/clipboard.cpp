@@ -8,13 +8,14 @@
 #include "clipboard.h"
 
 // sen
+#include "sen/core/base/base64.h"
+
+// sen
 #include "sen/kernel/component_api.h"
 
 // std
 #include <chrono>
 #include <condition_variable>
-#include <cstddef>
-#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -35,26 +36,6 @@
 namespace sen::components::term::clipboard
 {
 
-std::string base64Encode(std::string_view input)
-{
-  constexpr std::string_view alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-  std::string out;
-  out.reserve(((input.size() + 2U) / 3U) * 4U);
-
-  auto byteAt = [&](std::size_t k)
-  { return k < input.size() ? static_cast<std::uint32_t>(static_cast<unsigned char>(input[k])) : 0U; };
-
-  for (std::size_t i = 0U; i < input.size(); i += 3U)
-  {
-    const std::uint32_t triple = (byteAt(i) << 16U) | (byteAt(i + 1U) << 8U) | byteAt(i + 2U);
-    out.push_back(alphabet[(triple >> 18U) & 0x3FU]);
-    out.push_back(alphabet[(triple >> 12U) & 0x3FU]);
-    out.push_back(i + 1U < input.size() ? alphabet[(triple >> 6U) & 0x3FU] : '=');
-    out.push_back(i + 2U < input.size() ? alphabet[triple & 0x3FU] : '=');
-  }
-  return out;
-}
-
 namespace
 {
 
@@ -67,7 +48,7 @@ void emitTerminalEscape(std::string_view text)
   // Through std::cout rather than the C stdout: OutputCapture's CoutRouter sends the loop thread's
   // writes straight to the terminal, and a command runs on that thread. Written to `stdout` these
   // bytes would land in the output pane as mojibake and copy nothing.
-  const auto encoded = base64Encode(text);
+  const auto encoded = sen::std_util::base64Encode(text);
   std::cout << "\x1b]52;cp;";
   std::cout.write(encoded.data(), static_cast<std::streamsize>(encoded.size()));
   std::cout << "\x07" << std::flush;

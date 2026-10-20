@@ -8,9 +8,12 @@ load:
     imports: [py_test_package]
   - name: influx
     group: 4
-    protocol: udp
-    telegrafAddress: 127.0.0.1
-    telegrafPort: 18086
+    transport:
+      type: Udp
+      value:
+        address: 127.0.0.1
+        port: 18086
+        maxMessageSize: 65500
     samplingPeriod: 20ms
     batchSize: 0
     selections:

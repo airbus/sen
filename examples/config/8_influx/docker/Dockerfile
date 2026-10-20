@@ -35,8 +35,13 @@ RUN apt-get update && apt-get install grafana
 COPY config/telegraf.conf /etc/telegraf/telegraf.conf
 COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+# Grafana reads these at startup, so the data source and the dashboard are there before anyone logs
+# in. Doing it through the interface is the same thing, typed.
+COPY config/grafana/datasources /etc/grafana/provisioning/datasources
+COPY config/grafana/dashboards /etc/grafana/provisioning/dashboards
+
 # expose the necessary ports to make it work
-EXPOSE 8086 3000 8094
+EXPOSE 8086 3000 8094 8094/udp
 
 # start all three services
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

@@ -1,0 +1,35 @@
+{
+  "title": "School",
+  "uid": "sen-school",
+  "tags": ["sen"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "time": { "from": "now-1m", "to": "now" },
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Brain activity",
+      "id": 1,
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 0 },
+      "datasource": { "type": "influxdb", "uid": "InfluxDB" },
+      "fieldConfig": {
+        "defaults": { "custom": { "drawStyle": "line", "lineWidth": 1 } },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "influxdb", "uid": "InfluxDB" },
+          "measurement": "school.Student.brainActivity",
+          "policy": "default",
+          "resultFormat": "time_series",
+          "groupBy": [{ "type": "tag", "params": ["object"] }],
+          "select": [[{ "type": "field", "params": ["value"] }]],
+          "tags": []
+        }
+      ]
+    }
+  ]
+}

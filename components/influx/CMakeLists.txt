@@ -23,15 +23,17 @@ add_sen_package(
           src/database.cpp
           src/recorder.h
           src/recorder.cpp
+          src/http.h
           src/tcp.h
           src/udp.h
+          src/unix_datagram.h
+          src/unix_stream.h
           src/util.h
           src/util.cpp
   STL_FILES stl/configuration.stl
-  PRIVATE_DEPS asio::asio spdlog::spdlog
+  PRIVATE_DEPS asio::asio spdlog::spdlog ZLIB::ZLIB
   TEST_TARGET influx_for_testing
   IS_COMPONENT
-  PRIVATE_DEPS ZLIB::ZLIB
 )
 
 sen_enable_static_analysis(influx)

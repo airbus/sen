@@ -23,6 +23,7 @@ configure_file(
 
 set(base_public_headers
     include/sen/core/base/assert.h
+    include/sen/core/base/base64.h
     include/sen/core/base/bits.h
     include/sen/core/base/checked_conversions.h
     include/sen/core/base/class_helpers.h
@@ -55,6 +56,7 @@ set(base_detail_headers include/sen/core/base/detail/assert_impl.h
 
 set(base_sources
     src/base/assert.cpp
+    src/base/base64.cpp
     src/base/checked_conversions.cpp
     src/base/hash32.cpp
     src/base/memory_block.cpp

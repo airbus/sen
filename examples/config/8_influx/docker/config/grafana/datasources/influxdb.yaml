@@ -1,0 +1,17 @@
+# === influxdb.yaml ====================================================================================================
+#                                               Sen Infrastructure
+#                                        Copyright Airbus Defence and Space
+# ======================================================================================================================
+
+# Grafana reads this at startup, so the data source exists before anyone logs in. Adding it by hand
+# through the interface is the same thing, typed.
+apiVersion: 1
+
+datasources:
+  - name: InfluxDB
+    type: influxdb
+    access: proxy
+    url: http://127.0.0.1:8086
+    database: influx
+    isDefault: true
+    editable: true

@@ -1,0 +1,15 @@
+# === dashboards.yaml ==================================================================================================
+#                                               Sen Infrastructure
+#                                        Copyright Airbus Defence and Space
+# ======================================================================================================================
+
+# Every dashboard in the folder below is loaded at startup.
+apiVersion: 1
+
+providers:
+  - name: Sen
+    folder: Sen
+    type: file
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards

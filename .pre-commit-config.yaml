@@ -146,6 +146,14 @@ repos:
       pass_filenames: false
       always_run: true
 
+    - id: influx-example
+      name: The influx example's halves agree
+      language: python
+      entry: python .github/scripts/check_influx_example.py
+      pass_filenames: false
+      files: ^examples/config/8_influx/
+      always_run: false
+
     - id: file-banner
       name: Source files open with the licence banner
       language: python
