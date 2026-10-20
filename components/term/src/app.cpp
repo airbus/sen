@@ -577,6 +577,14 @@ bool App::handleInputKey(const ftxui::Event& event)
     ui_->inputTruncated = false;
     return true;
   }
+  if (event == ftxui::Event::CtrlU)
+  {
+    buf.erase(0, cursor());
+    setCursor(0);
+    ui_->inputTruncated = false;
+    ui_->clearCompletion();
+    return true;
+  }
   // Recall by substring, so an earlier command can be found without pressing Up until it appears. The
   // query is whatever is already on the line, which needs no search prompt, and the typed line comes
   // back on ArrowDown.
@@ -892,7 +900,7 @@ bool App::handleFormEvent(ftxui::Event event)
     return true;
   }
   // Clear the focused field. Without a key for it, emptying a field means holding Backspace.
-  if (event == ftxui::Event::Special("\x15"))  // Ctrl+U
+  if (event == ftxui::Event::CtrlU)
   {
     form.clearField();
     return true;
