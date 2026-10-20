@@ -2,18 +2,113 @@ package sen.components.influx;
 
 sequence<string> SelectionList;
 
-enum Protocol: u8
+// Each struct below names the service_address scheme Telegraf's socket listener must be given for
+// it. Telegraf calls tcp, tcp4, tcp6 and unix stream listeners, and udp, udp4, udp6 and unixgram
+// packet listeners; the difference decides how it frames what arrives.
+
+// Telegraf: service_address = "tcp://<address>:<port>", a stream listener.
+struct Tcp
 {
-  udp,
-  tcp
+  address : string,  // ip or name of the Telegraf server
+  port    : u16      // port the Telegraf server listens on
+}
+
+// Telegraf: service_address = "tcp4://<address>:<port>", a stream listener resolved over IPv4 only.
+struct Tcp4
+{
+  address : string,
+  port    : u16
+}
+
+// Telegraf: service_address = "tcp6://[<address>]:<port>", a stream listener resolved over IPv6
+// only.
+struct Tcp6
+{
+  address : string,
+  port    : u16
+}
+
+// Telegraf: service_address = "udp://<address>:<port>", a packet listener. One datagram carries one
+// message, so maxMessageSize bounds the batch in bytes as well as batchSize bounds it in points.
+// 65507 is all IPv4 can carry and 65527 all IPv6 can; neither avoids fragmentation, which begins
+// near 1472 bytes on a 1500-byte link.
+struct Udp
+{
+  address        : string,
+  port           : u16,
+  maxMessageSize : u32      // bytes a datagram may carry, 0 for the protocol's own maximum
+}
+
+// Telegraf: service_address = "udp4://<address>:<port>", a packet listener over IPv4 only. A
+// multicast group is given here as the address.
+struct Udp4
+{
+  address        : string,
+  port           : u16,
+  maxMessageSize : u32
+}
+
+// Telegraf: service_address = "udp6://[<address>]:<port>", a packet listener over IPv6 only.
+struct Udp6
+{
+  address        : string,
+  port           : u16,
+  maxMessageSize : u32
+}
+
+// Telegraf: service_address = "unix:///<path>", a stream listener on a socket file. Built only
+// where asio provides local sockets, which excludes Windows, and refused at configuration time
+// elsewhere. Dials on its first send as Tcp does.
+struct Unix
+{
+  path : string  // socket file Telegraf listens on
+}
+
+// Telegraf: service_address = "unixgram:///<path>", a packet listener on a socket file. Built only
+// where asio provides local sockets, which excludes Windows, and refused at configuration time
+// elsewhere.
+struct UnixGram
+{
+  path           : string,
+  maxMessageSize : u32      // bytes a datagram may carry, 0 for the socket's own maximum
+}
+
+// Telegraf: [[inputs.influxdb_listener]] with service_address = "<address>:<port>", which serves
+// /write over HTTP. The body is framed by its length, so no separator or datagram bound applies,
+// and Telegraf answers 204 when it accepted the whole batch. A 400 usually means it kept the
+// well-formed lines and rejected the rest, so it is not a refusal; its reason text says which.
+struct Http
+{
+  address : string,  // ip or name of the Telegraf server
+  port    : u16,     // port the Telegraf listener serves
+  path : string,  // request target, "/write" unless Telegraf was given another
+  maxMessageSize : u32,     // bytes one request body may carry, 0 for Telegraf's own 32 MiB limit
+  username       : string,  // basic authentication, when the listener asks for it; empty for none
+  password       : string   // sent with the username, so keep this file where a password may live
+}
+
+// Where the data is sent, and over what. Named spec because the component's own Transport is the
+// base class each of these builds.
+variant TransportSpec
+{
+  Tcp,
+  Tcp4,
+  Tcp6,
+  Udp,
+  Udp4,
+  Udp6,
+  Unix,
+  UnixGram,
+  Http
 }
 
 struct NoCompression;
 
-// GZip compression
+// GZip compression. Telegraf's socket listener decodes this only when its own
+// content_encoding is set to "gzip"; it defaults to "identity" and rejects a compressed payload.
 struct GZip
 {
-  level : i32  // forwarded to GZIP's compression-level parameter
+  level : i32  // deflate level, -1 for zlib's default and 0 to 9 otherwise
 }
 
 // Type of compression applied
@@ -26,11 +121,9 @@ variant Compression
 // Overall component configuration
 struct Configuration
 {
-  samplingPeriod  : Duration,       // sampling period for the recordings
-  selections      : SelectionList,  // objects to be monitored (using sql)
-  telegrafAddress : string,         // ip or name of the Telegraf server
-  telegrafPort    : u16,            // port used by the Telegraf server
-  protocol        : Protocol,       // protocol used
-  batchSize       : u32,            // points to batch before emission (0 means no batching)
-  compression     : Compression     // to compress the data
+  samplingPeriod : Duration,       // sampling period for the recordings
+  selections     : SelectionList,  // objects to be monitored (using sql)
+  transport      : TransportSpec,  // where the data is sent, and over what
+  batchSize      : u32,            // points to batch before emission (0 means no batching)
+  compression    : Compression     // to compress the data
 }

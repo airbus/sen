@@ -2,8 +2,11 @@
 load:
   - name: influx
     group: 4
-    protocol: udp
-    telegrafAddress: 127.0.0.1
-    telegrafPort: 18089
+    transport:
+      type: Udp
+      value:
+        address: 127.0.0.1
+        port: 18089
+        maxMessageSize: 65500
     selections:
       - SELECT * FROM my.tutorial

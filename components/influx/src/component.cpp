@@ -7,12 +7,16 @@
 
 // component
 #include "database.h"
+#include "http.h"
 #include "recorder.h"
 #include "tcp.h"
 #include "udp.h"
+#include "unix_datagram.h"
+#include "unix_stream.h"
 #include "util.h"
 
 // sen
+#include "sen/core/base/class_helpers.h"
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/duration.h"
 #include "sen/core/base/result.h"
@@ -28,9 +32,11 @@
 #include <asio/io_context.hpp>
 
 // std
+#include <cstddef>
 #include <exception>
 #include <memory>
 #include <utility>
+#include <variant>
 
 namespace sen::components::influx
 {
@@ -61,23 +67,117 @@ public:
       return done();
     }
 
-    // create the transport
+    // create the transport named by the configuration. A scheme the host cannot provide throws
+    // from its own constructor, and is reported below rather than ending the run.
+    //
+    // This context is a local, and the transports below hold a reference to it for the life of
+    // their sockets. That is safe only because execLoop at the end of this function blocks for the
+    // whole run: if it ever returned while the recorder lived, every socket here would be holding
+    // a reference to a destroyed context. Anything that moves the sending off this thread has to
+    // give the context a lifetime of its own first.
     asio::io_context io;
     std::unique_ptr<Transport> transport;
-    switch (config.protocol)
+    std::size_t maxMessageSize = 0U;
+    // The protocol ceiling that applies to the chosen transport, or zero where none does. 65507 is
+    // all an IPv4 datagram carries and 65527 an IPv6 one; a unix datagram is bounded by the socket
+    // buffer rather than by a protocol, and an HTTP body is not a datagram at all.
+    std::size_t messageCeiling = 0U;
+
+    try
     {
-      case Protocol::udp:
-        transport = std::make_unique<UDP>(io, config.telegrafAddress, config.telegrafPort);
-        break;
-      case Protocol::tcp:
-        transport = std::make_unique<TCP>(io, config.telegrafAddress, config.telegrafPort);
-        break;
+      std::visit(
+        ::sen::Overloaded {
+          [&](const Tcp& value) { transport = std::make_unique<TCP>(io, value.address, value.port, IpFamily::any); },
+          [&](const Tcp4& value) { transport = std::make_unique<TCP>(io, value.address, value.port, IpFamily::v4); },
+          [&](const Tcp6& value) { transport = std::make_unique<TCP>(io, value.address, value.port, IpFamily::v6); },
+          [&](const Udp& value)
+          {
+            messageCeiling = datagramCeilingFor(IpFamily::any);
+            transport = std::make_unique<UDP>(io, value.address, value.port, IpFamily::any);
+            maxMessageSize = value.maxMessageSize;
+          },
+          [&](const Udp4& value)
+          {
+            messageCeiling = datagramCeilingFor(IpFamily::v4);
+            transport = std::make_unique<UDP>(io, value.address, value.port, IpFamily::v4);
+            maxMessageSize = value.maxMessageSize;
+          },
+          [&](const Udp6& value)
+          {
+            messageCeiling = datagramCeilingFor(IpFamily::v6);
+            transport = std::make_unique<UDP>(io, value.address, value.port, IpFamily::v6);
+            maxMessageSize = value.maxMessageSize;
+          },
+#if defined(ASIO_HAS_LOCAL_SOCKETS)
+          [&](const Unix& value) { transport = std::make_unique<UnixStream>(io, value.path); },
+#else
+          [&](const Unix&)
+          {
+            throwRuntimeError(
+              "the Unix transport needs AF_UNIX stream sockets, which this platform does not "
+              "provide; use Tcp, Udp or Http instead");
+          },
+#endif
+          [&](const Http& value)
+          {
+            transport =
+              std::make_unique<HttpTransport>(value.address, value.port, value.path, value.username, value.password);
+            maxMessageSize = value.maxMessageSize;
+          },
+#if defined(ASIO_HAS_LOCAL_SOCKETS)
+          [&](const UnixGram& value)
+          {
+            transport = std::make_unique<UnixDatagram>(io, value.path);
+            maxMessageSize = value.maxMessageSize;
+          }},
+#else
+          [&](const UnixGram&)
+          {
+            throwRuntimeError(
+              "the UnixGram transport needs datagram AF_UNIX sockets, which this platform does "
+              "not provide; use Tcp, Udp or Http instead");
+          }},
+#endif
+        config.transport);
+    }
+    catch (const std::exception& err)
+    {
+      return Err(kernel::ExecError {kernel::ErrorCategory::expectationsNotMet, err.what()});
     }
 
     // set the compression, if any
-    std::visit(::sen::Overloaded {[&](const GZip& value) { transport->setCompressionEnabled(true, value.level); },
-                                  [](const NoCompression&) {}},
-               config.compression);
+    bool compressionRequested = false;
+    try
+    {
+      std::visit(::sen::Overloaded {[&](const GZip& value)
+                                    {
+                                      transport->setCompressionEnabled(true, value.level);
+                                      compressionRequested = true;
+                                    },
+                                    [](const NoCompression&) {}},
+                 config.compression);
+    }
+    catch (const std::exception& err)
+    {
+      return Err(kernel::ExecError {kernel::ErrorCategory::expectationsNotMet, err.what()});
+    }
+
+    // Warn where the configuration cannot do what it says.
+    if (compressionRequested && config.batchSize == 0U)
+    {
+      getLogger()->warn(
+        "compression is on with no batching: every point becomes its own gzip "
+        "stream, which is larger than the line it carries");
+    }
+
+    if (messageCeiling != 0U && maxMessageSize > messageCeiling)
+    {
+      getLogger()->warn("maxMessageSize of {} is above the {} bytes this transport's datagram can carry",
+                        maxMessageSize,
+                        messageCeiling);
+    }
+
+    transport->setMaxMessageSize(maxMessageSize);
 
     // create the database
     auto database = std::make_unique<Database>(std::move(transport));
@@ -85,6 +185,12 @@ public:
     {
       database->batchOf(config.batchSize);
     }
+
+    // The same number for both only where nothing compresses the batch; batchBoundFor says why.
+    // Either way this flushes between lines, so it keeps a batch from growing past the bound rather
+    // than guaranteeing anything: with batchSize 0 there is no batch to bound at all, and a single
+    // line over the bound reaches the transport regardless, which drops it.
+    database->messageOf(batchBoundFor(maxMessageSize, compressionRequested));
 
     // create the recorder
     std::unique_ptr<Recorder> recorder;

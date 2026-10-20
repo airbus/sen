@@ -5,8 +5,14 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
+#ifndef SEN_COMPONENTS_INFLUX_SRC_TCP_H
+#define SEN_COMPONENTS_INFLUX_SRC_TCP_H
+
 // component
 #include "database.h"
+
+// sen
+#include "sen/core/base/assert.h"
 
 // asio
 #include <asio/connect.hpp>  // NOLINT(misc-include-cleaner)
@@ -22,13 +28,13 @@
 namespace sen::components::influx
 {
 
-/// UDP transport
+/// TCP transport
 class TCP: public Transport
 {
   SEN_NOCOPY_NOMOVE(TCP)
 
 public:
-  TCP(asio::io_context& ioContext, const std::string& hostname, int port);
+  TCP(asio::io_context& ioContext, const std::string& hostname, int port, IpFamily family);
   ~TCP() override = default;
 
 protected:
@@ -36,6 +42,9 @@ protected:
   [[nodiscard]] bool requiresLineSeparator() const noexcept override { return true; }
 
 private:
+  /// Dials on first use, so a sink that is not up yet is not a failure to start.
+  [[nodiscard]] bool connected();
+
   /// Closes the socket and dials the endpoint once. False when the far end is still gone.
   [[nodiscard]] bool reconnect();
 
@@ -45,7 +54,8 @@ private:
 private:
   asio::io_context& ioContext_;
   asio::ip::tcp::socket socket_;
-  asio::ip::tcp::endpoint endpoint_;
+  asio::ip::tcp::resolver::results_type endpoints_;
+  bool connected_ {false};
   /// Whether the last send failed, so a sink that stays down is reported once and not per point.
   bool disconnected_ {false};
 };
@@ -54,13 +64,23 @@ private:
 // Inline implementation
 //----------------------------------------------------------------------------------------------------------------------
 
-inline TCP::TCP(asio::io_context& ioContext, const std::string& hostname, int port)
+inline TCP::TCP(asio::io_context& ioContext, const std::string& hostname, int port, IpFamily family)
   : ioContext_(ioContext), socket_(ioContext_)
 {
   asio::ip::tcp::resolver resolver(ioContext_);
-  const auto results = resolver.resolve(hostname, std::to_string(port));
-  asio::connect(socket_, results);
-  endpoint_ = socket_.remote_endpoint();
+
+  // tcp4 and tcp6 ask the resolver for that family alone, so a name with records in both does not
+  // silently connect over the other one.
+  endpoints_ = (family == IpFamily::v4)   ? resolver.resolve(asio::ip::tcp::v4(), hostname, std::to_string(port))
+               : (family == IpFamily::v6) ? resolver.resolve(asio::ip::tcp::v6(), hostname, std::to_string(port))
+                                          : resolver.resolve(hostname, std::to_string(port));
+
+  if (endpoints_.empty())
+  {
+    throwRuntimeError("no address for '" + hostname + "'");
+  }
+
+  // Not connected here: a Telegraf that is not up yet is ordinary, and doSend dials on demand.
 }
 
 inline void TCP::reportDropping()
@@ -72,6 +92,19 @@ inline void TCP::reportDropping()
   }
 }
 
+inline bool TCP::connected()
+{
+  if (connected_)
+  {
+    return true;
+  }
+
+  asio::error_code error;
+  std::ignore = asio::connect(socket_, endpoints_, error);
+  connected_ = !error;
+  return connected_;
+}
+
 inline bool TCP::reconnect()
 {
   // One attempt, not a loop. Waiting here for a sink that may never come back stops the
@@ -81,12 +114,19 @@ inline bool TCP::reconnect()
   // the caller is told is whether the dial below answered.
   asio::error_code error;
   std::ignore = socket_.close(error);
-  std::ignore = socket_.connect(endpoint_, error);
-  return !error;
+  std::ignore = asio::connect(socket_, endpoints_, error);
+  connected_ = !error;
+  return connected_;
 }
 
 inline void TCP::doSend(sen::Span<const char> data)
 {
+  if (!connected())
+  {
+    reportDropping();
+    return;
+  }
+
   const auto buffer = asio::buffer(data.data(), data.size());
 
   asio::error_code error;
@@ -120,3 +160,5 @@ inline void TCP::doSend(sen::Span<const char> data)
 }
 
 }  // namespace sen::components::influx
+
+#endif  // SEN_COMPONENTS_INFLUX_SRC_TCP_H

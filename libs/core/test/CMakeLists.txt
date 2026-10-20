@@ -7,6 +7,7 @@
 
 set(base_tests
     base/assert_test.cpp
+    base/base64_test.cpp
     base/checked_conversions_test.cpp
     base/bits_test.cpp
     base/duration_test.cpp
@@ -146,8 +147,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
   # Avoid GCC 14 false positive warnings in std::vector internals
   if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 14.0 AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 15.0)
-    target_compile_options(core_test PRIVATE -Wno-array-bounds -Wno-nonnull -Wno-stringop-overread
-                                             -Wno-stringop-overflow)
+    target_compile_options(core_test PRIVATE -Wno-array-bounds -Wno-nonnull -Wno-stringop-overread)
   endif()
 endif()
 
