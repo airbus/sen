@@ -6,9 +6,11 @@
 // =====================================================================================================================
 
 // components
+#include "bounded_write.h"
 #include "data_point.h"
 #include "database.h"
 #include "http.h"
+#include "io_thread.h"
 #include "tcp.h"
 #include "udp.h"
 #include "unix_datagram.h"
@@ -34,6 +36,8 @@
 #include <asio/ip/udp.hpp>
 #include <asio/local/datagram_protocol.hpp>
 #include <asio/local/stream_protocol.hpp>
+#include <asio/posix/stream_descriptor.hpp>
+#include <asio/post.hpp>
 #include <asio/read.hpp>        // NOLINT(misc-include-cleaner): declares asio::read, used below
 #include <asio/read_until.hpp>  // NOLINT(misc-include-cleaner): declares asio::read_until, used below
 #include <asio/streambuf.hpp>
@@ -47,8 +51,12 @@
 #include <gtest/gtest.h>
 
 // std
+#include <unistd.h>
+
 #include <array>
+#include <atomic>
 #include <chrono>
+#include <condition_variable>
 #include <cstddef>
 #include <cstdint>
 #include <exception>
@@ -56,6 +64,7 @@
 #include <future>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <random>
 #include <stdexcept>
 #include <string>
@@ -77,6 +86,7 @@ using sen::components::influx::Database;
 using sen::components::influx::datagramCeilingFor;
 using sen::components::influx::DataPoint;
 using sen::components::influx::HttpTransport;
+using sen::components::influx::IoThread;
 using sen::components::influx::IpFamily;
 using sen::components::influx::TCP;
 using sen::components::influx::Transport;
@@ -88,7 +98,7 @@ using sen::components::influx::UnixStream;
 
 /// A transport that keeps what it was asked to send, so a test can read the line protocol the
 /// database produced instead of a socket.
-class RecordingTransport final: public Transport
+class RecordingTransport: public Transport
 {
 public:
   explicit RecordingTransport(std::vector<std::string>& sink): sink_(sink) {}
@@ -100,18 +110,15 @@ private:
   std::vector<std::string>& sink_;
 };
 
-/// The same, for a transport whose protocol delimits records, which is what TCP does.
-class SeparatingTransport final: public Transport
+/// The same, for a transport whose protocol delimits records, which is what TCP does. A named type
+/// rather than a flag on the one above, so a test that means to exercise the separator says so.
+class SeparatingTransport final: public RecordingTransport
 {
 public:
-  explicit SeparatingTransport(std::vector<std::string>& sink): sink_(sink) {}
+  using RecordingTransport::RecordingTransport;
 
 protected:
-  void doSend(sen::Span<const char> message) override { sink_.emplace_back(message.data(), message.size()); }
   [[nodiscard]] bool requiresLineSeparator() const noexcept override { return true; }
-
-private:
-  std::vector<std::string>& sink_;
 };
 
 /// Inflates a gzip stream, so a test can read what a compressed transport actually sent.
@@ -1319,6 +1326,301 @@ TEST(InfluxHttpTransportTest, AnUnansweredBatchIsNotSentAgain)
 /// An empty path becomes /write, which is what influxdb_listener serves, and a path given without
 /// its leading slash gets one. Either way the alternative is a request line Go refuses with a 400,
 /// which this transport would report as though Telegraf had judged the batch.
+/// @test
+/// The listener closing an idle keep-alive connection is the case a second attempt used to recover,
+/// and `connectionUnusable()` is now the whole of what covers it: the probe reads the close before
+/// the request is written, so the batch goes out on a fresh dial first time. Without the probe the
+/// write lands in the local send buffer and succeeds, the read that follows fails, and the batch is
+/// reported dropped -- once, with nothing behind it. This is the half of the argument for deleting
+/// the retry that had no test.
+///
+/// The close is synchronised rather than slept on: the listener publishes it after `close()` has
+/// returned and the second batch is not written until that is observed. What is left is the kernel
+/// delivering the close over loopback, and the assertion is what measures it -- a close that had
+/// not arrived would leave the transport reusing a dead socket and never dialling, so the second
+/// accept would time out and `served` would be one.
+TEST(InfluxHttpTransportTest, AConnectionTheListenerClosedWhileIdleCostsNoBatch)
+{
+  asio::io_context listenerIo;
+  asio::ip::tcp::acceptor acceptor {listenerIo, asio::ip::tcp::endpoint {asio::ip::tcp::v4(), 0}};
+  const auto port = acceptor.local_endpoint().port();
+
+  std::promise<void> closed;
+  auto closedFirst = closed.get_future();
+
+  auto served = std::async(
+    std::launch::async,
+    [&listenerIo, &acceptor, &closed]
+    {
+      auto& context = listenerIo;
+      auto seen = 0;
+
+      // Two connections: the first answered and then dropped while idle, the second the one the
+      // transport has to dial for itself.
+      for (auto connection = 0; connection < 2; ++connection)
+      {
+        asio::ip::tcp::socket peer {context};
+        if (awaitBounded(
+              context, [&](auto&& handler) { acceptor.async_accept(peer, std::forward<decltype(handler)>(handler)); }))
+        {
+          break;
+        }
+
+        asio::streambuf incoming;
+        if (awaitBounded(context,
+                         [&](auto&& handler)
+                         {
+                           asio::async_read_until(
+                             peer, incoming, std::string {"\r\n\r\n"}, std::forward<decltype(handler)>(handler));
+                         }))
+        {
+          break;
+        }
+
+        ++seen;
+
+        // No Connection: close, so nothing in the answer tells the transport this socket is
+        // finished. The probe is the only way it can find out.
+        asio::error_code writing;
+        const std::string answer {"HTTP/1.1 204 No Content\r\n\r\n"};
+        std::ignore = asio::write(peer, asio::buffer(answer), writing);
+        if (writing)
+        {
+          break;
+        }
+
+        asio::error_code closing;
+        std::ignore = peer.close(closing);
+
+        if (connection == 0)
+        {
+          closed.set_value();
+        }
+      }
+
+      return seen;
+    });
+
+  Database database {std::make_unique<HttpTransport>("127.0.0.1", port, "/write")};
+
+  testing::internal::CaptureStderr();
+  database.write(makePointWithAField());
+
+  ASSERT_EQ(closedFirst.wait_for(std::chrono::seconds {5}), std::future_status::ready)
+    << "the listener never closed the first connection, so there was nothing for the probe to find";
+
+  database.write(makePointWithAField());
+  const auto arrived = served.get();
+  const auto reported = testing::internal::GetCapturedStderr();
+
+  EXPECT_EQ(arrived, 2) << "the second batch never reached the listener: the transport wrote it into a connection "
+                           "that had been closed, and with no retry behind it that batch is gone. "
+                        << reported;
+  EXPECT_TRUE(reported.empty()) << "two batches were accepted, so there was nothing to report: " << reported;
+}
+
+/// @test
+/// A byte arriving unsolicited on an idle keep-alive connection must not cost the next batch. Go
+/// sends nothing there, so the byte means the previous answer was mis-framed, and two mechanisms
+/// between them make it harmless: `connectionUnusable`'s probe retires the connection when the byte
+/// is still in the socket, and `readAnswer` consumes both buffers before each exchange when it has
+/// already been drained into one.
+///
+/// The byte shares the answer's single write, so `async_read_until` takes it into `answerBuffer_`
+/// with the field block and leaves the socket empty. Measured, by reporting the buffer's size at
+/// each step: the buffer holds one byte after the headers are parsed, the probe reports the
+/// connection usable, and it is reused.
+///
+/// **This test has no single-point red arm, and that is a property of the code rather than a gap
+/// here.** What makes the byte harmless on this path is `bodyInHand`, which reads the buffer to its
+/// end on every answer that completes; remove that and `readAnswer`'s consume clears it at the next
+/// exchange instead, and remove the consume and `bodyInHand` has already taken it. Two independent
+/// mechanisms give the same correct outcome, so no one plant can fail this, and an earlier version
+/// of this comment claiming it pinned the consume was wrong -- the arm said so by passing. It is
+/// kept as a regression test on the behaviour, with the two guards named so the next person does
+/// not go looking for the arm it cannot have.
+///
+/// The consume's own guarantee is pinned by `AnAnswerThatCouldNotBeReadDoesNotPoisonTheNextConnection`,
+/// and the probe's by `AConnectionTheListenerClosedWhileIdleCostsNoBatch`.
+TEST(InfluxHttpTransportTest, AStaleByteOnAnIdleConnectionDoesNotCostTheNextBatch)
+{
+  asio::io_context listenerIo;
+  asio::ip::tcp::acceptor acceptor {listenerIo, asio::ip::tcp::endpoint {asio::ip::tcp::v4(), 0}};
+  const auto port = acceptor.local_endpoint().port();
+
+  std::promise<void> strayed;
+  auto straySent = strayed.get_future();
+
+  auto served = std::async(
+    std::launch::async,
+    [&listenerIo, &acceptor, &strayed]
+    {
+      auto& context = listenerIo;
+      auto seen = 0;
+
+      asio::ip::tcp::socket peer {context};
+      if (awaitBounded(context,
+                       [&](auto&& handler) { acceptor.async_accept(peer, std::forward<decltype(handler)>(handler)); }))
+      {
+        return 0;
+      }
+
+      // The first answer carries a byte nothing asked for. The second request should arrive on this
+      // same connection, since the socket is left empty and the probe therefore reports it usable;
+      // the re-accept below is a safety net for the case where the byte reaches the socket after
+      // all, which would retire the connection and is also correct.
+      for (auto request = 0; request < 2; ++request)
+      {
+        if (request == 1 && !peer.is_open())
+        {
+          if (awaitBounded(context,
+                           [&](auto&& handler)
+                           { acceptor.async_accept(peer, std::forward<decltype(handler)>(handler)); }))
+          {
+            break;
+          }
+        }
+
+        asio::streambuf incoming;
+        if (awaitBounded(context,
+                         [&](auto&& handler)
+                         {
+                           asio::async_read_until(
+                             peer, incoming, std::string {"\r\n\r\n"}, std::forward<decltype(handler)>(handler));
+                         }))
+        {
+          break;
+        }
+
+        ++seen;
+
+        // The stray byte goes out in the *same* write as the answer, and that is the whole
+        // arrangement. Sent as a second write it arrives after the transport has already drained
+        // the answer, so it waits in the socket where the probe finds it, the connection is retired
+        // and this test passes without the consume ever mattering -- measured, not assumed: with the
+        // consume removed the earlier form of this test still passed. One write puts it in
+        // answerBuffer_ behind the field block and leaves the socket empty, so the probe reports the
+        // connection usable, it is reused, and the consume is the only thing standing between a
+        // stale byte and the next status line.
+        asio::error_code writing;
+        const std::string answer = request == 0 ? std::string {"HTTP/1.1 204 No Content\r\n\r\nX"}
+                                                : std::string {"HTTP/1.1 204 No Content\r\n\r\n"};
+        std::ignore = asio::write(peer, asio::buffer(answer), writing);
+        if (writing)
+        {
+          break;
+        }
+
+        if (request == 0)
+        {
+          strayed.set_value();
+        }
+      }
+
+      return seen;
+    });
+
+  Database database {std::make_unique<HttpTransport>("127.0.0.1", port, "/write")};
+
+  testing::internal::CaptureStderr();
+  database.write(makePointWithAField());
+
+  ASSERT_EQ(straySent.wait_for(std::chrono::seconds {5}), std::future_status::ready)
+    << "the stray byte was never sent, so this exercises an ordinary reuse and not its subject";
+
+  database.write(makePointWithAField());
+  const auto arrived = served.get();
+  const auto reported = testing::internal::GetCapturedStderr();
+
+  EXPECT_EQ(arrived, 2) << "the second batch never reached the listener. " << reported;
+  EXPECT_TRUE(reported.empty())
+    << "a batch the listener answered was given up on, so a stale byte is being read as the head of an answer: "
+    << reported;
+}
+
+/// @test
+/// An answer this transport cannot read leaves bytes in `answerBuffer_` and closes the socket, and
+/// the buffer outlives the socket: it is a member, so a freshly dialled connection inherits them
+/// unless something clears them. `readAnswer` consumes both buffers before each exchange, which is
+/// the only thing standing between a dead connection's leftovers and the head of the next answer.
+/// Without it the transport reads "LEFTOVER" plus the new status line as one token, fails the same
+/// way again, and goes on failing on every connection it dials for the rest of the run -- from one
+/// bad answer, silently, with every batch afterwards reported as unanswered.
+///
+/// The seven early returns in `readAnswer` all share this shape and all close the socket; a status
+/// line that does not begin with "HTTP/" is the cheapest of them to provoke.
+///
+/// The recovery line is the witness rather than the absence of a complaint: the first batch is
+/// *expected* to be reported, so "nothing on stderr" would be wrong here. Telegraf answering again
+/// after a batch that was not confirmed is the thing that only happens if the second exchange
+/// parsed, and it names the count it recovered from.
+TEST(InfluxHttpTransportTest, AnAnswerThatCouldNotBeReadDoesNotPoisonTheNextConnection)
+{
+  asio::io_context listenerIo;
+  asio::ip::tcp::acceptor acceptor {listenerIo, asio::ip::tcp::endpoint {asio::ip::tcp::v4(), 0}};
+  const auto port = acceptor.local_endpoint().port();
+
+  auto served = std::async(
+    std::launch::async,
+    [&listenerIo, &acceptor]
+    {
+      auto& context = listenerIo;
+      auto seen = 0;
+
+      for (auto connection = 0; connection < 2; ++connection)
+      {
+        asio::ip::tcp::socket peer {context};
+        if (awaitBounded(
+              context, [&](auto&& handler) { acceptor.async_accept(peer, std::forward<decltype(handler)>(handler)); }))
+        {
+          break;
+        }
+
+        asio::streambuf incoming;
+        if (awaitBounded(context,
+                         [&](auto&& handler)
+                         {
+                           asio::async_read_until(
+                             peer, incoming, std::string {"\r\n\r\n"}, std::forward<decltype(handler)>(handler));
+                         }))
+        {
+          break;
+        }
+
+        ++seen;
+
+        // The first answer has a complete field block and an unreadable status line, with bytes
+        // after the blank line. That is what reaches the early return with the buffer non-empty:
+        // the version token does not begin with "HTTP/", so readAnswer gives up before bodyInHand
+        // would have drained what is left.
+        asio::error_code writing;
+        const std::string answer = connection == 0 ? std::string {"GARBAGE 200 OK\r\n\r\nLEFTOVER"}
+                                                   : std::string {"HTTP/1.1 204 No Content\r\n\r\n"};
+        std::ignore = asio::write(peer, asio::buffer(answer), writing);
+        if (writing)
+        {
+          break;
+        }
+      }
+
+      return seen;
+    });
+
+  Database database {std::make_unique<HttpTransport>("127.0.0.1", port, "/write")};
+
+  testing::internal::CaptureStderr();
+  database.write(makePointWithAField());
+  database.write(makePointWithAField());
+  const auto arrived = served.get();
+  const auto reported = testing::internal::GetCapturedStderr();
+
+  EXPECT_EQ(arrived, 2) << "the second batch never reached the listener. " << reported;
+  EXPECT_NE(reported.find("answering again"), std::string::npos)
+    << "the second batch was not confirmed either, so the first answer's leftovers are being read as the head of "
+       "the second on a connection that never carried them: "
+    << reported;
+}
+
 TEST(InfluxHttpTransportTest, AnEmptyPathBecomesTheWriteEndpoint)
 {
   asio::io_context listenerIo;
@@ -1427,6 +1729,19 @@ TEST(InfluxTcpTransportTest, AListenerThatAppearsLaterIsUsed)
 
   const std::string message {asio::buffers_begin(incoming.data()), asio::buffers_end(incoming.data())};
   EXPECT_NE(message.find("cpu,host=a value=7i"), std::string::npos) << message;
+}
+
+/// @test
+/// A configuration written before `family` existed keeps the behaviour it had. An absent field is
+/// value-initialised, so what this really pins is `any` being the first enumerator: ordering it
+/// after v4 would make every such configuration silently resolve v4-only, with no error anywhere.
+TEST(InfluxTransportSpecTest, AConfigurationThatNamesNoFamilyResolvesInAny)
+{
+  const sen::components::influx::Tcp tcp {};
+  const sen::components::influx::Udp udp {};
+
+  EXPECT_EQ(tcp.family, IpFamily::any) << "an existing Tcp configuration changed meaning";
+  EXPECT_EQ(udp.family, IpFamily::any) << "an existing Udp configuration changed meaning";
 }
 
 /// @test
@@ -1539,6 +1854,12 @@ TEST(InfluxCompressionRatioTest, SenLineProtocolCompressesPastTheBatchMultiple)
     const auto ratio = static_cast<double>(plain.front().size()) / static_cast<double>(gzipped.front().size());
 
     // Measured when the constant was chosen: 13.6 over 32 points, 27.4 over 256, 38.1 over 2048.
+    // Loosely for every size, because 32 points do not reach the multiple and never did; tightly
+    // from 256 up, which is where the constant has to hold.
+    EXPECT_GT(ratio, batchBoundMultiple * 0.75)
+      << points << " points compressed only " << ratio << "x, far enough under the batch multiple of "
+      << batchBoundMultiple << " to suggest Sen's line protocol has changed shape";
+
     if (points >= 256U)
     {
       EXPECT_GT(ratio, batchBoundMultiple)
@@ -1548,55 +1869,393 @@ TEST(InfluxCompressionRatioTest, SenLineProtocolCompressesPastTheBatchMultiple)
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+// IoThread
+//----------------------------------------------------------------------------------------------------------------------
+
+/// Long enough that a loaded machine does not fail a working test, short enough that a broken one
+/// is a failure rather than a stall.
+constexpr auto ioThreadWait = std::chrono::seconds {5};
+
 /// @test
-/// The component caps a compressing batch at sixteen times the message bound, on the grounds that
-/// Sen's line protocol compresses by far more than that: the same measurement and tags repeat with
-/// only the value changing. This records the measurement the constant rests on, so a change in what
-/// Sen emits that invalidated it would fail here rather than quietly cost packets.
-TEST(InfluxCompressionRatioTest, SenLineProtocolCompressesWellPastTheBatchMultiple)
+/// Work posted after a stretch with nothing to do still runs, on the same thread as the work
+/// before it. The idle below is load-bearing, not decoration: the first future becomes ready
+/// inside the handler, so only the wait that follows it leaves the work count settled at zero.
+TEST(InfluxIoThreadTest, WorkPostedAfterAnIdleStretchStillRuns)
 {
-  // The multiple component.cpp uses. Recursion in sendHalves is needed only above the real ratio.
-  constexpr auto batchBoundMultiple = 16.0;
+  asio::io_context io;
+  std::promise<std::thread::id> first;
+  std::promise<std::thread::id> second;
+  auto ranFirst = first.get_future();
+  auto ranSecond = second.get_future();
 
-  for (const std::size_t points: {32U, 256U})
   {
-    std::vector<std::string> plain;
-    std::vector<std::string> gzipped;
+    const IoThread sending {io};
 
-    for (const bool compressed: {false, true})
-    {
-      auto transport = std::make_unique<RecordingTransport>(compressed ? gzipped : plain);
-      if (compressed)
-      {
-        transport->setCompressionEnabled(true, Z_DEFAULT_COMPRESSION);
-      }
+    asio::post(io, [&first]() { first.set_value(std::this_thread::get_id()); });
 
-      Database database {std::move(transport)};
-      database.batchOf(points);
+    // Asserted rather than expected: the reads below would block for ever on a future that never
+    // became ready, and a hang says far less than a failure does.
+    ASSERT_EQ(ranFirst.wait_for(ioThreadWait), std::future_status::ready)
+      << "the thread never served the first handler at all";
 
-      for (std::size_t i = 0; i < points; ++i)
-      {
-        DataPoint point = makePoint("my.tutorial.SomeClass.someProperty");
-        point.addTag("object", "instance_" + std::to_string(i % 8U));
-        point.addTag("payload_type", "property");
-        point.addField("value", DataPoint::FieldValue {static_cast<std::int32_t>(i)});
-        database.write(std::move(point));
-      }
-      database.flushBatch();
-    }
+    // Do not remove this. Without it the second post can land inside the window where a missing
+    // work guard has not bitten yet, and the test passes against a context with no guard at all.
+    std::this_thread::sleep_for(std::chrono::milliseconds {200});
 
-    ASSERT_EQ(plain.size(), 1U);
-    ASSERT_EQ(gzipped.size(), 1U);
+    asio::post(io, [&second]() { second.set_value(std::this_thread::get_id()); });
 
-    const auto ratio = static_cast<double>(plain.front().size()) / static_cast<double>(gzipped.front().size());
+    ASSERT_EQ(ranSecond.wait_for(ioThreadWait), std::future_status::ready)
+      << "the thread served one handler and then stopped serving the context";
+  }
 
-    // Measured at 13.6 over 32 points and 27.4 over 256 when the constant was chosen. The
-    // assertion is loose on purpose: it is guarding the constant, not pinning zlib's output.
-    EXPECT_GT(ratio, batchBoundMultiple * 0.75)
-      << points << " points compressed only " << ratio << "x, so the batch multiple of " << batchBoundMultiple
-      << " now costs recursion in sendHalves";
+  const auto whereFirst = ranFirst.get();
+  const auto whereSecond = ranSecond.get();
+
+  EXPECT_EQ(whereFirst, whereSecond);
+  EXPECT_NE(whereSecond, std::this_thread::get_id());
+}
+
+/// @test
+/// A handler that throws does not end the thread; letting it out reaches std::terminate. That it
+/// is also reported goes unchecked, because no sink in this binary can be read back.
+TEST(InfluxIoThreadTest, AHandlerThatThrowsDoesNotTakeTheThreadWithIt)
+{
+  asio::io_context io;
+  std::promise<void> ran;
+  auto hasRun = ran.get_future();
+
+  {
+    const IoThread sending {io};
+
+    asio::post(io, []() { throw std::runtime_error("a handler that throws"); });
+    // Not derived from std::exception, so the second catch arm is the one that takes it. Without
+    // this the arm whose only job is to stop std::terminate is itself never reached.
+    asio::post(io, []() { throw 42; });  // NOLINT(hicpp-exception-baseclass): that is the point
+    asio::post(io, [&ran]() { ran.set_value(); });
+
+    EXPECT_EQ(hasRun.wait_for(ioThreadWait), std::future_status::ready)
+      << "the work posted after a throwing handler never ran";
   }
 }
+
+/// @test
+/// The destructor leaves work that is still queued unrun, waits for the one already running, and
+/// returns. The elapsed time is asserted at both ends, since each bound alone is satisfied by a
+/// different broken destructor.
+TEST(InfluxIoThreadTest, DestructionLeavesQueuedWorkUnrunAndStillReturns)
+{
+  // The first handler holds the thread while the destructor waits for it. The second would hold it
+  // far longer, so the elapsed time tells waiting for one apart from draining both.
+  constexpr auto heldFor = std::chrono::milliseconds {300};
+  constexpr auto farLonger = std::chrono::milliseconds {2000};
+
+  asio::io_context io;
+  std::promise<void> entered;
+  auto hasEntered = entered.get_future();
+  const auto queuedRan = std::make_shared<std::atomic<bool>>(false);
+  // Shared rather than captured by reference, so a destructor that failed to wait leaves a test
+  // that fails rather than one that writes to a dead frame.
+  const auto ranToTheEnd = std::make_shared<std::atomic<bool>>(false);
+
+  std::optional<IoThread> sending;
+  sending.emplace(io);
+
+  asio::post(io,
+             [&entered, ranToTheEnd, heldFor]()
+             {
+               entered.set_value();
+               std::this_thread::sleep_for(heldFor);
+               ranToTheEnd->store(true);
+             });
+  asio::post(io,
+             [queuedRan, farLonger]()
+             {
+               queuedRan->store(true);
+               std::this_thread::sleep_for(farLonger);
+             });
+
+  ASSERT_EQ(hasEntered.wait_for(ioThreadWait), std::future_status::ready);
+
+  // Destroyed on another thread so that a destructor which never returns is named in the log
+  // before the test stalls, rather than only stalling. It does still stall: the future blocks in
+  // its own destructor, and that is what keeps the captured reference below valid meanwhile.
+  const auto before = std::chrono::steady_clock::now();
+  auto shutdown = std::async(std::launch::async, [&sending]() { sending.reset(); });
+  ASSERT_EQ(shutdown.wait_for(ioThreadWait), std::future_status::ready) << "the destructor did not return";
+  const auto elapsed = std::chrono::steady_clock::now() - before;
+
+  EXPECT_FALSE(queuedRan->load()) << "the destructor ran work that was still queued";
+  EXPECT_LT(elapsed, farLonger) << "the destructor waited for work it was supposed to leave";
+  // Both bounds, because the upper one alone is satisfied by a destructor that waited for nothing:
+  // detaching rather than joining passes the two above at no elapsed time at all.
+  EXPECT_GE(elapsed, heldFor) << "the destructor returned without waiting for the running handler";
+  // The same property observed rather than timed, which no coincidence of scheduling can satisfy.
+  EXPECT_TRUE(ranToTheEnd->load()) << "the destructor returned while a handler was still running";
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+// The sending queue
+//----------------------------------------------------------------------------------------------------------------------
+
+/// A transport a test can hold mid-send: it records what arrived and on which thread, and each
+/// send waits for release() so the queue behind it can be filled on purpose.
+class HeldTransport final: public Transport
+{
+public:
+  void holdSends()
+  {
+    const std::scoped_lock held {guard_};
+    holding_ = true;
+  }
+
+  void release()
+  {
+    const std::scoped_lock held {guard_};
+    holding_ = false;
+    changed_.notify_all();
+  }
+
+  /// Makes every send take this long, so a shutdown that waits for a backlog is slower than one
+  /// that waits for the message in hand.
+  void delayEachSend(std::chrono::milliseconds each)
+  {
+    const std::scoped_lock held {guard_};
+    delay_ = each;
+  }
+
+  /// True once at least this many sends have arrived.
+  [[nodiscard]] bool awaitArrivals(std::size_t count)
+  {
+    std::unique_lock held {guard_};
+    return changed_.wait_for(held, ioThreadWait, [&]() { return arrived_.size() >= count; });
+  }
+
+  /// The measurement name of each arrival, which is all these tests need to tell them apart.
+  [[nodiscard]] std::vector<std::string> names() const
+  {
+    const std::scoped_lock held {guard_};
+
+    std::vector<std::string> result;
+    result.reserve(arrived_.size());
+    for (const auto& line: arrived_)
+    {
+      result.push_back(line.substr(0U, line.find(' ')));
+    }
+
+    return result;
+  }
+
+  [[nodiscard]] std::vector<std::thread::id> threads() const
+  {
+    const std::scoped_lock held {guard_};
+    return threads_;
+  }
+
+protected:
+  void doSend(sen::Span<const char> message) override
+  {
+    std::chrono::milliseconds waitAfter {0};
+
+    {
+      std::unique_lock held {guard_};
+      arrived_.emplace_back(message.data(), message.size());
+      threads_.push_back(std::this_thread::get_id());
+      waitAfter = delay_;
+      changed_.notify_all();
+      std::ignore = changed_.wait_for(held, ioThreadWait, [this]() { return !holding_; });
+    }
+
+    if (waitAfter.count() != 0)
+    {
+      std::this_thread::sleep_for(waitAfter);
+    }
+  }
+
+private:
+  mutable std::mutex guard_;
+  std::condition_variable changed_;
+  std::vector<std::string> arrived_;
+  std::vector<std::thread::id> threads_;
+  std::chrono::milliseconds delay_ {0};
+  bool holding_ = false;
+};
+
+/// @test
+/// Everything written below the bound arrives, once each and in the order it was written.
+TEST(InfluxSendingQueueTest, EveryMessageBelowTheBoundArrivesInOrder)
+{
+  constexpr std::size_t written = 20U;
+
+  asio::io_context io;
+  auto transport = std::make_shared<HeldTransport>();
+
+  Database database {transport};
+  database.sendThrough(io, 64U);
+
+  std::vector<std::string> expected;
+  {
+    const IoThread sending {io};
+
+    for (std::size_t i = 0U; i < written; ++i)
+    {
+      expected.push_back("m" + std::to_string(i));
+      database.write(makePoint(expected.back()));
+    }
+
+    ASSERT_TRUE(transport->awaitArrivals(written)) << "only " << transport->names().size() << " arrived";
+  }
+
+  EXPECT_EQ(transport->names(), expected);
+  EXPECT_EQ(database.droppedSoFar(), 0U);
+
+  // Every one, not just the first: a defect that sent the first inline and posted the rest would
+  // pass a test that only looked at one.
+  for (const auto& where: transport->threads())
+  {
+    EXPECT_NE(where, std::this_thread::get_id()) << "a send ran on the thread that wrote the point";
+  }
+}
+
+/// @test
+/// At the bound the oldest waiting message goes, not the newest. The transport is held mid-send so
+/// the queue is genuinely full when the last write lands.
+TEST(InfluxSendingQueueTest, AFullQueueDropsTheOldestWaitingMessage)
+{
+  asio::io_context io;
+  auto transport = std::make_shared<HeldTransport>();
+  transport->holdSends();
+
+  Database database {transport};
+  database.sendThrough(io, 2U);
+
+  {
+    const IoThread sending {io};
+
+    database.write(makePoint("first"));
+    // Held inside doSend now, so nothing drains while the next three are written.
+    ASSERT_TRUE(transport->awaitArrivals(1U)) << "the first send never started";
+
+    database.write(makePoint("oldest"));
+    database.write(makePoint("middle"));
+    database.write(makePoint("newest"));
+
+    EXPECT_EQ(database.droppedSoFar(), 1U) << "the bound cost nothing, so it did not hold";
+
+    transport->release();
+
+    ASSERT_TRUE(transport->awaitArrivals(3U)) << "the queue did not drain after the hold was lifted";
+  }
+
+  const std::vector<std::string> expected {"first", "middle", "newest"};
+  EXPECT_EQ(transport->names(), expected) << "the wrong message was dropped";
+  // The queue emptied on the way out, which is when the count clears and the recovery is said.
+  EXPECT_EQ(database.droppedSoFar(), 0U) << "the drop count survived the queue emptying";
+}
+
+/// @test
+/// Without sendThrough the send still happens inline, on the calling thread. This is the shape
+/// every other test in this file uses, so it is stated once rather than assumed.
+TEST(InfluxSendingQueueTest, WithoutAQueueTheSendIsOnTheCallingThread)
+{
+  auto transport = std::make_shared<HeldTransport>();
+  Database database {transport};
+
+  database.write(makePoint("m1"));
+
+  const std::vector<std::string> expected {"m1"};
+  EXPECT_EQ(transport->names(), expected);
+  ASSERT_EQ(transport->threads().size(), 1U);
+  EXPECT_EQ(transport->threads().front(), std::this_thread::get_id());
+  EXPECT_EQ(database.droppedSoFar(), 0U);
+}
+
+/// @test
+/// A shutdown while the transport is slow waits for the message in hand, not for everything behind
+/// it. One drain is posted per burst and re-posted per message, so stopping the context ends the
+/// chain; posting one handler per point instead puts the whole backlog in the strand's ready queue,
+/// which asio runs to completion without re-reading its stopped flag.
+TEST(InfluxSendingQueueTest, ShutdownWaitsForTheMessageInHandNotTheBacklog)
+{
+  constexpr auto eachSend = std::chrono::milliseconds {200};
+  constexpr std::size_t written = 12U;
+  // Two and a half times one send, and less than half of all of them.
+  constexpr auto allowed = std::chrono::milliseconds {1000};
+
+  asio::io_context io;
+  auto transport = std::make_shared<HeldTransport>();
+  transport->delayEachSend(eachSend);
+
+  Database database {transport};
+  database.sendThrough(io, 64U);
+
+  std::optional<IoThread> sending;
+  sending.emplace(io);
+
+  for (std::size_t i = 0U; i < written; ++i)
+  {
+    database.write(makePoint("m" + std::to_string(i)));
+  }
+
+  // Two, not one. A strand holds everything behind the running handler in its waiting queue and
+  // moves the lot to its ready queue only when that handler's invoker exits. Stopping during the
+  // first send therefore proves nothing: the backlog has not reached the queue that gets run
+  // without a stop check. By the second arrival it has.
+  ASSERT_TRUE(transport->awaitArrivals(2U)) << "the sends never got going";
+
+  const auto before = std::chrono::steady_clock::now();
+  auto shutdown = std::async(std::launch::async, [&sending]() { sending.reset(); });
+  ASSERT_EQ(shutdown.wait_for(ioThreadWait), std::future_status::ready) << "the shutdown did not finish";
+  const auto elapsed = std::chrono::steady_clock::now() - before;
+
+  EXPECT_LT(elapsed, allowed) << "the shutdown waited for " << transport->names().size() << " of " << written
+                              << " messages instead of the one in hand";
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+// The bounded stream write
+//----------------------------------------------------------------------------------------------------------------------
+
+#if defined(ASIO_HAS_POSIX_STREAM_DESCRIPTOR)
+
+/// @test
+/// A write to something that is not being read gives up on its deadline and says how much it
+/// handed over. A pipe stands in for a peer that has stopped reading: the buffer fills, and asio's
+/// own synchronous write would then poll with no deadline at all, which is the whole reason this
+/// function exists.
+TEST(InfluxBoundedWriteTest, AStalledReaderCostsTheDeadlineAndNotTheWholeMessage)
+{
+  constexpr auto bound = std::chrono::milliseconds {50};
+  // Larger than any pipe buffer, so the write cannot finish without the read end draining.
+  constexpr std::size_t tooMuch = 4U * 1024U * 1024U;
+
+  std::array<int, 2> ends {-1, -1};
+  ASSERT_EQ(::pipe(ends.data()), 0) << "could not make a pipe";
+  // The descriptor below takes the write end and closes it; the read end is ours, and is
+  // deliberately never read from.
+  const auto closeReadEnd = sen::makeScopeGuard([&ends]() { std::ignore = ::close(ends[0]); });
+
+  asio::io_context io;
+  asio::posix::stream_descriptor writing {io, ends[1]};
+
+  asio::error_code setting;
+  std::ignore = writing.non_blocking(true, setting);
+  ASSERT_FALSE(setting) << "could not put the pipe in non-blocking mode, so asio would swallow the deadline";
+
+  const std::vector<char> message(tooMuch, 'x');
+
+  asio::error_code error;
+  const auto before = std::chrono::steady_clock::now();
+  const auto sent = sen::components::influx::writeBounded(writing, sen::makeConstSpan(message), bound, error);
+  const auto elapsed = std::chrono::steady_clock::now() - before;
+
+  EXPECT_EQ(error, asio::error::timed_out) << "gave up for some other reason than the deadline";
+  EXPECT_GT(sent, 0U) << "nothing reached the pipe at all, so the bound was not what stopped it";
+  EXPECT_LT(sent, message.size()) << "the whole message went, so the reader was not actually stalled";
+  EXPECT_LT(elapsed, std::chrono::seconds {2}) << "it waited well past its own deadline";
+}
+
+#endif  // defined(ASIO_HAS_POSIX_STREAM_DESCRIPTOR)
 
 // NOLINTEND(misc-include-cleaner)
 

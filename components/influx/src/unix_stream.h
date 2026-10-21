@@ -9,6 +9,7 @@
 #define SEN_COMPONENTS_INFLUX_SRC_UNIX_STREAM_H
 
 // component
+#include "bounded_write.h"
 #include "database.h"
 
 // sen
@@ -50,6 +51,7 @@ private:
   [[nodiscard]] bool connected();
   [[nodiscard]] bool reconnect();
   void reportDropping();
+  void reportRecovered();
 
 private:
   asio::io_context& ioContext_;
@@ -79,7 +81,27 @@ inline bool UnixStream::connected()
   asio::error_code error;
   std::ignore = socket_.connect(endpoint_, error);
   connected_ = !error;
+
+  if (connected_)
+  {
+    // What lets writeBounded bound a write: asio hands a would_block back only for a socket the
+    // caller set non-blocking. No keep-alive here, since a socket file has no network to probe.
+    asio::error_code ignored;
+    std::ignore = socket_.non_blocking(true, ignored);
+  }
+
   return connected_;
+}
+
+/// Said once sending works again, which `tcp.h` does and this did not: an operator saw "points are
+/// being dropped" and never learned it had stopped.
+inline void UnixStream::reportRecovered()
+{
+  if (disconnected_)
+  {
+    std::cerr << "influx: the telegraf socket is accepting again" << std::endl;
+    disconnected_ = false;
+  }
 }
 
 inline void UnixStream::reportDropping()
@@ -98,6 +120,13 @@ inline bool UnixStream::reconnect()
   std::ignore = socket_.close(error);
   std::ignore = socket_.connect(endpoint_, error);
   connected_ = !error;
+
+  if (connected_)
+  {
+    asio::error_code ignored;
+    std::ignore = socket_.non_blocking(true, ignored);
+  }
+
   return connected_;
 }
 
@@ -110,11 +139,22 @@ inline void UnixStream::doSend(sen::Span<const char> data)
   }
 
   asio::error_code error;
-  asio::write(socket_, asio::buffer(data.data(), data.size()), error);
+  std::ignore = writeBounded(socket_, data, streamWriteBound, error);
 
   if (!error)
   {
-    disconnected_ = false;
+    reportRecovered();
+    return;
+  }
+
+  if (error == asio::error::timed_out)
+  {
+    // As for TCP: part of this message is on the wire, so the stream is out of step and the
+    // connection ends rather than carrying on or sending the message a second time.
+    asio::error_code closing;
+    std::ignore = socket_.close(closing);
+    connected_ = false;
+    reportDropping();
     return;
   }
 
@@ -124,7 +164,7 @@ inline void UnixStream::doSend(sen::Span<const char> data)
     return;
   }
 
-  asio::write(socket_, asio::buffer(data.data(), data.size()), error);
+  std::ignore = writeBounded(socket_, data, streamWriteBound, error);
 
   if (error)
   {
@@ -132,7 +172,7 @@ inline void UnixStream::doSend(sen::Span<const char> data)
     return;
   }
 
-  disconnected_ = false;
+  reportRecovered();
 }
 
 }  // namespace sen::components::influx

@@ -48,6 +48,8 @@ private:
   asio::io_context& ioContext_;
   asio::local::datagram_protocol::socket socket_;
   asio::local::datagram_protocol::endpoint endpoint_;
+  /// Latched so an absent socket is named once rather than on every cycle.
+  bool reported_ {false};
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -75,8 +77,19 @@ inline void UnixDatagram::doSend(sen::Span<const char> data)
 
   if (error)
   {
-    std::cerr << "influx: could not send to the telegraf socket: " << error.message() << std::endl;
+    // Latched as udp.h latches its own: at the default sampling period an absent socket would
+    // otherwise write about sixty lines a second for as long as the run lasts.
+    if (!reported_)
+    {
+      std::cerr << "influx: could not send to the telegraf socket: " << error.message()
+                << "; datagrams are still being sent" << std::endl;
+      reported_ = true;
+    }
+
+    return;
   }
+
+  reported_ = false;
 }
 
 }  // namespace sen::components::influx

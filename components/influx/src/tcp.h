@@ -9,6 +9,7 @@
 #define SEN_COMPONENTS_INFLUX_SRC_TCP_H
 
 // component
+#include "bounded_write.h"
 #include "database.h"
 
 // sen
@@ -18,6 +19,7 @@
 #include <asio/connect.hpp>  // NOLINT(misc-include-cleaner)
 #include <asio/io_context.hpp>
 #include <asio/ip/tcp.hpp>
+#include <asio/socket_base.hpp>
 #include <asio/write.hpp>  // NOLINT(misc-include-cleaner)
 
 // std
@@ -50,6 +52,9 @@ private:
 
   /// Says once that points are being dropped, whichever of the two writes gave up.
   void reportDropping();
+
+private:
+  static void prepareTheSocket(asio::ip::tcp::socket& socket);
 
 private:
   asio::io_context& ioContext_;
@@ -92,6 +97,16 @@ inline void TCP::reportDropping()
   }
 }
 
+/// Keep-alive asks the operating system to probe an idle connection, on its own configured
+/// interval. Non-blocking mode is what lets writeBounded put a deadline on a write at all: asio
+/// hands a would_block back only for a socket the caller set non-blocking.
+inline void TCP::prepareTheSocket(asio::ip::tcp::socket& socket)
+{
+  asio::error_code ignored;
+  std::ignore = socket.set_option(asio::socket_base::keep_alive {true}, ignored);
+  std::ignore = socket.non_blocking(true, ignored);
+}
+
 inline bool TCP::connected()
 {
   if (connected_)
@@ -102,6 +117,12 @@ inline bool TCP::connected()
   asio::error_code error;
   std::ignore = asio::connect(socket_, endpoints_, error);
   connected_ = !error;
+
+  if (connected_)
+  {
+    prepareTheSocket(socket_);
+  }
+
   return connected_;
 }
 
@@ -116,6 +137,12 @@ inline bool TCP::reconnect()
   std::ignore = socket_.close(error);
   std::ignore = asio::connect(socket_, endpoints_, error);
   connected_ = !error;
+
+  if (connected_)
+  {
+    prepareTheSocket(socket_);
+  }
+
   return connected_;
 }
 
@@ -127,10 +154,20 @@ inline void TCP::doSend(sen::Span<const char> data)
     return;
   }
 
-  const auto buffer = asio::buffer(data.data(), data.size());
-
   asio::error_code error;
-  asio::write(socket_, buffer, error);
+  std::ignore = writeBounded(socket_, data, streamWriteBound, error);
+
+  if (error == asio::error::timed_out)
+  {
+    // The peer is alive and not draining, so part of this message is on the wire and the stream is
+    // out of step. The connection ends: writing the rest would arrive after a gap, and sending the
+    // message again would deliver the lines that did get there twice.
+    asio::error_code closing;
+    std::ignore = socket_.close(closing);
+    connected_ = false;
+    reportDropping();
+    return;
+  }
 
   if (error)
   {
@@ -144,7 +181,7 @@ inline void TCP::doSend(sen::Span<const char> data)
       return;
     }
 
-    asio::write(socket_, buffer, error);
+    std::ignore = writeBounded(socket_, data, streamWriteBound, error);
     if (error)
     {
       reportDropping();
