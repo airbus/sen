@@ -551,12 +551,12 @@ bool App::handleInputKey(const ftxui::Event& event)
     setCursor(nextWord(buf, cursor()));
     return true;
   }
-  if (event == ftxui::Event::Home)
+  if (event == ftxui::Event::Home || event == ftxui::Event::CtrlA)
   {
     ui_->cursorPos = 0;
     return true;
   }
-  if (event == ftxui::Event::End)
+  if (event == ftxui::Event::End || event == ftxui::Event::CtrlE)
   {
     setCursor(buf.size());
     return true;
@@ -1006,8 +1006,9 @@ bool App::handleFormEvent(ftxui::Event event)
   //
   // Anything else returns false, and the caller then offers it to the scroll, copy and help handlers.
   return event == ftxui::Event::Delete || event == ftxui::Event::Backspace || event == ftxui::Event::Home ||
-         event == ftxui::Event::End || event == ftxui::Event::CtrlK || event == ftxui::Event::CtrlW ||
-         event == ftxui::Event::ArrowLeftCtrl || event == ftxui::Event::ArrowRightCtrl;
+         event == ftxui::Event::CtrlA || event == ftxui::Event::End || event == ftxui::Event::CtrlE ||
+         event == ftxui::Event::CtrlK || event == ftxui::Event::CtrlW || event == ftxui::Event::ArrowLeftCtrl ||
+         event == ftxui::Event::ArrowRightCtrl;
 }
 
 void App::insertPastedText(std::string_view text)

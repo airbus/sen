@@ -740,6 +740,8 @@ void CommandEngine::cmdHelp(std::string_view args)
     {"Enter / .", "Accept completion (drill into paths)"},
     {"Escape", "Cancel completion / clear the line / arm exit"},
     {"Ctrl+L", "Scroll output out of view"},
+    {"Home / Ctrl+A", "Move cursor to the start of the line"},
+    {"End / Ctrl+E", "Move cursor to the end of the line"},
     {"Ctrl+U", "Erase from the cursor to the start of the line"},
     {"Ctrl+K", "Erase from the cursor to the end of the line"},
     {"Ctrl+W", "Erase the word before the cursor"},
