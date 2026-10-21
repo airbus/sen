@@ -595,7 +595,7 @@ bool App::handleInputKey(const ftxui::Event& event)
   // Recall by substring, so an earlier command can be found without pressing Up until it appears. The
   // query is whatever is already on the line, which needs no search prompt, and the typed line comes
   // back on ArrowDown.
-  if (event == ftxui::Event::Special("\x12"))  // Ctrl+R
+  if (event == ftxui::Event::CtrlR)
   {
     if (!ui_->inputPane.searchHistory(buf))
     {
@@ -934,17 +934,17 @@ bool App::handleFormEvent(ftxui::Event event)
     form.backspace();
     return true;
   }
-  if (event == ftxui::Event::Special({14}))  // Ctrl+N
+  if (event == ftxui::Event::CtrlN)
   {
     form.addElementToFocusedSequence();
     return true;
   }
-  if (event == ftxui::Event::Special({24}))  // Ctrl+X
+  if (event == ftxui::Event::CtrlX)
   {
     form.removeFocusedSequenceElement();
     return true;
   }
-  if (event == ftxui::Event::Special({15}))  // Ctrl+O
+  if (event == ftxui::Event::CtrlO)
   {
     form.toggleFocusedOptional();
     return true;
@@ -1333,10 +1333,10 @@ bool App::handleCompletionEvent(ftxui::Event event)
 
 bool App::handleGlobalEvent(ftxui::Event event)
 {
-  // Ctrl+D exits, but only from an empty line, as every shell does. A 0x04 inside a paste never reaches
-  // here, because handlePasteEvent runs first and drops it; a 0x04 typed on a line with text in it does,
+  // Ctrl+D exits, but only from an empty line, as every shell does. A Ctrl+D inside a paste never reaches
+  // here, because handlePasteEvent runs first and drops it; a Ctrl+D typed on a line with text in it does,
   // and quitting on that would end the term with a half-typed line on screen.
-  if (event == ftxui::Event::Special({4}))
+  if (event == ftxui::Event::CtrlD)
   {
     if (!ui_->inputPane.getBuffer().empty())
     {
