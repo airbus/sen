@@ -12,12 +12,17 @@
 #include "util.h"
 
 // sen
+#include "sen/core/base/assert.h"
 #include "sen/core/base/class_helpers.h"
 #include "sen/core/base/duration.h"
 #include "sen/core/base/numbers.h"
 #include "sen/core/base/scope_guard.h"
 #include "sen/core/base/span.h"
 #include "sen/core/base/timestamp.h"
+
+// asio
+#include <asio/io_context.hpp>
+#include <asio/post.hpp>
 
 // zlib
 #include <zconf.h>
@@ -31,6 +36,8 @@
 #include <exception>
 #include <iterator>
 #include <limits>
+#include <memory>
+#include <mutex>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -181,6 +188,110 @@ void Transport::sendHalves(std::string_view lines)
 //----------------------------------------------------------------------------------------------------------------------
 // Database
 //----------------------------------------------------------------------------------------------------------------------
+
+void Database::sendThrough(asio::io_context& io, std::size_t bound)
+{
+  SEN_ASSERT(bound != 0U);
+
+  waiting_ = std::make_shared<Waiting>(io, bound);
+}
+
+std::size_t Database::droppedSoFar() const
+{
+  if (!waiting_)
+  {
+    return 0U;
+  }
+
+  const std::scoped_lock held {waiting_->guard};
+
+  return waiting_->dropped;
+}
+
+void Database::transmit(std::string&& point)
+{
+  if (!waiting_)
+  {
+    transport_->send(std::move(point));
+    return;
+  }
+
+  std::size_t dropsToName = 0U;
+  bool startDraining = false;
+
+  {
+    const std::scoped_lock held {waiting_->guard};
+
+    if (waiting_->messages.size() >= waiting_->bound)
+    {
+      waiting_->messages.pop_front();
+      ++waiting_->dropped;
+
+      constexpr std::size_t everySoOften = 100U;
+      if (waiting_->dropped == 1U || waiting_->dropped % everySoOften == 0U)
+      {
+        dropsToName = waiting_->dropped;
+      }
+    }
+
+    waiting_->messages.emplace_back(std::move(point));
+
+    // A drain already in flight will take this message too, so only the first of a burst posts.
+    startDraining = !waiting_->draining;
+    waiting_->draining = true;
+  }
+
+  // On this thread on purpose, and the only thing here that is. The drain is what would otherwise
+  // carry it, and the drain is not running at the moment this matters. Outside the lock, so a
+  // blocked sink holds neither the queue nor the sending thread.
+  if (dropsToName != 0U)
+  {
+    getLogger()->warn("the sending queue is full, so the oldest points are dropped; {} dropped so far", dropsToName);
+  }
+
+  if (startDraining)
+  {
+    asio::post(waiting_->sending, [waiting = waiting_, transport = transport_] { sendOneWaiting(waiting, transport); });
+  }
+}
+
+void Database::sendOneWaiting(const std::shared_ptr<Waiting>& waiting, const std::shared_ptr<Transport>& transport)
+{
+  std::string message;
+  std::size_t recovered = 0U;
+
+  {
+    const std::scoped_lock held {waiting->guard};
+
+    if (waiting->messages.empty())
+    {
+      waiting->draining = false;
+      return;
+    }
+
+    message = std::move(waiting->messages.front());
+    waiting->messages.pop_front();
+
+    // Said once the queue has actually emptied rather than on each send. A consumer that is slow
+    // but moving would otherwise clear the count between drops and report every one of them.
+    if (waiting->messages.empty())
+    {
+      recovered = std::exchange(waiting->dropped, std::size_t {0U});
+    }
+  }
+
+  // Lodged before the send rather than after it. send() can throw -- getOrCreateLogger rethrows
+  // spdlog_ex, and the HTTP answer parsing can throw out_of_range -- and a throw past this point
+  // would leave the drain latched with a queue nobody comes back for.
+  asio::post(waiting->sending, [waiting, transport] { sendOneWaiting(waiting, transport); });
+
+  if (recovered != 0U)
+  {
+    getLogger()->info("the sending queue has emptied, after {} points were dropped", recovered);
+  }
+
+  transport->send(std::move(message));
+}
 
 std::string Database::joinLineProtocolBatch() const
 {

@@ -72,17 +72,6 @@ protected:
   void doSend(sen::Span<const char> data) override;
 
 private:
-  /// What one request and its answer established. These are not interchangeable: a write that
-  /// failed means no complete request reached Telegraf, so the batch may be sent again, while an
-  /// answer that could not be read means Telegraf may have taken the batch and simply answered
-  /// late, so sending it again would deliver it twice.
-  enum class SendOutcome
-  {
-    delivered,
-    notSent,
-    fateUnknown
-  };
-
   /// What one bounded operation did. `handedToSocket` is what the kernel accepted, not what
   /// Telegraf received -- a complete write to a peer that closed long ago is ordinary -- but it is
   /// what decides a retry, since the listener stores each line as it parses it.
@@ -106,27 +95,12 @@ private:
   /// Asked before writing, the only moment the answer is unambiguous: afterwards an end-of-file
   /// cannot be told from a listener that read the batch and died.
   [[nodiscard]] bool connectionUnusable();
-  /// Reads until the delimiter, or exactly `exactly` bytes when no delimiter is given. False when
-  /// it failed or ran out of time, and the caller then ends the connection: a half-read answer
+  /// Reads the field block, and reads a body of a known length. Each knows its own buffer, because
+  /// the two carry different maxima and passing the wrong one reads as a truncated answer rather
+  /// than as a mistake. A failure or a deadline ends the connection either way: a half-read answer
   /// would be mistaken for the next one.
-  [[nodiscard]] Bounded readBounded(asio::streambuf& into,
-                                    std::string_view delimiter,
-                                    std::size_t exactly,
-                                    bool untilFieldBlockEnds = false);
-
-  /// What became of the answer, which is what decides whether a batch may be sent again.
-  enum class AnswerOutcome
-  {
-    /// A status line was read.
-    read,
-    /// The far end closed having sent nothing. On its own this does not mean the request was
-    /// unseen -- a listener that stored every line and died before answering looks the same -- so
-    /// only the caller's knowledge that the connection was an idle reused one justifies a retry.
-    peerClosed,
-    /// The deadline ran out, or what arrived could not be read. Says nothing about whether the
-    /// batch was taken.
-    noAnswer
-  };
+  [[nodiscard]] Bounded readFieldBlock();
+  [[nodiscard]] Bounded readExactly(std::size_t bytes);
 
   /// What the field block said, for the four headers that change what happens next.
   struct AnswerHeaders
@@ -143,14 +117,13 @@ private:
   /// self-contained: it touches the socket not at all.
   [[nodiscard]] AnswerHeaders parseAnswerHeaders(std::istream& stream, std::string& reason);
 
-  /// Reads the answer, returning its status code, or zero when none could be read.
-  [[nodiscard]] int readAnswer(std::string& reason, AnswerOutcome& outcome);
+  /// Reads the answer, returning its status code, or zero when none could be read. Sets `reason`
+  /// to what the peer said, or to why nothing could be read from it.
+  [[nodiscard]] int readAnswer(std::string& reason);
   [[nodiscard]] std::string makeRequest(std::size_t bodyLength) const;
-  [[nodiscard]] SendOutcome exchange(const std::string& request,
-                                     sen::Span<const char> data,
-                                     bool reusedConnection,
-                                     int& status,
-                                     std::string& reason);
+  /// True when an answer came back and `status` carries it. False when none did, in which case the
+  /// batch is not sent again: Telegraf may already hold it.
+  [[nodiscard]] bool exchange(const std::string& request, sen::Span<const char> data, int& status, std::string& reason);
   void reportStatus(int status, const std::string& reason);
   [[nodiscard]] bool shouldReport();
   void reportUnanswered(const std::string& detail);
@@ -230,15 +203,15 @@ inline HttpTransport::Bounded HttpTransport::runBounded(Start&& start)
 {
   // Per operation, not per send. A listener on the same host answers in well under a millisecond,
   // so a second is already generous. What the recording cycle feels is the whole of doSend: a
-  // connect, one write and two reads, each up to a second plus its drain, over two attempts, so
-  // about eleven seconds against a host that accepts nothing and says nothing.
+  // connect, one write and two reads, each up to a second plus its drain, so about five seconds
+  // against a host that accepts nothing and says nothing.
   constexpr auto operationTimeout = std::chrono::seconds {1};
   // The drain below. Closing the socket completes every operation on it, so the handler is already
-  // queued and this costs nothing in practice; the bound is here for the case where it is not, and
-  // it is short because four rounds of a whole second would dominate the per-call cost. Abandoning
-  // an operation that will not retire is safe, since the handler owns the state it writes to.
+  // queued and this costs nothing in practice; the bound is here for the case where it is not.
+  // run_for keeps going until the context runs out of work, so it drains every chained handler of
+  // a composed operation inside the one budget. Abandoning an operation that will not retire is
+  // safe, since the handler owns the state it writes to.
   constexpr auto drainTimeout = std::chrono::milliseconds {100};
-  constexpr auto drainRounds = 4;
 
   const auto state = std::make_shared<Bounded>();
   state->error = asio::error::would_block;
@@ -263,14 +236,8 @@ inline HttpTransport::Bounded HttpTransport::runBounded(Start&& start)
     std::ignore = socket_.close(ignored);
     connected_ = false;
 
-    for (auto round = 0; round < drainRounds && state->error == asio::error::would_block; ++round)
-    {
-      ioContext_.restart();
-      if (ioContext_.run_one_for(drainTimeout) == 0U)
-      {
-        break;
-      }
-    }
+    ioContext_.restart();
+    std::ignore = ioContext_.run_for(drainTimeout);
 
     // The handler may have run during the drain and reported success. Returning timed_out anyway
     // discards a working operation -- on the connect path, a live socket closed and an attempt
@@ -329,6 +296,13 @@ inline bool HttpTransport::connectionUnusable()
   // Go sends nothing unsolicited on an idle keep-alive connection, so a byte waiting here is not
   // health: it means the previous answer was mis-framed and the offsets are no longer known. An
   // error or a zero-byte read is the far end gone. Only would_block says the connection is usable.
+  //
+  // This covers a byte still in the socket. One already taken into answerBuffer_ -- which
+  // async_read_until will do, since it reads whatever is available and not only what it was looking
+  // for -- is invisible here, and two other things cover that: on an answer that completed,
+  // `bodyInHand` reads the buffer to its end, and on one that gave up part way through, the consume
+  // at the top of readAnswer clears it before the next exchange. Measured rather than reasoned, by
+  // reporting the buffer's size at each step.
   return asking != asio::error::would_block;
 }
 
@@ -351,32 +325,21 @@ struct FieldBlockEnd
         continue;
       }
 
-      auto next = at;
-      ++next;
+      // LF LF, or LF CR LF: either way the block has ended just past the second LF.
+      auto next = std::next(at);
+      if (next != end && *next == '\r')
+      {
+        ++next;
+      }
+
       if (next == end)
       {
         return {begin, false};
       }
 
-      // LF LF, or LF CR LF: either way the block has ended just past it.
       if (*next == '\n')
       {
-        return {++next, true};
-      }
-
-      if (*next == '\r')
-      {
-        auto after = next;
-        ++after;
-        if (after == end)
-        {
-          return {begin, false};
-        }
-
-        if (*after == '\n')
-        {
-          return {++after, true};
-        }
+        return {std::next(next), true};
       }
     }
 
@@ -384,28 +347,20 @@ struct FieldBlockEnd
   }
 };
 
-inline HttpTransport::Bounded HttpTransport::readBounded(asio::streambuf& into,
-                                                         std::string_view delimiter,
-                                                         std::size_t exactly,
-                                                         bool untilFieldBlockEnds)
+inline HttpTransport::Bounded HttpTransport::readFieldBlock()
 {
-  if (untilFieldBlockEnds)
-  {
-    return runBounded(
-      [this, &into](auto&& handler)
-      { asio::async_read_until(socket_, into, FieldBlockEnd {}, std::forward<decltype(handler)>(handler)); });
-  }
-
-  if (delimiter.empty())
-  {
-    return runBounded(
-      [this, &into, exactly](auto&& handler)
-      { asio::async_read(socket_, into, asio::transfer_exactly(exactly), std::forward<decltype(handler)>(handler)); });
-  }
-
   return runBounded(
-    [this, &into, delimiter](auto&& handler)
-    { asio::async_read_until(socket_, into, std::string {delimiter}, std::forward<decltype(handler)>(handler)); });
+    [this](auto&& handler)
+    { asio::async_read_until(socket_, answerBuffer_, FieldBlockEnd {}, std::forward<decltype(handler)>(handler)); });
+}
+
+inline HttpTransport::Bounded HttpTransport::readExactly(std::size_t bytes)
+{
+  return runBounded(
+    [this, bytes](auto&& handler)
+    {
+      asio::async_read(socket_, bodyBuffer_, asio::transfer_exactly(bytes), std::forward<decltype(handler)>(handler));
+    });
 }
 
 /// True the first time and then rarely, so a run that drops every batch neither floods the log nor
@@ -443,13 +398,6 @@ inline HttpTransport::AnswerHeaders HttpTransport::parseAnswerHeaders(std::istre
   auto& lengthUnusable = found.lengthUnusable;
   while (std::getline(stream, header) && header != "\r")
   {
-    // A folded continuation belongs to the header above it, not to one of its own, so a folded
-    // value carrying a colon would otherwise become a name and a value.
-    if (!header.empty() && (header.front() == ' ' || header.front() == '\t'))
-    {
-      continue;
-    }
-
     const auto colon = header.find(':');
     if (colon == std::string::npos)
     {
@@ -514,34 +462,39 @@ inline HttpTransport::AnswerHeaders HttpTransport::parseAnswerHeaders(std::istre
   return found;
 }
 
-inline int HttpTransport::readAnswer(std::string& reason, AnswerOutcome& outcome)
+inline int HttpTransport::readAnswer(std::string& reason)
 {
-  outcome = AnswerOutcome::noAnswer;
-
   asio::error_code error;
 
   // Whatever an earlier answer left behind, so this one starts at its own first byte.
+  //
+  // Which earlier answer, specifically: one that gave up before reaching `bodyInHand` below. That
+  // reads the buffer to its end on every path that gets to it, so a completed answer leaves nothing
+  // here. The seven that return earlier -- an unreadable status line, an interim answer, a length
+  // that cannot be read, no length on a status that may carry a body, chunked framing, a body over
+  // the limit, a failed field-block read -- all leave bytes behind, and all close the socket. The
+  // buffer is a member and outlives the socket, so without this the next exchange would read a dead
+  // connection's leftovers as the head of the answer on a freshly dialled one, and go on failing.
+  // That is what `AnAnswerThatCouldNotBeReadDoesNotPoisonTheNextConnection` holds.
   answerBuffer_.consume(answerBuffer_.size());
   bodyBuffer_.consume(bodyBuffer_.size());
 
   // Up to the blank line: the status and the headers, which is all a write needs. Bounded, because
   // this runs on the cycle of the application being recorded and a listener that accepts without
   // answering would otherwise hold it for ever.
-  const auto headers = readBounded(answerBuffer_, {}, 0U, true);
+  const auto headers = readFieldBlock();
 
   if (headers.error)
   {
-    // Only a close with nothing sent says the request was never read. A deadline that ran out is
-    // not that, and conflating the two is how a batch Telegraf is still parsing gets sent twice.
     const auto closed = headers.error == asio::error::eof || headers.error == asio::error::connection_reset;
-    const auto closedUnread = headers.handedToSocket == 0U && closed;
-    outcome = closedUnread ? AnswerOutcome::peerClosed : AnswerOutcome::noAnswer;
 
-    if (closed && !closedUnread)
+    if (closed)
     {
-      // Part of a field block arrived and then the peer closed: not a deadline, and not an unread
-      // request either: the listener died mid-answer.
-      reason = "the listener closed part way through its answer";
+      // Nothing sent at all is the listener dropping the connection before it read the request;
+      // part of a field block and then a close is the listener dying mid-answer. Neither is a
+      // deadline, and the two point somewhere different, so they are said apart.
+      reason = headers.handedToSocket == 0U ? "the listener closed the connection without answering"
+                                            : "the listener closed part way through its answer";
     }
 
     // Past the buffer's maximum the read completes with not_found rather than a socket error, so
@@ -600,8 +553,6 @@ inline int HttpTransport::readAnswer(std::string& reason, AnswerOutcome& outcome
   const auto lengthSeen = found.lengthSeen;
   const auto lengthUnusable = found.lengthUnusable;
 
-  outcome = AnswerOutcome::read;
-
   // A length that cannot be read, or two that disagree, leaves the body's extent unknown, which is
   // the same problem as chunked framing and gets the same answer.
   if (lengthUnusable)
@@ -652,7 +603,7 @@ inline int HttpTransport::readAnswer(std::string& reason, AnswerOutcome& outcome
 
   if (bodyInHand.size() < bodyLength)
   {
-    if (readBounded(bodyBuffer_, {}, bodyLength - bodyInHand.size()).error)
+    if (readExactly(bodyLength - bodyInHand.size()).error)
     {
       std::ignore = socket_.close(error);
       connected_ = false;
@@ -714,11 +665,10 @@ inline std::string HttpTransport::makeRequest(std::size_t bodyLength) const
   return request;
 }
 
-inline HttpTransport::SendOutcome HttpTransport::exchange(const std::string& request,
-                                                          sen::Span<const char> data,
-                                                          bool reusedConnection,
-                                                          int& status,
-                                                          std::string& reason)
+inline bool HttpTransport::exchange(const std::string& request,
+                                    sen::Span<const char> data,
+                                    int& status,
+                                    std::string& reason)
 {
   // Headers and body in one operation. Two writes left a window in which a peer that went away
   // decided, by timing alone, whether this looked like a failed write or a successful one with a
@@ -731,46 +681,19 @@ inline HttpTransport::SendOutcome HttpTransport::exchange(const std::string& req
 
   if (written.error)
   {
-    // At or short of the field block, no body byte left this host. Short of it the request was
-    // never routed; exactly at it the listener routes the request and then waits on a body whose
-    // first line never arrives, so its parser yields nothing and nothing reaches the accumulator.
-    // Either way no point can exist. Arithmetic, rather than a claim about the server.
-    if (written.handedToSocket <= request.size())
-    {
-      return SendOutcome::notSent;
-    }
-
-    // Past the field block, so part of the body arrived, and influxdb_listener stores each line as
-    // its parser yields it.
-    return SendOutcome::fateUnknown;
+    // The byte count says which half failed, and it is arithmetic rather than a claim about the
+    // server. At or short of the field block no body byte left this host: short of it the request
+    // was never routed, exactly at it the listener waits on a body whose first line never arrives,
+    // so no point can exist. Past it part of the body arrived, and influxdb_listener stores each
+    // line as its parser yields it. The batch is dropped either way; the two are said apart.
+    reason = written.handedToSocket <= request.size() ? "the request never left this host"
+                                                      : "the request went out and no answer came back";
+    return false;
   }
 
-  auto outcome = AnswerOutcome::noAnswer;
-  status = readAnswer(reason, outcome);
+  status = readAnswer(reason);
 
-  if (status != 0)
-  {
-    return SendOutcome::delivered;
-  }
-
-  // A reused connection closed with nothing sent: the listener drops an idle one before reading
-  // it, so the request was never seen. A deadline is deliberately not this case -- Telegraf answers
-  // only after its parse loop and treats ten seconds as slow, so a batch it is still working
-  // through looks identical, and resending it delivers it twice.
-  if (outcome == AnswerOutcome::peerClosed && reusedConnection)
-  {
-    return SendOutcome::notSent;
-  }
-
-  // A fresh connection closed with nothing sent is most likely a listener going down, but the same
-  // bytes appear if it stored every line and died before answering, so the batch is dropped rather
-  // than risk a duplicate. The cause is reported, since the two point at different things.
-  if (outcome == AnswerOutcome::peerClosed)
-  {
-    reason = reason.empty() ? "the listener closed the connection without answering" : reason;
-  }
-
-  return SendOutcome::fateUnknown;
+  return status != 0;
 }
 
 inline void HttpTransport::reportStatus(int status, const std::string& reason)
@@ -833,54 +756,35 @@ inline void HttpTransport::reportUnanswered(const std::string& detail)
 
 inline void HttpTransport::doSend(sen::Span<const char> data)
 {
-  const auto request = makeRequest(data.size());
-
-  // Two attempts, the second only where Telegraf cannot have seen the request. A write succeeds
-  // even against a closed connection, because the kernel takes the bytes, so the signal is how much
-  // of the request went out and whether an answer started -- not whether the write failed.
-  for (auto attempt = 0; attempt < 2; ++attempt)
+  // Asked before writing rather than inferred afterwards, and it is also why there is no second
+  // attempt: a connection the listener closed while it was idle has sent a FIN, so the peek reads
+  // zero bytes and the batch goes out on a fresh dial first time. A retry after the write would be
+  // a second mechanism for the one hazard this already catches.
+  if (connected_ && connectionUnusable())
   {
-    // Asked before writing rather than inferred afterwards. A connection the listener closed while
-    // it was idle, or one left out of step by a mis-framed answer, is then known here, and costs
-    // one dial instead of a wasted exchange -- which, where the listener closes faster than the
-    // sampling period, would otherwise be every batch.
-    if (connected_ && connectionUnusable())
-    {
-      connected_ = false;
-    }
-
-    // Whether this attempt goes out on a connection that was already open. Derived per attempt, so
-    // the one after a reconnect does not inherit the previous answer.
-    const auto reusedConnection = connected_;
-
-    if (!connected_ && !connect())
-    {
-      continue;
-    }
-
-    auto status = 0;
-    std::string reason;
-
-    switch (exchange(request, data, reusedConnection, status, reason))
-    {
-      case SendOutcome::delivered:
-        reportStatus(status, reason);
-        return;
-
-      case SendOutcome::fateUnknown:
-        // Telegraf may already hold this batch. A duplicate is worse than a gap for any output
-        // that counts what it receives, so this one is not sent again.
-        connected_ = false;
-        reportUnanswered(reason);
-        return;
-
-      case SendOutcome::notSent:
-        connected_ = false;
-        break;
-    }
+    connected_ = false;
   }
 
-  reportDropping();
+  if (!connected_ && !connect())
+  {
+    reportDropping();
+    return;
+  }
+
+  auto status = 0;
+  std::string reason;
+
+  if (exchange(makeRequest(data.size()), data, status, reason))
+  {
+    reportStatus(status, reason);
+    return;
+  }
+
+  // Telegraf answers only after its parse loop, so a batch it is still working through looks
+  // exactly like one it never saw. A duplicate is worse than a gap for any output that counts what
+  // it receives, so this one is dropped rather than sent again.
+  connected_ = false;
+  reportUnanswered(reason);
 }
 
 }  // namespace sen::components::influx

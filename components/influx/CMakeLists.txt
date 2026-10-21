@@ -15,8 +15,9 @@ add_sen_package(
   TARGET influx
   MAINTAINER "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
   VERSION "0.0.1"
-  DESCRIPTION "Ethernet transport for sen"
-  SOURCES src/component.cpp
+  DESCRIPTION "Records Sen objects to InfluxDB through Telegraf"
+  SOURCES src/bounded_write.h
+          src/component.cpp
           src/data_point.h
           src/data_point.cpp
           src/database.h
@@ -24,6 +25,8 @@ add_sen_package(
           src/recorder.h
           src/recorder.cpp
           src/http.h
+          src/io_thread.h
+          src/io_thread.cpp
           src/tcp.h
           src/udp.h
           src/unix_datagram.h

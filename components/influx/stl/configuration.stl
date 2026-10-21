@@ -3,57 +3,42 @@ package sen.components.influx;
 sequence<string> SelectionList;
 
 // Each struct below names the service_address scheme Telegraf's socket listener must be given for
-// it. Telegraf calls tcp, tcp4, tcp6 and unix stream listeners, and udp, udp4, udp6 and unixgram
-// packet listeners; the difference decides how it frames what arrives.
+// it. Telegraf calls tcp and unix stream listeners and udp and unixgram packet listeners, and the
+// difference decides how it frames what arrives; its tcp4/tcp6 and udp4/udp6 are the same two
+// listeners with the resolver narrowed, which is the family field rather than a name of its own.
 
-// Telegraf: service_address = "tcp://<address>:<port>", a stream listener.
+// Which address family a transport's name is resolved in. `any` takes whatever the resolver
+// answers, which is what Telegraf's own tcp and udp schemes do; v4 and v6 are its tcp4/tcp6 and
+// udp4/udp6. `any` MUST stay first: an absent field is value-initialised to the first enumerator,
+// so a configuration written before this field existed keeps the behaviour it had.
+enum IpFamily: u8
+{
+  any,  // whatever the resolver answers, A or AAAA
+  v4,   // A records only
+  v6    // AAAA records only
+}
+
+// Telegraf: service_address = "tcp://<address>:<port>", a stream listener. With family v4 or v6
+// this is Telegraf's tcp4 and tcp6: the digit in those scheme names is a resolver hint and not a
+// different protocol, which is why it is a field here rather than three names.
 struct Tcp
 {
-  address : string,  // ip or name of the Telegraf server
-  port    : u16      // port the Telegraf server listens on
+  address : string,   // ip or name of the Telegraf server
+  port    : u16,      // port the Telegraf server listens on
+  family  : IpFamily  // which address family to resolve the name in
 }
 
-// Telegraf: service_address = "tcp4://<address>:<port>", a stream listener resolved over IPv4 only.
-struct Tcp4
-{
-  address : string,
-  port    : u16
-}
-
-// Telegraf: service_address = "tcp6://[<address>]:<port>", a stream listener resolved over IPv6
-// only.
-struct Tcp6
-{
-  address : string,
-  port    : u16
-}
-
-// Telegraf: service_address = "udp://<address>:<port>", a packet listener. One datagram carries one
-// message, so maxMessageSize bounds the batch in bytes as well as batchSize bounds it in points.
-// 65507 is all IPv4 can carry and 65527 all IPv6 can; neither avoids fragmentation, which begins
-// near 1472 bytes on a 1500-byte link.
+// Telegraf: service_address = "udp://<address>:<port>", a packet listener, and its udp4 and udp6
+// through family. One datagram carries one message, so maxMessageSize bounds the batch in bytes as
+// well as batchSize bounds it in points. 65507 is all IPv4 can carry and 65527 all IPv6 can;
+// neither avoids fragmentation, which begins near 1472 bytes on a 1500-byte link. A multicast
+// group is given here as the address.
 struct Udp
 {
   address        : string,
   port           : u16,
-  maxMessageSize : u32      // bytes a datagram may carry, 0 for the protocol's own maximum
-}
-
-// Telegraf: service_address = "udp4://<address>:<port>", a packet listener over IPv4 only. A
-// multicast group is given here as the address.
-struct Udp4
-{
-  address        : string,
-  port           : u16,
-  maxMessageSize : u32
-}
-
-// Telegraf: service_address = "udp6://[<address>]:<port>", a packet listener over IPv6 only.
-struct Udp6
-{
-  address        : string,
-  port           : u16,
-  maxMessageSize : u32
+  maxMessageSize : u32,      // bytes a datagram may carry, 0 for the protocol's own maximum
+  family         : IpFamily  // which address family to resolve the name in
 }
 
 // Telegraf: service_address = "unix:///<path>", a stream listener on a socket file. Built only
@@ -92,11 +77,7 @@ struct Http
 variant TransportSpec
 {
   Tcp,
-  Tcp4,
-  Tcp6,
   Udp,
-  Udp4,
-  Udp6,
   Unix,
   UnixGram,
   Http
@@ -118,12 +99,17 @@ variant Compression
   GZip
 }
 
-// Overall component configuration
+// The sending runs on a thread of its own, so a Telegraf that stops reading costs points rather
+// than recording cycles. queueLimit is what it may cost: once that many messages are waiting the
+// oldest is dropped, which is what Telegraf's own agent does with metric_buffer_limit and for the
+// same reason. It bounds messages, not bytes, so the memory is the limit times whatever a batch
+// came to; maxMessageSize caps that only on the transports that have it.
 struct Configuration
 {
   samplingPeriod : Duration,       // sampling period for the recordings
   selections     : SelectionList,  // objects to be monitored (using sql)
   transport      : TransportSpec,  // where the data is sent, and over what
   batchSize      : u32,            // points to batch before emission (0 means no batching)
-  compression    : Compression     // to compress the data
+  compression    : Compression,    // to compress the data
+  queueLimit     : u32             // messages that may wait to be sent (0 for the default)
 }

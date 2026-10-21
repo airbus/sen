@@ -13,8 +13,18 @@
 // sen
 #include "sen/core/base/span.h"
 
+// generated code
+#include "stl/configuration.stl.h"
+
+// asio
+#include <asio/io_context.hpp>
+#include <asio/strand.hpp>
+
 // std
+#include <deque>
 #include <limits>
+#include <memory>
+#include <mutex>
 #include <string_view>
 
 namespace sen::components::influx
@@ -23,15 +33,6 @@ namespace sen::components::influx
 //----------------------------------------------------------------------------------------------------------------------
 // Transport
 //----------------------------------------------------------------------------------------------------------------------
-
-/// Which address family a resolved transport is held to. The unspecified form takes whatever the
-/// resolver answers, which is what Telegraf's tcp and udp schemes do.
-enum class IpFamily
-{
-  any,
-  v4,
-  v6
-};
 
 /// The byte bound to put on the batch, given the bound on one message. They are the same number
 /// only where nothing compresses the batch afterwards: the batch bound counts the lines themselves,
@@ -121,8 +122,10 @@ class Database
   SEN_MOVE_ONLY(Database)
 
 public:
-  /// Constructor required valid transport
-  explicit Database(std::unique_ptr<Transport> transport): transport_(std::move(transport))
+  /// Shared rather than owned outright: a handler on the sending thread holds a copy, so it
+  /// cannot be working on a transport this object has already taken with it. A `unique_ptr`
+  /// converts on the way in, so a caller that owns one needs no change.
+  explicit Database(std::shared_ptr<Transport> transport): transport_(std::move(transport))
   {
     SEN_ASSERT(transport_.get() != nullptr);
   }
@@ -147,6 +150,43 @@ public:
   /// the bound holds however wide the points turn out to be.
   void messageOf(std::size_t bytes) noexcept { maxMessageBytes_ = bytes; }
 
+  /// Hands each message to `io` instead of sending it on the calling thread, keeping at most
+  /// `bound` of them waiting. Once that many are waiting the oldest goes: this feeds a dashboard,
+  /// where a gap in history costs less than points that are no longer current, and a listener that
+  /// comes back gets current data rather than a replay. `bound` must not be zero.
+  void sendThrough(asio::io_context& io, std::size_t bound);
+
+  /// Messages the bound has cost since the queue was last empty. Zero when nothing is queueing.
+  [[nodiscard]] std::size_t droppedSoFar() const;
+
+private:
+  /// The messages waiting for the sending thread, and what the bound has cost. Held by shared_ptr
+  /// so each posted handler owns a piece of it, which is what keeps a handler in flight from
+  /// reaching into this object.
+  struct Waiting
+  {
+    Waiting(asio::io_context& io, std::size_t limit): sending(asio::make_strand(io)), bound(limit) {}
+
+    // Everything below is reached through the shared_ptr by the handlers themselves, which is the
+    // point of the struct. One block rather than a comment per line, which clang-format rewraps
+    // away from its target.
+    // NOLINTBEGIN(misc-non-private-member-variables-in-classes)
+    /// Keeps two handlers off one transport however many threads come to run the context.
+    asio::strand<asio::io_context::executor_type> sending;
+    std::mutex guard;
+    std::deque<std::string> messages;
+    std::size_t bound;
+    /// Counted rather than latched: a run that drops continuously would otherwise say so once and
+    /// then lose the rest in silence.
+    std::size_t dropped = 0U;
+    /// One drain in flight at a time. Without it the scheduler's own queue grows by one entry per
+    /// point with nothing bounding it, so the bound below stops bounding the memory, and asio runs
+    /// every ready handler of a strand without re-reading its stopped flag, so a shutdown waits for
+    /// the whole backlog rather than for one message.
+    bool draining = false;
+    // NOLINTEND(misc-non-private-member-variables-in-classes)
+  };
+
 private:
   enum class ElementType
   {
@@ -159,6 +199,9 @@ private:
 
 private:
   void transmit(std::string&& point);
+  /// Sends one waiting message. Static and taking what it needs by shared_ptr, so it carries no
+  /// dependence on the Database still being there.
+  static void sendOneWaiting(const std::shared_ptr<Waiting>& waiting, const std::shared_ptr<Transport>& transport);
   [[nodiscard]] std::string joinLineProtocolBatch() const;
   void addPointToBatch(DataPoint&& point);
   [[nodiscard]] std::string makeLine(const DataPoint& point) const;
@@ -174,12 +217,15 @@ private:
   [[nodiscard]] static std::string formatTags(const DataPoint& point);
 
 private:
-  std::unique_ptr<Transport> transport_;
+  std::shared_ptr<Transport> transport_;
   std::deque<std::string> lineBatch_;
   bool isBatchingActivated_ = false;
   std::size_t batchSize_ = 0;
   std::size_t batchBytes_ = 0;
   std::size_t maxMessageBytes_ = 0;
+  /// Null until sendThrough is called, which is what decides whether a message is handed over or
+  /// sent on the calling thread.
+  std::shared_ptr<Waiting> waiting_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -207,8 +253,6 @@ inline void Database::flushBatch()
     batchBytes_ = 0U;
   }
 }
-
-inline void Database::transmit(std::string&& point) { transport_->send(std::move(point)); }
 
 inline void Database::addPointToBatch(DataPoint&& point)
 {

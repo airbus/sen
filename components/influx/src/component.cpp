@@ -8,6 +8,7 @@
 // component
 #include "database.h"
 #include "http.h"
+#include "io_thread.h"
 #include "recorder.h"
 #include "tcp.h"
 #include "udp.h"
@@ -35,6 +36,7 @@
 #include <cstddef>
 #include <exception>
 #include <memory>
+#include <optional>
 #include <utility>
 #include <variant>
 
@@ -70,11 +72,9 @@ public:
     // create the transport named by the configuration. A scheme the host cannot provide throws
     // from its own constructor, and is reported below rather than ending the run.
     //
-    // This context is a local, and the transports below hold a reference to it for the life of
-    // their sockets. That is safe only because execLoop at the end of this function blocks for the
-    // whole run: if it ever returned while the recorder lived, every socket here would be holding
-    // a reference to a destroyed context. Anything that moves the sending off this thread has to
-    // give the context a lifetime of its own first.
+    // Declared above the transports, which hold a reference to it for the life of their sockets,
+    // and above the IoThread near the end of this function, which runs it. Both of those orders
+    // are what keeps the shutdown walk safe; io_thread.h says why.
     asio::io_context io;
     std::unique_ptr<Transport> transport;
     std::size_t maxMessageSize = 0U;
@@ -87,25 +87,11 @@ public:
     {
       std::visit(
         ::sen::Overloaded {
-          [&](const Tcp& value) { transport = std::make_unique<TCP>(io, value.address, value.port, IpFamily::any); },
-          [&](const Tcp4& value) { transport = std::make_unique<TCP>(io, value.address, value.port, IpFamily::v4); },
-          [&](const Tcp6& value) { transport = std::make_unique<TCP>(io, value.address, value.port, IpFamily::v6); },
+          [&](const Tcp& value) { transport = std::make_unique<TCP>(io, value.address, value.port, value.family); },
           [&](const Udp& value)
           {
-            messageCeiling = datagramCeilingFor(IpFamily::any);
-            transport = std::make_unique<UDP>(io, value.address, value.port, IpFamily::any);
-            maxMessageSize = value.maxMessageSize;
-          },
-          [&](const Udp4& value)
-          {
-            messageCeiling = datagramCeilingFor(IpFamily::v4);
-            transport = std::make_unique<UDP>(io, value.address, value.port, IpFamily::v4);
-            maxMessageSize = value.maxMessageSize;
-          },
-          [&](const Udp6& value)
-          {
-            messageCeiling = datagramCeilingFor(IpFamily::v6);
-            transport = std::make_unique<UDP>(io, value.address, value.port, IpFamily::v6);
+            messageCeiling = datagramCeilingFor(value.family);
+            transport = std::make_unique<UDP>(io, value.address, value.port, value.family);
             maxMessageSize = value.maxMessageSize;
           },
 #if defined(ASIO_HAS_LOCAL_SOCKETS)
@@ -192,6 +178,12 @@ public:
     // line over the bound reaches the transport regardless, which drops it.
     database->messageOf(batchBoundFor(maxMessageSize, compressionRequested));
 
+    // The sending moves to the IoThread near the end of this function. Writes before that thread
+    // exists are not lost: a post to a context nobody is running yet simply waits, bounded by the
+    // same queue. 10000 is what Telegraf's own agent defaults metric_buffer_limit to.
+    constexpr std::size_t defaultQueueLimit = 10000U;
+    database->sendThrough(io, config.queueLimit == 0U ? defaultQueueLimit : config.queueLimit);
+
     // create the recorder
     std::unique_ptr<Recorder> recorder;
     try
@@ -206,7 +198,23 @@ public:
       return Err(kernel::ExecError {kernel::ErrorCategory::expectationsNotMet, err.what()});
     }
 
-    getLogger()->info("sending information to InfluxDB");
+    // Declared below the recorder, so its destructor runs first and joins before any socket on the
+    // context is destroyed. Nothing is posted to it yet: the transports still do their I/O on the
+    // thread that calls them.
+    std::optional<IoThread> sending;
+    try
+    {
+      sending.emplace(io);
+    }
+    catch (const std::exception& err)
+    {
+      // A thread the host will not give out would otherwise leave run() by throwing, and the
+      // kernel logs that and rethrows it into std::terminate: the application being recorded would
+      // die of a failure to record it.
+      return Err(kernel::ExecError {kernel::ErrorCategory::runtimeError, err.what()});
+    }
+
+    getLogger()->info("sending to the telegraf listener");
     return api.execLoop(config.samplingPeriod, nullptr, false);
   }
 };

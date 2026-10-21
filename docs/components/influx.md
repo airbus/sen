@@ -74,20 +74,22 @@ load:
 `transport` names one of the schemes Telegraf's socket listener accepts, with the parameters that
 scheme needs. Each one has to match the listener's own `service_address`:
 
-| `type` | Telegraf's `service_address` | Kind |
-| ------ | ---------------------------- | ---- |
-| `Tcp`  | `tcp://<address>:<port>`     | stream |
-| `Tcp4` | `tcp4://<address>:<port>`    | stream |
-| `Tcp6` | `tcp6://[<address>]:<port>`  | stream |
-| `Udp`  | `udp://<address>:<port>`     | packet |
-| `Udp4` | `udp4://<address>:<port>`    | packet |
-| `Udp6` | `udp6://[<address>]:<port>`  | packet |
-| `Unix` | `unix:///<path>`             | stream |
-| `UnixGram` | `unixgram:///<path>`     | packet |
-| `Http` | a `influxdb_listener` input  | request |
+| Telegraf's `service_address` | `type` | `family` | Kind |
+| ---------------------------- | ------ | -------- | ---- |
+| `tcp://<address>:<port>`     | `Tcp`  | `any`    | stream |
+| `tcp4://<address>:<port>`    | `Tcp`  | `v4`     | stream |
+| `tcp6://[<address>]:<port>`  | `Tcp`  | `v6`     | stream |
+| `udp://<address>:<port>`     | `Udp`  | `any`    | packet |
+| `udp4://<address>:<port>`    | `Udp`  | `v4`     | packet |
+| `udp6://[<address>]:<port>`  | `Udp`  | `v6`     | packet |
+| `unix:///<path>`             | `Unix` | —        | stream |
+| `unixgram:///<path>`         | `UnixGram` | —    | packet |
+| a `influxdb_listener` input  | `Http` | —        | request |
 
-The `4` and `6` forms resolve the address in that family alone, so a name with records in both
-cannot connect over the other one. `Tcp` and `Udp` take whichever the resolver answers.
+Telegraf spells the address family into the scheme name because a URL has one token to spend. Here
+it is a field, so there are five transports rather than nine. `family` defaults to `any`, which
+takes whichever family the resolver answers; `v4` and `v6` resolve in that family alone, so a name
+with records in both cannot connect over the other one.
 
 `Http` is the one that does not go to `socket_listener`: it posts to Telegraf's `influxdb_listener`
 input, which is described under [Posting over HTTP](#posting-over-http) below.
@@ -108,6 +110,26 @@ naming the alternatives, rather than appearing to record and sending nothing. On
 
 Where they are built, `Unix` dials on its first send as `Tcp` does, so a Telegraf that has not
 created its socket yet is not an error. `UnixGram` opens its socket while the component loads.
+
+### What a slow listener costs
+
+The sending runs on a thread of its own. A write puts the message on a queue and the recording cycle
+carries on, so a Telegraf that is slow, absent or no longer reading costs points rather than cycles.
+
+`queueLimit` is how many points it may cost: it bounds the messages waiting to be sent, and once
+that many are waiting the oldest is dropped to make room. That is the same trade Telegraf's own
+agent makes with `metric_buffer_limit`, and for the same reason — this data usually feeds a
+dashboard, where a gap in history matters less than points that are no longer current, and a
+listener that comes back gets current data instead of a long replay. The default is 10000 messages,
+as Telegraf's is.
+
+The first drop is reported, then every hundredth, with a running total; a line says so again once
+the queue has emptied. The limit counts messages and not bytes, so the memory it can cost is the
+limit times whatever a batch came to, which `maxMessageSize` caps only on the transports that take
+it.
+
+If the points leading up to a failure matter more than the most recent ones, this is the wrong trade
+and dropping the newest would be the right one. Say so and it is a small change.
 
 ### Bounding a datagram
 
@@ -209,19 +231,14 @@ The limits are worth knowing before choosing it:
   a 413. It bounds the bytes actually sent, so for a compressed batch it bounds the compressed
   length, and this listener puts no limit on what those bytes expand to. `read_timeout` and
   `write_timeout` both default to 10s. These are the listener's settings, not the component's.
-- **An answer is waited for.** Connecting, sending and reading the answer all happen on the cycle
-  doing the recording, each under a one-second deadline. An attempt is four such operations — the
-  connect, the request, the answer's headers and its body — and a send makes two attempts, so one
-  message can delay a cycle by under twelve seconds against a listener that accepts the connection
-  and then says nothing. A batch that `maxMessageSize` splits into several messages pays that per
-  message. Reporting is outside that figure: the component writes its messages synchronously, so a
-  blocked output stream can hold a cycle for longer than any of the deadlines above, which is a
-  property of the component rather than of this transport.
+- **An answer is waited for.** Connecting, sending and reading the answer each run under a
+  one-second deadline. A send is four such operations, the connect, the request, the answer's
+  headers and its body, so one message occupies the sending thread for about five seconds against a
+  listener that accepts the connection and then says nothing. A batch that `maxMessageSize` splits
+  into several messages pays that per message.
 
-  None of this happens in ordinary use: a listener on the same host answers in well under a
-  millisecond, and a connection the listener has closed is noticed before the send rather than by
-  waiting for an answer. But the socket transports never wait at all, so where no pause is
-  acceptable, prefer one of them.
+  None of it reaches the recording cycle, which hands the message over and carries on. What a slow
+  or absent listener costs is points, bounded by `queueLimit`.
 - **A batch is never sent twice.** When the request went out whole and no answer came back, the
   batch is dropped rather than resent, because Telegraf may already hold it. A duplicate is
   invisible in InfluxDB, where the same series and timestamp overwrite each other, but not in a
