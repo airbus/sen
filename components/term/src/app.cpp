@@ -620,6 +620,13 @@ bool App::handleInputKey(const ftxui::Event& event)
     ui_->inputTruncated = false;
     return true;
   }
+  if (event == ftxui::Event::AltD)
+  {
+    auto to = nextWord(buf, cursor());
+    buf.erase(cursor(), to - cursor());
+    ui_->inputTruncated = false;
+    return true;
+  }
   if (event.is_character())
   {
     // Pasted text arrives here one character at a time, so this is the only place it can be bounded.
@@ -1007,8 +1014,8 @@ bool App::handleFormEvent(ftxui::Event event)
   // Anything else returns false, and the caller then offers it to the scroll, copy and help handlers.
   return event == ftxui::Event::Delete || event == ftxui::Event::Backspace || event == ftxui::Event::Home ||
          event == ftxui::Event::CtrlA || event == ftxui::Event::End || event == ftxui::Event::CtrlE ||
-         event == ftxui::Event::CtrlK || event == ftxui::Event::CtrlW || event == ftxui::Event::ArrowLeftCtrl ||
-         event == ftxui::Event::ArrowRightCtrl;
+         event == ftxui::Event::CtrlK || event == ftxui::Event::CtrlW || event == ftxui::Event::AltD ||
+         event == ftxui::Event::ArrowLeftCtrl || event == ftxui::Event::ArrowRightCtrl;
 }
 
 void App::insertPastedText(std::string_view text)

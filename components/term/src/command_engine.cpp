@@ -745,6 +745,7 @@ void CommandEngine::cmdHelp(std::string_view args)
     {"Ctrl+U", "Erase from the cursor to the start of the line"},
     {"Ctrl+K", "Erase from the cursor to the end of the line"},
     {"Ctrl+W", "Erase the word before the cursor"},
+    {"Alt+D", "Erase the word after the cursor"},
     {"Ctrl+R", "Recall the last command containing the line"},
     {"PageUp / PageDown", "Scroll the output ten rows"},
     {"F1", "Run help"},
