@@ -41,6 +41,11 @@ include_guard()
 #     When set alongside SCHEMA_FILE, the schema is generated as a component
 #     schema (rather than a package schema) with this name embedded.
 #
+#   [SCHEMA_CLASSES <names...>]
+#     The implementation classes the package exports, qualified (<package>.<Class>). The
+#     schema lists them as the classes an object may name, so a configuration that names one
+#     validates. Only used with SCHEMA_FILE, and not for a component schema.
+#
 #   [HLA_OUTPUT_DIR <path>]
 #     Subdirectory within OUTPUT_DIR for HLA-derived files.
 #     Only relevant when HLA_FOM_DIRS is used.
@@ -84,6 +89,7 @@ function(sen_generate_code)
       HLA_FOM_DIRS
       HLA_MAPPINGS_FILE
       HLA_EXTENSIONS_FILE
+      SCHEMA_CLASSES
   )
 
   cmake_parse_arguments(
@@ -166,6 +172,20 @@ function(sen_generate_code)
     )
       set(_schema_type "component")
       set(_component_name_opt -n "${_arg_SCHEMA_COMPONENT_NAME}")
+    endif()
+
+    # Without the implementation classes a package schema's class list is empty, and an editor
+    # flags every object a configuration declares. A component schema has no class list.
+    set(_schema_classes_opt)
+    if(_schema_type STREQUAL "package")
+      foreach(_class ${_arg_SCHEMA_CLASSES})
+        list(
+          APPEND
+          _schema_classes_opt
+          -c
+          ${_class}
+        )
+      endforeach()
     endif()
   endif()
 
@@ -319,8 +339,9 @@ function(sen_generate_code)
       add_custom_command(
         OUTPUT ${_arg_SCHEMA_FILE}
         COMMAND_EXPAND_LISTS VERBATIM
-        COMMAND sen::cli_gen json ${_schema_type} stl --depfile ${_schema_dep_file} -b ${_abs_base_path}
-                ${_stl_files} ${_extra_options} -o ${_arg_SCHEMA_FILE} ${_component_name_opt}
+        COMMAND
+          sen::cli_gen json ${_schema_type} stl --depfile ${_schema_dep_file} -b ${_abs_base_path}
+          ${_stl_files} ${_extra_options} ${_schema_classes_opt} -o ${_arg_SCHEMA_FILE} ${_component_name_opt}
         DEPENDS ${_stl_files} sen::cli_gen ${_abs_settings_path}
         DEPFILE ${_schema_dep_file}
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
@@ -508,8 +529,10 @@ function(sen_generate_code)
       add_custom_command(
         OUTPUT ${_arg_SCHEMA_FILE}
         COMMAND_EXPAND_LISTS VERBATIM
-        COMMAND sen::cli_gen json ${_schema_type} fom ${_mapping_opt} ${_extensions_opt}
-                --directories=${_abs_fom_dirs} ${_extra_options} -o ${_arg_SCHEMA_FILE} ${_component_name_opt}
+        COMMAND
+          sen::cli_gen json ${_schema_type} fom ${_mapping_opt} ${_extensions_opt}
+          --directories=${_abs_fom_dirs} ${_extra_options} ${_schema_classes_opt} -o ${_arg_SCHEMA_FILE}
+          ${_component_name_opt}
         DEPENDS sen::cli_gen ${_xml_files}
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
         COMMENT "Generating json schema code for ${_arg_HLA_FOM_DIRS} in ${_arg_SCHEMA_FILE}"
