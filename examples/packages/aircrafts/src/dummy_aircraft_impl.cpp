@@ -47,23 +47,20 @@ public:
     settableDeadReckoner_ =
       std::make_unique<SettableDr>(*this, sen::util::DrThreshold {0.0, 0.0f, sen::util::ReferenceSystem::world});
 
-    // commanded speed can be modified by the user
-    speedGuard_ = onSpeedChanged({this,
-                                  [this]()
-                                  {
-                                    auto situation = deadReckoner_.geodeticSituation(api_->getTime());
-                                    const auto& [north, east, down] = getSpeed();
-                                    situation.velocityVector = {north, east, down};
-                                    deadReckoner_.updateGeodeticSituation(std::move(situation));
-                                  }});
+    // commanded speed can be modified by the user; the next update applies it at its own time
+    speedGuard_ = onSpeedChanged({this, [this]() { speedChanged_ = true; }});
   }
 
   void update(sen::kernel::RunApi& runApi) override
   {
-    api_ = &runApi;
+    const auto currentTime = runApi.getTime();
 
-    if (const auto currentTime = runApi.getTime(); currentTime == runApi.getStartTime())
+    // seed the dead reckoner on the first update
+    if (!started_)
     {
+      started_ = true;
+      speedChanged_ = false;
+
       sen::util::GeodeticSituation initialSituation;
       initialSituation.timeStamp = currentTime;
       initialSituation.worldLocation = {40.0, 0.0, 10000.0};
@@ -71,8 +68,18 @@ public:
       initialSituation.velocityVector = {north, east, down};
       deadReckoner_.updateGeodeticSituation(std::move(initialSituation));
     }
+    else if (speedChanged_)
+    {
+      speedChanged_ = false;
+
+      auto situation = deadReckoner_.geodeticSituation(currentTime);
+      const auto& [north, east, down] = getSpeed();
+      situation.velocityVector = {north, east, down};
+      deadReckoner_.updateGeodeticSituation(std::move(situation));
+    }
+
     // move the entity using the dead reckoner with the specified speed
-    auto situation = deadReckoner_.geodeticSituation(runApi.getTime());
+    auto situation = deadReckoner_.geodeticSituation(currentTime);
 
     // update the spatial using the settable dead reckoner
     settableDeadReckoner_->setSpatial(situation);
@@ -83,7 +90,8 @@ private:
   DeadReckonerBase deadReckoner_;
   std::unique_ptr<SettableDr> settableDeadReckoner_;
   sen::ConnectionGuard speedGuard_;
-  sen::kernel::RunApi* api_ = nullptr;
+  bool started_ = false;
+  bool speedChanged_ = false;
 };
 
 SEN_EXPORT_CLASS(DummyAircraftImpl)
