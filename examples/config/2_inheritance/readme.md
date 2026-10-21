@@ -85,7 +85,7 @@ To run it, let's call `sen run`:
 sen run config/2_inheritance/1_inheritance.yaml
 ```
 
-This will open a shell and tell Sen to instantiate the cat and dog implementations in the
+This will open the term and tell Sen to instantiate the cat and dog implementations in the
 `my.tutorial` bus.
 
 You can interact with the objects by doing commands such as:

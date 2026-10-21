@@ -60,8 +60,8 @@ protected:
       // Call add(3, 4) and handle the result
       list.front()->add(3.0, 4.0, {this, handleResult});  // (5)!
     }
-    // --8<-- [end:async_call]
   }
+  // --8<-- [end:async_call]
 
 private:
   std::shared_ptr<sen::Subscription<CalculatorInterface>> calculators_;  // (2)!
