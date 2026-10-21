@@ -16,7 +16,7 @@
 namespace lifecycle
 {
 
-// Running this example prints, cycle after cycle:
+// Reading the object in the term (local.lifecycle.phases.getLastCycle) shows, cycle after cycle:
 //
 //   cycles=1  lastCycle="preDrain=0 update=0 preCommit=1"
 //   cycles=2  lastCycle="preDrain=1 update=1 preCommit=2"

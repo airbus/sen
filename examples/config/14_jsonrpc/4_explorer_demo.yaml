@@ -124,8 +124,7 @@ build:
         name: blueCircle
         bus: world.shapes
         color: blue
-        x: 50.0
-        y: 50.0
+        position: {x: 50.0, y: 50.0}
         geometry:
           type: Circle
           value:
@@ -134,8 +133,7 @@ build:
         name: redTriangle
         bus: world.shapes
         color: red
-        x: 15.0
-        y: 22.0
+        position: {x: 15.0, y: 22.0}
         geometry:
           type: Triangle
           value:
@@ -144,8 +142,7 @@ build:
         name: greenRectangle
         bus: world.shapes
         color: green
-        x: 40.0
-        y: 40.0
+        position: {x: 40.0, y: 40.0}
         geometry:
           type: Rectangle
           value:
