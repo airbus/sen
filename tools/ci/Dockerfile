@@ -49,6 +49,11 @@ ARG PYTEST_VERSION=9.1.1
 ARG PRECOMMIT_VERSION=4.5.1
 ARG PLANTUML_VERSION=1.2026.7
 ARG TYPST_VERSION=0.15.1
+# Even when the dependency on the Python version is not exposed anywhere, a suitable
+# one (matching minor version) is needed to run those python-dependent components.
+# This version must be equal to the one declared in the conanfile.py but this is not
+# enforced by any means in the code.
+ARG PYTHON_VERSION=3.13.17
 # Both must equal the versions conanfile.py tool-requires, and nothing checks that
 # they do. The header says why the image carries them at all.
 ARG CMAKE_VERSION=3.31.10
@@ -116,10 +121,6 @@ RUN printf '%s\n' \
         libxext-dev \
         make \
         pkg-config \
-        python3 \
-        python3-dev \
-        python3-pip \
-        python3-venv \
         sudo \
         # Liberation Sans carries Helvetica's metrics, for the reference typst
         # typesets. Without a sans installed the document falls back to a serif and
@@ -127,9 +128,25 @@ RUN printf '%s\n' \
         fonts-liberation \
         # tar -xJ, for the typst release below. Not in the base image.
         xz-utils \
+        # Requirements to build Python from sources
+        zlib1g-dev \
+        libssl-dev \
+        libffi-dev \
+        libsqlite3-dev \
+        build-essential \
     && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 100 \
     && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 100 \
     && rm -rf /var/lib/apt/lists/*
+
+# Download the specific Python version and build it from source
+RUN curl -fsSL "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz" \
+        | tar -xz -C /tmp \
+    && cd /tmp/Python-${PYTHON_VERSION} \
+    && ./configure --prefix=/usr/local --enable-optimizations --with-ensurepip=install \
+    && make -j"${nproc}" && make install \
+    && ln -sf /usr/local/bin/python3 /usr/bin/python3 \
+    && ln -sf /usr/local/bin/python3 /usr/bin/python \
+    && rm -fr /tmp/Python-${PYTHON_VERSION}
 
 # plantuml renders the diagram the handbook embeds. Ubuntu's package is from 2020 and
 # pulls a full JDK, 218 packages against 40 for a headless JRE and the jar. CMake finds it

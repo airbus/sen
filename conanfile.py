@@ -27,7 +27,11 @@ _BASIC_COMPONENTS = frozenset({"shell", "term", "ether"})
 
 # Default Python version to compile the python-dependent components.
 # Criterion: Select the newest Python version past its bugfix stage at the time of this package release.
-DEFAULT_PYTHON_VERSION = "3.13.17"
+PYTHON_VERSION = "3.13.17"
+
+# Expose them at the top as contants so it is easier to find and update them in the project
+CMAKE_VERSION = "3.31.10"
+NINJA_VERSION = "1.13.2"
 
 
 class SenConan(ConanFile):
@@ -74,7 +78,7 @@ class SenConan(ConanFile):
         "with_docs": False,
         "with_optimized_debug": False,
         "with_release_symbols": False,
-        "with_python_version": DEFAULT_PYTHON_VERSION,
+        "with_python_version": PYTHON_VERSION,
         "sanitizer": "none",
     }
 
@@ -111,8 +115,8 @@ class SenConan(ConanFile):
 
     def build_requirements(self):
         """Defines the dependencies only need for building of Sen."""
-        self.tool_requires("cmake/3.31.10")
-        self.tool_requires("ninja/1.13.2")
+        self.tool_requires(f"cmake/{CMAKE_VERSION}")
+        self.tool_requires(f"ninja/{NINJA_VERSION}")
         self.test_requires("gtest/1.17.0")
         # Benchmarks belong to the full build, so the dependency is fetched only there.
         if str(self.options.mode) == "full":
