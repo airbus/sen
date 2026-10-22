@@ -501,39 +501,7 @@ Macros</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line"><span class="keyword">class </span>classname final: <span class="keyword">private</span> std::optional&lt;elementtype&gt;                                                            \</div>
-<div class="line">{                                                                                                                    \</div>
-<div class="line">  <span class="keyword">using </span>Parent = std::optional&lt;elementtype&gt;;                                                                         \</div>
-<div class="line">                                                                                                                     \</div>
-<div class="line"><span class="keyword">public</span>:                                                                                                              \</div>
-<div class="line">  <span class="keyword">using </span>Parent::value_type;                                                                                          \</div>
-<div class="line">                                                                                                                     \</div>
-<div class="line">  <span class="keyword">using </span>Parent::Parent;                                                                                              \</div>
-<div class="line">  <span class="keyword">using </span>Parent::operator=;                                                                                           \</div>
-<div class="line">                                                                                                                     \</div>
-<div class="line">  <span class="keyword">using </span>Parent::operator-&gt;;                                                                                          \</div>
-<div class="line">  <span class="keyword">using </span>Parent::operator*;                                                                                           \</div>
-<div class="line">  <span class="keyword">using </span>Parent::operator bool;                                                                                       \</div>
-<div class="line">  <span class="keyword">using </span>Parent::has_value;                                                                                           \</div>
-<div class="line">  <span class="keyword">using </span>Parent::value;                                                                                               \</div>
-<div class="line">  <span class="keyword">using </span>Parent::value_or;                                                                                            \</div>
-<div class="line">                                                                                                                     \</div>
-<div class="line">  <span class="keyword">using </span>Parent::reset;                                                                                               \</div>
-<div class="line">  <span class="keyword">using </span>Parent::swap;                                                                                                \</div>
-<div class="line">  <span class="keyword">using </span>Parent::emplace;                                                                                             \</div>
-<div class="line">                                                                                                                     \</div>
-<div class="line">  <span class="keyword">constexpr</span> <span class="keyword">const</span> Parent&amp; asOptional() const&amp; noexcept { <span class="keywordflow">return</span> *<span class="keyword">this</span>; }                                             \</div>
-<div class="line">  Parent asOptional() &amp;&amp; <span class="keyword">noexcept</span>(std::is_nothrow_move_constructible_v&lt;Parent&gt;) { <span class="keywordflow">return</span> std::move(*<span class="keyword">this</span>); }         \</div>
-<div class="line">                                                                                                                     \</div>
-<div class="line">  <span class="keyword">friend</span> <span class="keyword">constexpr</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="group__util.html#ga5f068ffc8f1b111e89e3bd90807b40d5">operator==</a>(<span class="keyword">const</span> classname&amp; lhs, <span class="keyword">const</span> classname&amp; rhs)                                       \</div>
-<div class="line">  {                                                                                                                  \</div>
-<div class="line">    <span class="keywordflow">return</span> lhs.asOptional() == rhs.asOptional();                                                                     \</div>
-<div class="line">  }                                                                                                                  \</div>
-<div class="line">  <span class="keyword">friend</span> <span class="keyword">constexpr</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="group__util.html#ga3f8a5f2478ee1587dccb93735ac35f0c">operator!=</a>(<span class="keyword">const</span> classname&amp; lhs, <span class="keyword">const</span> classname&amp; rhs) { <span class="keywordflow">return</span> !(lhs == rhs); }             \</div>
-<div class="line">};</div>
-<div class="ttc" id="agroup__util_html_ga3f8a5f2478ee1587dccb93735ac35f0c"><div class="ttname"><a href="group__util.html#ga3f8a5f2478ee1587dccb93735ac35f0c">sen::operator!=</a></div><div class="ttdeci">constexpr bool operator!=(const Span&lt; T &gt; &amp;lhs, const Span&lt; T &gt; &amp;rhs) noexcept</div><div class="ttdef"><b>Definition</b> span.h:190</div></div>
-<div class="ttc" id="agroup__util_html_ga5f068ffc8f1b111e89e3bd90807b40d5"><div class="ttname"><a href="group__util.html#ga5f068ffc8f1b111e89e3bd90807b40d5">sen::operator==</a></div><div class="ttdeci">constexpr bool operator==(const Span&lt; T &gt; &amp;lhs, const Span&lt; T &gt; &amp;rhs) noexcept</div><div class="ttdef"><b>Definition</b> span.h:184</div></div>
-</div><!-- fragment -->
+
 <p>Used by the code generator NOLINTNEXTLINE. </p>
 
 </div>
