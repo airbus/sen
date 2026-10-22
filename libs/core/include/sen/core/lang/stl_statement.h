@@ -94,7 +94,7 @@ struct StlQuantityStatement
   StlToken identifier;
   std::vector<StlToken> description;
   StlTypeNameStatement valueTypeName;
-  StlToken unitName;
+  std::optional<StlToken> unitName;
   std::optional<StlAttributeList> attributes;
 };
 

@@ -284,7 +284,7 @@ alias NameList NameSequence;
 ### 3.7 Quantity
 
 ```ebnf
-quantityDecl ::= 'quantity' '<' typeExpr ',' identifier '>' identifier attributeList? ';'
+quantityDecl ::= 'quantity' '<' typeExpr (',' identifier )? '>' identifier attributeList? ';'
 ```
 
 The first type argument is the underlying numeric type, the second is the
@@ -300,6 +300,7 @@ quantity<f64, m>        Distance     [min: 0.0];
 quantity<f32, kph>      GroundSpeed;
 quantity<f32, rad>      Angle;
 quantity<f32, m_per_s>  Speed;
+quantity<f32>           Fraction;
 ```
 
 ### 3.8 Top-level sequence / array / optional declarations

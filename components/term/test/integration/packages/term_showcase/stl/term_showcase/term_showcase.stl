@@ -44,7 +44,7 @@ quantity<u16, m> Length [min: 0, max: 1000];
 
 // Unit-less floating-point quantity: exercises the quantity editor's fall-back path where the
 // field is a plain scalar leaf (no unit to pick).
-quantity<f32, f32> Fraction [min: 0.0, max: 1.0];
+quantity<f32> Fraction [min: 0.0, max: 1.0];
 
 // Status enum for workers: exercises the enum display.
 enum WorkerStatus: u8

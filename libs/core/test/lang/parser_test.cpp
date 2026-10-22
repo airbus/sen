@@ -105,6 +105,7 @@ TEST(Parser, codeDencode)
 
        sequence<MyReal, 100> StringList;
        quantity<float64, rad> Lat;
+       quantity<float32> Fraction;
          )";
 
   std::vector<uint64_t> buffer;
@@ -251,6 +252,7 @@ variant TerminalCommand
 
 optional<f64> MaybeFloat64;
 quantity<f64, deg> Lat [min: -90.0,  max: 90.0];
+quantity<f32> Fraction [min: 0.0, max: 1.0];
 sequence<f32, 100> MyBoundedSequence;
 array<u32, 3> MyArray;
 
@@ -263,7 +265,7 @@ array<u32, 3> MyArray;
     StlParser parser(tokens);
     auto statements = parser.parse();
 
-    EXPECT_EQ(15U, statements.size());
+    EXPECT_EQ(16U, statements.size());
   }
 }
 

@@ -1678,7 +1678,7 @@ protected:
   }
   [[nodiscard]] const Method& setRatioMethod() const
   {
-    // setRatio takes Ratio = quantity<f32, f32> [min: 0.0, max: 1.0] (unit-less)
+    // setRatio takes Ratio = quantity<f32> [min: 0.0, max: 1.0] (unit-less)
     return *::term::test::TestObjectInterface::meta()->searchMethodByName("setRatio");
   }
 };
