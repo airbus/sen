@@ -14468,17 +14468,17 @@
 
 ==== #"FrequencyHertzFloat32" #chip("quantities", "quantity") <t-rpr-FrequencyHertzFloat32>
 #prose("Frequency, based on SI derived unit hertz, unit symbol Hz.")
-#declared[#kw[quantity]\<#link(<t-f32>)[#"f32"], #lit($"hz"$)\> #"Frequency​Hertz​Float32"#";"]
+#declared[#kw[quantity]\<#link(<t-f32>)[#"f32"], #lit($"Hz"$)\> #"Frequency​Hertz​Float32"#";"]
 #facts[Named by #link(<t-rpr-EmitterBeam>)[#"Emitter​Beam"], #link(<t-rpr-FundamentalParameterDataStruct>)[#"Fundamental​Parameter​Data​Struct"], #link(<t-rpr-RadioTransmitter>)[#"Radio​Transmitter"].]
 
 ==== #"FrequencyHertzUnsignedInteger64" #chip("quantities", "quantity") <t-rpr-FrequencyHertzUnsignedInteger64>
 #prose("Frequency of a radio transmission, in hertz.")
-#declared[#kw[quantity]\<#link(<t-u64>)[#"u64"], #lit($"hz"$)\> #"Frequency​Hertz​Unsigned​Integer64"#";"]
+#declared[#kw[quantity]\<#link(<t-u64>)[#"u64"], #lit($"Hz"$)\> #"Frequency​Hertz​Unsigned​Integer64"#";"]
 #facts[Named by #link(<t-rpr-RadioTransmitter>)[#"Radio​Transmitter"].]
 
 ==== #"InterrogationsPerSecondFloat32" #chip("quantities", "quantity") <t-rpr-InterrogationsPerSecondFloat32>
 #prose("Number of interrogations per second.")
-#declared[#kw[quantity]\<#link(<t-f32>)[#"f32"], #lit($"hz"$)\> #"Interrogations​Per​Second​Float32"#";"]
+#declared[#kw[quantity]\<#link(<t-f32>)[#"f32"], #lit($"Hz"$)\> #"Interrogations​Per​Second​Float32"#";"]
 #facts[Named by #link(<t-rpr-FundamentalParameterDataStruct>)[#"Fundamental​Parameter​Data​Struct"].]
 
 ==== #"LengthMeterFloat32" #chip("quantities", "quantity") <t-rpr-LengthMeterFloat32>
