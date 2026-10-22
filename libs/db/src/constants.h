@@ -5,6 +5,9 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
+#ifndef SEN_LIBS_DB_SRC_CONSTANTS_H
+#define SEN_LIBS_DB_SRC_CONSTANTS_H
+
 // std
 #include <cstdint>
 #include <string_view>
@@ -26,3 +29,5 @@ constexpr std::string_view annotationsFileName = "annotations";
 constexpr std::string_view summaryFileName = "summary";
 
 }  // namespace sen::db
+
+#endif  // SEN_LIBS_DB_SRC_CONSTANTS_H
