@@ -220,7 +220,7 @@ seen to use, not a standard anybody publishes.
 | "radian (rad)"                        | `rad`        |
 | "radian per second (rad/s)"           | `rad_per_s`  |
 | "meter (m)"                           | `m`          |
-| "hertz (Hz)", "interrogations/second" | `hz`         |
+| "hertz (Hz)", "interrogations/second" | `Hz`         |
 | "kilogram (kg)"                       | `kg`         |
 | "revolutions per minute (RPM)", "RPM" | `rpm`        |
 | "degree Celsius (C)"                  | `degC`       |

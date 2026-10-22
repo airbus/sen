@@ -451,11 +451,22 @@ public:
       }
     }
 
+    // lookup unit and emit warning if not found
+    auto resolvedUnit = UnitRegistry::get().searchUnitByAbbreviation(statement.unitName.lexeme());
+    if (!resolvedUnit)
+    {
+      std::string warningMsg = "unrecognized unit '";
+      warningMsg.append(statement.unitName.lexeme());
+      warningMsg.append("'. This quantity will be treated as unitless");
+
+      ErrorReporter::report(statement.unitName.codeLocation(), warningMsg, statement.unitName.lexeme().size(), true);
+    }
+
     QuantitySpec spec(statement.identifier.lexeme(),
                       computeQualifiedName(packagePrefix_, statement.identifier.lexeme()),
                       generateDescription(statement.description),
                       elementType.value(),
-                      UnitRegistry::get().searchUnitByAbbreviation(statement.unitName.lexeme()),
+                      resolvedUnit,
                       minValue,
                       maxValue);
 
