@@ -18,7 +18,7 @@ var searchData=
   ['unit_5fregistry_2eh_15',['unit_registry.h',['../unit__registry_8h.html',1,'']]],
   ['unitcategory_16',['UnitCategory',['../group__type__utils.html#ga89bcbcdac1ba5632a0b7c33f8f4bb8f9',1,'sen']]],
   ['unitlist_17',['UnitList',['../classsen_1_1_unit_registry.html#a02f7331293fcc2fd52087299155d2dc1',1,'sen::UnitRegistry']]],
-  ['unitname_18',['unitName',['../group__lang.html#a56b034e88c36e4b4501f3d7a7cf0d93f',1,'sen::lang::StlQuantityStatement']]],
+  ['unitname_18',['unitName',['../group__lang.html#a24354021f629c6a051f37f1e97d2f649',1,'sen::lang::StlQuantityStatement']]],
   ['unitrange_19',['UnitRange',['../classsen_1_1_unit_registry.html#a88551188e144536c8e635a4a85fdabbc',1,'sen::UnitRegistry']]],
   ['unitregistry_20',['UnitRegistry',['../classsen_1_1_unit_registry.html',1,'sen']]],
   ['unitspec_21',['UnitSpec',['../structsen_1_1_unit_spec.html',1,'sen']]],
