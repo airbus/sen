@@ -16,6 +16,7 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualRunEnv
 from conan.tools.files import copy
 from conan.tools.scm.git import Git
+from conan.tools.system import PyEnv
 from conan.tools.system.package_manager import Apt, Dnf, Yum, Zypper
 
 COMPONENTS = tuple(sorted(p.parent.name for p in (Path(__file__).parent / "components").glob("*/CMakeLists.txt")))
@@ -23,6 +24,10 @@ COMPONENTS = tuple(sorted(p.parent.name for p in (Path(__file__).parent / "compo
 # Components enabled by `mode=basic`. `mode=full` enables every COMPONENT;
 # `mode=barebones` enables none.
 _BASIC_COMPONENTS = frozenset({"shell", "term", "ether"})
+
+# Default Python version to compile the python-dependent components.
+# Criterion: Select the newest Python version past its bugfix stage at the time of this package release.
+DEFAULT_PYTHON_VERSION = "3.13.17"
 
 
 class SenConan(ConanFile):
@@ -57,6 +62,7 @@ class SenConan(ConanFile):
         "with_docs": [True, False],
         "with_optimized_debug": [True, False],
         "with_release_symbols": [True, False],
+        "with_python_version": ["ANY"],
         "sanitizer": ["none", "address", "thread"],
     }
     default_options = {
@@ -68,6 +74,7 @@ class SenConan(ConanFile):
         "with_docs": False,
         "with_optimized_debug": False,
         "with_release_symbols": False,
+        "with_python_version": DEFAULT_PYTHON_VERSION,
         "sanitizer": "none",
     }
 
@@ -287,6 +294,9 @@ class SenConan(ConanFile):
 
     def generate(self):
         """Generate the cmake dependency and toolchain files."""
+        pyenv = PyEnv(self, py_version=str(self.options.with_python_version))
+        pyenv.generate()
+
         deps = CMakeDeps(self)
         deps.generate()
 
@@ -296,6 +306,10 @@ class SenConan(ConanFile):
         VirtualRunEnv(self).generate(scope="build")
 
         tc = CMakeToolchain(self)
+        # Override the python version driving conan with the one defined in the options
+        python_path = pyenv.env_exe.replace("\\", "/")
+        tc.cache_variables["Python3_EXECUTABLE"] = python_path
+        tc.cache_variables["Python3_FIND_VIRTUALENV"] = "STANDARD"
         # set_version read this from the recipe folder, which has the repository; the build runs in
         # the cache, which does not. Unsplit, so the binaries keep an rc marker or a commit suffix.
         tc.cache_variables["SEN_FORCE_VERSION"] = self.version
