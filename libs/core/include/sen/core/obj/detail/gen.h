@@ -332,6 +332,18 @@ private:
     using Parent::swap;                                                                                                \
     using Parent::emplace;                                                                                             \
                                                                                                                        \
+    classname& operator=(const elementtype& value)                                                                     \
+    {                                                                                                                  \
+      Parent::operator=(value);                                                                                        \
+      return *this;                                                                                                    \
+    }                                                                                                                  \
+                                                                                                                       \
+    classname& operator=(elementtype&& value)                                                                          \
+    {                                                                                                                  \
+      Parent::operator=(std::move(value));                                                                             \
+      return *this;                                                                                                    \
+    }                                                                                                                  \
+                                                                                                                       \
     constexpr const Parent& asOptional() const& noexcept { return *this; }                                             \
     Parent asOptional() && noexcept(std::is_nothrow_move_constructible_v<Parent>) { return std::move(*this); }         \
                                                                                                                        \
