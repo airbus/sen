@@ -4,9 +4,10 @@ include:
 
 # In this example we start the kernel with the virtualized time.
 # Here the time will not advance until we explicitly request it.
-# You will find that the kernel will be publishing an object called
-# 'clock' in the 'my.tutorial' bus, that you can use to control the
-# virtual time and see how components advance accordingly.
+# You will find that the kernel publishes an object called 'master'
+# in the 'my.tutorial' bus, that you can use to control the virtual
+# time (step, steps, advanceTime) and see how components advance
+# accordingly. 'clock' beside it is the kernel's own clock.
 kernel:
   runMode: virtualTime
   clockMaster: true

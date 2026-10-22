@@ -599,15 +599,19 @@ StlArrayStatement StlParser::arrayStatement()
 
 StlQuantityStatement StlParser::quantityStatement()
 {
-  // quantity -> '<' identifier ',' identifier '>' identifier [attribute_list] ';'
+  // quantity -> '<' typeExpr [',' identifier] '>' identifier [attribute_list] ';'
 
   StlQuantityStatement statement;
   statement.description = previousComment_;
 
   std::ignore = consume(StlTokenType::less, {"Expected < to start quantity definition "});
   statement.valueTypeName = typeNameStatement({"Expected value type name for quantity "});
-  std::ignore = consume(StlTokenType::comma, {"Expected , after value type for quantity "});
-  statement.unitName = consume(StlTokenType::identifier, {"Expected unit name for quantity "});
+
+  if (match({StlTokenType::comma}))
+  {
+    statement.unitName = consume(StlTokenType::identifier, {"Expected unit name for quantity "});
+  }
+
   std::ignore = consume(StlTokenType::greater, {"Expected > to end quantity definition "});
 
   statement.identifier = consume(StlTokenType::identifier, {"Expected type name"});

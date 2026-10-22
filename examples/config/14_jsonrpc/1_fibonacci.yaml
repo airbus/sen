@@ -1,8 +1,8 @@
 # $schema: ../base/schema.json
 #
 # Sen instance exposing the `fibonacci` package over JSON-RPC. One Manager + three Workers on a
-# single bus. Useful for exercising event-driven flows from the @sen/client TS library: the
-# Manager dispatches work to Workers and surfaces results via events.
+# single bus. Useful for exercising slow, deferred calls from the @sen/client TS library: the
+# Manager hands work to Workers and answers each call when a Worker does.
 
 load:
   - name: jsonrpc

@@ -11,7 +11,7 @@ The `Counter` class has:
 
 - a `value` property that increments automatically,
 - a `step` property, set once at construction, that says how much it increments by,
-- a `hello` method that prints a greeting, and
+- a `hello` method that returns a greeting, and
 - a `valueIsDivisibleByTen` event fired whenever `value` becomes divisible by 10.
 
 ## Interface
@@ -78,7 +78,7 @@ Run the package with:
 sen run packages/my_counter/config.yaml
 ```
 
-This opens a Sen shell with the `myCounter` object published on the `local.counters` bus. You can
+This opens the Sen term with the `myCounter` object published on the `local.counters` bus. You can
 interact with it using:
 
 ```text
@@ -86,5 +86,5 @@ local.counters.myCounter.print
 local.counters.myCounter.hello
 ```
 
-`print` shows the current property values. `hello` calls the method and prints a greeting to the
-terminal running the Sen process.
+`print` shows the current property values. `hello` calls the method, and the term prints the
+greeting it returns.

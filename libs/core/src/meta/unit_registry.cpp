@@ -7,6 +7,8 @@
 
 #include "sen/core/meta/unit_registry.h"
 
+#include "utils.h"
+
 // sen
 #include "sen/core/base/assert.h"
 #include "sen/core/base/iterator_adapters.h"
@@ -200,27 +202,27 @@ UnitRegistry::UnitRegistry()
   registerBasicUnit(units_, UnitCategory::length,          "meter",                      "meters",                     "m", SIPrefix::nano | SIPrefix::micro | SIPrefix::milli | SIPrefix::centi | SIPrefix::kilo);
   registerBasicUnit(units_, UnitCategory::time,            "second",                     "seconds",                    "s", SIPrefix::femto | SIPrefix::pico | SIPrefix::nano | SIPrefix::micro | SIPrefix::milli);
   registerBasicUnit(units_, UnitCategory::angle,           "radian",                     "radians",                    "rad", SIPrefix::micro | SIPrefix::milli);
-  registerBasicUnit(units_, UnitCategory::temperature,     "kelvin",                     "kelvin",                     "k", SIPrefix::none);
+  registerBasicUnit(units_, UnitCategory::temperature,     "kelvin",                     "kelvin",                     "K", SIPrefix::none);
   registerBasicUnit(units_, UnitCategory::mass,            "gram",                       "grams",                      "g", SIPrefix::micro | SIPrefix::milli | SIPrefix::kilo);
   registerBasicUnit(units_, UnitCategory::angularVelocity, "radians_per_second",         "radians_per_second",         "rad_per_s", SIPrefix::none);
   registerBasicUnit(units_, UnitCategory::density,         "grams_per_centimeters_cube", "grams_per_centimeters_cube", "g_per_cm3", SIPrefix::none);
-  registerBasicUnit(units_, UnitCategory::pressure,        "pascals",                    "pascals",                    "pa", SIPrefix::hecto | SIPrefix::kilo | SIPrefix::mega | SIPrefix::giga);
+  registerBasicUnit(units_, UnitCategory::pressure,        "pascals",                    "pascals",                    "Pa", SIPrefix::hecto | SIPrefix::kilo | SIPrefix::mega | SIPrefix::giga);
   registerBasicUnit(units_, UnitCategory::area,            "square_meter",               "square_meter",               "m_sq", SIPrefix::none);
-  registerBasicUnit(units_, UnitCategory::force,           "newton",                     "newton",                     "nw", SIPrefix::kilo | SIPrefix::mega);
+  registerBasicUnit(units_, UnitCategory::force,           "newton",                     "newton",                     "N", SIPrefix::kilo | SIPrefix::mega);
 
   // derived SI units
-  addUnit(units_, {UnitCategory::frequency,           "hertz",                      "hertz",                      "hz",           1.0,      0.0, 0.0});
+  registerBasicUnit(units_, UnitCategory::frequency,           "hertz",                      "hertz",                      "Hz", SIPrefix::kilo | SIPrefix::mega | SIPrefix::giga);
   addUnit(units_, {UnitCategory::velocity,            "meters_per_second",          "meters_per_second",          "m_per_s",      1.0,      0.0, 0.0});
   addUnit(units_, {UnitCategory::velocity,            "decimeters_per_second",      "decimeters_per_second",      "dm_per_s",     0.1,      0.0, 0.0});
-  addUnit(units_, {UnitCategory::acceleration,        "meters_per_second_squared",  "meters_per_second_squared",  "m_per_s_sq",   1.0,      0.0, 0.0});
-  addUnit(units_, {UnitCategory::angularAcceleration, "radians_per_second_squared", "radians_per_second_squared", "rad_per_s_sq", 1.0,      0.0, 0.0});
+  registerBasicUnit(units_, UnitCategory::acceleration,        "meters_per_second_squared",  "meters_per_second_squared",  "m_per_s_sq", SIPrefix::milli | SIPrefix::kilo);
+  registerBasicUnit(units_, UnitCategory::angularAcceleration, "radians_per_second_squared", "radians_per_second_squared", "rad_per_s_sq", SIPrefix::milli | SIPrefix::micro);
   addUnit(units_, {UnitCategory::time,                "min",                        "minutes",                    "min",          60.0,     0.0, 0.0});
   addUnit(units_, {UnitCategory::time,                "hour",                       "hours",                      "hour",         3600.0,   0.0, 0.0});
   addUnit(units_, {UnitCategory::time,                "day",                        "days",                       "day",          86400.0,  0.0, 0.0});
   addUnit(units_, {UnitCategory::time,                "week",                       "weeks",                      "week",         604800.0, 0.0, 0.0});
   addUnit(units_, {UnitCategory::time,                "month",                      "months",                     "month",        2.628e+6, 0.0, 0.0});
   addUnit(units_, {UnitCategory::time,                "year",                       "years",                      "year",         3.154e+7, 0.0, 0.0});
-  addUnit(units_, {UnitCategory::torque,              "newton_meter",               "newton_meters",              "Nm",           1.0,      0.0, 0.0});
+  registerBasicUnit(units_, UnitCategory::torque,              "newton_meter",               "newton_meters",              "Nm", SIPrefix::milli | SIPrefix::kilo | SIPrefix::mega);
 
   // other length units
   addUnit(units_, {UnitCategory::length, "foot",         "feet",          "ft",  381.0 / 1250.0, 0.0, 0.0});         // NOLINT(readability-magic-numbers)
@@ -254,6 +256,28 @@ UnitRegistry::UnitRegistry()
   addUnit(units_, {UnitCategory::density, "kilograms_per_meters_cube",    "kilograms_per_meters_cube",    "kg_per_m3", 0.001, 0.0, 0.0});          // NOLINT(readability-magic-numbers)
 
   // clang-format on
+
+  auto addDeprecated = [this](std::string_view deprecated, std::string_view correct)
+  {
+    if (auto unit = searchUnitByAbbreviation(correct))
+    {
+      deprecatedAbbreviations_.push_back({std::string(deprecated), *unit});
+    }
+  };
+
+  addDeprecated("k", "K");
+  addDeprecated("pa", "Pa");
+  addDeprecated("hpa", "hPa");
+  addDeprecated("kpa", "kPa");
+  addDeprecated("Mpa", "MPa");
+  addDeprecated("Gpa", "GPa");
+  addDeprecated("nw", "N");
+  addDeprecated("knw", "kN");
+  addDeprecated("Mnw", "MN");
+  addDeprecated("hz", "Hz");
+  addDeprecated("khz", "kHz");
+  addDeprecated("mhz", "MHz");
+  addDeprecated("ghz", "GHz");
 }
 
 UnitRegistry::UnitRange UnitRegistry::getUnits() const noexcept
@@ -297,6 +321,16 @@ std::optional<const Unit*> UnitRegistry::searchUnitByAbbreviation(std::string_vi
     if (item->getAbbreviation() == abbrev)
     {
       return item.get();
+    }
+  }
+
+  for (const auto& item: deprecatedAbbreviations_)
+  {
+    if (item.abbreviation == abbrev)
+    {
+      impl::getLogger()->warn(
+        "Unit abbreviation '{}' is deprecated. Please use '{}' instead.", abbrev, item.targetUnit->getAbbreviation());
+      return item.targetUnit;
     }
   }
 

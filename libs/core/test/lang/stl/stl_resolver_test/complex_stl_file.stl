@@ -48,6 +48,9 @@ variant ValidVariantType
 // Some valid quantity declaration
 quantity<f64, deg> ValidQuantity [min: -180.0, max: 180.0];
 
+// Some valid unitless quantity
+quantity<f32> ValidUnitlessQuantity [min: 0.0, max: 1.0];
+
 // Some valid alias declaration for another valid type
 alias ValidTypeAlias ValidVariantType;
 

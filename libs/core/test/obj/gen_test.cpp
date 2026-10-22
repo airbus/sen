@@ -169,6 +169,18 @@ TEST(GenMacroTest, OptionalDataHandling)
 
   opt1.reset();
   EXPECT_FALSE(opt1.has_value());
+
+  TestOptionalInt opt3 {5};
+  EXPECT_EQ(*opt3, 5);
+
+  opt3 = std::optional<int> {6};
+  EXPECT_EQ(*opt3, 6);
+
+  opt3 = TestOptionalInt {7};
+  EXPECT_EQ(*opt3, 7);
+
+  opt1 = 42;
+  EXPECT_EQ(*opt1, 42);
 }
 
 /// @test

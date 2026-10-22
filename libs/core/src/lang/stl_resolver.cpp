@@ -32,6 +32,7 @@
 #include "sen/core/meta/sequence_type.h"
 #include "sen/core/meta/struct_type.h"
 #include "sen/core/meta/type.h"
+#include "sen/core/meta/unit.h"
 #include "sen/core/meta/unit_registry.h"
 #include "sen/core/meta/var.h"
 #include "sen/core/meta/variant_type.h"
@@ -451,11 +452,28 @@ public:
       }
     }
 
+    std::optional<const Unit*> resolvedUnit;
+
+    if (statement.unitName)
+    {
+      // lookup unit and emit warning if not found
+      resolvedUnit = UnitRegistry::get().searchUnitByAbbreviation(statement.unitName->lexeme());
+      if (!resolvedUnit)
+      {
+        std::string warningMsg = "unrecognized unit '";
+        warningMsg.append(statement.unitName->lexeme());
+        warningMsg.append("'. This quantity will be treated as unitless");
+
+        ErrorReporter::report(
+          statement.unitName->codeLocation(), warningMsg, statement.unitName->lexeme().size(), true);
+      }
+    }
+
     QuantitySpec spec(statement.identifier.lexeme(),
                       computeQualifiedName(packagePrefix_, statement.identifier.lexeme()),
                       generateDescription(statement.description),
                       elementType.value(),
-                      UnitRegistry::get().searchUnitByAbbreviation(statement.unitName.lexeme()),
+                      resolvedUnit,
                       minValue,
                       maxValue);
 

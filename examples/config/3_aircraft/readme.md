@@ -33,7 +33,7 @@ Let's define what we want to run in our Sen kernel.
 --8<-- "snippets/examples/config/3_aircraft/1_aircraft.yaml"
 ```
 
-This will open a shell and tell Sen to instantiate one aircraft in the `my.tutorial` bus.
+This will open the term and tell Sen to instantiate one aircraft in the `my.tutorial` bus.
 
 To run it, let's call `sen run`:
 
@@ -74,7 +74,9 @@ my.tutorial.master.step
 my.tutorial.myAircraft.getSpatial
 ```
 
-You can see how the component got triggered.
+You can see how the component got triggered. What the term reads is what the aircraft last
+committed, so after the very first step it still shows the aircraft before its first update; step
+again, or advance by a second, and it is in place.
 
 If you want to advance the time more, say 60 seconds:
 
