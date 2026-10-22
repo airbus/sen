@@ -1,3 +1,12 @@
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
+
+project({{ target_name }}_project VERSION 0.0.1 LANGUAGES CXX C)
+
+if(DEFINED ENV{SEN_PREFIX})
+   list(APPEND CMAKE_PREFIX_PATH "$ENV{SEN_PREFIX}")
+endif()
+
+find_package(sen REQUIRED)
 
 add_sen_package(
   TARGET
@@ -16,6 +25,12 @@ add_sen_package(
   STL_FILES
 ## for stl_file in stl_files
     {{ stl_file }}
+## endfor
+## endif
+## if length(deps) != 0
+  DEPS
+## for dep in deps
+    {{ dep }}
 ## endfor
 ## endif
   IS_COMPONENT

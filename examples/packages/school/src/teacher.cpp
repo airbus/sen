@@ -42,10 +42,10 @@ int randomPositiveInteger()
 }
 
 TeacherImpl::TeacherImpl(std::string name,
-                         std::string surName,
                          std::string firstName,
+                         std::string surName,
                          std::shared_ptr<sen::Subscription<StudentInterface>> students)
-  : Parent(name, std::move(surName), std::move(firstName)), students_(std::move(students))
+  : Parent(name, std::move(firstName), std::move(surName)), students_(std::move(students))
 {
   stressLevelNoise_.seed(sen::hashCombine(sen::crc32("stressLevel"), sen::crc32(name), randomPositiveInteger()));
   setNextStatus(WaitingForStudents {});

@@ -111,8 +111,21 @@ public:
     {
       auto& selectedWorker = selectRandomWorker();
       std::cout << "Sending task to " << selectedWorker.asObject().getName() << std::endl;
-      selectedWorker.computeFibonacci(
-        n, {this, [p = std::move(promise)](const auto& result) mutable { p.set_value(result.getValue()); }});
+      selectedWorker.computeFibonacci(n,
+                                      {this,
+                                       [p = std::move(promise)](const auto& result) mutable
+                                       {
+                                         // a failed call is passed on to our caller rather than
+                                         // read with getValue(), which terminates on an error
+                                         if (result.isOk())
+                                         {
+                                           p.set_value(result.getValue());
+                                         }
+                                         else
+                                         {
+                                           p.set_exception(result.getError());
+                                         }
+                                       }});
     }
   }
   // --8<-- [end:forward]

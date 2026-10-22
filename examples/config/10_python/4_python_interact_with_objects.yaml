@@ -1,6 +1,7 @@
 # $schema: ../base/schema.json
 include:
-  - ../base/term.yaml
+  # the shell, not the term: the script finds the shell object and calls its methods
+  - ../base/shell.yaml
 
 load:
   - name: py

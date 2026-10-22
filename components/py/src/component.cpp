@@ -172,12 +172,26 @@ struct PyComponent: public kernel::Component
       // no code needed
     }
 
+    // Caught here, like update(), rather than left to the runner: by the time the runner reads the
+    // error, the interpreter guard above is gone, and formatting a Python error takes the GIL.
     if (!config_.module.empty())
     {
       auto stopFunction = getFunctionIfExists("stop");
       if (stopFunction)
       {
-        stopFunction();
+        try
+        {
+          stopFunction();
+        }
+        catch (pybind11::error_already_set& err)
+        {
+          getLogger()->error(err.what());
+          err.discard_as_unraisable("PyComponent::stop");
+        }
+        catch (const std::exception& err)
+        {
+          getLogger()->error("unknown error detected: {}", err.what());
+        }
       }
     }
 

@@ -13,8 +13,7 @@ build:
         name: blueCircle
         bus: my.tutorial
         color: blue
-        x: 50.0
-        y: 50.0
+        position: {x: 50.0, y: 50.0}
         geometry:
           type: Circle
           value:
@@ -23,8 +22,7 @@ build:
         name: redTriangle
         bus: my.tutorial
         color: red
-        x: 15.0
-        y: 22.0
+        position: {x: 15.0, y: 22.0}
         geometry:
           type: Triangle
           value:
@@ -33,8 +31,7 @@ build:
         name: greenRectangle
         bus: my.tutorial
         color: green
-        x: 40.0
-        y: 40.0
+        position: {x: 40.0, y: 40.0}
         geometry:
           type: Rectangle
           value:

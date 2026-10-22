@@ -36,13 +36,13 @@ libraries it links. The `sen` application is in `build/gcc/Release/bin/`.
 From the repository root, with the tree built as above:
 
 ```shell
-source build/gcc/Release/generators/conanrun.sh          # Third-party library paths
+. build/gcc/Release/generators/conanrunenv-release-*.sh  # Third-party library paths
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$(pwd)/build/gcc/Release/lib"
 cd examples/packages/my_counter
 ../../../build/gcc/Release/bin/sen run config.yaml
 ```
 
-This boots the tutorial counter with an interactive Sen shell attached, and the `counters` bus
+This boots the tutorial counter with the Sen term attached, and the `counters` bus
 is already open. At the prompt:
 
 ```text
