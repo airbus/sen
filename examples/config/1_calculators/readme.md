@@ -78,12 +78,12 @@ To run it, let's call `sen run`:
 sen run config/1_calculators/1_calculators.yaml
 ```
 
-This will open a shell and tell Sen to instantiate the two implementations in the `my.tutorial` bus.
+This will open the term and tell Sen to instantiate the two implementations in the `my.tutorial` bus.
 
 You can interact with the objects by doing commands such as:
 
 ```shell
-info my.tutorial.goodCalc
+inspect my.tutorial.goodCalc
 
 my.tutorial.goodCalc.add 2, 2
 

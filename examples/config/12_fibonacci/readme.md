@@ -66,7 +66,7 @@ list.
 sen run config/12_fibonacci/1_fibonacci.yaml
 ```
 
-This will open a shell and tell Sen to instantiate the implementations in the `my.tutorial` bus.
+This will open the term and tell Sen to instantiate the implementations in the `my.tutorial` bus.
 
 You ask the `Manager` for computing _n_ Fibonacci number by:
 

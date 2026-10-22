@@ -10,8 +10,8 @@
 # would surface a backend race where queries against the second component's bus can return zero
 # matches even after createInterest resolves.
 #
-# Port 8080 matches the SEN_WS_URL the gateway is given via env. Bound on 0.0.0.0 so a
-# containerised CI runner can reach the server from loopback.
+# Port 8080 is the one the gateway is pointed at. Bound on 0.0.0.0 so a containerised CI
+# runner can reach the server from loopback.
 
 load:
   - name: jsonrpc

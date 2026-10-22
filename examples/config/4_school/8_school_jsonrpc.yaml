@@ -6,8 +6,8 @@
 # levels, call assignTasks / addStudents / startDoingTask, subscribe to madeSomeNoise /
 # gotDistracted / stressLevelPeaked.
 #
-# Bind on 0.0.0.0 so a containerised host can reach the WebSocket from loopback. Port 8080
-# matches the default the gateway connects to (override with SEN_WS_URL on the gateway side).
+# Bind on 0.0.0.0 so a containerised host can reach the WebSocket from loopback. Point the
+# gateway at ws://127.0.0.1:8080 with connectToKernel.
 
 load:
   - name: jsonrpc

@@ -34,7 +34,7 @@ public:
   using Parent = StudentBase<PersonImpl>;
 
 public:
-  StudentImpl(std::string name, std::string surName, std::string firstName);
+  StudentImpl(std::string name, std::string firstName, std::string surName);
   ~StudentImpl() override;
 
 public:

@@ -54,7 +54,7 @@ bool programAcceptsSet(sen::Duration /*val*/) const override
 sen run config/13_timer/1_timer.yaml
 ```
 
-This will open a shell and tell Sen to instantiate the implementations in the `my.tutorial` bus.
+This will open the term and tell Sen to instantiate the implementations in the `my.tutorial` bus.
 
 You can set the initial timer seconds by:
 
