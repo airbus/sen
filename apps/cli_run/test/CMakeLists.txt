@@ -65,6 +65,8 @@ set_tests_properties(
 
 # json and text cannot both be right: the json branch returns the serialised object alone, so the
 # sentence the text branch appends must be absent. Asserting both ways is what tells them apart.
+# Nothing else may reach stdout either: the crash handler's debug lines once came first and made
+# `> footprint.json` invalid.
 add_sen_smoke_test(
   cli_run_prints_the_footprint_as_json DESCRIPTION
   "Prints the footprint as JSON, with none of the prose form in it."
@@ -76,7 +78,7 @@ set_tests_properties(
   PROPERTIES PASS_REGULAR_EXPRESSION
              "[{]"
              FAIL_REGULAR_EXPRESSION
-             "For ephemeral ports"
+             "For ephemeral ports;crash handler"
 )
 
 add_sen_smoke_test(

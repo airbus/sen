@@ -1,0 +1,5 @@
+load:
+  - name: py
+    group: 3
+    freqHz: 10
+    module: stop_raises

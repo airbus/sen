@@ -68,6 +68,11 @@ public:
                                                            // when someone makes some noise, someone else will hear it
                                                            auto cb = [&](const std::string& noise, float32_t volume)
                                                            {
+                                                             // a classroom can hear students it does not hold
+                                                             if (students_.empty())
+                                                             {
+                                                               return;
+                                                             }
                                                              std::uniform_int_distribution<std::size_t> dist {
                                                                0, students_.size() - 1};
                                                              students_.at(dist(rng_))->hearSomeNoise(noise, volume);
@@ -105,7 +110,7 @@ protected:
     for (uint32_t i = 0U; i < count; ++i)
     {
       auto [firstName, surName, fullName] = makeName();
-      newStudents.emplace_back(std::make_shared<StudentImpl>(fullName, surName, firstName));
+      newStudents.emplace_back(std::make_shared<StudentImpl>(fullName, firstName, surName));
     }
 
     // publish the students

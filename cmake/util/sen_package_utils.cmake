@@ -259,6 +259,8 @@ function(add_sen_package)
       ${_arg_EXPORT_NAME}
       USER_EXPORTED_CLASSES
       ${_arg_EXPORTED_CLASSES}
+      SOURCES
+      ${_arg_SOURCES}
       EXPORT_CLASSES
       _exported_classes
     )
@@ -282,7 +284,7 @@ function(add_sen_package)
         STL_FILES ${_arg_STL_FILES}
         CODEGEN_SETTINGS ${_arg_CODEGEN_SETTINGS}
         SCHEMA_FILE ${_schema_file}
-        SCHEMA_COMPONENT_NAME ${_component_name}
+        SCHEMA_COMPONENT_NAME ${_component_name} SCHEMA_CLASSES ${_exported_classes}
         GEN_HDR_FILES _gen_hdr_files VISIBLE_CLASSES ${_make_classes_visible}
       )
     else()
@@ -295,7 +297,7 @@ function(add_sen_package)
         HLA_MAPPINGS_FILE ${_arg_HLA_MAPPINGS_FILE}
         HLA_EXTENSIONS_FILE ${_arg_HLA_EXTENSIONS_FILE}
         CODEGEN_SETTINGS ${_arg_CODEGEN_SETTINGS}
-        SCHEMA_FILE ${_schema_file}
+        SCHEMA_FILE ${_schema_file} SCHEMA_CLASSES ${_exported_classes}
         GEN_HDR_FILES _gen_hdr_files VISIBLE_CLASSES ${_make_classes_visible}
       )
     endif()
@@ -349,7 +351,7 @@ function(add_sen_package)
       ${_arg_EXPORT_NAME}
       EXPORT_ARGS
       _export_args
-      EXPORTED_CLASSES
+      USER_EXPORTED_CLASSES
       ${_arg_EXPORTED_CLASSES}
       SOURCES
       ${_arg_SOURCES}

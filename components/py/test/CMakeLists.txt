@@ -84,6 +84,17 @@ add_sen_integration_test(
   REQ_DEPS cli_run
 )
 
+add_sen_integration_test(
+  py_stop_raises_test
+  DESCRIPTION
+  "Reports an exception raised by a module's stop() and exits normally, rather than crashing."
+  COMMAND
+  ./cli_run
+  ${CMAKE_CURRENT_SOURCE_DIR}/config/stop_raises.yaml
+  WORKING_DIRECTORY $<TARGET_FILE_DIR:sen::cli_run>
+  REQ_DEPS cli_run
+)
+
 append_test_env_modification(
   py_modify_objects_test "PYTHONPATH=path_list_append:${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
@@ -101,3 +112,5 @@ append_test_env_modification(py_test_event_test "PYTHONPATH=path_list_append:${C
 append_test_env_modification(
   py_object_errors_test "PYTHONPATH=path_list_append:${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
+
+append_test_env_modification(py_stop_raises_test "PYTHONPATH=path_list_append:${CMAKE_CURRENT_SOURCE_DIR}/src")

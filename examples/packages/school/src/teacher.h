@@ -38,8 +38,8 @@ public:
 
 public:
   TeacherImpl(std::string name,
-              std::string surName,
               std::string firstName,
+              std::string surName,
               std::shared_ptr<sen::Subscription<StudentInterface>> students);
   ~TeacherImpl() override = default;
 
