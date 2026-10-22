@@ -142,7 +142,7 @@ RUN printf '%s\n' \
 RUN curl -fsSL "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz" \
         | tar -xz -C /tmp \
     && cd /tmp/Python-${PYTHON_VERSION} \
-    && ./configure --prefix=/usr/local --enable-optimizations --with-ensurepip=install \
+    && ./configure --prefix=/usr/local --enable-optimizations --enable-shared --with-ensurepip=install \
     && make -j"${nproc}" && make install \
     && ln -sf /usr/local/bin/python3 /usr/bin/python3 \
     && ln -sf /usr/local/bin/python3 /usr/bin/python \
