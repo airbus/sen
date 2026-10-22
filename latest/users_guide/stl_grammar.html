@@ -750,10 +750,10 @@
 <nav aria-label="Appendix A: Registered quantity units" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#si-base-units-accept-all-si-prefixes">
+<a class="md-nav__link" href="#si-base-units">
 <span class="md-ellipsis">
       
-        SI base units (accept all SI prefixes)
+        SI base units
       
     </span>
 </a>
@@ -2307,16 +2307,15 @@ the shipped syntax-highlighter indentation follow them.</p>
 <code>quantity&lt;T, unit&gt;</code> declaration looks the second argument up by
 <strong>abbreviation</strong> (the short form), so the tables below key on the
 abbreviation and list the long name for reference only.</p>
-<h3 id="si-base-units-accept-all-si-prefixes">SI base units (accept all SI prefixes)<a class="headerlink" href="#si-base-units-accept-all-si-prefixes" title="Permanent link">¶</a></h3>
-<p>Each of the following units is automatically registered with every SI prefix
-from <code>femto</code> through <code>peta</code>, producing the prefixed abbreviation by
-concatenation (e.g. <code>km</code>, <code>ms</code>, <code>us</code>, <code>cm</code>, <code>Mpa</code>).</p>
+<h3 id="si-base-units">SI base units<a class="headerlink" href="#si-base-units" title="Permanent link">¶</a></h3>
+<p>The following units are registered with a restricted set of SI prefixes:</p>
 <table>
 <thead>
 <tr>
 <th>Category</th>
 <th>Abbreviation</th>
 <th>Long name</th>
+<th>Supported Prefixes</th>
 </tr>
 </thead>
 <tbody>
@@ -2324,51 +2323,61 @@ concatenation (e.g. <code>km</code>, <code>ms</code>, <code>us</code>, <code>cm<
 <td><code>length</code></td>
 <td><code>m</code></td>
 <td><code>meter</code></td>
+<td><code>n</code>, <code>u</code>, <code>m</code>, <code>c</code>, <code>k</code></td>
 </tr>
 <tr>
 <td><code>time</code></td>
 <td><code>s</code></td>
 <td><code>second</code></td>
+<td><code>f</code>, <code>p</code>, <code>n</code>, <code>u</code>, <code>m</code></td>
 </tr>
 <tr>
 <td><code>angle</code></td>
 <td><code>rad</code></td>
 <td><code>radian</code></td>
+<td><code>u</code>, <code>m</code></td>
 </tr>
 <tr>
 <td><code>temperature</code></td>
 <td><code>k</code></td>
 <td><code>kelvin</code></td>
+<td>(none)</td>
 </tr>
 <tr>
 <td><code>mass</code></td>
 <td><code>g</code></td>
 <td><code>gram</code></td>
+<td><code>u</code>, <code>m</code>, <code>k</code></td>
 </tr>
 <tr>
 <td><code>angularVelocity</code></td>
 <td><code>rad_per_s</code></td>
 <td><code>radians_per_second</code></td>
+<td>(none)</td>
 </tr>
 <tr>
 <td><code>density</code></td>
 <td><code>g_per_cm3</code></td>
 <td><code>grams_per_centimeters_cube</code></td>
+<td>(none)</td>
 </tr>
 <tr>
 <td><code>pressure</code></td>
 <td><code>pa</code></td>
 <td><code>pascals</code></td>
+<td><code>h</code>, <code>k</code>, <code>M</code>, <code>G</code></td>
 </tr>
 <tr>
 <td><code>area</code></td>
 <td><code>m_sq</code></td>
 <td><code>square_meter</code></td>
+<td>(none)</td>
 </tr>
 <tr>
 <td><code>force</code></td>
 <td><code>nw</code></td>
 <td><code>newton</code></td>
+<td><code>k</code>, <code>M</code></td>
 </tr>
 </tbody>
 </table>
@@ -2543,7 +2552,7 @@ concatenation (e.g. <code>km</code>, <code>ms</code>, <code>us</code>, <code>cm<
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 6, 2026 21:09:06 UTC">September 6, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 22, 2026 07:04:14 UTC">October 22, 2026</span>
 </span>
 </aside>
 </article>
