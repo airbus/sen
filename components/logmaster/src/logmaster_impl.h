@@ -5,6 +5,9 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
+#ifndef SEN_COMPONENTS_LOGMASTER_SRC_LOGMASTER_IMPL_H
+#define SEN_COMPONENTS_LOGMASTER_SRC_LOGMASTER_IMPL_H
+
 // generated code
 
 // generated code
@@ -51,3 +54,5 @@ private:
 };
 
 }  // namespace sen::components::logmaster
+
+#endif  // SEN_COMPONENTS_LOGMASTER_SRC_LOGMASTER_IMPL_H
