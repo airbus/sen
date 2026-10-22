@@ -1671,8 +1671,8 @@ You move it forward with <code>step()</code>, one cycle at a time.</p>
 <p>If your code reacts to property-changed callbacks, you need <strong>two</strong> steps before the callback runs -
 <code>kernel.step()</code> twice, or <code>kernel.step(2)</code>.</p>
 <p>To see why, look at how a cycle works.</p>
-<p>
-</p>
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/two_ticks_light.svg#only-light"><img alt="Screenshot" src="../assets/images/two_ticks_light.svg#only-light"/></a>
+<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/two_ticks_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/two_ticks_dark.svg#only-dark"/></a></p>
 <p>The properties changed during a cycle are collected in the commit phase ❶, and become visible in
 the drain phase ❷ of the <em>next</em> cycle.</p>
 <p>When a test pushes an update, it does so between kernel steps ❸, while the kernel is waiting. The

@@ -2444,8 +2444,8 @@ from the bus.</p>
 internal smoothed situation that updates its acceleration depending on its total error with respect
 to the input data. The following diagram depicts the smoothing of the x location. The same smoothing
 algorithm is applied to both position and orientation:</p>
-<p>
-</p>
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/smoothing_light.svg#only-light"><img alt="Screenshot" src="../assets/images/smoothing_light.svg#only-light" style="width:700px"/></a>
+<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/smoothing_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/smoothing_dark.svg#only-dark" style="width:700px"/></a></p>
 <p>Updating the acceleration helps to avoid discontinuities in the solution because we perform a second
 order integration. The condition to update the acceleration is that the smoothed solution needs to
 converge with the input data after a convergence time. This directly translates to higher

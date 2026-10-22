@@ -29,11 +29,12 @@
 namespace school
 {
 
-StudentImpl::StudentImpl(std::string name, std::string surName, std::string firstName)
-  : Parent(std::move(name), std::move(surName), std::move(firstName))
+StudentImpl::StudentImpl(std::string name, std::string firstName, std::string surName)
+  : Parent(std::move(name), std::move(firstName), std::move(surName))
 {
-  focusLevelNoise_.seed(sen::hashCombine(sen::crc32("focusLevel"), sen::crc32(name), rand()));        // NOLINT
-  snortingLevelNoise_.seed(sen::hashCombine(sen::crc32("snortingLevel"), sen::crc32(name), rand()));  // NOLINT
+  // getName(), not name: the parameter was moved into the base above
+  focusLevelNoise_.seed(sen::hashCombine(sen::crc32("focusLevel"), sen::crc32(getName()), rand()));        // NOLINT
+  snortingLevelNoise_.seed(sen::hashCombine(sen::crc32("snortingLevel"), sen::crc32(getName()), rand()));  // NOLINT
   setNextStatus(DoingNothing {});
 }
 

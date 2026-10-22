@@ -1691,7 +1691,7 @@ mechanics of writing and wiring a Sen package rather than on business logic.</p>
 <ul>
 <li>a <code>value</code> property that increments automatically,</li>
 <li>a <code>step</code> property, set once at construction, that says how much it increments by,</li>
-<li>a <code>hello</code> method that prints a greeting, and</li>
+<li>a <code>hello</code> method that returns a greeting, and</li>
 <li>a <code>valueIsDivisibleByTen</code> event fired whenever <code>value</code> becomes divisible by 10.</li>
 </ul>
 <h2 id="interface">Interface<a class="headerlink" href="#interface" title="Permanent link">¶</a></h2>
@@ -1841,13 +1841,13 @@ lists the hand-written C++ files compiled alongside the generated code.</p>
 <p>Run the package with:</p>
 <div class="language-shell highlight"><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a>sen<span class="w"> </span>run<span class="w"> </span>packages/my_counter/config.yaml
 </span></code></pre></div>
-<p>This opens a Sen shell with the <code>myCounter</code> object published on the <code>local.counters</code> bus. You can
+<p>This opens the Sen term with the <code>myCounter</code> object published on the <code>local.counters</code> bus. You can
 interact with it using:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a>local.counters.myCounter.print
 </span><span id="__span-6-2"><a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a>local.counters.myCounter.hello
 </span></code></pre></div>
-<p><code>print</code> shows the current property values. <code>hello</code> calls the method and prints a greeting to the
-terminal running the Sen process.</p>
+<p><code>print</code> shows the current property values. <code>hello</code> calls the method, and the term prints the
+greeting it returns.</p>
 </article>
 </div>
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>

@@ -1704,25 +1704,25 @@ what's going on and monitor the execution. The <em><abbr title="Representational
 and test your system. Finally, you also sometimes store the execution data using the <em>recorder</em>
 component.</p>
 <p>Your system might look like this:</p>
-<p>
-</p>
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/services_1_light.svg#only-light"><img alt="Screenshot" src="../assets/images/services_1_light.svg#only-light" style="width:1100px"/></a>
+<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/services_1_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/services_1_dark.svg#only-dark" style="width:1100px"/></a></p>
 <p>This is fine during development, but you also start to see that you need to test your system a bit
 more independently of the tools that you use during development. For that, you can simply change the
 configuration file and move the <em>explorer</em> and <em>term</em> components to a different process.</p>
 <p>To get the two processes to see each-other you need to instantiate the <em>ether</em> component in both.</p>
-<p>
-</p>
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/services_3_light.svg#only-light"><img alt="Screenshot" src="../assets/images/services_3_light.svg#only-light" style="width:1250px"/></a>
+<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/services_3_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/services_3_dark.svg#only-dark" style="width:1250px"/></a></p>
 <p>The monitoring tools can now be started and stopped without touching the system. They cost something
 to run, so move them to a second computer and the system keeps going on its own. That is two
 machines to deploy and watch, which is where containers start to earn their place; this page does
 not go into that. Later you notice the machine running the functional components has the wrong
 storage for recording: too small, or too slow.</p>
-<p>
-</p>
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/services_4_light.svg#only-light"><img alt="Screenshot" src="../assets/images/services_4_light.svg#only-light" style="width:1200px"/></a>
+<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/services_4_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/services_4_dark.svg#only-dark" style="width:1200px"/></a></p>
 <p>We can have a dedicated computer for doing the archiving and have it as an optional element in our
 setup. So, we modify our configuration file accordingly.</p>
-<p>
-</p>
+<p><a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/services_5_light.svg#only-light"><img alt="Screenshot" src="../assets/images/services_5_light.svg#only-light" style="width:1400px"/></a>
+<a class="glightbox" data-desc-position="bottom" data-height="auto" data-type="image" data-width="auto" href="../assets/images/services_5_dark.svg#only-dark"><img alt="Screenshot" src="../assets/images/services_5_dark.svg#only-dark" style="width:1400px"/></a></p>
 <p>The shipped components mix with your own, and each one can sit wherever you need it.</p>
 <aside class="md-source-file">
 <span class="md-source-file__fact">
