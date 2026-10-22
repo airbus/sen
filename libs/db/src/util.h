@@ -5,6 +5,9 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
+#ifndef SEN_LIBS_DB_SRC_UTIL_H
+#define SEN_LIBS_DB_SRC_UTIL_H
+
 // sen
 #include "sen/core/base/memory_block.h"
 #include "sen/core/base/span.h"
@@ -103,3 +106,5 @@ inline std::shared_ptr<ResizableHeapBlock> writeSizeAndDataToBuffer(const T& dat
 }
 
 }  // namespace sen::db
+
+#endif  // SEN_LIBS_DB_SRC_UTIL_H
