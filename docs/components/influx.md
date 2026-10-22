@@ -116,6 +116,12 @@ created its socket yet is not an error. `UnixGram` opens its socket while the co
 The sending runs on a thread of its own. A write puts the message on a queue and the recording cycle
 carries on, so a Telegraf that is slow, absent or no longer reading costs points rather than cycles.
 
+The stream transports put a deadline on each half of a send: a second to dial and five seconds to
+hand the message over. A dial that runs out is a listener still absent, and the message is dropped;
+a write that runs out has already put part of a record on the wire, so the connection is closed
+rather than continued or repeated. Both bounds exist because asio's synchronous calls have none,
+and because the thread doing the sending is joined at shutdown.
+
 `queueLimit` is how many points it may cost: it bounds the messages waiting to be sent, and once
 that many are waiting the oldest is dropped to make room. That is the same trade Telegraf's own
 agent makes with `metric_buffer_limit`, and for the same reason — this data usually feeds a

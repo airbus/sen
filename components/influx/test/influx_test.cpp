@@ -52,10 +52,12 @@
 #include <gtest/gtest.h>
 
 // std
+#include <sys/socket.h>
 #include <unistd.h>
 
 #include <array>
 #include <atomic>
+#include <cerrno>
 #include <chrono>
 #include <condition_variable>
 #include <cstddef>
@@ -2225,6 +2227,88 @@ TEST(InfluxSendingQueueTest, ShutdownWaitsForTheMessageInHandNotTheBacklog)
   EXPECT_LT(elapsed, allowed) << "the shutdown waited for " << transport->names().size() << " of " << written
                               << " messages instead of the one in hand";
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+// The bounded dial
+//----------------------------------------------------------------------------------------------------------------------
+
+#if defined(ASIO_HAS_LOCAL_SOCKETS)
+
+/// @test
+/// A dial that cannot complete gives up on its deadline. A socket file has no SYN budget to run
+/// down, so what blocks a local dial is a listener whose backlog is full and which never accepts:
+/// the next connection has nowhere to wait. asio's synchronous connect carries no deadline and no
+/// socket option sets one, and an unbounded dial on the sending thread is what a shutdown join
+/// would then wait for.
+TEST(InfluxBoundedDialTest, AListenerThatNeverAcceptsCostsTheDeadlineAndNotTheDial)
+{
+  constexpr auto bound = std::chrono::milliseconds {100};
+
+  const auto path = std::filesystem::temp_directory_path() / "sen_influx_dial_test.sock";
+  std::filesystem::remove(path);
+  const auto removeTheSocketFile = sen::makeScopeGuard([&path]() { std::filesystem::remove(path); });
+
+  asio::io_context io;
+  const asio::local::stream_protocol::endpoint endpoint {path.string()};
+
+  // A backlog of one, and nothing is ever accepted from it. Opened, bound and listened to by hand:
+  // the constructor that takes an endpoint listens with the largest backlog the platform allows,
+  // and this test needs the smallest.
+  asio::local::stream_protocol::acceptor listener {io};
+  asio::error_code listening;
+  listener.open(endpoint.protocol(), listening);
+  ASSERT_FALSE(listening) << listening.message();
+  listener.bind(endpoint, listening);
+  ASSERT_FALSE(listening) << listening.message();
+  listener.listen(1, listening);
+  ASSERT_FALSE(listening) << listening.message();
+
+  // Fill the backlog. A local dial succeeds as soon as the kernel queues it and sets EAGAIN once
+  // there is no room left to queue one, and these stay open because closing one would make room.
+  //
+  // Dialled through ::connect rather than through asio or through the function under test. asio's
+  // own connect would report every one of these a success: it waits on poll_connect and then reads
+  // SO_ERROR, which is zero for a socket that was never queued, and a precondition that cannot
+  // observe itself would let this test pass while proving nothing.
+  std::vector<asio::local::stream_protocol::socket> queued;
+  queued.reserve(32U);
+  bool full = false;
+
+  for (auto attempt = 0U; attempt < 32U && !full; ++attempt)
+  {
+    auto& dialling = queued.emplace_back(io);
+
+    asio::error_code opened;
+    dialling.open(endpoint.protocol(), opened);
+    ASSERT_FALSE(opened) << opened.message();
+    std::ignore = dialling.non_blocking(true, opened);
+    ASSERT_FALSE(opened) << opened.message();
+
+    errno = 0;
+    const auto dialled = ::connect(dialling.native_handle(), endpoint.data(), static_cast<socklen_t>(endpoint.size()));
+
+    full = (dialled != 0) && ((errno == EAGAIN) || (errno == EWOULDBLOCK));
+  }
+
+  ASSERT_TRUE(full) << "the backlog never filled, so nothing here would have blocked and the bound "
+                       "has nothing to prove";
+
+  asio::local::stream_protocol::socket dialling {io};
+
+  asio::error_code error;
+  const auto before = std::chrono::steady_clock::now();
+  const auto connected = sen::components::influx::connectBounded(dialling, endpoint, bound, error);
+  const auto elapsed = std::chrono::steady_clock::now() - before;
+
+  EXPECT_FALSE(connected) << "reported a connection to a listener that has nowhere to put one";
+  EXPECT_EQ(error, asio::error::timed_out) << "gave up for some other reason than the deadline";
+  EXPECT_LT(elapsed, std::chrono::seconds {2}) << "waited well past its own deadline";
+
+  asio::error_code closing;
+  std::ignore = listener.close(closing);
+}
+
+#endif  // defined(ASIO_HAS_LOCAL_SOCKETS)
 
 //----------------------------------------------------------------------------------------------------------------------
 // The bounded stream write

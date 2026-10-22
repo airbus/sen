@@ -19,7 +19,6 @@
 // asio
 #include <asio/io_context.hpp>
 #include <asio/local/stream_protocol.hpp>
-#include <asio/write.hpp>  // NOLINT(misc-include-cleaner)
 
 // std
 #include <iostream>
@@ -49,7 +48,10 @@ protected:
 private:
   /// Dials on first use, so a socket that does not exist yet is not a failure to start.
   [[nodiscard]] bool connected();
-  [[nodiscard]] bool reconnect();
+
+  /// Closes whatever was there and dials the socket file once, bounded. False when Telegraf is
+  /// still not listening on it.
+  [[nodiscard]] bool dial();
   void reportDropping();
   void reportRecovered();
 
@@ -71,24 +73,18 @@ inline UnixStream::UnixStream(asio::io_context& ioContext, const std::string& pa
   // Not connected here, as for TCP: a Telegraf that has not created its socket yet is ordinary.
 }
 
-inline bool UnixStream::connected()
+inline bool UnixStream::connected() { return connected_ || dial(); }
+
+/// A socket file answers or refuses at once, with no SYN budget to run down, but a listener whose
+/// accept backlog is full makes the dial wait exactly as a network one does. Bounded for that case,
+/// and because the bound is what keeps the sending thread joinable at shutdown. connectBounded
+/// leaves the socket non-blocking, which is what writeBounded needs; no keep-alive here, since a
+/// socket file has no network to probe.
+inline bool UnixStream::dial()
 {
-  if (connected_)
-  {
-    return true;
-  }
-
+  // One attempt, as for TCP: waiting for a sink that may never return stops what is being recorded.
   asio::error_code error;
-  std::ignore = socket_.connect(endpoint_, error);
-  connected_ = !error;
-
-  if (connected_)
-  {
-    // What lets writeBounded bound a write: asio hands a would_block back only for a socket the
-    // caller set non-blocking. No keep-alive here, since a socket file has no network to probe.
-    asio::error_code ignored;
-    std::ignore = socket_.non_blocking(true, ignored);
-  }
+  connected_ = connectBounded(socket_, endpoint_, streamConnectBound, error);
 
   return connected_;
 }
@@ -111,23 +107,6 @@ inline void UnixStream::reportDropping()
     std::cerr << "influx: the telegraf socket is not answering; points are being dropped" << std::endl;
     disconnected_ = true;
   }
-}
-
-inline bool UnixStream::reconnect()
-{
-  // One attempt, as for TCP: waiting for a sink that may never return stops what is being recorded.
-  asio::error_code error;
-  std::ignore = socket_.close(error);
-  std::ignore = socket_.connect(endpoint_, error);
-  connected_ = !error;
-
-  if (connected_)
-  {
-    asio::error_code ignored;
-    std::ignore = socket_.non_blocking(true, ignored);
-  }
-
-  return connected_;
 }
 
 inline void UnixStream::doSend(sen::Span<const char> data)
@@ -158,7 +137,7 @@ inline void UnixStream::doSend(sen::Span<const char> data)
     return;
   }
 
-  if (!reconnect())
+  if (!dial())
   {
     reportDropping();
     return;

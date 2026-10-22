@@ -16,11 +16,9 @@
 #include "sen/core/base/assert.h"
 
 // asio
-#include <asio/connect.hpp>  // NOLINT(misc-include-cleaner)
 #include <asio/io_context.hpp>
 #include <asio/ip/tcp.hpp>
 #include <asio/socket_base.hpp>
-#include <asio/write.hpp>  // NOLINT(misc-include-cleaner)
 
 // std
 #include <iostream>
@@ -47,14 +45,12 @@ private:
   /// Dials on first use, so a sink that is not up yet is not a failure to start.
   [[nodiscard]] bool connected();
 
-  /// Closes the socket and dials the endpoint once. False when the far end is still gone.
-  [[nodiscard]] bool reconnect();
+  /// Closes whatever was there and dials the endpoints once, bounded. False when the far end is
+  /// still gone.
+  [[nodiscard]] bool dial();
 
   /// Says once that points are being dropped, whichever of the two writes gave up.
   void reportDropping();
-
-private:
-  static void prepareTheSocket(asio::ip::tcp::socket& socket);
 
 private:
   asio::io_context& ioContext_;
@@ -97,50 +93,23 @@ inline void TCP::reportDropping()
   }
 }
 
-/// Keep-alive asks the operating system to probe an idle connection, on its own configured
-/// interval. Non-blocking mode is what lets writeBounded put a deadline on a write at all: asio
-/// hands a would_block back only for a socket the caller set non-blocking.
-inline void TCP::prepareTheSocket(asio::ip::tcp::socket& socket)
-{
-  asio::error_code ignored;
-  std::ignore = socket.set_option(asio::socket_base::keep_alive {true}, ignored);
-  std::ignore = socket.non_blocking(true, ignored);
-}
+inline bool TCP::connected() { return connected_ || dial(); }
 
-inline bool TCP::connected()
-{
-  if (connected_)
-  {
-    return true;
-  }
-
-  asio::error_code error;
-  std::ignore = asio::connect(socket_, endpoints_, error);
-  connected_ = !error;
-
-  if (connected_)
-  {
-    prepareTheSocket(socket_);
-  }
-
-  return connected_;
-}
-
-inline bool TCP::reconnect()
+inline bool TCP::dial()
 {
   // One attempt, not a loop. Waiting here for a sink that may never come back stops the
   // application that is being recorded, which is the wrong way round: the recording is the part
   // that can be missed.
-  // Closing a socket the far end has already dropped can fail, and it does not matter here: what
-  // the caller is told is whether the dial below answered.
   asio::error_code error;
-  std::ignore = socket_.close(error);
-  std::ignore = asio::connect(socket_, endpoints_, error);
-  connected_ = !error;
+  connected_ = connectAnyBounded(socket_, endpoints_, streamConnectBound, error);
 
   if (connected_)
   {
-    prepareTheSocket(socket_);
+    // Asks the operating system to probe an idle connection, on its own configured interval.
+    // Non-blocking mode is already on: connectBounded sets it before the dial, which is what makes
+    // a connect report in_progress instead of waiting, and writeBounded needs it afterwards.
+    asio::error_code ignored;
+    std::ignore = socket_.set_option(asio::socket_base::keep_alive {true}, ignored);
   }
 
   return connected_;
@@ -175,7 +144,7 @@ inline void TCP::doSend(sen::Span<const char> data)
     // throw reached the kernel's callback, where nothing catches it, and the run died with a
     // crash report because a sink went away. One reconnect and one retry; after that the point
     // is dropped, because the application being recorded must outlive its recorder.
-    if (!reconnect())
+    if (!dial())
     {
       reportDropping();
       return;
