@@ -212,7 +212,7 @@ RUN install -m 0755 -d /etc/apt/keyrings \
 # library, and the flask it declares belongs to the server half.
 ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="/opt/venv/bin:${PATH}"
-RUN python3 -m venv "$VIRTUAL_ENV" \
+RUN /usr/local/bin/python3 -m venv "$VIRTUAL_ENV" \
     && pip3 install --no-cache-dir \
         cmake==${CMAKE_VERSION} \
         conan==${CONAN_VERSION} \
