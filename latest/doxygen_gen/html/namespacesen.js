@@ -258,7 +258,7 @@ var namespacesen =
     [ "platformDependentHashCombine", "group__hash.html#ga6bf79d75ad81a1ce4c862dbb7a78f9e9", null ],
     [ "decompressSymbol", "group__hash.html#gab67a1e60a7e9ad468ef805050fb9e87e", null ],
     [ "decompressSymbolToString", "group__hash.html#ga3a102c7cafd8f392fb3fc5a3852d3f44", null ],
-    [ "fileToCompressedArrayFile", "group__hash.html#gafe6d5e0b16f001842c0baf42d625eb6d", null ],
+    [ "fileToCompressedArray", "group__hash.html#ga0c27a3e873512758eb70e55e65664b36", null ],
     [ "platformDependentHashCombine", "namespacesen.html#a9d28fd7ab6b033e8af70dcbaf24aa17a", null ],
     [ "Ok", "group__error__handling.html#gab210783c20a9b5451afe4c7d5b20bbdc", null ],
     [ "Err", "group__error__handling.html#ga1216946e70f9e93d012678624ca7795c", null ],

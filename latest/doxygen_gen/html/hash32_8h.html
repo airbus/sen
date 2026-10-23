@@ -137,7 +137,9 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('hash32_8h.html
 
 <p>This file contains functions related to hashing and compression. This is mainly used by Sen internals, but it's exposed to the public API as a convenience utility.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="numbers_8h_source.html">sen/core/base/numbers.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="compiler__macros_8h_source.html">sen/core/base/compiler_macros.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="numbers_8h_source.html">sen/core/base/numbers.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="result_8h_source.html">sen/core/base/result.h</a>&quot;</code><br />
 <code>#include &lt;array&gt;</code><br />
 <code>#include &lt;cstdint&gt;</code><br />
 <code>#include &lt;cstring&gt;</code><br />
@@ -170,8 +172,8 @@ Functions</h2></td></tr>
 <tr class="memdesc:gab67a1e60a7e9ad468ef805050fb9e87e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decompresses a blob into its original shape.  <br /></td></tr>
 <tr class="memitem:ga3a102c7cafd8f392fb3fc5a3852d3f44" id="r_ga3a102c7cafd8f392fb3fc5a3852d3f44"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="group__hash.html#ga3a102c7cafd8f392fb3fc5a3852d3f44">sen::decompressSymbolToString</a> (const void *compressedData, unsigned int originalSize)</td></tr>
 <tr class="memdesc:ga3a102c7cafd8f392fb3fc5a3852d3f44"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decompresses a blob into a string.  <br /></td></tr>
-<tr class="memitem:gafe6d5e0b16f001842c0baf42d625eb6d" id="r_gafe6d5e0b16f001842c0baf42d625eb6d"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="group__hash.html#gafe6d5e0b16f001842c0baf42d625eb6d">sen::fileToCompressedArrayFile</a> (const std::filesystem::path &amp;inputFile, std::string_view symbolName, const std::filesystem::path &amp;outputFile)</td></tr>
-<tr class="memdesc:gafe6d5e0b16f001842c0baf42d625eb6d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a C++ source file that contains an array representing the contents of another file.  <br /></td></tr>
+<tr class="memitem:ga0c27a3e873512758eb70e55e65664b36" id="r_ga0c27a3e873512758eb70e55e65664b36"><td class="memItemLeft"><a class="el" href="classsen_1_1_result.html">Result</a>&lt; void, std::string &gt;&#160;</td><td class="memItemRight"><a class="el" href="group__hash.html#ga0c27a3e873512758eb70e55e65664b36">sen::fileToCompressedArray</a> (const std::filesystem::path &amp;inputFile, std::string_view symbolName, const std::filesystem::path &amp;outputFile)</td></tr>
+<tr class="memdesc:ga0c27a3e873512758eb70e55e65664b36"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a C++ source file that contains an array representing the contents of another file. The error names the operation that failed.  <br /></td></tr>
 <tr class="memitem:a9d28fd7ab6b033e8af70dcbaf24aa17a" id="r_a9d28fd7ab6b033e8af70dcbaf24aa17a"><td class="memTemplParams" colspan="2">template&lt;typename... Types&gt; </td></tr>
 <tr class="memitem:a9d28fd7ab6b033e8af70dcbaf24aa17a template"><td class="memItemLeft">std::uint_fast32_t&#160;</td><td class="memItemRight"><a class="el" href="namespacesen.html#a9d28fd7ab6b033e8af70dcbaf24aa17a">sen::platformDependentHashCombine</a> (std::uint_fast32_t seed, const Types &amp;... args) noexcept</td></tr>
 </table><table class="memberdecls">
