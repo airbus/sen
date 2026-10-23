@@ -189,12 +189,13 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('work__queue_8h
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>  [[nodiscard]] std::size_t getCurrentSize() const noexcept;</div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span> </div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>private:</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>  std::unique_ptr&lt;WorkQueueImpl&gt; pimpl_;</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>};</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>}  <span class="comment">// namespace sen::impl</span></div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span> </div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="preprocessor">#endif  </span><span class="comment">// SEN_CORE_OBJ_DETAIL_WORK_QUEUE_H</span></div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>  <span class="comment">// executeAll() holds a reference while it runs work, which can delete this queue&#39;s owner.</span></div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>  std::shared_ptr&lt;WorkQueueImpl&gt; pimpl_;</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>};</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>}  <span class="comment">// namespace sen::impl</span></div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span> </div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span><span class="preprocessor">#endif  </span><span class="comment">// SEN_CORE_OBJ_DETAIL_WORK_QUEUE_H</span></div>
 <div class="ttc" id="aclass__helpers_8h_html"><div class="ttname"><a href="class__helpers_8h.html">class_helpers.h</a></div><div class="ttdoc">Here we define a set of template meta-programming helpers to let the compiler take some decisions bas...</div></div>
 <div class="ttc" id="aduration_8h_html"><div class="ttname"><a href="duration_8h.html">duration.h</a></div></div>
 <div class="ttc" id="agroup__type__utils_html_gga89bcbcdac1ba5632a0b7c33f8f4bb8f9aae254d63f2381cc183c11594873793e0"><div class="ttname"><a href="group__type__utils.html#gga89bcbcdac1ba5632a0b7c33f8f4bb8f9aae254d63f2381cc183c11594873793e0">sen::UnitCategory::force</a></div><div class="ttdeci">@ force</div><div class="ttdef"><b>Definition</b> unit.h:41</div></div>
