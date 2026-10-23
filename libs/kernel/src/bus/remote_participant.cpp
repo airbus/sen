@@ -1107,11 +1107,10 @@ void RemoteParticipant::remoteObjectsPublished(ObjectsPublished& msg)
         processObjectAddition(objectIdList.objectIds, rejectionsResponse, msgObject, discovery.interestId, msg.ownerId);
       }
       // second possibility: we can find the type in the bus -> ask for the dynamic state
-      else if (const auto& [typeInBus, isIncompatible] =
+      else if (const auto [typeInBus, isIncompatible] =
                  bus_->searchForTypeInRemoteParticipants(this, msgObject.typeHash);
-               typeInBus)
+               typeInBus.has_value() && typeInBus.value().type() && typeInBus.value().type()->isCustomType())
       {
-        SEN_ASSERT(typeInBus.value()->isCustomType());
         registerRemoteTypeFoundInBus(dynamicTypeHandleCast<const CustomType>(typeInBus.value()).value(),
                                      isIncompatible);
         processObjectAddition(objectIdList.objectIds, rejectionsResponse, msgObject, discovery.interestId, msg.ownerId);
