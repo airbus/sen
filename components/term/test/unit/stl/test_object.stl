@@ -40,6 +40,14 @@ optional<Point> MaybePoint;
 // Optional-of-scalar type, same empty/filled toggle, inner is a single scalar leaf.
 optional<i32> MaybeInt;
 
+// Struct whose every field is an optional. An empty optional builds no scalar leaf, so a method
+// taking only this has nothing the form can focus.
+struct OptionalParams
+{
+  point : MaybePoint,
+  size  : MaybeInt
+}
+
 // Bounded meter-valued quantity with u16 storage, exercises the quantity editor
 // (integer spin on the value + cycler for the unit, clamp to [0, 500]).
 quantity<u16, m> Meters [min: 0, max: 500];
@@ -97,6 +105,10 @@ class TestObject
 
   // takes an optional scalar, same toggle, inner is a single i32 leaf
   fn limit(v : MaybeInt) -> i32 [const];
+
+  // takes a struct whose fields are all optional, so every optional is nested rather than
+  // top-level. Reaching them needs a focus stop the empty optional does not otherwise have.
+  fn configureEntity(name : string, params : OptionalParams) -> string [const];
 
   // takes a Duration, Duration inherits from QuantityType but is handled by the form as a
   // scalar text field (see arg_form.cpp). This method exists so tests can exercise that path.

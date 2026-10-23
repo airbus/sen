@@ -175,6 +175,9 @@ public:
   /// Editor kind of the focused leaf. Returns text when form is empty.
   [[nodiscard]] EditorKind focusedEditor() const noexcept;
 
+  /// True when the focused stop owns a text buffer, which the editing keys require.
+  [[nodiscard]] bool focusedHoldsText() const noexcept;
+
   /// Context queries for UI key-binding hints.
   [[nodiscard]] bool focusedIsInsideSequence() const noexcept;
   [[nodiscard]] bool focusedCanAddElement() const noexcept;

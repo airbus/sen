@@ -299,8 +299,20 @@ void renderCompositeField(const ArgFormField& f,
   }
   if (isOptional && f.optionalIsEmpty)
   {
-    out.push_back(ftxui::hbox(
-      {ftxui::text("  " + indent + "  "), ftxui::text("(none, press Ctrl+O to set a value)") | styles::mutedText()}));
+    // This row is the focus stop for an empty optional, so it takes a cursor slot in the order
+    // collectLeaves walks. Out of step, every highlight after the first empty optional is wrong.
+    const bool focused = (leafCursor == focusedLeafIdx);
+    ++leafCursor;
+    ftxui::Elements cols;
+    cols.push_back(ftxui::text(focused ? "▸ " : "  ") | (focused ? styles::accent() : styles::mutedText()));
+    cols.push_back(ftxui::text(indent + "  "));
+    cols.push_back(ftxui::text("(none, press Ctrl+O to set a value)") | styles::mutedText());
+    auto row = ftxui::hbox(std::move(cols));
+    if (focused)
+    {
+      row = row | ftxui::focus;
+    }
+    out.push_back(std::move(row));
     return;
   }
 
