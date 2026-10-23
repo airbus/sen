@@ -75,23 +75,51 @@ TEST(Hash32, hash_combine)
 }
 
 /// @test
-/// Returns false from fileToCompressedArrayFile for a nonexistent input file and for an output path whose
-/// directory cannot be written.
+/// Names the operation that failed, so a missing input and an unwritable output do not report the same
+/// thing.
 /// @requirements(SEN-576)
 TEST(Hash32, file_creation_failures)
 {
   const std::filesystem::path output = "debug.txt";
   const std::filesystem::path input = "does_not_exist.cpp";
-  const auto result = sen::fileToCompressedArrayFile(input, "TEST", output);
-  EXPECT_FALSE(result);
+  const auto result = sen::fileToCompressedArray(input, "TEST", output);
+  ASSERT_TRUE(result.isError());
+  EXPECT_NE(result.getError().find("does_not_exist.cpp"), std::string::npos);
+  EXPECT_NE(result.getError().find("for reading"), std::string::npos);
 
   const std::filesystem::path invalidOutput = "/_sen_system_invalid_/output.cpp";
-  const auto result2 = sen::fileToCompressedArrayFile(ABS_FILE, "TEST", invalidOutput);
-  EXPECT_FALSE(result2);
+  const auto result2 = sen::fileToCompressedArray(ABS_FILE, "TEST", invalidOutput);
+  ASSERT_TRUE(result2.isError());
+  EXPECT_NE(result2.getError().find("output.cpp"), std::string::npos);
+  EXPECT_NE(result2.getError().find("for writing"), std::string::npos);
 }
 
 /// @test
-/// Compresses files of 5, 1000, and 70000 bytes into C++ array source files, fileToCompressedArrayFile
+/// Keeps the deprecated fileToCompressedArrayFile working for a caller outside the repository.
+/// @requirements(SEN-576)
+TEST(Hash32, deprecated_bool_entry_point)
+{
+#if defined(_MSC_VER)
+#  pragma warning(push)
+#  pragma warning(disable: 4996)
+#elif defined(__GNUC__) || defined(__clang__)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+  EXPECT_FALSE(sen::fileToCompressedArrayFile("does_not_exist.cpp", "TEST", "debug.txt"));
+
+  const std::filesystem::path out = "deprecated_entry.cpp";
+  EXPECT_TRUE(sen::fileToCompressedArrayFile(ABS_FILE, "TEST", out));
+  std::filesystem::remove(out);
+#if defined(_MSC_VER)
+#  pragma warning(pop)
+#elif defined(__GNUC__) || defined(__clang__)
+#  pragma GCC diagnostic pop
+#endif
+}
+
+/// @test
+/// Compresses files of 5, 1000, and 70000 bytes into C++ array source files, fileToCompressedArray
 /// succeeding at each size.
 /// @requirements(SEN-576)
 TEST(Hash32, compression_cycle_variations)
@@ -107,7 +135,7 @@ TEST(Hash32, compression_cycle_variations)
       f << data;
     }
 
-    EXPECT_TRUE(sen::fileToCompressedArrayFile(in, "TEST", out));
+    EXPECT_TRUE(sen::fileToCompressedArray(in, "TEST", out));
 
     std::filesystem::remove(in);
     std::filesystem::remove(out);
@@ -164,7 +192,7 @@ TEST(Hash32, decompression_validation)
 }
 
 /// @test
-/// Compresses a 70000 byte file of bytes cycling through values 0 to 127, fileToCompressedArrayFile
+/// Compresses a 70000 byte file of bytes cycling through values 0 to 127, fileToCompressedArray
 /// succeeding.
 /// @requirements(SEN-576)
 TEST(Hash32, large_literal_block)
@@ -183,7 +211,7 @@ TEST(Hash32, large_literal_block)
     f << largeData;
   }
 
-  EXPECT_TRUE(sen::fileToCompressedArrayFile(in, "LARGE_LIT", out));
+  EXPECT_TRUE(sen::fileToCompressedArray(in, "LARGE_LIT", out));
 
   std::filesystem::remove(in);
   std::filesystem::remove(out);

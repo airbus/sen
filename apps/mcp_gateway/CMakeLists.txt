@@ -147,6 +147,10 @@ sen_internal_bake_npm_licenses(
   ${_mcp_gateway_node_modules_sentinel}
   NPM_EXEC
   ${MCP_GATEWAY_NPM_EXEC}
+  NPM_TARGET
+  mcp_gateway_npm_install
+  BUNDLE_TARGET
+  mcp_gateway_build
   ESBUILD_METAFILE
   ${_mcp_gateway_metafile}
 )

@@ -8,7 +8,9 @@
 #ifndef SEN_CORE_BASE_HASH32_H
 #define SEN_CORE_BASE_HASH32_H
 
+#include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/numbers.h"
+#include "sen/core/base/result.h"
 
 // std
 #include <array>
@@ -63,10 +65,19 @@ template <typename... Types>
 /// Decompresses a blob into a string.
 [[nodiscard]] std::string decompressSymbolToString(const void* compressedData, unsigned int originalSize);
 
-/// Creates a C++ source file that contains an array representing the contents of another file.
-[[nodiscard]] bool fileToCompressedArrayFile(const std::filesystem::path& inputFile,
-                                             std::string_view symbolName,
-                                             const std::filesystem::path& outputFile);
+/// Creates a C++ source file that contains an array representing the contents of another file. The error
+/// names the operation that failed.
+[[nodiscard]] Result<void, std::string> fileToCompressedArray(const std::filesystem::path& inputFile,
+                                                              std::string_view symbolName,
+                                                              const std::filesystem::path& outputFile);
+
+/// Kept so a caller outside the repository keeps compiling. True where fileToCompressedArray succeeds.
+// [[nodiscard]] leads: the macro expands to a GNU attribute on gcc and clang, and a standard
+// attribute list has to start the declaration.
+[[nodiscard]] SEN_DEPRECATED_FOR(0.7.0, fileToCompressedArray) bool fileToCompressedArrayFile(
+  const std::filesystem::path& inputFile,
+  std::string_view symbolName,
+  const std::filesystem::path& outputFile);
 
 /// @}
 
