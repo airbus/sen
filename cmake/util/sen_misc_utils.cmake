@@ -272,10 +272,14 @@ function(sen_file_to_cpp)
 
   get_filename_component(_abs_in_file ${sen_file_to_cpp_IN} ABSOLUTE)
   get_filename_component(_abs_out_file ${sen_file_to_cpp_OUT} ABSOLUTE)
+  get_filename_component(_abs_out_dir ${_abs_out_file} DIRECTORY)
 
   add_custom_command(
     OUTPUT ${sen_file_to_cpp_OUT}
     COMMAND_EXPAND_LISTS VERBATIM
+    # Ninja creates an output's directory before running the command and the Makefile generators do
+    # not, so without this the tool has nowhere to write.
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${_abs_out_dir}
     COMMAND sen::cli_sen file-to-array -i ${_abs_in_file} -o ${_abs_out_file} -v ${sen_file_to_cpp_VARNAME}
     DEPENDS ${_abs_in_file} sen::cli_sen
     COMMENT "generating ${_abs_in_file} into ${_abs_out_file}"
