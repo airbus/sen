@@ -291,6 +291,7 @@ class SenConan(ConanFile):
     def generate(self):
         """Generate the cmake dependency and toolchain files."""
         pyenv = PyEnv(self, py_version=str(self.options.with_python_version))
+        pyenv.install(["docker==7.2.0", "testcontainers==4.15.0"])  # needed by the tests
         pyenv.generate()
 
         deps = CMakeDeps(self)
