@@ -139,17 +139,17 @@ RUN printf '%s\n' \
     && rm -rf /var/lib/apt/lists/*
 
 # Download the specific Python version and build it from source
-RUN curl -fsSL "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz" \
-        | tar -xz -C /tmp \
-    && cd /tmp/Python-${PYTHON_VERSION} \
-    && ./configure --prefix=/usr/local --enable-optimizations --enable-shared --with-ensurepip=install \
+RUN curl -fsSL --retry 3 --retry-delay 2 --retry-all-errors \
+        -o /tmp/python.tgz \
+        "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz" \
+    && tar -xzf /tmp/python.tgz -C /tmp \
+    && rm -f /tmp/python.tgz
+WORKDIR /tmp/Python-${PYTHON_VERSION}
+RUN ./configure --prefix=/usr/local --enable-shared --with-ensurepip=install \
     && make -j"$(nproc)" && make install \
-    && ldconfig \
-    && ln -sf /usr/local/bin/pip3 /usr/bin/pip3 \
-    && ln -sf /usr/local/bin/pip3 /usr/bin/pip \
-    && ln -sf /usr/local/bin/python3 /usr/bin/python3 \
-    && ln -sf /usr/local/bin/python3 /usr/bin/python \
-    && rm -fr /tmp/Python-${PYTHON_VERSION}
+    && ldconfig
+WORKDIR /
+RUN rm -fr /tmp/Python-${PYTHON_VERSION}
 
 # plantuml renders the diagram the handbook embeds. Ubuntu's package is from 2020 and
 # pulls a full JDK, 218 packages against 40 for a headless JRE and the jar. CMake finds it

@@ -29,10 +29,6 @@ _BASIC_COMPONENTS = frozenset({"shell", "term", "ether"})
 # Criterion: Select the newest Python version past its bugfix stage at the time of this package release.
 PYTHON_VERSION = "3.13.17"
 
-# Expose them at the top as contants so it is easier to find and update them in the project
-CMAKE_VERSION = "3.31.10"
-NINJA_VERSION = "1.13.2"
-
 
 class SenConan(ConanFile):
     """Conan file that specifies how Sen can be build and packaged with conan."""
@@ -115,8 +111,8 @@ class SenConan(ConanFile):
 
     def build_requirements(self):
         """Defines the dependencies only need for building of Sen."""
-        self.tool_requires(f"cmake/{CMAKE_VERSION}")
-        self.tool_requires(f"ninja/{NINJA_VERSION}")
+        self.tool_requires("cmake/3.31.10")
+        self.tool_requires("ninja/1.13.2")
         self.test_requires("gtest/1.17.0")
         # Benchmarks belong to the full build, so the dependency is fetched only there.
         if str(self.options.mode) == "full":
@@ -313,7 +309,9 @@ class SenConan(ConanFile):
         # Override the python version driving conan with the one defined in the options
         python_path = pyenv.env_exe.replace("\\", "/")
         tc.cache_variables["Python3_EXECUTABLE"] = python_path
+        tc.cache_variables["Python_EXECUTABLE"] = python_path
         tc.cache_variables["Python3_FIND_VIRTUALENV"] = "STANDARD"
+        tc.cache_variables["Python_FIND_VIRTUALENV"] = "STANDARD"
         # set_version read this from the recipe folder, which has the repository; the build runs in
         # the cache, which does not. Unsplit, so the binaries keep an rc marker or a commit suffix.
         tc.cache_variables["SEN_FORCE_VERSION"] = self.version
