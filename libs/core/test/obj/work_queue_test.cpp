@@ -19,7 +19,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <memory>
 #include <thread>
+#include <tuple>
 #include <vector>
 
 using sen::impl::Call;
