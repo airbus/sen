@@ -25,10 +25,6 @@ COMPONENTS = tuple(sorted(p.parent.name for p in (Path(__file__).parent / "compo
 # `mode=barebones` enables none.
 _BASIC_COMPONENTS = frozenset({"shell", "term", "ether"})
 
-# Default Python version to compile the python-dependent components.
-# Criterion: Select the newest Python version past its bugfix stage at the time of this package release.
-PYTHON_VERSION = "3.13.17"
-
 
 class SenConan(ConanFile):
     """Conan file that specifies how Sen can be build and packaged with conan."""
@@ -74,7 +70,7 @@ class SenConan(ConanFile):
         "with_docs": False,
         "with_optimized_debug": False,
         "with_release_symbols": False,
-        "with_python_version": PYTHON_VERSION,
+        "with_python_version": "3.13.17",  # newest python past its bugfix stage at the time of release date
         "sanitizer": "none",
     }
 

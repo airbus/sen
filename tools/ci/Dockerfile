@@ -49,13 +49,7 @@ ARG PYTEST_VERSION=9.1.1
 ARG PRECOMMIT_VERSION=4.5.1
 ARG PLANTUML_VERSION=1.2026.7
 ARG TYPST_VERSION=0.15.1
-# Even when the dependency on the Python version is not exposed anywhere, a suitable
-# one (matching minor version) is needed to run those python-dependent components.
-# This version must be equal to the one declared in the conanfile.py but this is not
-# enforced by any means in the code.
 ARG PYTHON_VERSION=3.13.17
-# Both must equal the versions conanfile.py tool-requires, and nothing checks that
-# they do. The header says why the image carries them at all.
 ARG CMAKE_VERSION=3.31.10
 ARG NINJA_VERSION=1.13.2
 # matus-chochlik/ctcache, pinned to the commit tag 1.2.0 carries. It is not on PyPI.
@@ -121,6 +115,10 @@ RUN printf '%s\n' \
         libxext-dev \
         make \
         pkg-config \
+        python3 \
+        python3-dev \
+        python3-pip \
+        python3-venv \
         sudo \
         # Liberation Sans carries Helvetica's metrics, for the reference typst
         # typesets. Without a sans installed the document falls back to a serif and
