@@ -105,12 +105,17 @@ public:
 
   SEN_ALWAYS_INLINE bool executeAll()  // NOSONAR
   {
-    callBuffer_.resize(std::max<std::size_t>(queue_.size_approx(), defaultBulkBufferSize));
+    // A call may drain this queue again, and a nested drain resizing the member would destroy
+    // the elements this loop has not reached.
+    auto buffer = std::move(callBuffer_);
+    buffer.resize(std::max<std::size_t>(queue_.size_approx(), defaultBulkBufferSize));
 
-    if (auto callCount = queue_.try_dequeue_bulk(callBuffer_.begin(), callBuffer_.size()); callCount != 0U)
+    auto drained = false;
+
+    if (auto callCount = queue_.try_dequeue_bulk(buffer.begin(), buffer.size()); callCount != 0U)
     {
       std::size_t i = 0;
-      for (auto& call: callBuffer_)
+      for (auto& call: buffer)
       {
         call();
         call = Call();
@@ -121,10 +126,13 @@ public:
           break;
         }
       }
-      return true;
+      drained = true;
     }
 
-    return false;
+    buffer.clear();
+    callBuffer_ = std::move(buffer);
+
+    return drained;
   }
 
   SEN_ALWAYS_INLINE void clear()  // NOSONAR
@@ -183,7 +191,7 @@ private:
 // WorkQueue
 //------------------------------------------------------------------------------------------------//
 
-WorkQueue::WorkQueue(std::size_t maxSize, bool dropOldest): pimpl_(std::make_unique<WorkQueueImpl>(maxSize, dropOldest))
+WorkQueue::WorkQueue(std::size_t maxSize, bool dropOldest): pimpl_(std::make_shared<WorkQueueImpl>(maxSize, dropOldest))
 {
 }
 
@@ -197,11 +205,24 @@ void WorkQueue::clear() { pimpl_->clear(); }
 
 void WorkQueue::push(Call&& call, bool force) { pimpl_->push(std::move(call), force); }
 
-bool WorkQueue::executeAll() { return pimpl_->executeAll(); }
+bool WorkQueue::executeAll()
+{
+  // The work can delete the object this queue is a member of, so the storage outlives the drain.
+  const auto impl = pimpl_;
+  return impl->executeAll();
+}
 
-void WorkQueue::waitExecuteOne() { pimpl_->waitExecuteOne(); }
+void WorkQueue::waitExecuteOne()
+{
+  const auto impl = pimpl_;
+  impl->waitExecuteOne();
+}
 
-void WorkQueue::waitExecuteAll(const Duration& timeout) { pimpl_->waitExecuteAll(timeout); }
+void WorkQueue::waitExecuteAll(const Duration& timeout)
+{
+  const auto impl = pimpl_;
+  impl->waitExecuteAll(timeout);
+}
 
 void WorkQueue::setOnDropped(sen::std_util::move_only_function<void(const Call&)>&& callback)
 {
