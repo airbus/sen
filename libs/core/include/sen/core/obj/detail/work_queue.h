@@ -64,7 +64,8 @@ public:
   [[nodiscard]] std::size_t getCurrentSize() const noexcept;
 
 private:
-  std::unique_ptr<WorkQueueImpl> pimpl_;
+  // executeAll() holds a reference while it runs work, which can delete this queue's owner.
+  std::shared_ptr<WorkQueueImpl> pimpl_;
 };
 
 }  // namespace sen::impl
