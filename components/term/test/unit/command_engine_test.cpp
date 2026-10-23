@@ -144,9 +144,9 @@ const CommandDescriptor* findDescriptor(std::string_view name)
 /// listeners, inspect, types, units, status, version, help, clear, theme, exit and shutdown.
 TEST(CommandTable, ExpectedBuiltInsArePresent)
 {
-  for (auto name: {"cd",     "pwd",     "ls",       "open",      "close",   "query", "queries",
-                   "log",    "listen",  "unlisten", "listeners", "inspect", "types", "units",
-                   "status", "version", "help",     "clear",     "theme",   "exit",  "shutdown"})
+  for (auto name: {"cd",     "pwd",      "ls",        "open",    "close", "query",   "queries", "log",
+                   "listen", "unlisten", "listeners", "inspect", "types", "units",   "status",  "version",
+                   "help",   "clear",    "history",   "theme",   "exit",  "shutdown"})
   {
     EXPECT_TRUE(hasCommand(name)) << "missing built-in command: " << name;
   }

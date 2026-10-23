@@ -66,16 +66,21 @@ everything you have seen.
 |-------------------------|----------------------------------------------------------------|
 | Left / Right            | Move one character                                             |
 | Ctrl+Left / Ctrl+Right  | Move one word. A dotted path is several words                  |
-| Home / End              | Start or end of the line                                       |
+| Home / Ctrl+A           | Move cursor to the start of the line                           |
+| End / Ctrl+E            | Move cursor to the end of the line                             |
 | Backspace / Delete      | Erase one character either side of the cursor                  |
+| Ctrl+U                  | Erase from the cursor to the start of the line                 |
+| Ctrl+K                  | Erase from the cursor to the end of the line                   |
 | Ctrl+W                  | Erase the word before the cursor                               |
+| Alt+D                   | Erase the word after the cursor                                |
 | Up / Down               | Walk the command history                                       |
 | Ctrl+R                  | Recall the most recent command containing what is on the line  |
+| Ctrl+L                  | Soft clear (scroll the output out of view)                     |
 | Tab / Shift+Tab         | Completion, forwards and backwards                             |
 | PageUp / PageDown       | Scroll the output ten rows                                     |
 | F1                      | Run `help`                                                     |
 | Escape                  | Clear the line; on an empty line, arm exit; Escape again exits |
-| Ctrl+D                  | Exit, from an empty line only                                   |
+| Ctrl+D                  | Exit, from an empty line only                                  |
 | Ctrl+Y                  | Copy the current selection to the clipboard                    |
 
 Ctrl+Backspace is not in that table because the term cannot tell it from an ordinary Backspace: FTXUI
@@ -84,7 +89,8 @@ delivers both as the same event. Use Ctrl+W.
 Movement and erasing work in characters, not bytes, so accented letters, CJK text and emoji behave
 the way you expect. History is kept across sessions in `~/.sen_history.txt` (`%USERPROFILE%` on
 Windows), capped at 2000 lines and shared with the shell component. With no home directory in the
-environment, history lasts only as long as the session.
+environment, history lasts only as long as the session. You can view your past commands at any time
+using the `history` command (e.g., `history 10` to see the last 10).
 
 ## What the line accepts
 

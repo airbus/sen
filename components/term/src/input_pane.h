@@ -66,6 +66,9 @@ public:
   /// Load history from the configured file. Silent no-op if the file doesn't exist yet.
   void loadHistory();
 
+  /// Get the recorded command history (front is newest).
+  [[nodiscard]] const std::deque<std::string>& getHistory() const noexcept;
+
 private:
   SubmitCallback onSubmit_;
   std::string prompt_ = "sen:/> ";

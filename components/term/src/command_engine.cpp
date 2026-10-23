@@ -51,10 +51,13 @@
 #include <array>
 #include <cctype>
 #include <cstddef>
+#include <cstdint>
 #include <exception>
+#include <iomanip>
 #include <iterator>
 #include <memory>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -228,6 +231,13 @@ Span<const CommandEngine::CommandEntry> CommandEngine::getCommandTable()
                    "Show help for a specific command, or list all commands.",
                    "show available commands"},
      &CommandEngine::cmdHelp},
+    {{"history",   CommandCategory::general,
+                   "history [limit]",
+                   "Show the command history.\n"
+                   "  history    Show all history\n"
+                   "  history 10 Show the last 10 commands",
+                   "show command history"},
+     &CommandEngine::cmdHistory},
     {{"inspect",   CommandCategory::inspection,
                    "inspect <object | type>",
                    "Show the interface of an object or type.\n"
@@ -729,7 +739,13 @@ void CommandEngine::cmdHelp(std::string_view args)
     {"Tab / Shift+Tab", "Cycle through completions"},
     {"Enter / .", "Accept completion (drill into paths)"},
     {"Escape", "Cancel completion / clear the line / arm exit"},
+    {"Ctrl+L", "Scroll output out of view"},
+    {"Home / Ctrl+A", "Move cursor to the start of the line"},
+    {"End / Ctrl+E", "Move cursor to the end of the line"},
+    {"Ctrl+U", "Erase from the cursor to the start of the line"},
+    {"Ctrl+K", "Erase from the cursor to the end of the line"},
     {"Ctrl+W", "Erase the word before the cursor"},
+    {"Alt+D", "Erase the word after the cursor"},
     {"Ctrl+R", "Recall the last command containing the line"},
     {"PageUp / PageDown", "Scroll the output ten rows"},
     {"F1", "Run help"},
@@ -1432,6 +1448,45 @@ void CommandEngine::cmdLog(std::string_view args)
 }
 
 void CommandEngine::cmdClear(std::string_view /*args*/) { app_.clearCommandPane(); }
+
+void CommandEngine::cmdHistory(std::string_view args)
+{
+  const auto& hist = app_.getHistory();
+  if (hist.empty())
+  {
+    return;
+  }
+
+  std::size_t limit = hist.size();
+  if (!args.empty())
+  {
+    try
+    {
+      int64_t parsedLimit = std::stoll(std::string(args));
+
+      if (parsedLimit <= 0)
+      {
+        throw std::invalid_argument("Not a positive number");
+      }
+
+      limit = static_cast<std::size_t>(parsedLimit);
+    }
+    catch (...)
+    {
+      reportError("Invalid Argument", "Limit must be a positive number.");
+      return;
+    }
+  }
+
+  limit = std::min(limit, hist.size());
+
+  for (std::size_t i = limit; i > 0; --i)
+  {
+    std::ostringstream oss;
+    oss << std::setw(4) << (hist.size() - i + 1) << "  " << hist[i - 1];
+    app_.appendOutput(oss.str());
+  }
+}
 
 void CommandEngine::cmdTheme(std::string_view args)
 {
