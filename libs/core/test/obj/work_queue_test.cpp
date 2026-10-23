@@ -13,6 +13,7 @@
 #include <gtest/gtest.h>
 
 // std
+#include <array>
 #include <atomic>
 #include <chrono>
 #include <cstddef>
@@ -356,4 +357,60 @@ TEST(WorkQueue, clearAfterDisableDoesNotFreeUnderAnInFlightPush)
       t.join();
     }
   }
+}
+
+/// @test
+/// Executes every call of a batch when one of them drains the queue again.
+TEST(WorkQueue, aNestedDrainLeavesTheOuterBatchIntact)
+{
+  // Unbounded, as NativeObject's post-commit queue is, so the outer drain takes the whole batch.
+  WorkQueue queue(0, true);
+  queue.enable();
+
+  std::atomic<int> executed {0};
+
+  queue.push([&queue]() { std::ignore = queue.executeAll(); }, true);
+
+  // Fat captures so each call owns heap storage a sanitizer can see freed.
+  for (auto i = 0; i < 19; ++i)
+  {
+    queue.push(
+      [&executed, padding = std::array<char, 256> {}]()
+      {
+        std::ignore = padding;
+        executed.fetch_add(1, std::memory_order_relaxed);
+      },
+      true);
+  }
+
+  std::ignore = queue.executeAll();
+
+  EXPECT_EQ(executed.load(), 19);
+}
+
+/// @test
+/// Finishes the batch when a call destroys the queue, which a reset() deleting an object does.
+TEST(WorkQueue, workThatDeletesTheQueueStillFinishesTheBatch)
+{
+  auto queue = std::make_unique<WorkQueue>(0, true);
+  queue->enable();
+  auto* const draining = queue.get();
+
+  queue->push([&queue]() { queue.reset(); }, true);
+
+  std::atomic<int> executed {0};
+  for (auto i = 0; i < 19; ++i)
+  {
+    queue->push(
+      [&executed, padding = std::array<char, 256> {}]()
+      {
+        std::ignore = padding;
+        executed.fetch_add(1, std::memory_order_relaxed);
+      },
+      true);
+  }
+
+  std::ignore = draining->executeAll();
+
+  EXPECT_EQ(executed.load(), 19);
 }
