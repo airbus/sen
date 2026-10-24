@@ -125,6 +125,10 @@ sen_internal_bake_npm_licenses(
   ${_web_node_modules_sentinel}
   NPM_EXEC
   ${NPM_EXEC}
+  NPM_TARGET
+  webexplorer_npm_install
+  BUNDLE_TARGET
+  webexplorer_bundle
   ESBUILD_METAFILE
   ${_web_metafile}
 )

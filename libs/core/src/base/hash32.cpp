@@ -10,6 +10,7 @@
 // sen
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/base/numbers.h"
+#include "sen/core/base/result.h"
 
 // std
 #include <array>
@@ -620,15 +621,15 @@ std::string decompressSymbolToString(const void* compressedData, unsigned origin
   return {reinterpret_cast<const char*>(decompressedData.get()), originalSize};
 }
 
-bool fileToCompressedArrayFile(const std::filesystem::path& inputFile,
-                               std::string_view symbolName,
-                               const std::filesystem::path& outputFile)
+Result<void, std::string> fileToCompressedArray(const std::filesystem::path& inputFile,
+                                                std::string_view symbolName,
+                                                const std::filesystem::path& outputFile)
 {
   // Read file
   FILE* inputStream = fopen(inputFile.generic_string().c_str(), "rb");  // NOLINT
   if (!inputStream)
   {
-    return false;
+    return Err(std::string("cannot open ").append(inputFile.generic_string()).append(" for reading"));
   }
 
   int dataSize;
@@ -636,7 +637,7 @@ bool fileToCompressedArrayFile(const std::filesystem::path& inputFile,
       fseek(inputStream, 0, SEEK_SET))                                                  // NOLINT
   {
     fclose(inputStream);  // NOLINT
-    return false;
+    return Err(std::string("cannot measure ").append(inputFile.generic_string()));
   }
 
   auto* data = new char[dataSize + 4];                            // NOLINT
@@ -644,7 +645,7 @@ bool fileToCompressedArrayFile(const std::filesystem::path& inputFile,
   {
     fclose(inputStream);  // NOLINT
     delete[] data;        // NOLINT
-    return false;
+    return Err(std::string("cannot read ").append(inputFile.generic_string()));
   }
   memset((void*)(data + dataSize), 0, 4);  // NOLINT
   fclose(inputStream);                     // NOLINT
@@ -660,7 +661,7 @@ bool fileToCompressedArrayFile(const std::filesystem::path& inputFile,
   {
     delete[] data;        // NOLINT
     delete[] compressed;  // NOLINT
-    return false;
+    return Err(std::string("cannot open ").append(outputFile.generic_string()).append(" for writing"));
   }
 
   fprintf(outputStream, "// NOLINTNEXTLINE\n");                                                 // NOLINT
@@ -690,7 +691,14 @@ bool fileToCompressedArrayFile(const std::filesystem::path& inputFile,
   delete[] data;         // NOLINT
   delete[] compressed;   // NOLINT
   fclose(outputStream);  // NOLINT
-  return true;
+  return Ok();
+}
+
+bool fileToCompressedArrayFile(const std::filesystem::path& inputFile,
+                               std::string_view symbolName,
+                               const std::filesystem::path& outputFile)
+{
+  return fileToCompressedArray(inputFile, symbolName, outputFile).isOk();
 }
 
 namespace impl
