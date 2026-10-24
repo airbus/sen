@@ -527,12 +527,15 @@ void SignalStopper::watch(sen::kernel::Kernel& kernel) noexcept
   {
     const auto suppliedBusAddresses = collectSuppliedBusAddresses(*args);
     auto bootloader = makeBootloader(args);
-    if (args->printNetworkFootprint && args->networkFootprintFormat == "json")
+    const bool jsonFootprint = args->printNetworkFootprint && args->networkFootprintFormat == "json";
+    if (jsonFootprint)
     {
       disableLoggingForJsonOutput(bootloader.get());
     }
 
-    if (!bootloader->getConfig().getParams().crashReportDisabled)
+    // Not for a json footprint: arming creates its own kernel logger, which would write the
+    // handler's lines to stdout ahead of the report, and the run only builds a report and exits.
+    if (!bootloader->getConfig().getParams().crashReportDisabled && !jsonFootprint)
     {
       // The warning it logs is enough here, because sen run writes to a terminal. A service whose
       // output nobody reads should check the return instead.

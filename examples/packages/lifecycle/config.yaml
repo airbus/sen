@@ -1,3 +1,8 @@
+load:
+  - name: term
+    group: 2
+    open: [local.lifecycle]
+
 build:
   - name: lifecycleComponent
     freqHz: 2

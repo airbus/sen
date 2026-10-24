@@ -31,8 +31,8 @@ class PersonImpl: public PersonBase
   SEN_NOCOPY_NOMOVE(PersonImpl)
 
 public:
-  PersonImpl(std::string name, std::string surName, std::string firstName)
-    : PersonBase(std::move(name), std::move(surName), std::move(firstName))
+  PersonImpl(std::string name, std::string firstName, std::string surName)
+    : PersonBase(std::move(name), std::move(firstName), std::move(surName))
   {
     noise_.seed(sen::hashCombine(sen::crc32("brainActivity"), sen::crc32(getName()), std::random_device {}()));
   }

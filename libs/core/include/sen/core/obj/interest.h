@@ -19,8 +19,10 @@
 // std
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <variant>
 
 namespace sen
@@ -115,7 +117,10 @@ private:
   lang::Chunk code_;
   InterestId id_;
   mutable std::mutex varInfoListMutex_;
-  mutable std::optional<VarInfoList> varInfoList_;
+
+  // An interest with no type condition sees every class on the bus, and a VarInfo holds field
+  // positions taken from one of them. An empty optional marks a class the query cannot resolve.
+  mutable std::unordered_map<MemberHash, std::optional<VarInfoList>> varInfoLists_;
 };
 
 /// @}

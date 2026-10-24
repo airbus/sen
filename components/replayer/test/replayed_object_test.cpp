@@ -436,6 +436,33 @@ TEST(ReplayedObjectTest, FlushAndCommitAppliesPropertyChange)
 }
 
 /// @test
+/// Applies a keyframe whose property value differs from the current one at the same serialized
+/// size, as a seek does once a property change has been replayed.
+/// @requirements(SEN-364)
+TEST(ReplayedObjectTest, KeyframeAppliesSameSizedPropertyValue)
+{
+  ReplayedObjectSetup setup;
+  auto creationSnapshot = setup.findCreationSnapshot();
+  auto keyframeSnapshot = setup.findKeyframeSnapshot();
+  const auto t0 = makeTime(1);
+  auto obj = makeObject(creationSnapshot, t0);
+  const auto* prop = findPropertyByName(*obj, "testProp");
+
+  // the keyframe carries the recorded value; the property change below moves away from it
+  const auto recordedValue = obj->getPropertyUntyped(prop).getCopyAs<float64_t>();
+  ASSERT_NE(recordedValue, 12.3);
+
+  const auto t1 = makeTime(5);
+  injectFlushCommit(*obj, t1, setup.findPropertyChange());
+  ASSERT_DOUBLE_EQ(obj->getPropertyUntyped(prop).getCopyAs<float64_t>(), 12.3);
+
+  const auto t2 = makeTime(9);
+  injectFlushCommit(*obj, t2, keyframeSnapshot);
+  EXPECT_DOUBLE_EQ(obj->getPropertyUntyped(prop).getCopyAs<float64_t>(), recordedValue);
+  EXPECT_EQ(obj->getPropertyLastTime(prop), t2);
+}
+
+/// @test
 /// Throws a logic error when removing a typed connection on a replayed object, and raises
 /// from the next-value property getter and setter as well.
 /// @requirements(SEN-364)

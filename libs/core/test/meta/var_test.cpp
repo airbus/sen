@@ -36,6 +36,7 @@
 #include <random>
 #include <string>
 #include <tuple>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -88,15 +89,11 @@ void checkNonOverflowingConversion(Var var, T value)  // NOLINT(readability-func
 
   if (sen::std_util::cmp_less(value, std::numeric_limits<TargetType>::lowest()))
   {
-    EXPECT_DEBUG_DEATH(
-      { EXPECT_EQ(copyAsWrapper(var), std::numeric_limits<TargetType>::lowest()); },
-      "Needed to truncate `from` as it's value was to small for ToType.");
+    EXPECT_THROW(std::ignore = copyAsWrapper(var), std::exception);
   }
   else if (sen::std_util::cmp_greater(value, std::numeric_limits<TargetType>::max()))
   {
-    EXPECT_DEBUG_DEATH(
-      { EXPECT_EQ(copyAsWrapper(var), std::numeric_limits<TargetType>::max()); },
-      "Needed to truncate `from` as it's value was to big for ToType.");
+    EXPECT_THROW(std::ignore = copyAsWrapper(var), std::exception);
   }
   else
   {
@@ -113,16 +110,12 @@ void checkNonOverflowingConversionFloat(Var var, T value)  // NOLINT(readability
   if (sen::std_util::ignoredLossyConversion<float64_t>(value) <
       sen::std_util::ignoredLossyConversion<float64_t>(std::numeric_limits<TargetType>::lowest()))
   {
-    EXPECT_DEBUG_DEATH(
-      { EXPECT_EQ(copyAsWrapper(var), std::numeric_limits<TargetType>::lowest()); },
-      "Needed to truncate `from` as it's value was to small for ToType.");
+    EXPECT_THROW(std::ignore = copyAsWrapper(var), std::exception);
   }
   else if (sen::std_util::ignoredLossyConversion<float64_t>(value) >
            sen::std_util::ignoredLossyConversion<float64_t>(std::numeric_limits<TargetType>::max()))
   {
-    EXPECT_DEBUG_DEATH(
-      { EXPECT_EQ(copyAsWrapper(var), std::numeric_limits<TargetType>::max()); },
-      "Needed to truncate `from` as it's value was to big for ToType.");
+    EXPECT_THROW(std::ignore = copyAsWrapper(var), std::exception);
   }
   else
   {
@@ -499,6 +492,46 @@ TEST(Var, keyedVar)
 }
 
 /// @test
+/// Renders a KeyedVar whose payload is null, by both of the routes that render one.
+/// @requirements(SEN-1053)
+TEST(Var, keyedVarWithNoPayload)
+{
+  const sen::KeyedVar keyedVar {1, nullptr};
+  const Var var {keyedVar};
+
+  const auto asJson = sen::toJson(var);
+  EXPECT_NE(asJson.find("\"type\""), std::string::npos) << asJson;
+  EXPECT_NE(asJson.find("null"), std::string::npos) << asJson;
+
+  const auto asString = getCopyAs<std::string>(var);
+  EXPECT_NE(asString.find("\"key\""), std::string::npos) << asString;
+}
+
+/// @test
+/// Refuses json nested deeper than the conversion can recurse, in both directions.
+/// @requirements(SEN-1053)
+TEST(Var, nestingDeeperThanTheLimitIsRefused)
+{
+  constexpr std::size_t tooDeep = 300U;
+
+  const std::string nested = std::string(tooDeep, '[') + std::string(tooDeep, ']');
+  EXPECT_THROW(std::ignore = sen::fromJson(nested), std::exception);
+
+  // shallow enough to convert, as the control
+  const std::string shallow = std::string(8U, '[') + std::string(8U, ']');
+  EXPECT_NO_THROW(std::ignore = sen::fromJson(shallow));
+
+  Var deep {VarList {}};
+  for (std::size_t level = 0U; level < tooDeep; ++level)
+  {
+    VarList wrapper;
+    wrapper.push_back(std::move(deep));
+    deep = Var {std::move(wrapper)};
+  }
+  EXPECT_THROW(std::ignore = sen::toJson(deep), std::exception);
+}
+
+/// @test
 /// Equates Vars holding the same type and value, including empty Vars however constructed,
 /// and distinguishes Vars whose value matches but whose type differs, such as signedness,
 /// width, bool against integer, or TimeStamp against Duration.
@@ -781,12 +814,20 @@ TEST(Var, checkedConversions)
     EXPECT_NO_THROW(std::ignore = (getCopyAs<std::monostate, true>(var)));
   }
 
-#ifndef NDEBUG
   // Checked Conversions: Overflow
   {
     const Var var {300};
-    EXPECT_DEATH(std::ignore = (getCopyAs<uint8_t, true>(var)),
-                 "Needed to truncate `from` as it's value was to big for ToType.");
+    EXPECT_THROW(std::ignore = (getCopyAs<uint8_t, true>(var)), std::exception);
   }
-#endif
+}
+
+/// @test
+/// The member overload passes its own checkedConversion argument to the free function. It used to
+/// drop it, so a caller asking the Var for a checked conversion got an unchecked one.
+TEST(Var, theMemberOverloadForwardsTheCheckedArgument)
+{
+  const Var var {300};
+
+  EXPECT_THROW(std::ignore = (var.getCopyAs<uint8_t, true>()), std::exception);
+  EXPECT_EQ((var.getCopyAs<uint8_t, false>()), std::numeric_limits<uint8_t>::max());
 }

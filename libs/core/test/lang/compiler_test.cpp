@@ -58,9 +58,9 @@ void checkCompilationFailure(std::string& program)
 
 /// @test
 /// Compiles and evaluates SELECT FROM WHERE programs: comparison and string-equality conditions
-/// joined by AND and OR yield the expected truth value, unusual identifiers and a trailing comma
-/// clause are accepted, and a two-query cascade re-interpreted with changed variable values flips
-/// its result.
+/// joined by AND and OR yield the expected truth value, unusual identifiers are accepted, a comma
+/// and a second query are refused, and a chunk re-interpreted with a changed variable flips its
+/// result.
 /// @requirements(SEN-363)
 TEST(Compiler, basic)
 {
@@ -94,17 +94,16 @@ TEST(Compiler, basic)
     EXPECT_TRUE(checkQuery(program));
   }
 
-  // comma use
+  // a comma is not a separator
   {
     std::string program = R"(SELECT class1 FROM any.bus WHERE 1 = 1, false)";
 
-    EXPECT_TRUE(checkQuery(program));
+    checkCompilationFailure(program);
   }
 
-  // queries cascade
+  // a chunk re-interpreted after its variable changed
   {
-    std::string program = R"(SELECT rpr.Aircraft FROM se.env WHERE velocity >= 1.0
-                             SELECT rpr.PhysicalEntity FROM se.env WHERE latitude < 225)";
+    std::string program = R"(SELECT rpr.Aircraft FROM se.env WHERE velocity >= 1.0)";
 
     VM vm;
     auto result = vm.compile(vm.parse(program));
@@ -114,11 +113,9 @@ TEST(Compiler, basic)
     chunk.disassemble("test");
 
     float64_t velocity = 40.0;
-    float64_t latitude = 35.0;
 
     std::vector<sen::lang::ValueGetter> environment = {
       [&]() { return velocity; },
-      [&]() { return latitude; },
     };
 
     auto codeResult = vm.interpret(chunk, environment);
@@ -135,10 +132,35 @@ TEST(Compiler, basic)
     EXPECT_FALSE(std::get<bool>(codeResult.getValue()));
   }
 
-  // queries cascade
+  // a second query in the same program
   {
     std::string program = R"(SELECT rpr.Aircraft       FROM se.env WHERE 6 >= 1.0
                              SELECT rpr.PhysicalEntity FROM se.env WHERE 3 < 225)";
+
+    checkCompilationFailure(program);
+  }
+}
+
+/// @test
+/// '==' compares, the same as '='. The false case is the one that matters: a query that kept only
+/// its left side would report `1 == 2` as true.
+/// @requirements(SEN-363)
+TEST(Compiler, equalityAcceptsBothSigns)
+{
+  {
+    std::string program = R"(SELECT some.obj FROM some.bus WHERE 1 == 1)";
+
+    EXPECT_TRUE(checkQuery(program));
+  }
+
+  {
+    std::string program = R"(SELECT some.obj FROM some.bus WHERE 1 == 2)";
+
+    EXPECT_FALSE(checkQuery(program));
+  }
+
+  {
+    std::string program = R"(SELECT some.obj FROM some.bus WHERE "cucu" == "cucu" AND 2 != 3)";
 
     EXPECT_TRUE(checkQuery(program));
   }

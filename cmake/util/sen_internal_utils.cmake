@@ -349,6 +349,8 @@ function(sen_internal_bake_npm_licenses)
       NPM_SENTINEL
       NPM_EXEC
       ESBUILD_METAFILE
+      NPM_TARGET
+      BUNDLE_TARGET
   )
   cmake_parse_arguments(
     _args
@@ -400,6 +402,15 @@ function(sen_internal_bake_npm_licenses)
     VERBATIM
   )
   add_custom_target(${_target_slug}_npm_licenses ALL DEPENDS ${_sentinel})
+
+  # Ordering as well as the file dependencies above: the Makefile generators copy a rule for every
+  # output this target depends on into its own makefile, where it races that output's owner.
+  foreach(_ordering_dep IN ITEMS ${_args_NPM_TARGET} ${_args_BUNDLE_TARGET})
+    if(TARGET ${_ordering_dep})
+      add_dependencies(${_target_slug}_npm_licenses ${_ordering_dep})
+    endif()
+  endforeach()
+
   set_target_properties(${_target_slug}_npm_licenses PROPERTIES FOLDER "licenses")
 
   # The documentation page is written from this tree and has to wait for it.

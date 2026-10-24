@@ -131,9 +131,10 @@ void configureFileToArray(CLI::App& app)
     cmd->callback(
       [args]()
       {
-        if (!sen::fileToCompressedArrayFile(args->inputFile, args->varName, args->outputFile))
+        const auto result = sen::fileToCompressedArray(args->inputFile, args->varName, args->outputFile);
+        if (result.isError())
         {
-          std::cerr << "error compressing data\n";
+          std::cerr << "file-to-array: " << result.getError() << "\n";
           exit(1);
         }
       });

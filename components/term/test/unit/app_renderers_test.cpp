@@ -27,6 +27,7 @@
 #include <optional>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <utility>
 
 namespace sen::components::term
@@ -57,6 +58,22 @@ std::optional<ArgForm> formFor(const char* methodName)
 std::string render(const ArgForm& form, int width = 90, int height = 24)
 {
   return test::renderToText(renderArgForm(form), width, height);
+}
+
+/// Rows the field area actually drew, counted by the type names one per field line carries.
+std::size_t fieldLinesDrawn(const std::string& text, std::string_view marker)
+{
+  std::size_t n = 0;
+  std::istringstream stream(text);
+  std::string line;
+  while (std::getline(stream, line))
+  {
+    if (line.find(marker) != std::string::npos)
+    {
+      ++n;
+    }
+  }
+  return n;
 }
 
 /// Which rendered line carries the focus marker, or npos when none does.
@@ -119,6 +136,36 @@ TEST(AppRenderers, AFormWithNoArgumentsStillRenders)
 
   const auto text = render(*form);
   EXPECT_THAT(text, HasSubstr("ping"));
+}
+
+/// @test
+/// A form drawn with room to spare shows more of its fields than one held to the default area, so a
+/// long call is scrolled through only when the terminal genuinely cannot hold it.
+TEST(AppRenderers, TheFieldAreaUsesTheRoomItIsGiven)
+{
+  auto form = formFor("configureDeep");
+  ASSERT_TRUE(form.has_value());
+  // Fill every optional, so the form outgrows the field area's floor.
+  for (std::size_t round = 0; round < 6; ++round)
+  {
+    for (std::size_t step = 0; step < form->leafCount(); ++step)
+    {
+      if (form->focusedIsOptionalRow())
+      {
+        form->toggleFocusedOptional();
+      }
+      form->focusNext();
+    }
+  }
+
+  // The precondition the comparison rests on: below the floor both budgets render the same thing.
+  ASSERT_GT(form->leafCount(), 15U) << "the form did not grow past the field area's floor, so this "
+                                       "test compares two identical renders";
+
+  const auto cramped = test::renderToText(renderArgForm(*form), 90, 60);
+  const auto roomy = test::renderToText(renderArgForm(*form, 45), 90, 60);
+  EXPECT_GT(fieldLinesDrawn(roomy, ":"), fieldLinesDrawn(cramped, ":"))
+    << "the larger budget drew no more rows than the default, so it is being ignored";
 }
 
 /// @test

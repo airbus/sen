@@ -58,12 +58,16 @@ inja::json getComponentData(const Args& args)
   if (args.full || args.withConfig)
   {
     componentData["stl_files"] = std::move(stlFiles);
+
+    // config.stl imports sen.kernel's basic types, and naming a package in DEPS is what puts its
+    // interfaces on the generator's import path.
+    componentData["deps"] = {"sen::kernel"};
   }
   else
   {
     componentData["stl_files"] = {};
+    componentData["deps"] = {};
   }
-  componentData["deps"] = {};
 
   return componentData;
 }

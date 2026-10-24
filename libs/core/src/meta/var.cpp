@@ -23,6 +23,7 @@
 #include "nlohmann/json_fwd.hpp"
 
 // std
+#include <cstddef>
 #include <cstdint>
 #include <stdexcept>
 #include <string>
@@ -49,12 +50,22 @@ bool Var::isEqual(const Var& rhs) const noexcept { return value_ == rhs.value_; 
 namespace
 {
 
+/// Both directions recurse once per level, so well-formed input alone could exhaust the stack.
+/// nlohmann parses and destroys iteratively, so the limit belongs here and not on the parse.
+/// 256 is what the VM's own stackMax allows, and far beyond any real payload.
+constexpr std::size_t maxVarNestingDepth = 256U;
+
 //--------------------------------------------------------------------------------------------------------------
 // jsonToVar
 //--------------------------------------------------------------------------------------------------------------
 
-[[nodiscard]] inline Var jsonToVar(const Json& val)
+[[nodiscard]] inline Var jsonToVar(const Json& val, std::size_t depth = 0U)
 {
+  if (depth >= maxVarNestingDepth)
+  {
+    throwRuntimeError("json is nested deeper than " + std::to_string(maxVarNestingDepth) + " levels");
+  }
+
   switch (val.type())
   {
     case Json::value_t::null:  // null value
@@ -65,7 +76,7 @@ namespace
       VarMap result;
       for (const auto& el: val.items())
       {
-        result.try_emplace(el.key(), jsonToVar(el.value()));
+        result.try_emplace(el.key(), jsonToVar(el.value(), depth + 1U));
       }
       return result;
     }
@@ -77,7 +88,7 @@ namespace
 
       for (const auto& elem: val)
       {
-        result.push_back(jsonToVar(elem));
+        result.push_back(jsonToVar(elem, depth + 1U));
       }
       return result;
     }
@@ -102,35 +113,44 @@ namespace
   }
 }
 
-[[nodiscard]] Json varToJson(const Var& var)
+[[nodiscard]] Json varToJson(const Var& var, std::size_t depth = 0U)
 {
+  if (depth >= maxVarNestingDepth)
+  {
+    throwRuntimeError("value is nested deeper than " + std::to_string(maxVarNestingDepth) + " levels");
+  }
+
   return std::visit(Overloaded {[](std::monostate /*val*/) -> Json { return {}; },
                                 [](auto val) -> Json { return val; },
                                 [](const Duration& val) -> Json { return val.getNanoseconds(); },
                                 [](const TimeStamp& val) -> Json { return val.toUtcString(); },
-                                [](const VarList& val) -> Json
+                                [depth](const VarList& val) -> Json
                                 {
                                   Json result(nlohmann::json::value_t::array);
                                   for (const auto& elem: val)
                                   {
-                                    result.emplace_back(varToJson(elem));
+                                    result.emplace_back(varToJson(elem, depth + 1U));
                                   }
                                   return result;
                                 },
-                                [](const VarMap& val) -> Json
+                                [depth](const VarMap& val) -> Json
                                 {
                                   Json result(nlohmann::json::value_t::object);
                                   for (const auto& [key, elemVal]: val)
                                   {
-                                    result[key] = varToJson(elemVal);
+                                    result[key] = varToJson(elemVal, depth + 1U);
                                   }
                                   return result;
                                 },
-                                [](const KeyedVar& tuple) -> Json
+                                [depth](const KeyedVar& tuple) -> Json
                                 {
                                   Json result(nlohmann::json::value_t::object);
                                   result["type"] = std::get<0U>(tuple);
-                                  result["value"] = varToJson(*std::get<1U>(tuple));
+
+                                  // adaptVariant hands a value on even when it fails to adapt,
+                                  // so a null payload arrives off the wire
+                                  const auto& payload = std::get<1U>(tuple);
+                                  result["value"] = payload ? varToJson(*payload, depth + 1U) : Json {};
                                   return result;
                                 }},
                     static_cast<const Var::ValueType&>(var));
@@ -457,7 +477,10 @@ struct Converter
     {
       VarMap map;
       map.try_emplace("key", std::get<0>(val));
-      map.try_emplace("value", *std::get<1>(val));
+
+      // same null payload as in varToJson, reached by the other rendering path
+      const auto& payload = std::get<1>(val);
+      map.try_emplace("value", payload ? *payload : Var {});
       return toJson(map);
     }
 
@@ -483,11 +506,10 @@ private:
       {
         if constexpr (checkedConversion)
         {
-#if NDEBUG
-          return sen::std_util::checkedConversion<To, std_util::ReportPolicyLog>(from);
-#else
-          return sen::std_util::checkedConversion<To, std_util::ReportPolicyAssertion>(from);
-#endif
+          // getCopyAs is declared to throw when a conversion cannot be made, and a caller
+          // checking input it did not produce needs that, not a clamped value. Same in both
+          // configurations.
+          return sen::std_util::checkedConversion<To, std_util::ReportPolicyThrow>(from);
         }
         else
         {

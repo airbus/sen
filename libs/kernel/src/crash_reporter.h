@@ -105,6 +105,7 @@ private:
 
   void collectLogs();
   void collectStackTrace(const cpptrace::stacktrace& trace);
+  void collectStackTrace(const std::string& trace);
   void collectExceptionData();
   void collectProcessData();
   void collectEnvironmentVars();

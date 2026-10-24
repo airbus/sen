@@ -5,6 +5,9 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
+#ifndef SEN_LIBS_KERNEL_SRC_SPDLOG_CONFIG_H
+#define SEN_LIBS_KERNEL_SRC_SPDLOG_CONFIG_H
+
 #include "stl/sen/kernel/basic_types.stl.h"
 
 namespace sen::kernel::impl
@@ -13,3 +16,5 @@ namespace sen::kernel::impl
 void configureSpdlog(const ::sen::kernel::log::Config& config);
 
 }  // namespace sen::kernel::impl
+
+#endif  // SEN_LIBS_KERNEL_SRC_SPDLOG_CONFIG_H
