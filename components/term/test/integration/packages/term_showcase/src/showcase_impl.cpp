@@ -370,6 +370,30 @@ std::string ShowcaseImpl::setPositionImpl(const MaybePoint& position) const
   return oss.str();
 }
 
+std::string ShowcaseImpl::configureEntityImpl(const std::string& name, const EntityParams& params) const
+{
+  std::ostringstream oss;
+  oss << name << ": position ";
+  if (params.position.has_value())
+  {
+    oss << "(" << params.position->x << ", " << params.position->y << ")";
+  }
+  else
+  {
+    oss << "none";
+  }
+  oss << ", radius ";
+  if (params.radius.has_value())
+  {
+    oss << *params.radius;
+  }
+  else
+  {
+    oss << "none";
+  }
+  return oss.str();
+}
+
 std::string ShowcaseImpl::setLengthImpl(Length length) const
 {
   std::ostringstream oss;

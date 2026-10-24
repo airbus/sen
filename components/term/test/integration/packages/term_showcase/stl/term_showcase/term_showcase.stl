@@ -38,6 +38,14 @@ sequence<Point>   PointList;
 optional<f32>     MaybeFloat;
 optional<Point>   MaybePoint;
 
+// Every field optional, so each one is nested rather than a top-level argument. An empty optional
+// builds no leaf, so this is the shape where the cursor had nothing to stand on.
+struct EntityParams
+{
+  position : MaybePoint,
+  radius   : MaybeFloat
+}
+
 // Bounded meter-valued quantity with integer storage: exercises the quantity editor's
 // integer-spin value leaf, unit picker, and clamped range.
 quantity<u16, m> Length [min: 0, max: 1000];
@@ -194,6 +202,10 @@ class Showcase
 
   // Optional of composite: Ctrl+O toggles between (none) and a default-filled inner struct.
   fn setPosition(position : MaybePoint) -> string [const];
+
+  // takes a struct whose fields are all optional: the form has to let the cursor reach each one
+  // and toggle it.
+  fn configureEntity(name : string, params : EntityParams) -> string [const];
 
   // --------------------- quantity editors ---------------------
 

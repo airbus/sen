@@ -1315,12 +1315,11 @@ void collectLeaves(ArgFormField& field, std::vector<ArgFormField*>& out)
     out.push_back(&field);
     return;
   }
-  // An empty optional has no child to stand on, so without this the cursor cannot reach it and the
-  // Ctrl+O the row advertises has no target. It holds no text, which the editing keys check for.
-  if (field.kind == FieldKind::optionalGroup && field.optionalIsEmpty)
+  // An optional's own row is a stop in both states: empty, so there is something to fill, and
+  // filled, so there is something to clear. It holds no text, which the editing keys check for.
+  if (field.kind == FieldKind::optionalGroup)
   {
     out.push_back(&field);
-    return;
   }
   for (auto& c: field.children)
   {
@@ -1550,6 +1549,11 @@ void ArgForm::cycleFocused(bool forward)
     // Cycle unit (interpretation, not value conversion).
     cycleUnitField(leaf, forward);
   }
+}
+
+bool ArgForm::focusedIsOptionalRow() const noexcept
+{
+  return !leaves_.empty() && leaves_[focused_]->kind == FieldKind::optionalGroup;
 }
 
 bool ArgForm::focusedHoldsText() const noexcept { return !leaves_.empty() && isLeaf(*leaves_[focused_]); }
@@ -1883,6 +1887,19 @@ void ArgForm::toggleFocusedOptional()
   }
 
   rebuildLeafCache();
+
+  // Emptying drops the subtree the cursor may have been in, so put it on the row that was toggled.
+  if (opt->optionalIsEmpty)
+  {
+    for (std::size_t i = 0; i < leaves_.size(); ++i)
+    {
+      if (leaves_[i] == opt)
+      {
+        focused_ = i;
+        break;
+      }
+    }
+  }
 
   // Focus first leaf of the new inner, or clamp to nearest remaining.
   if (!opt->optionalIsEmpty && !opt->children.empty())

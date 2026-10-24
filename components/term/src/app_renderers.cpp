@@ -257,10 +257,20 @@ void renderCompositeField(const ArgFormField& f,
   const bool isSequence = (f.kind == FieldKind::sequenceGroup);
   const bool isOptional = (f.kind == FieldKind::optionalGroup);
 
-  ftxui::Elements header = {ftxui::text("  " + indent),
-                            ftxui::text(f.name) | ftxui::bold | styles::mutedText(),
-                            ftxui::text(": ") | styles::mutedText(),
-                            ftxui::text(f.typeName) | styles::typeName()};
+  // The optional's row takes its cursor slot here, before its children, in the order collectLeaves
+  // walks. Out of step, every highlight below it is wrong.
+  const bool optionalFocused = isOptional && (leafCursor == focusedLeafIdx);
+  if (isOptional)
+  {
+    ++leafCursor;
+  }
+
+  ftxui::Elements header = {
+    ftxui::text(optionalFocused ? "▸ " : "  ") | (optionalFocused ? styles::accent() : styles::mutedText()),
+    ftxui::text(indent),
+    ftxui::text(f.name) | ftxui::bold | styles::mutedText(),
+    ftxui::text(": ") | styles::mutedText(),
+    ftxui::text(f.typeName) | styles::typeName()};
   if (isSequence)
   {
     std::string decoration = "  (" + std::to_string(f.children.size());
@@ -289,7 +299,12 @@ void renderCompositeField(const ArgFormField& f,
   {
     header.push_back(ftxui::text(f.optionalIsEmpty ? "  (none)" : "  (filled)") | styles::mutedText());
   }
-  out.push_back(ftxui::hbox(std::move(header)));
+  auto headerRow = ftxui::hbox(std::move(header));
+  if (optionalFocused)
+  {
+    headerRow = headerRow | ftxui::focus;
+  }
+  out.push_back(std::move(headerRow));
 
   if (isSequence && f.children.empty())
   {
@@ -299,20 +314,8 @@ void renderCompositeField(const ArgFormField& f,
   }
   if (isOptional && f.optionalIsEmpty)
   {
-    // This row is the focus stop for an empty optional, so it takes a cursor slot in the order
-    // collectLeaves walks. Out of step, every highlight after the first empty optional is wrong.
-    const bool focused = (leafCursor == focusedLeafIdx);
-    ++leafCursor;
-    ftxui::Elements cols;
-    cols.push_back(ftxui::text(focused ? "▸ " : "  ") | (focused ? styles::accent() : styles::mutedText()));
-    cols.push_back(ftxui::text(indent + "  "));
-    cols.push_back(ftxui::text("(none, press Ctrl+O to set a value)") | styles::mutedText());
-    auto row = ftxui::hbox(std::move(cols));
-    if (focused)
-    {
-      row = row | ftxui::focus;
-    }
-    out.push_back(std::move(row));
+    out.push_back(ftxui::hbox(
+      {ftxui::text("  " + indent + "  "), ftxui::text("(none, press space to set a value)") | styles::mutedText()}));
     return;
   }
 

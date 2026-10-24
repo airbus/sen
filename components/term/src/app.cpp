@@ -928,6 +928,13 @@ bool App::handleFormEvent(ftxui::Event event)
       form.toggleFocused();
       return true;
     }
+    // An optional's row holds no text, so space cannot be meant as input there. Ctrl+O still works
+    // and is the discard character on BSD terminals, where the line discipline can eat it.
+    if (form.focusedIsOptionalRow())
+    {
+      form.toggleFocusedOptional();
+      return true;
+    }
   }
   if (event == ftxui::Event::Return)
   {
