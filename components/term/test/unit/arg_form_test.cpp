@@ -29,6 +29,7 @@
 
 // std
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <limits>
 #include <memory>
@@ -269,7 +270,42 @@ protected:
   {
     return *::term::test::TestObjectInterface::meta()->searchMethodByName("ping");
   }
+  [[nodiscard]] const Method& configureEntityMethod() const
+  {
+    return *::term::test::TestObjectInterface::meta()->searchMethodByName("configureEntity");
+  }
 };
+
+/// @test
+/// Reaches an optional nested in a struct argument and fills it. An empty optional holds no scalar
+/// child, so without a focus stop of its own there is nothing to move to and Ctrl+O has no target.
+TEST_F(ArgFormStateful, ANestedEmptyOptionalCanBeReachedAndFilled)
+{
+  auto form = ArgForm::build(configureEntityMethod(), "entities");
+  ASSERT_TRUE(form.has_value());
+
+  ASSERT_EQ(form->fields().size(), 2U);
+  const auto& params = form->fields()[1];
+  ASSERT_EQ(params.kind, FieldKind::structGroup);
+  ASSERT_EQ(params.children.size(), 2U);
+  ASSERT_TRUE(params.children[0].optionalIsEmpty);
+
+  bool reached = false;
+  for (std::size_t step = 0; step < form->leafCount(); ++step)
+  {
+    const auto& focused = form->focusedField();
+    if (focused.kind == FieldKind::optionalGroup && focused.optionalIsEmpty)
+    {
+      reached = true;
+      break;
+    }
+    form->focusNext();
+  }
+  ASSERT_TRUE(reached) << "no focus stop lands on an empty optional inside the struct";
+
+  form->toggleFocusedOptional();
+  EXPECT_FALSE(form->fields()[1].children[0].optionalIsEmpty);
+}
 
 /// @test
 /// A form has one field per argument, names the object and method, and starts on the first field.
@@ -1245,7 +1281,8 @@ TEST_F(ArgFormOptional, BuildStartsEmpty)
   EXPECT_EQ(optField.kind, FieldKind::optionalGroup);
   EXPECT_TRUE(optField.optionalIsEmpty);
   EXPECT_TRUE(optField.children.empty());
-  EXPECT_EQ(form->leafCount(), 0U);  // no leaves when empty
+  EXPECT_EQ(form->leafCount(), 1U);
+  EXPECT_EQ(form->focusedField().kind, FieldKind::optionalGroup);
 }
 
 /// @test
@@ -1259,9 +1296,31 @@ TEST_F(ArgFormOptional, ToggleEmptyToFilledBuildsInnerSubtree)
   const auto& optField = form->fields()[0];
   EXPECT_FALSE(optField.optionalIsEmpty);
   ASSERT_EQ(optField.children.size(), 1U);
-  // Inner is a Point struct → two scalar leaves (x, y).
-  EXPECT_EQ(form->leafCount(), 2U);
+  // The optional's own row, then the inner Point's two scalar leaves (x, y).
+  EXPECT_EQ(form->leafCount(), 3U);
   EXPECT_EQ(form->focusedField().name, "x");  // focus on first leaf of new inner
+}
+
+/// @test
+/// A filled optional keeps a row of its own to stand on, so it can be cleared from there.
+TEST_F(ArgFormOptional, AFilledOptionalIsStillAStopOfItsOwn)
+{
+  auto form = ArgForm::build(anchorMethod(), "obj");
+  ASSERT_TRUE(form.has_value());
+  form->toggleFocusedOptional();
+  ASSERT_FALSE(form->fields()[0].optionalIsEmpty);
+
+  // Bounded: focusPrev cycles, so a form with no optional row would spin here for ever and hang the
+  // run rather than fail it. That is the state a red arm for this test deliberately creates.
+  for (std::size_t step = 0; step < form->leafCount() && !form->focusedIsOptionalRow(); ++step)
+  {
+    form->focusPrev();
+  }
+  ASSERT_TRUE(form->focusedIsOptionalRow()) << "the filled optional has no row to stand on";
+
+  form->toggleFocusedOptional();
+  EXPECT_TRUE(form->fields()[0].optionalIsEmpty);
+  EXPECT_TRUE(form->focusedIsOptionalRow());
 }
 
 /// @test
@@ -1272,11 +1331,11 @@ TEST_F(ArgFormOptional, ToggleFilledToEmptyDropsSubtree)
   ASSERT_TRUE(form.has_value());
 
   form->toggleFocusedOptional();
-  ASSERT_EQ(form->leafCount(), 2U);
+  ASSERT_EQ(form->leafCount(), 3U);
 
   form->toggleFocusedOptional();
   EXPECT_TRUE(form->fields()[0].optionalIsEmpty);
-  EXPECT_EQ(form->leafCount(), 0U);
+  EXPECT_EQ(form->leafCount(), 1U);
 }
 
 /// @test
@@ -1335,7 +1394,8 @@ TEST_F(ArgFormOptional, PrefillNonEmptyInitializesFilled)
   const auto& optField = form->fields()[0];
   EXPECT_FALSE(optField.optionalIsEmpty);
   ASSERT_EQ(optField.children.size(), 1U);
-  EXPECT_EQ(form->leafCount(), 2U);
+  // The optional's own row, then the inner Point's two scalar leaves.
+  EXPECT_EQ(form->leafCount(), 3U);
   EXPECT_EQ(optField.children[0].children[0].text, "2");
   EXPECT_EQ(optField.children[0].children[1].text, "3");
 }
@@ -1394,7 +1454,7 @@ TEST_F(ArgFormOptionalScalar, BuildStartsEmpty)
   const auto& optField = form->fields()[0];
   EXPECT_EQ(optField.kind, FieldKind::optionalGroup);
   EXPECT_TRUE(optField.optionalIsEmpty);
-  EXPECT_EQ(form->leafCount(), 0U);
+  EXPECT_EQ(form->leafCount(), 1U);
 }
 
 /// @test
@@ -1410,7 +1470,8 @@ TEST_F(ArgFormOptionalScalar, ToggleFillsInnerScalarLeaf)
   EXPECT_FALSE(optField.optionalIsEmpty);
   ASSERT_EQ(optField.children.size(), 1U);
   EXPECT_EQ(optField.children[0].kind, FieldKind::scalar);
-  EXPECT_EQ(form->leafCount(), 1U);
+  // The optional's own row, then its single inner scalar.
+  EXPECT_EQ(form->leafCount(), 2U);
   // MaybeInt's inner type is i32, which classifies as integerSpin so Left/Right spin by 1.
   EXPECT_EQ(form->focusedField().editor, EditorKind::integerSpin);
 }
@@ -2032,11 +2093,10 @@ TEST_F(ArgFormContext, ElementInsideSequenceReportsInsideSequence)
 /// An empty optional reports that it is inside an optional.
 TEST_F(ArgFormContext, EmptyOptionalReportsInsideOptional)
 {
-  // `anchor(p: MaybePoint)`, MaybePoint starts empty (no inner leaves) but Ctrl+O should toggle
-  // it, so the hint predicate must flag this even when leafCount() == 0.
+  // `anchor(p: MaybePoint)`: the cursor sits on the optional itself, which is not its own ancestor.
   auto form = ArgForm::build(methodByName("anchor"), "obj");
   ASSERT_TRUE(form.has_value());
-  EXPECT_EQ(form->leafCount(), 0U);
+  EXPECT_EQ(form->leafCount(), 1U);
   EXPECT_TRUE(form->focusedIsInsideOptional());
   EXPECT_FALSE(form->focusedIsInsideSequence());
 }

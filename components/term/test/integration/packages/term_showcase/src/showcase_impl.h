@@ -57,6 +57,10 @@ protected:
   std::string performImpl(const Action& action) const override;
   std::string setRadiusImpl(const MaybeFloat& radius) const override;
   std::string setPositionImpl(const MaybePoint& position) const override;
+  std::string configureEntityImpl(const std::string& name, const EntityParams& params) const override;
+  std::string configureSceneImpl(const std::string& name,
+                                 const MaybeEntitySpec& primary,
+                                 const MaybeEntitySpec& secondary) const override;
   std::string setLengthImpl(Length length) const override;
   std::string setFractionImpl(Fraction fraction) const override;
 

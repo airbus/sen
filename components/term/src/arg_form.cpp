@@ -971,7 +971,7 @@ bool ArgForm::buildSequenceField(ArgFormField& f, const Var* prefill, const Sequ
 /// One branch of buildField, lifted out so the dispatch stays readable.
 bool ArgForm::buildOptionalField(ArgFormField& f, const Var* prefill, const OptionalType& optType)
 {
-  // All optionals route through optionalGroup for explicit "(none)" state and Ctrl+O toggle.
+  // All optionals route through optionalGroup for an explicit "(none)" state and a toggle.
   f.kind = FieldKind::optionalGroup;
   const bool hasValue = (prefill != nullptr) && !prefill->holds<std::monostate>();
   f.optionalIsEmpty = !hasValue;
@@ -1315,6 +1315,12 @@ void collectLeaves(ArgFormField& field, std::vector<ArgFormField*>& out)
     out.push_back(&field);
     return;
   }
+  // An optional's own row is a stop in both states: empty, so there is something to fill, and
+  // filled, so there is something to clear. It holds no text, which the editing keys check for.
+  if (field.kind == FieldKind::optionalGroup)
+  {
+    out.push_back(&field);
+  }
   for (auto& c: field.children)
   {
     collectLeaves(c, out);
@@ -1412,6 +1418,10 @@ bool ArgForm::insertText(std::string_view s)
   {
     return false;
   }
+  if (!focusedHoldsText())
+  {
+    return false;
+  }
   auto& leaf = *leaves_[focused_];
 
   // The same bound the command line has. A field does not wrap, so a long value costs no rows, but it
@@ -1449,6 +1459,10 @@ void ArgForm::backspace()
   {
     return;
   }
+  if (!focusedHoldsText())
+  {
+    return;
+  }
   auto& leaf = *leaves_[focused_];
   // Clear placeholder on first backspace, same as insertText.
   if (!leaf.userEdited)
@@ -1470,6 +1484,10 @@ void ArgForm::clearField()
   {
     return;
   }
+  if (!focusedHoldsText())
+  {
+    return;
+  }
   auto& leaf = *leaves_[focused_];
   leaf.text.clear();
   leaf.userEdited = true;
@@ -1480,6 +1498,10 @@ void ArgForm::clearField()
 void ArgForm::toggleFocused()
 {
   if (leaves_.empty())
+  {
+    return;
+  }
+  if (!focusedHoldsText())
   {
     return;
   }
@@ -1494,6 +1516,10 @@ void ArgForm::toggleFocused()
 void ArgForm::cycleFocused(bool forward)
 {
   if (leaves_.empty())
+  {
+    return;
+  }
+  if (!focusedHoldsText())
   {
     return;
   }
@@ -1524,6 +1550,13 @@ void ArgForm::cycleFocused(bool forward)
     cycleUnitField(leaf, forward);
   }
 }
+
+bool ArgForm::focusedIsOptionalRow() const noexcept
+{
+  return !leaves_.empty() && leaves_[focused_]->kind == FieldKind::optionalGroup;
+}
+
+bool ArgForm::focusedHoldsText() const noexcept { return !leaves_.empty() && isLeaf(*leaves_[focused_]); }
 
 EditorKind ArgForm::focusedEditor() const noexcept
 {
@@ -1809,7 +1842,11 @@ void ArgForm::toggleFocusedOptional()
 {
   // Target: nearest optional ancestor, or first empty top-level optional.
   ArgFormField* opt = nullptr;
-  if (!leaves_.empty())
+  if (!leaves_.empty() && leaves_[focused_]->kind == FieldKind::optionalGroup)
+  {
+    opt = leaves_[focused_];
+  }
+  if (opt == nullptr && !leaves_.empty())
   {
     opt = findNearestOptionalAncestor(fields_, leaves_[focused_]);
   }
@@ -1850,6 +1887,19 @@ void ArgForm::toggleFocusedOptional()
   }
 
   rebuildLeafCache();
+
+  // Emptying drops the subtree the cursor may have been in, so put it on the row that was toggled.
+  if (opt->optionalIsEmpty)
+  {
+    for (std::size_t i = 0; i < leaves_.size(); ++i)
+    {
+      if (leaves_[i] == opt)
+      {
+        focused_ = i;
+        break;
+      }
+    }
+  }
 
   // Focus first leaf of the new inner, or clamp to nearest remaining.
   if (!opt->optionalIsEmpty && !opt->children.empty())
@@ -2017,7 +2067,12 @@ bool ArgForm::focusedCanRemoveElement() const noexcept
 
 bool ArgForm::focusedIsInsideOptional() const noexcept
 {
-  // Mirrors focusedIsInsideSequence logic but for optionalGroup.
+  // Mirrors focusedIsInsideSequence logic but for optionalGroup. An optional is not its own
+  // ancestor, so the focused-stop case needs naming or the hint goes missing where it is needed.
+  if (!leaves_.empty() && leaves_[focused_]->kind == FieldKind::optionalGroup)
+  {
+    return true;
+  }
   if (!leaves_.empty() && findNearestOptionalAncestor(mutableFields(), leaves_[focused_]) != nullptr)
   {
     return true;
@@ -2226,8 +2281,9 @@ Result<VarList, ArgForm::SubmitError> ArgForm::trySubmit()
 
 std::optional<Var> ArgForm::revalidateLeaf(ArgFormField& leaf)
 {
-  // Unit and variant-type selectors are not value leaves.
-  if (leaf.editor == EditorKind::unitSelector || leaf.editor == EditorKind::variantType)
+  // Unit and variant-type selectors are not value leaves, and neither is an empty optional.
+  if (leaf.editor == EditorKind::unitSelector || leaf.editor == EditorKind::variantType ||
+      leaf.kind == FieldKind::optionalGroup)
   {
     leaf.validationError.clear();
     return Var {};
