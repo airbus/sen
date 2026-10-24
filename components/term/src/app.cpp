@@ -809,7 +809,12 @@ ftxui::Component App::createRenderer(ftxui::Component wrappedInput)
 
       if (ui_->activeForm.has_value())
       {
-        auto formArea = renderArgForm(*ui_->activeForm);
+        // The input is not drawn while a form is open, so the form competes only with the output
+        // pane, which keeps a few rows or ftxui's hard shrink leaves it none.
+        constexpr int minOutputRows = 3;
+        constexpr int formChromeRows = 3;
+        const int fieldLines = ftxui::Terminal::Size().dimy - 1 - minOutputRows - formChromeRows;
+        auto formArea = renderArgForm(*ui_->activeForm, fieldLines);
         return ftxui::vbox({commandArea | ftxui::flex, rule, std::move(formArea)}) | ftxui::flex;
       }
 
@@ -948,6 +953,9 @@ bool App::handleFormEvent(ftxui::Event event)
       {
         onCommand_(inlineCommand);
       }
+      // The form dispatches straight to the command handler, so without this the call it built is
+      // the one call the user cannot recall from history.
+      ui_->inputPane.addToHistory(inlineCommand);
     }
     else
     {

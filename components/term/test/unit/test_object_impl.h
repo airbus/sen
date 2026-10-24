@@ -92,6 +92,10 @@ protected:
   {
     return "configured";
   }
+  std::string configureDeepImpl(const std::string& /*name*/, const ::term::test::DeepParams& /*params*/) const override
+  {
+    return "configured deeply";
+  }
   std::string waitImpl(sen::Duration /*duration*/) const override { return "waited"; }
   std::string setLengthImpl(::term::test::Meters /*length*/) const override { return "length set"; }
   std::string setRatioImpl(::term::test::Ratio /*ratio*/) const override { return "ratio set"; }

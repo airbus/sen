@@ -268,7 +268,7 @@ void renderCompositeField(const ArgFormField& f,
   ftxui::Elements header = {
     ftxui::text(optionalFocused ? "▸ " : "  ") | (optionalFocused ? styles::accent() : styles::mutedText()),
     ftxui::text(indent),
-    ftxui::text(f.name) | ftxui::bold | styles::mutedText(),
+    optionalFocused ? (ftxui::text(f.name) | ftxui::bold) : (ftxui::text(f.name) | ftxui::bold | styles::mutedText()),
     ftxui::text(": ") | styles::mutedText(),
     ftxui::text(f.typeName) | styles::typeName()};
   if (isSequence)
@@ -314,8 +314,6 @@ void renderCompositeField(const ArgFormField& f,
   }
   if (isOptional && f.optionalIsEmpty)
   {
-    out.push_back(ftxui::hbox(
-      {ftxui::text("  " + indent + "  "), ftxui::text("(none, press space to set a value)") | styles::mutedText()}));
     return;
   }
 
@@ -386,7 +384,7 @@ void renderFormField(const ArgFormField& f,
   out.push_back(std::move(row));
 }
 
-ftxui::Element renderArgForm(const ArgForm& form)
+ftxui::Element renderArgForm(const ArgForm& form, int fieldLines)
 {
   auto headerRow = ftxui::hbox({ftxui::text("> ") | ftxui::bold | styles::accent(),
                                 ftxui::text(form.objectName() + ".") | styles::mutedText(),
@@ -404,9 +402,12 @@ ftxui::Element renderArgForm(const ArgForm& form)
   {
     renderFormField(f, 0, leafCursor, form.focusedIndex(), nameWidth, rows);
   }
-  constexpr int maxFieldsAreaLines = 15;
+  // A long form should use the screen rather than scroll inside the floor. The caller says what it
+  // can spare; the floor keeps a short terminal behaving as it did.
+  constexpr int minFieldsAreaLines = 15;
+  const int fieldsAreaLines = std::max(minFieldsAreaLines, fieldLines);
   auto fieldsArea = ftxui::vbox(std::move(rows)) | ftxui::vscroll_indicator | ftxui::yframe |
-                    ftxui::size(ftxui::HEIGHT, ftxui::LESS_THAN, maxFieldsAreaLines);
+                    ftxui::size(ftxui::HEIGHT, ftxui::LESS_THAN, fieldsAreaLines);
 
   ftxui::Element hintRow = ftxui::emptyElement();
   if (form.leafCount() > 0)
@@ -478,14 +479,22 @@ std::string formModeHint(const ArgForm& form)
   {
     parts.emplace_back("Ctrl+X rm");
   }
-  if (form.focusedIsInsideOptional())
+  if (form.focusedIsOptionalRow())
+  {
+    parts.emplace_back("Space toggle");
+  }
+  else if (form.focusedIsInsideOptional())
   {
     parts.emplace_back("Ctrl+O toggle");
   }
 
   if (form.leafCount() > 0)
   {
-    parts.emplace_back("Ctrl+U clear");
+    // Ctrl+U clears a text buffer, which an optional's own row does not have.
+    if (form.focusedHoldsText())
+    {
+      parts.emplace_back("Ctrl+U clear");
+    }
     parts.emplace_back("Enter submit");
   }
   parts.emplace_back("Esc cancel");

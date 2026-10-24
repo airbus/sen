@@ -46,6 +46,41 @@ struct EntityParams
   radius   : MaybeFloat
 }
 
+// A deeper, wider shape for trying the form at size: optionals inside optionals, three levels down,
+// so a fully filled call runs well past the field area's floor.
+struct Placement
+{
+  origin : MaybePoint,
+  offset : MaybePoint
+}
+
+optional<Placement> MaybePlacement;
+
+struct Styling
+{
+  scale : MaybeFloat,
+  tint  : MaybeFloat
+}
+
+optional<Styling> MaybeStyling;
+
+struct Motion
+{
+  velocity : MaybePoint,
+  spin     : MaybeFloat
+}
+
+optional<Motion> MaybeMotion;
+
+struct EntitySpec
+{
+  placement : MaybePlacement,
+  styling   : MaybeStyling,
+  motion    : MaybeMotion
+}
+
+optional<EntitySpec> MaybeEntitySpec;
+
 // Bounded meter-valued quantity with integer storage: exercises the quantity editor's
 // integer-spin value leaf, unit picker, and clamped range.
 quantity<u16, m> Length [min: 0, max: 1000];
@@ -206,6 +241,9 @@ class Showcase
   // takes a struct whose fields are all optional: the form has to let the cursor reach each one
   // and toggle it.
   fn configureEntity(name : string, params : EntityParams) -> string [const];
+
+  // takes two deep optional specs, so the filled form needs more rows than the field area's floor.
+  fn configureScene(name : string, primary : MaybeEntitySpec, secondary : MaybeEntitySpec) -> string [const];
 
   // --------------------- quantity editors ---------------------
 

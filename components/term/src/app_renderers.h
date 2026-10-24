@@ -47,7 +47,9 @@ void renderFormField(const ArgFormField& f,
                      ftxui::Elements& out);
 
 /// Render the complete guided-input form that replaces the input line while active.
-ftxui::Element renderArgForm(const ArgForm& form);
+/// `fieldLines` is how many rows the caller can spare for the field area, which only the caller knows:
+/// it owns the layout the form sits in. Below the form's own minimum it is ignored.
+ftxui::Element renderArgForm(const ArgForm& form, int fieldLines = 0);
 
 /// Build the key-binding summary shown in the status bar while a form is active.
 std::string formModeHint(const ArgForm& form);

@@ -971,7 +971,7 @@ bool ArgForm::buildSequenceField(ArgFormField& f, const Var* prefill, const Sequ
 /// One branch of buildField, lifted out so the dispatch stays readable.
 bool ArgForm::buildOptionalField(ArgFormField& f, const Var* prefill, const OptionalType& optType)
 {
-  // All optionals route through optionalGroup for explicit "(none)" state and Ctrl+O toggle.
+  // All optionals route through optionalGroup for an explicit "(none)" state and a toggle.
   f.kind = FieldKind::optionalGroup;
   const bool hasValue = (prefill != nullptr) && !prefill->holds<std::monostate>();
   f.optionalIsEmpty = !hasValue;

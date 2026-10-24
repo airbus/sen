@@ -48,6 +48,18 @@ struct OptionalParams
   size  : MaybeInt
 }
 
+optional<OptionalParams> MaybeOptionalParams;
+
+// Nested optionals two levels down, so a filled form is taller than the field area's floor and a
+// caller's larger budget can be told apart from it.
+struct DeepParams
+{
+  first  : MaybeOptionalParams,
+  second : MaybeOptionalParams,
+  third  : MaybeOptionalParams,
+  fourth : MaybeOptionalParams
+}
+
 // Bounded meter-valued quantity with u16 storage, exercises the quantity editor
 // (integer spin on the value + cycler for the unit, clamp to [0, 500]).
 quantity<u16, m> Meters [min: 0, max: 500];
@@ -109,6 +121,9 @@ class TestObject
   // takes a struct whose fields are all optional, so every optional is nested rather than
   // top-level. Reaching them needs a focus stop the empty optional does not otherwise have.
   fn configureEntity(name : string, params : OptionalParams) -> string [const];
+
+  // takes nested optionals, so a filled form outgrows the field area's floor.
+  fn configureDeep(name : string, params : DeepParams) -> string [const];
 
   // takes a Duration, Duration inherits from QuantityType but is handled by the form as a
   // scalar text field (see arg_form.cpp). This method exists so tests can exercise that path.

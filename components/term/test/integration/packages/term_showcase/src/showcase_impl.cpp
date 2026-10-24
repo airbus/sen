@@ -394,6 +394,43 @@ std::string ShowcaseImpl::configureEntityImpl(const std::string& name, const Ent
   return oss.str();
 }
 
+namespace
+{
+
+/// Counts the optionals a spec actually carries, so the answer shows what the form submitted.
+int filledCount(const MaybeEntitySpec& spec)
+{
+  if (!spec.has_value())
+  {
+    return 0;
+  }
+  int n = 1;
+  if (spec->placement.has_value())
+  {
+    n += 1 + (spec->placement->origin.has_value() ? 1 : 0) + (spec->placement->offset.has_value() ? 1 : 0);
+  }
+  if (spec->styling.has_value())
+  {
+    n += 1 + (spec->styling->scale.has_value() ? 1 : 0) + (spec->styling->tint.has_value() ? 1 : 0);
+  }
+  if (spec->motion.has_value())
+  {
+    n += 1 + (spec->motion->velocity.has_value() ? 1 : 0) + (spec->motion->spin.has_value() ? 1 : 0);
+  }
+  return n;
+}
+
+}  // namespace
+
+std::string ShowcaseImpl::configureSceneImpl(const std::string& name,
+                                             const MaybeEntitySpec& primary,
+                                             const MaybeEntitySpec& secondary) const
+{
+  std::ostringstream oss;
+  oss << name << ": primary set " << filledCount(primary) << ", secondary set " << filledCount(secondary);
+  return oss.str();
+}
+
 std::string ShowcaseImpl::setLengthImpl(Length length) const
 {
   std::ostringstream oss;
