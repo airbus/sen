@@ -1,0 +1,943 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<objectModel xsi:schemaLocation="http://standards.ieee.org/IEEE1516-2010 http://standards.ieee.org/downloads/1516/1516.2-2010/IEEE1516-DIF-2010.xsd" xmlns="http://standards.ieee.org/IEEE1516-2010" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelIdentification>
+        <name>SISO-STD-001.1-2015 - Real-time Platform Reference Minefield FOM Module</name>
+        <type>FOM</type>
+        <version>2.0</version>
+        <modificationDate>2015-08-10</modificationDate>
+        <securityClassification>Unclassified</securityClassification>
+        <purpose>The RPR FOM supports interoperability for real-time, platform oriented defense simulation.</purpose>
+        <applicationDomain>All domains</applicationDomain>
+        <description>The Minefield FOM module relates to the simulation of minefields at both an aggregate and individual level simultaneously. In addition, it implements the two modes defined for exchanging the data of individual mines within minefields, depending on the number of mines.</description>
+        <useLimitation></useLimitation>
+        <poc>
+            <pocType>Primary author</pocType>
+            <pocName>RPR FOM Product Development Group</pocName>
+            <pocOrg>SISO - Simulation Interoperability Standards Organization</pocOrg>
+            <pocTelephone>+1 (407) 882-1348</pocTelephone>
+            <pocEmail>siso-help@sisostds.org</pocEmail>
+        </poc>
+        <reference>
+            <type>Dependency</type>
+            <identification>Real-time Platform Reference Synthetic Environment FOM Module</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>Standard for Guidance, Rationale, and Interoperability Modalities for the Real-time Platform Reference Federation Object Model (RPR FOM)
+SISO-STD-001-2015
+10 August 2015</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>IEEE Standard for Distributed Interactive Simulation - Application Protocols
+IEEE Std 1278.1-1995
+September 21, 1995</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>IEEE Standard for Distributed Interactive Simulation - Application Protocols
+IEEE Std 1278.1a-1998
+19 March 1998</identification>
+        </reference>
+        <other>Copyright © 2015 by the Simulation Interoperability Standards Organization, Inc.
+P.O. Box 781238
+Orlando, FL 32878-1238, USA
+All rights reserved.
+
+Schema and API: SISO hereby grants a general, royalty-free license to copy, distribute, display, and make derivative works from this material, for all purposes, provided that any use of the material contains the following attribution: “Reprinted with permission from SISO Inc.” Should a reader require additional information, contact the SISO Inc. Board of Directors.
+
+Documentation: SISO hereby grants a general, royalty-free license to copy, distribute, display, and make derivative works from this material, for noncommercial purposes, provided that any use of the material contains the following attribution: “Reprinted with permission from SISO Inc.” The material may not be used for a commercial purpose without express written permission from the SISO Inc. Board of Directors.
+
+SISO Inc. Board of Directors
+P.O. Box 781238
+Orlando, FL 32878-1238, USA
+</other>
+        <glyph type="png" height="64" width="64" alt="">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</glyph>
+    </modelIdentification>
+    <objects>
+        <objectClass>
+            <name>HLAobjectRoot</name>
+            <objectClass>
+                <name>Minefield</name>
+                <sharing>PublishSubscribe</sharing>
+                <semantics>An area of ground or water containing mines laid with or without a pattern.</semantics>
+                <attribute notes="RPRnoteMinefield9">
+                    <name>ActiveStatus</name>
+                    <dataType>MinefieldStatusEnum8</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>TimeStamp</order>
+                    <semantics>Specifies the active status of the minefield</semantics>
+                </attribute>
+                <attribute notes="RPRnoteMinefield8">
+                    <name>ForceIdentifier</name>
+                    <dataType>ForceIdentifierEnum8</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>TimeStamp</order>
+                    <semantics>Identifies the force to which the minefield belongs</semantics>
+                </attribute>
+                <attribute notes="RPRnoteMinefield9">
+                    <name>Lane</name>
+                    <dataType>MinefieldLaneEnum8</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>TimeStamp</order>
+                    <semantics>Specifies whether or not the minefield has an active lane</semantics>
+                </attribute>
+                <attribute notes="RPRnoteMinefield10">
+                    <name>MinefieldAppearanceType</name>
+                    <dataType>MinefieldTypeEnum8</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>TimeStamp</order>
+                    <semantics>Specifies the appearance information needed for displaying the symbology of the minefield</semantics>
+                </attribute>
+                <attribute notes="RPRnoteMinefield1">
+                    <name>MinefieldIdentifier</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>NA</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>TimeStamp</order>
+                    <semantics>Uniquely identifies this minefield instance in association with the federate's site and application</semantics>
+                </attribute>
+                <attribute notes="RPRnoteMinefield1">
+                    <name>MinefieldLocation</name>
+                    <dataType>WorldLocationStruct</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>TimeStamp</order>
+                    <semantics>Specifies the location of the center of the minefield</semantics>
+                </attribute>
+                <attribute notes="RPRnoteMinefield1">
+                    <name>MinefieldOrientation</name>
+                    <dataType>OrientationStruct</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>TimeStamp</order>
+                    <semantics>Specifies the orientation of the minefield, with Euler angles</semantics>
+                </attribute>
+                <attribute notes="RPRnoteMinefield1">
+                    <name>MinefieldType</name>
+                    <dataType>EntityTypeStruct</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>TimeStamp</order>
+                    <semantics>Specifies the minefield type</semantics>
+                </attribute>
+                <attribute notes="RPRnoteMinefield1">
+                    <name>MineTypes</name>
+                    <dataType>EntityTypeStructLengthlessArray</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>TimeStamp</order>
+                    <semantics>Specifies the type of each mine contained within the minefield</semantics>
+                </attribute>
+                <attribute notes="RPRnoteMinefield11">
+                    <name>PerimeterPointCoordinates</name>
+                    <dataType>PerimeterPointStructLengthlessArray</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>TimeStamp</order>
+                    <semantics>Specifies the location of each perimeter point, relative to the minefield location</semantics>
+                </attribute>
+                <attribute notes="RPRnoteMinefield12">
+                    <name>ProtocolMode</name>
+                    <dataType>MinefieldProtocolEnum8</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>TimeStamp</order>
+                    <semantics>Specifies the mode (Heartbeat or Query Response Protocol) being used to communicate data about the minefield</semantics>
+                </attribute>
+                <attribute notes="RPRnoteMinefield1">
+                    <name>State</name>
+                    <dataType>RPRboolean</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>TimeStamp</order>
+                    <semantics>Specifies whether or not the minefield has been deactivated</semantics>
+                </attribute>
+            </objectClass>
+            <objectClass>
+                <name>EmbeddedSystem</name>
+                <objectClass>
+                    <name>MinefieldData</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <semantics>The MinefieldData object class provides data about collections of mines within a minefield on an individual mine basis.</semantics>
+                    <attribute notes="RPRnoteMinefield3">
+                        <name>GroundBurialDepthOffset</name>
+                        <dataType>DepthMeterFloat32LengthlessArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies the offset of the origin of the mine coordinate system with respect to the ground surface</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteMinefield2">
+                        <name>Fusing</name>
+                        <dataType>MineFusingStructLengthlessArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies the primary and secondary fuse and anti-handling device for each mine in a collection of mines</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteMinefield3">
+                        <name>MineEmplacementTime</name>
+                        <dataType>ClockTimeStructLengthlessArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies the real-world (UTC) emplacement time of each mine in a collection of mines</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteMinefield1">
+                        <name>MineEntityIdentifier</name>
+                        <dataType>MineIdentifierLengthlessArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Identifies the mine entity identifier; the MineEntityID in conjunction with the MinefieldID form the unique identifier for each mine</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteMinefield1">
+                        <name>MinefieldIdentifier</name>
+                        <dataType>RTIobjectId</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Identifies the minefield to which the mines belong</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteMinefield2">
+                        <name>MineLocation</name>
+                        <dataType>WorldLocationStructLengthlessArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies the location of the mine relative to the minefield location for each mine in a collection of mines</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteMinefield2">
+                        <name>MineOrientation</name>
+                        <dataType>OrientationStructLengthlessArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies the orientation of the center axis direction of fire of the mine, relative to the minefield Coordinate System for each mine in a collection of mines</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteMinefield1">
+                        <name>MineType</name>
+                        <dataType>EntityTypeStruct</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies the type of mine for the collection of mines contained within the MinefieldData object</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteMinefield5">
+                        <name>NumberTripDetonationWires</name>
+                        <dataType>UnsignedInteger8LengthlessArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies the number of trip detonation wires that exist for each mine in a collection of mines</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteMinefield6">
+                        <name>NumberWireVertices</name>
+                        <dataType>UnsignedInteger8LengthlessArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies the number of vertices for each trip wire of each mine in a collection of mines</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteMinefield3">
+                        <name>PaintScheme</name>
+                        <dataType>MinefieldPaintSchemeLengthlessArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies the camouflage scheme/color of the mine</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteMinefield3">
+                        <name>Reflectance</name>
+                        <dataType>MineDielectricDifferenceLengthlessArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies the local dielectric difference between the mine and the surrounding soil</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteMinefield3">
+                        <name>ScalarDetectionCoefficient</name>
+                        <dataType>UnsignedInteger8LengthlessArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies the coefficient to be utilized to insure proper correlation between detectors located on different simulation platforms</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteMinefield3">
+                        <name>SensorTypes</name>
+                        <dataType>MinefieldSensorTypeLengthlessArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>In QRP mode, specifies the requesting sensor types which were specified in the minefield query whereas in Heartbeat mode, specifies the sensor types that are being served by the minefield</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteMinefield3">
+                        <name>SnowBurialDepthOffset</name>
+                        <dataType>DepthMeterFloat32LengthlessArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies the offset of the origin of the mine coordinate system with respect to the snow surface</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteMinefield3">
+                        <name>ThermalContrast</name>
+                        <dataType>TemperatureDegreeCelsiusFloat32LengthlessArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies the temperature difference between the mine and the surround soil in degrees Centigrade</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteMinefield3">
+                        <name>WaterBurialDepthOffset</name>
+                        <dataType>DepthMeterFloat32LengthlessArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies the offset of the origin of the mine coordinate system with respect to the water surface</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteMinefield7">
+                        <name>WireVertices</name>
+                        <dataType>WorldLocationStructLengthlessArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies the locations of vertices in a trip wire</semantics>
+                    </attribute>
+                </objectClass>
+            </objectClass>
+            <objectClass>
+                <name>EnvironmentObject</name>
+                <objectClass>
+                    <name>ArealObject</name>
+                    <objectClass>
+                        <name>MinefieldObject</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <semantics>A mine, mine weapon, mine row, mine strip, mine lane, mine marker or minefield, defined as an areal environment object.</semantics>
+                        <attribute notes="RPRnoteMinefield1 RPRnoteMinefield13">
+                            <name>BreachedStatus</name>
+                            <dataType>BreachedStatusEnum8</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies the breached appearance of the minefield object</semantics>
+                        </attribute>
+                        <attribute notes="RPRnoteMinefield1">
+                            <name>MineCount</name>
+                            <dataType>UnsignedInteger32</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies the number of mines in the minefield</semantics>
+                        </attribute>
+                    </objectClass>
+                </objectClass>
+                <objectClass>
+                    <name>LinearObject</name>
+                    <objectClass>
+                        <name>MinefieldLaneMarkerObject</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <semantics>A minefield lane marker showing a cleared lane through a specific minefield, defined as a linear object.</semantics>
+                        <attribute notes="RPRnoteMinefield1">
+                            <name>SegmentRecords</name>
+                            <dataType>MinefieldLaneMarkerStructLengthlessArray</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Specifies a minefield lane marker showing a cleared lane through a minefield</semantics>
+                        </attribute>
+                    </objectClass>
+                </objectClass>
+            </objectClass>
+        </objectClass>
+    </objects>
+    <interactions>
+        <interactionClass>
+            <name>HLAinteractionRoot</name>
+            <interactionClass>
+                <name>MinefieldData</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAreliable</transportation>
+                <order>TimeStamp</order>
+                <semantics>Provides information on individual mines contained within a minefield</semantics>
+                <parameter notes="RPRnoteMinefield3">
+                    <name>GroundBurialDepthOffset</name>
+                    <dataType>DepthMeterFloat32LengthlessArray</dataType>
+                    <semantics>Specifies the offset of the origin of the mine coordinate system with respect to the ground surface</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield2">
+                    <name>Fusing</name>
+                    <dataType>MineFusingStructLengthlessArray</dataType>
+                    <semantics>Specifies the primary and secondary fuse and anti-handling device for each mine</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield3">
+                    <name>MineEmplacementTime</name>
+                    <dataType>ClockTimeStructLengthlessArray</dataType>
+                    <semantics>Specifies the real-world (UTC) emplacement time of the mine</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield1">
+                    <name>MineEntityIdentifier</name>
+                    <dataType>MineIdentifierLengthlessArray</dataType>
+                    <semantics>Identifies the mine entity identifier; the MineEntityID in conjunction with the MinefieldID form the unique identifier for each mine</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield1">
+                    <name>MinefieldIdentifier</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>Identifies the minefield to which the mines belong</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield1">
+                    <name>MineLocation</name>
+                    <dataType>WorldLocationStructLengthlessArray</dataType>
+                    <semantics>Specifies the location of the relative to the minefield location</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield2">
+                    <name>MineOrientation</name>
+                    <dataType>OrientationStructLengthlessArray</dataType>
+                    <semantics>Specifies the orientation of the center axis direction of fire of the mine, relative to the minefield Coordinate System</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield1">
+                    <name>MineType</name>
+                    <dataType>EntityTypeStruct</dataType>
+                    <semantics>Specifies the type of each mine contained within the minefield interaction</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield1">
+                    <name>NumberOfRecords</name>
+                    <dataType>UnsignedInteger8</dataType>
+                    <semantics>Specifies the total number of minefield records being published in response to a Minefield Query interaction</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield5">
+                    <name>NumberTripDetonationWires</name>
+                    <dataType>UnsignedInteger8LengthlessArray</dataType>
+                    <semantics>Specifies the number of trip detonation wires that exist for each mine</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield6">
+                    <name>NumberWireVertices</name>
+                    <dataType>UnsignedInteger8LengthlessArray</dataType>
+                    <semantics>Specifies the number of vertices for each trip wire</semantics>
+                </parameter>
+                <parameter>
+                    <name>PaintScheme</name>
+                    <dataType>MinefieldPaintSchemeLengthlessArray</dataType>
+                    <semantics>Specifies the camouflage scheme/color of the mine</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield1">
+                    <name>RecordSequenceNumber</name>
+                    <dataType>UnsignedInteger8</dataType>
+                    <semantics>Specifies the number of the current record in a sequence of minefield records published in response to a Minefield Query interaction</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield3">
+                    <name>Reflectance</name>
+                    <dataType>MineDielectricDifferenceLengthlessArray</dataType>
+                    <semantics>Specifies the local dielectric difference between the mine and the surrounding soil</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield1">
+                    <name>RequestIdentifier</name>
+                    <dataType>UnsignedInteger8</dataType>
+                    <semantics>Identifies the matching response to a request for mine information from the minefield simulation made by means of a Minefield Query interaction</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield1">
+                    <name>RequestingEntityIdentifier</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>Identifies the entity that requested the information from the minefield simulation in QRP (Query Response Protocol) mode</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield3">
+                    <name>ScalarDetectionCoefficient</name>
+                    <dataType>UnsignedInteger8LengthlessArray</dataType>
+                    <semantics>Specifies the coefficient to be utilized to insure proper correlation between detectors located on different simulation platforms</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield1">
+                    <name>SensorTypes</name>
+                    <dataType>MinefieldSensorTypeLengthlessArray</dataType>
+                    <semantics>In QRP mode, specifies the requesting sensor types which were specified in the minefield query whereas in Heartbeat mode, specifies the sensor types that are being served by the minefield</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield3">
+                    <name>SnowBurialDepthOffset</name>
+                    <dataType>DepthMeterFloat32LengthlessArray</dataType>
+                    <semantics>Specifies the offset of the origin of the mine coordinate system with respect to the snow surface</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield3">
+                    <name>ThermalContrast</name>
+                    <dataType>TemperatureDegreeCelsiusFloat32LengthlessArray</dataType>
+                    <semantics>Specifies the temperature difference between the mine and the surrounding soil in degrees Centigrade</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield3">
+                    <name>WaterBurialDepthOffset</name>
+                    <dataType>DepthMeterFloat32LengthlessArray</dataType>
+                    <semantics>Specifies the offset of the origin of the mine coordinate system with respect to the water surface</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield7">
+                    <name>WireVertices</name>
+                    <dataType>WorldLocationStructLengthlessArray</dataType>
+                    <semantics>Specifies the locations of vertices in a trip wire</semantics>
+                </parameter>
+            </interactionClass>
+            <interactionClass>
+                <name>MinefieldQuery</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAreliable</transportation>
+                <order>TimeStamp</order>
+                <semantics>Provides the means by which a federate shall query a minefield simulation for information on the individual mines within the minefield operating in QRP mode.</semantics>
+                <parameter notes="RPRnoteMinefield1">
+                    <name>MinefieldIdentifier</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>Identifies the minefield to which this query is addressed</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield1">
+                    <name>PerimeterPoints</name>
+                    <dataType>PerimeterPointStructLengthlessArray</dataType>
+                    <semantics>Specifies the location of each perimeter point in the requested area relative to the minefield location</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield4">
+                    <name>QueryFusing</name>
+                    <dataType>RPRboolean</dataType>
+                    <semantics>Specifies whether or not fusing is requested</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield4">
+                    <name>QueryMineOrientation</name>
+                    <dataType>RPRboolean</dataType>
+                    <semantics>Specifies whether or not orientation is requested</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield4">
+                    <name>QueryGroundBurialDepthOffset</name>
+                    <dataType>RPRboolean</dataType>
+                    <semantics>Specifies whether or not ground burial depth offset is requested</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield4">
+                    <name>QueryMineEmplacementAge</name>
+                    <dataType>RPRboolean</dataType>
+                    <semantics>Specifies whether or not emplacement age is requested</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield4">
+                    <name>QueryPaintScheme</name>
+                    <dataType>RPRboolean</dataType>
+                    <semantics>Specifies whether or not paint scheme is requested</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield4">
+                    <name>QueryReflectance</name>
+                    <dataType>RPRboolean</dataType>
+                    <semantics>Specifies whether or not reflectance is requested</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield4">
+                    <name>QueryScalarDetectionCoefficient</name>
+                    <dataType>RPRboolean</dataType>
+                    <semantics>Specifies whether or not scalar detection coefficient is requested</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield4">
+                    <name>QuerySnowBurialDepthOffset</name>
+                    <dataType>RPRboolean</dataType>
+                    <semantics>Specifies whether or not snow burial depth offset is requested</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield4">
+                    <name>QueryThermalContrast</name>
+                    <dataType>RPRboolean</dataType>
+                    <semantics>Specifies whether or not thermal contrast is requested</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield4">
+                    <name>QueryTripDetonationWire</name>
+                    <dataType>RPRboolean</dataType>
+                    <semantics>Specifies whether or not trip detonation wire is requested</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield4">
+                    <name>QueryWaterBurialDepthOffset</name>
+                    <dataType>RPRboolean</dataType>
+                    <semantics>Specifies whether or not water burial depth offset is requested</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield1">
+                    <name>RequestingEntityIdentifier</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>Identifies the entity that requests the information from the minefield simulation</semantics>
+                </parameter>
+                <parameter>
+                    <name>RequestIdentifier</name>
+                    <dataType>UnsignedInteger8</dataType>
+                    <semantics>Identifies the minefield query request</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield1">
+                    <name>RequestedMineType</name>
+                    <dataType>EntityTypeStruct</dataType>
+                    <semantics>Identifies the type of mine being queried by the requesting federate</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield1">
+                    <name>SensorTypes</name>
+                    <dataType>MinefieldSensorTypeLengthlessArray</dataType>
+                    <semantics>Specifies the types of sensors requesting the data</semantics>
+                </parameter>
+            </interactionClass>
+            <interactionClass>
+                <name>MinefieldResponseNACK</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAreliable</transportation>
+                <order>TimeStamp</order>
+                <semantics>A response to a MinefieldQuery providing information on individual mines within a minefield.</semantics>
+                <parameter notes="RPRnoteMinefield1">
+                    <name>MinefieldIdentifier</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>Identifies the minefield to which this query is addressed</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield1">
+                    <name>MissingRecordNumbers</name>
+                    <dataType>MissingRecordNumbersLengthlessArray1Plus</dataType>
+                    <semantics>Specifies the record numbers that were not received in a sequence of minefield records</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield1">
+                    <name>RequestIdentifier</name>
+                    <dataType>UnsignedInteger8</dataType>
+                    <semantics>Identifies the minefield query request</semantics>
+                </parameter>
+                <parameter notes="RPRnoteMinefield1">
+                    <name>RequestingEntityIdentifier</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>Identifies the entity that requested the information from the minefield simulation</semantics>
+                </parameter>
+            </interactionClass>
+            <interactionClass>
+                <name>EnvironmentObjectTransaction</name>
+                <interactionClass>
+                    <name>ArealObjectTransaction</name>
+                    <interactionClass>
+                        <name>MinefieldObjectTransaction</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>An interaction sent to an environment manager to request the creation, modification, or deletion of instances of the MinefieldObject class.</semantics>
+                        <parameter notes="RPRnoteMinefield1 RPRnoteMinefield13">
+                            <name>BreachedStatus</name>
+                            <dataType>BreachedStatusEnum8</dataType>
+                            <semantics>Specifies the breached appearance of the minefield object</semantics>
+                        </parameter>
+                        <parameter notes="RPRnoteMinefield1">
+                            <name>MineCount</name>
+                            <dataType>UnsignedInteger32</dataType>
+                            <semantics>Specifies the number of mines in the minefield</semantics>
+                        </parameter>
+                    </interactionClass>
+                </interactionClass>
+                <interactionClass>
+                    <name>LinearObjectTransaction</name>
+                    <interactionClass>
+                        <name>MinefieldLaneMarkerObjectTransaction</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>An interaction sent to an environment manager to request the creation, modification, or deletion of instances of the MinefieldLaneMarkerObject class.</semantics>
+                        <parameter notes="RPRnoteMinefield1">
+                            <name>SegmentRecords</name>
+                            <dataType>MinefieldLaneMarkerStructLengthlessArray</dataType>
+                            <semantics>Specifies a minefield lane marker linear object</semantics>
+                        </parameter>
+                    </interactionClass>
+                </interactionClass>
+            </interactionClass>
+        </interactionClass>
+    </interactions>
+    <dataTypes>
+        <simpleDataTypes>
+            <simpleData>
+                <name>MineDielectricDifference</name>
+                <representation>HLAfloat32BE</representation>
+                <units>NA</units>
+                <resolution>NA</resolution>
+                <accuracy>NA</accuracy>
+                <semantics>Local dielectric difference between the mine and the surrounding soil (reflectance)</semantics>
+            </simpleData>
+            <simpleData>
+                <name>MineIdentifier</name>
+                <representation>RPRunsignedInteger16BE</representation>
+                <units>NA</units>
+                <resolution>1</resolution>
+                <accuracy>NA</accuracy>
+                <semantics>Specifies a mine entity identifier</semantics>
+            </simpleData>
+        </simpleDataTypes>
+        <arrayDataTypes>
+            <arrayData>
+                <name>DepthMeterFloat32LengthlessArray</name>
+                <dataType>DepthMeterFloat32</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>Specifies ground - snow - water burial depth offset for each mine in a collection of mines</semantics>
+            </arrayData>
+            <arrayData>
+                <name>MineDielectricDifferenceLengthlessArray</name>
+                <dataType>MineDielectricDifference</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>Specifies local dielectric difference between the mine and the surrounding soil (reflectance) for each mine in a collection of mines</semantics>
+            </arrayData>
+            <arrayData>
+                <name>MinefieldLaneMarkerStructLengthlessArray</name>
+                <dataType>MinefieldLaneMarkerStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>Specifies a minefield lane marker (a collection of segments)</semantics>
+            </arrayData>
+            <arrayData>
+                <name>MinefieldPaintSchemeLengthlessArray</name>
+                <dataType>MinefieldPaintSchemeEnum32</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>Specifies the camouflage scheme/color for each mine in a collection of mines</semantics>
+            </arrayData>
+            <arrayData>
+                <name>MinefieldSensorTypeLengthlessArray</name>
+                <dataType>MinefieldSensorTypeEnum32</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>Specifies a collection of minefield sensor types</semantics>
+            </arrayData>
+            <arrayData>
+                <name>MineFusingStructLengthlessArray</name>
+                <dataType>MineFusingStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>Specifies the type of primary fuse, the type of the secondary fuse and the anti-handling device status for a collection of mines</semantics>
+            </arrayData>
+            <arrayData>
+                <name>MineIdentifierLengthlessArray</name>
+                <dataType>MineIdentifier</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>Identifies the mine entity identifier for each mine in a collection of mines</semantics>
+            </arrayData>
+            <arrayData>
+                <name>MissingRecordNumbersLengthlessArray1Plus</name>
+                <dataType>UnsignedInteger8</dataType>
+                <cardinality>[1..2147483647]</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>Specifies missing record numbers as a collection</semantics>
+            </arrayData>
+            <arrayData>
+                <name>PerimeterPointStructLengthlessArray</name>
+                <dataType>PerimeterPointStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>Specifies the location of perimeter points (collection)</semantics>
+            </arrayData>
+            <arrayData>
+                <name>TemperatureDegreeCelsiusFloat32LengthlessArray</name>
+                <dataType>TemperatureDegreeCelsiusFloat32</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>Specifies thermal contrast for each mine in a collection of mines</semantics>
+            </arrayData>
+        </arrayDataTypes>
+        <fixedRecordDataTypes>
+            <fixedRecordData>
+                <name>MinefieldLaneMarkerStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying a minefield lane marker segment</semantics>
+                <field>
+                    <name>SegmentParameters</name>
+                    <dataType>LinearSegmentStruct</dataType>
+                    <semantics>Specifies the minefield lane marker segment characteristics</semantics>
+                </field>
+                <field>
+                    <name>VisibleSideLocation</name>
+                    <dataType>VisibleSideLocationEnum32</dataType>
+                    <semantics>Specifies the visible side(s) of the minefield lane marker segment</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>MineFusingStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying the type of primary fuse, the type of the secondary fuse and the anti-handling device status of a mine</semantics>
+                <field>
+                    <name>Primary</name>
+                    <dataType>MinefieldFusingEnum32</dataType>
+                    <semantics>Specifies the type of the primary fuse of a mine</semantics>
+                </field>
+                <field>
+                    <name>Secondary</name>
+                    <dataType>MinefieldFusingEnum32</dataType>
+                    <semantics>Specifies the type of the secondary fuse of a mine</semantics>
+                </field>
+                <field>
+                    <name>AntiHandlingDevice</name>
+                    <dataType>RPRboolean</dataType>
+                    <semantics>Specifies the anti-handling device status of a mine</semantics>
+                </field>
+                <field notes="RPRnoteMinefield14">
+                    <name>Padding</name>
+                    <dataType>OctetArray3</dataType>
+                    <semantics>Padding to 32 bits</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>PerimeterPointStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record specifying the location of a perimeter point</semantics>
+                <field>
+                    <name>X</name>
+                    <dataType>MeterFloat32</dataType>
+                    <semantics>Specifies the X coordinate</semantics>
+                </field>
+                <field>
+                    <name>Y</name>
+                    <dataType>MeterFloat32</dataType>
+                    <semantics>Specifies the Y coordinate</semantics>
+                </field>
+            </fixedRecordData>
+        </fixedRecordDataTypes>
+    </dataTypes>
+    <notes>
+        <note>
+            <label>RPRnoteMinefield1</label>
+            <semantics>Not optional</semantics>
+        </note>
+        <note>
+            <label>RPRnoteMinefield2</label>
+            <semantics>Default value: {0,0,0}</semantics>
+        </note>
+        <note>
+            <label>RPRnoteMinefield3</label>
+            <semantics>Default value: 0</semantics>
+        </note>
+        <note>
+            <label>RPRnoteMinefield4</label>
+            <semantics>Default value: False (0)</semantics>
+        </note>
+        <note>
+            <label>RPRnoteMinefield5</label>
+            <semantics>Required if tripwires are used, otherwise the default value is Empty</semantics>
+        </note>
+        <note>
+            <label>RPRnoteMinefield6</label>
+            <semantics>Required if the sum of values in NumberTripDetonationWires is greater than 0, otherwise the default value is Empty</semantics>
+        </note>
+        <note>
+            <label>RPRnoteMinefield7</label>
+            <semantics>Required if the sum of values in NumberWireVertices is greater than 0, otherwise the default values is Empty</semantics>
+        </note>
+        <note>
+            <label>RPRnoteMinefield8</label>
+            <semantics>Default value: Other (0)</semantics>
+        </note>
+        <note>
+            <label>RPRnoteMinefield9</label>
+            <semantics>Default value: Inactive (1)</semantics>
+        </note>
+        <note>
+            <label>RPRnoteMinefield10</label>
+            <semantics>Default value: Mixed Anti-personnel Anti-tank (0)</semantics>
+        </note>
+        <note>
+            <label>RPRnoteMinefield11</label>
+            <semantics>Default value: Minefield Location (not needed for single mines)</semantics>
+        </note>
+        <note>
+            <label>RPRnoteMinefield12</label>
+            <semantics>Default value: Heartbeat mode (0)</semantics>
+        </note>
+        <note>
+            <label>RPRnoteMinefield13</label>
+            <semantics>Breached appearance for point objects and areal objects has values 0: no breaching, 1: breached and 2: cleared, with respect to the DIS standard as defined in SISO-REF-010 (section 12.1.2.2.2 &amp; 12.1.2.4.1) ; this has to be taken into account when setting up a DIS-HLA gateway (SDEM mapping and filtering)</semantics>
+        </note>
+        <note>
+            <label>RPRnoteMinefield14</label>
+            <semantics>All padding fields shall be set to the value 0</semantics>
+        </note>
+    </notes>
+</objectModel>

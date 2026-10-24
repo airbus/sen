@@ -1,0 +1,15 @@
+kernel:
+  # A directory beside wherever you run this, so the files are easy to find.
+  crashReportDir: crash-files
+
+build:
+  - name: crashDemoComponent
+    freqHz: 2
+    group: 3
+    imports: [crash_demo]
+    objects:
+      - class: crash_demo.FaultyImpl
+        name: faulty
+        bus: local.crash_demo
+        cyclesBeforeFailing: 6
+        throwInstead: false

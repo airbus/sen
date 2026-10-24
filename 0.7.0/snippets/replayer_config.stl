@@ -1,0 +1,10 @@
+package sen.components.replayer;
+
+// Overall component configuration
+struct Configuration
+{
+  bus            : string,    // bus to publish the object (local.replay by default)
+  samplingPeriod : Duration,  // max sampling period for flushing the replayed data
+  autoOpen       : string,    // optional archive path to auto open on start-up (empty by default)
+  autoPlay       : bool       // if autoOpen is not empty, try to play it on start-up (false by default)
+}

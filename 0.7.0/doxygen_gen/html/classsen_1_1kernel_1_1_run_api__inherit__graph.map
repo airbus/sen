@@ -1,0 +1,7 @@
+<map id="sen::kernel::RunApi" name="sen::kernel::RunApi">
+<area shape="rect" id="Node000001" title="What can be done while a component is running." alt="" coords="125,513,254,779"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1kernel_1_1_config_getter.html" title="Allows for fetching configuration parameters." alt="" coords="5,193,165,278"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,291,158,512,153,514,97,292"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1kernel_1_1_kernel_api.html" title="User&#45;facing kernel functions." alt="" coords="190,5,397,465"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,480,225,514,220,512,229,478"/>
+</map>

@@ -1,0 +1,12 @@
+package crash_demo;
+
+// An object that fails on purpose. Shown in users_guide/crash_reports.md.
+class Faulty
+{
+  // Update cycles to run before failing. Zero fails on the first one.
+  var cyclesBeforeFailing : i32 [static];
+
+  // Fail by letting an exception escape rather than by using an address that is not mapped.
+  // The two leave different things behind, which is the point of the example.
+  var throwInstead : bool [static];
+}

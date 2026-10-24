@@ -1,0 +1,1920 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Sen Software Infrastructure" name="description"/>
+<meta content="Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS" name="author"/>
+<link href="https://airbus.github.io/sen/0.7.0/licenses/index.html" rel="canonical"/>
+<link href="../examples/generated_uml.html" rel="prev"/>
+<link href="licensed_code_in_sen.html" rel="next"/>
+<link href="../assets/images/logo_simple.svg" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Sen license - Sen</title>
+<link href="../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%203.75C0%202.784.784%202%201.75%202h12.5c.966%200%201.75.784%201.75%201.75v8.5A1.75%201.75%200%200%201%2014.25%2014H1.75A1.75%201.75%200%200%201%200%2012.25Zm1.75-.25a.25.25%200%200%200-.25.25v8.5c0%20.138.112.25.25.25h12.5a.25.25%200%200%200%20.25-.25v-8.5a.25.25%200%200%200-.25-.25ZM3.5%206.25a.75.75%200%200%201%20.75-.75h7a.75.75%200%200%201%200%201.5h-7a.75.75%200%200%201-.75-.75m.75%202.25h4a.75.75%200%200%201%200%201.5h-4a.75.75%200%200%201%200-1.5%22/%3E%3C/svg%3E');}</style>
+<script src="https://unpkg.com/iframe-worker/shim"></script>
+<link href="../stylesheets/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<link href="../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><script src="../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
+<body data-md-color-accent="indigo" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#sen-license">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<div data-md-color-scheme="default" data-md-component="outdated" hidden="">
+<aside class="md-banner md-banner--warning">
+<div class="md-banner__inner md-grid md-typeset">
+              
+  This is an older release.
+  <a href="../.."><strong>Go to the current documentation</strong></a>
+</div>
+<script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL(".."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
+</aside>
+</div>
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Sen" class="md-header__button md-logo" data-md-component="logo" href="../index.html" title="Sen">
+<img alt="logo" src="../assets/images/logo_simple.svg"/>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Sen
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Sen license
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/airbus/sen.git" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    airbus/sen
+  </div>
+</a>
+</div>
+</nav>
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../index.html">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../getting_started/index.html">
+          
+  
+  
+  Getting Started
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../users_guide/index.html">
+          
+  
+  
+  Manual
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../components/index.html">
+          
+  
+  
+  Components
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../howto_guides/index.html">
+          
+  
+  
+  Guides
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../examples/index.html">
+          
+  
+  
+  Examples
+
+        </a>
+</li>
+<li class="md-tabs__item md-tabs__item--active">
+<a class="md-tabs__link" href="index.html">
+          
+  
+  
+  License
+
+        </a>
+</li>
+</ul>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Sen" class="md-nav__button md-logo" data-md-component="logo" href="../index.html" title="Sen">
+<img alt="logo" src="../assets/images/logo_simple.svg"/>
+</a>
+    Sen
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/airbus/sen.git" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    airbus/sen
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../index.html">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_2">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../getting_started/index.html">
+<span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../getting_started/install.html">
+<span class="md-ellipsis">
+    
+  
+    Getting Sen
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_2_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_2_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/index.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/hello_sen.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 1: Hello Sen
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/two_objects.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 2: Two objects talking
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorials/two_processes.html">
+<span class="md-ellipsis">
+    
+  
+    Tutorial 3: Two processes talking
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../getting_started/first_package.html">
+<span class="md-ellipsis">
+    
+  
+    Creating your first package
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Manual
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Manual
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/index.html">
+<span class="md-ellipsis">
+    
+  
+    Index
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/main_concepts.html">
+<span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/mental_model.html">
+<span class="md-ellipsis">
+    
+  
+    Mental model
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/workflow.html">
+<span class="md-ellipsis">
+    
+  
+    Workflow
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/execution_model.html">
+<span class="md-ellipsis">
+    
+  
+    Execution model
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/threading.html">
+<span class="md-ellipsis">
+    
+  
+    Threading and object lifetime
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    The Sen Type Language
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_7_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_7">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    The Sen Type Language
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/stl.html">
+<span class="md-ellipsis">
+    
+  
+    Description
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/stl_grammar.html">
+<span class="md-ellipsis">
+    
+  
+    STL grammar
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/sql.html">
+<span class="md-ellipsis">
+    
+  
+    The Sen Query Language
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/hla.html">
+<span class="md-ellipsis">
+    
+  
+    Using HLA FOMs
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/code_generation.html">
+<span class="md-ellipsis">
+    
+  
+    Code generation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/configuration.html">
+<span class="md-ellipsis">
+    
+  
+    The configuration file
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/command_line.html">
+<span class="md-ellipsis">
+    
+  
+    Command line tools
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/crash_reports.html">
+<span class="md-ellipsis">
+    
+  
+    Crash reports
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/cmake.html">
+<span class="md-ellipsis">
+    
+  
+    CMake integration
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/compatibility_conversions.html">
+<span class="md-ellipsis">
+    
+  
+    Run-time compatibility
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/versioning.html">
+<span class="md-ellipsis">
+    
+  
+    Versioning and compatibility
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_17" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_17" id="__nav_3_17_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    The Sen libraries
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_17_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_17">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    The Sen libraries
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/core_library.html">
+<span class="md-ellipsis">
+    
+  
+    sen::core
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/db_library.html">
+<span class="md-ellipsis">
+    
+  
+    sen::db
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/db_python_bindings.html">
+<span class="md-ellipsis">
+    
+  
+    sen::db Python bindings
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/gen_library.html">
+<span class="md-ellipsis">
+    
+  
+    sen::gen
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/kernel_library.html">
+<span class="md-ellipsis">
+    
+  
+    sen::kernel
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/util_library.html">
+<span class="md-ellipsis">
+    
+  
+    sen::util
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/faq.html">
+<span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../users_guide/glossary.html">
+<span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Components
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Components
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../components/index.html">
+<span class="md-ellipsis">
+    
+  
+    Using the shipped components
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../components/explorer.html">
+<span class="md-ellipsis">
+    
+  
+    Explorer
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../components/webexplorer.html">
+<span class="md-ellipsis">
+    
+  
+    Web explorer
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../components/shell.html">
+<span class="md-ellipsis">
+    
+  
+    Shell
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../components/term.html">
+<span class="md-ellipsis">
+    
+  
+    Terminal
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../components/influx.html">
+<span class="md-ellipsis">
+    
+  
+    Influx
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../components/py.html">
+<span class="md-ellipsis">
+    
+  
+    Python
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../components/recording.html">
+<span class="md-ellipsis">
+    
+  
+    Recorder
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../components/replaying.html">
+<span class="md-ellipsis">
+    
+  
+    Replayer
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../components/ether.html">
+<span class="md-ellipsis">
+    
+  
+    Ether
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../components/logmaster.html">
+<span class="md-ellipsis">
+    
+  
+    Log master
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../components/rest.html">
+<span class="md-ellipsis">
+    
+  
+    REST
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../components/jsonrpc.html">
+<span class="md-ellipsis">
+    
+  
+    JSON-RPC
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../components/jsonrpc_ts_client.html">
+<span class="md-ellipsis">
+    
+  
+    JSON-RPC TypeScript client
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../components/mcp_gateway.html">
+<span class="md-ellipsis">
+    
+  
+    MCP Gateway
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../components/tracy.html">
+<span class="md-ellipsis">
+    
+  
+    Tracy
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/index.html">
+<span class="md-ellipsis">
+    
+  
+    How-to guides
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/objects.html">
+<span class="md-ellipsis">
+    
+  
+    Working with objects
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/generated_code.html">
+<span class="md-ellipsis">
+    
+  
+    The generated C++ code
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/logging.html">
+<span class="md-ellipsis">
+    
+  
+    Using logs
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/using_groups.html">
+<span class="md-ellipsis">
+    
+  
+    Using component groups
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/controlling_clock.html">
+<span class="md-ellipsis">
+    
+  
+    Controlling the clock
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/python_config.html">
+<span class="md-ellipsis">
+    
+  
+    Python as config
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/precision_sleeper_config.html">
+<span class="md-ellipsis">
+    
+  
+    Configuring component sleeping between updates
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/dead_reckoning.html">
+<span class="md-ellipsis">
+    
+  
+    Using the Dead Reckoning library
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/unit_tests.html">
+<span class="md-ellipsis">
+    
+  
+    Implementing unit tests
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/integration_tests.html">
+<span class="md-ellipsis">
+    
+  
+    Integration testing
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/components.html">
+<span class="md-ellipsis">
+    
+  
+    Writing a component (advanced)
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/connecting_existing_systems.html">
+<span class="md-ellipsis">
+    
+  
+    Connecting existing systems
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/considerations.html">
+<span class="md-ellipsis">
+    
+  
+    Design considerations
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/configure_environment.html">
+<span class="md-ellipsis">
+    
+  
+    Configuring your environment
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_5_16" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_16" id="__nav_5_16_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Sharing interfaces between projects
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_16_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_16">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Sharing interfaces between projects
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/creating_conan_packages.html">
+<span class="md-ellipsis">
+    
+  
+    Creating Conan packages for Sen-based projects
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/exportable_interfaces.html">
+<span class="md-ellipsis">
+    
+  
+    Generate exportable interfaces (STL files)
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/consuming_interfaces.html">
+<span class="md-ellipsis">
+    
+  
+    Use interfaces from imported packages
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/generate_interface_packages.html">
+<span class="md-ellipsis">
+    
+  
+    Generate and consume specific CMake packages for interfaces
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/troubleshooting.html">
+<span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/networking_wsl2_virtual_machines.html">
+<span class="md-ellipsis">
+    
+  
+    Networking with WSL2 and virtual machines
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_5_19" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5_19" id="__nav_5_19_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Working on Sen itself
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_19_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_5_19">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Working on Sen itself
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../howto_guides/building_from_source.html">
+<span class="md-ellipsis">
+    
+  
+    Building Sen from source
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../getting_started/testing.html">
+<span class="md-ellipsis">
+    
+  
+    Running Sen's own tests
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Examples
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../examples/index.html">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/0_counter/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Counter
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/1_calculators/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Simple package
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/2_inheritance/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Inheritance
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/3_aircraft/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Updates
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/11_shapes/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Interests
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/12_fibonacci/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Deferred methods
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/13_timer/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Checked properties
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/4_school/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Distributing work
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/8_influx/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Influx and Grafana
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/6_recorder/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Recorder
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/7_replayer/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Replayer
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/10_python/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Using Python
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/9_hla_servers/readme.html">
+<span class="md-ellipsis">
+    
+  
+    Request/response servers
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snippets/examples/config/14_jsonrpc/readme.html">
+<span class="md-ellipsis">
+    
+  
+    JSON-RPC
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../examples/generated_reference.html">
+<span class="md-ellipsis">
+    
+  
+    HTML reference
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../examples/generated_document.html">
+<span class="md-ellipsis">
+    
+  
+    Typeset reference (PDF)
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../examples/generated_uml.html">
+<span class="md-ellipsis">
+    
+  
+    UML generation
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+<span class="md-ellipsis">
+    
+  
+    License
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    License
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<a class="md-nav__link md-nav__link--active" href="index.html">
+<span class="md-ellipsis">
+    
+  
+    Sen license
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="licensed_code_in_sen.html">
+<span class="md-ellipsis">
+    
+  
+    External libraries
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="sen-license">Sen license<a class="headerlink" href="#sen-license" title="Permanent link">¶</a></h1>
+<p>Sen is distributed as Open Source under the
+<a href="https://www.apache.org/licenses/LICENSE-2.0">Apache 2.0 License</a>.</p>
+<p>Sen also ships code from other projects. Those carry their own licenses, listed in
+<a href="licensed_code_in_sen.html">External libraries</a>.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>                                 Apache License
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a>                           Version 2.0, January 2004
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a>                        http://www.apache.org/licenses/
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a>
+</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a>   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a>
+</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a>   1. Definitions.
+</span><span id="__span-0-8"><a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a>
+</span><span id="__span-0-9"><a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a>      "License" shall mean the terms and conditions for use, reproduction,
+</span><span id="__span-0-10"><a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a>      and distribution as defined by Sections 1 through 9 of this document.
+</span><span id="__span-0-11"><a href="#__codelineno-0-11" id="__codelineno-0-11" name="__codelineno-0-11"></a>
+</span><span id="__span-0-12"><a href="#__codelineno-0-12" id="__codelineno-0-12" name="__codelineno-0-12"></a>      "Licensor" shall mean the copyright owner or entity authorized by
+</span><span id="__span-0-13"><a href="#__codelineno-0-13" id="__codelineno-0-13" name="__codelineno-0-13"></a>      the copyright owner that is granting the License.
+</span><span id="__span-0-14"><a href="#__codelineno-0-14" id="__codelineno-0-14" name="__codelineno-0-14"></a>
+</span><span id="__span-0-15"><a href="#__codelineno-0-15" id="__codelineno-0-15" name="__codelineno-0-15"></a>      "Legal Entity" shall mean the union of the acting entity and all
+</span><span id="__span-0-16"><a href="#__codelineno-0-16" id="__codelineno-0-16" name="__codelineno-0-16"></a>      other entities that control, are controlled by, or are under common
+</span><span id="__span-0-17"><a href="#__codelineno-0-17" id="__codelineno-0-17" name="__codelineno-0-17"></a>      control with that entity. For the purposes of this definition,
+</span><span id="__span-0-18"><a href="#__codelineno-0-18" id="__codelineno-0-18" name="__codelineno-0-18"></a>      "control" means (i) the power, direct or indirect, to cause the
+</span><span id="__span-0-19"><a href="#__codelineno-0-19" id="__codelineno-0-19" name="__codelineno-0-19"></a>      direction or management of such entity, whether by contract or
+</span><span id="__span-0-20"><a href="#__codelineno-0-20" id="__codelineno-0-20" name="__codelineno-0-20"></a>      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+</span><span id="__span-0-21"><a href="#__codelineno-0-21" id="__codelineno-0-21" name="__codelineno-0-21"></a>      outstanding shares, or (iii) beneficial ownership of such entity.
+</span><span id="__span-0-22"><a href="#__codelineno-0-22" id="__codelineno-0-22" name="__codelineno-0-22"></a>
+</span><span id="__span-0-23"><a href="#__codelineno-0-23" id="__codelineno-0-23" name="__codelineno-0-23"></a>      "You" (or "Your") shall mean an individual or Legal Entity
+</span><span id="__span-0-24"><a href="#__codelineno-0-24" id="__codelineno-0-24" name="__codelineno-0-24"></a>      exercising permissions granted by this License.
+</span><span id="__span-0-25"><a href="#__codelineno-0-25" id="__codelineno-0-25" name="__codelineno-0-25"></a>
+</span><span id="__span-0-26"><a href="#__codelineno-0-26" id="__codelineno-0-26" name="__codelineno-0-26"></a>      "Source" form shall mean the preferred form for making modifications,
+</span><span id="__span-0-27"><a href="#__codelineno-0-27" id="__codelineno-0-27" name="__codelineno-0-27"></a>      including but not limited to software source code, documentation
+</span><span id="__span-0-28"><a href="#__codelineno-0-28" id="__codelineno-0-28" name="__codelineno-0-28"></a>      source, and configuration files.
+</span><span id="__span-0-29"><a href="#__codelineno-0-29" id="__codelineno-0-29" name="__codelineno-0-29"></a>
+</span><span id="__span-0-30"><a href="#__codelineno-0-30" id="__codelineno-0-30" name="__codelineno-0-30"></a>      "Object" form shall mean any form resulting from mechanical
+</span><span id="__span-0-31"><a href="#__codelineno-0-31" id="__codelineno-0-31" name="__codelineno-0-31"></a>      transformation or translation of a Source form, including but
+</span><span id="__span-0-32"><a href="#__codelineno-0-32" id="__codelineno-0-32" name="__codelineno-0-32"></a>      not limited to compiled object code, generated documentation,
+</span><span id="__span-0-33"><a href="#__codelineno-0-33" id="__codelineno-0-33" name="__codelineno-0-33"></a>      and conversions to other media types.
+</span><span id="__span-0-34"><a href="#__codelineno-0-34" id="__codelineno-0-34" name="__codelineno-0-34"></a>
+</span><span id="__span-0-35"><a href="#__codelineno-0-35" id="__codelineno-0-35" name="__codelineno-0-35"></a>      "Work" shall mean the work of authorship, whether in Source or
+</span><span id="__span-0-36"><a href="#__codelineno-0-36" id="__codelineno-0-36" name="__codelineno-0-36"></a>      Object form, made available under the License, as indicated by a
+</span><span id="__span-0-37"><a href="#__codelineno-0-37" id="__codelineno-0-37" name="__codelineno-0-37"></a>      copyright notice that is included in or attached to the work
+</span><span id="__span-0-38"><a href="#__codelineno-0-38" id="__codelineno-0-38" name="__codelineno-0-38"></a>      (an example is provided in the Appendix below).
+</span><span id="__span-0-39"><a href="#__codelineno-0-39" id="__codelineno-0-39" name="__codelineno-0-39"></a>
+</span><span id="__span-0-40"><a href="#__codelineno-0-40" id="__codelineno-0-40" name="__codelineno-0-40"></a>      "Derivative Works" shall mean any work, whether in Source or Object
+</span><span id="__span-0-41"><a href="#__codelineno-0-41" id="__codelineno-0-41" name="__codelineno-0-41"></a>      form, that is based on (or derived from) the Work and for which the
+</span><span id="__span-0-42"><a href="#__codelineno-0-42" id="__codelineno-0-42" name="__codelineno-0-42"></a>      editorial revisions, annotations, elaborations, or other modifications
+</span><span id="__span-0-43"><a href="#__codelineno-0-43" id="__codelineno-0-43" name="__codelineno-0-43"></a>      represent, as a whole, an original work of authorship. For the purposes
+</span><span id="__span-0-44"><a href="#__codelineno-0-44" id="__codelineno-0-44" name="__codelineno-0-44"></a>      of this License, Derivative Works shall not include works that remain
+</span><span id="__span-0-45"><a href="#__codelineno-0-45" id="__codelineno-0-45" name="__codelineno-0-45"></a>      separable from, or merely link (or bind by name) to the interfaces of,
+</span><span id="__span-0-46"><a href="#__codelineno-0-46" id="__codelineno-0-46" name="__codelineno-0-46"></a>      the Work and Derivative Works thereof.
+</span><span id="__span-0-47"><a href="#__codelineno-0-47" id="__codelineno-0-47" name="__codelineno-0-47"></a>
+</span><span id="__span-0-48"><a href="#__codelineno-0-48" id="__codelineno-0-48" name="__codelineno-0-48"></a>      "Contribution" shall mean any work of authorship, including
+</span><span id="__span-0-49"><a href="#__codelineno-0-49" id="__codelineno-0-49" name="__codelineno-0-49"></a>      the original version of the Work and any modifications or additions
+</span><span id="__span-0-50"><a href="#__codelineno-0-50" id="__codelineno-0-50" name="__codelineno-0-50"></a>      to that Work or Derivative Works thereof, that is intentionally
+</span><span id="__span-0-51"><a href="#__codelineno-0-51" id="__codelineno-0-51" name="__codelineno-0-51"></a>      submitted to Licensor for inclusion in the Work by the copyright owner
+</span><span id="__span-0-52"><a href="#__codelineno-0-52" id="__codelineno-0-52" name="__codelineno-0-52"></a>      or by an individual or Legal Entity authorized to submit on behalf of
+</span><span id="__span-0-53"><a href="#__codelineno-0-53" id="__codelineno-0-53" name="__codelineno-0-53"></a>      the copyright owner. For the purposes of this definition, "submitted"
+</span><span id="__span-0-54"><a href="#__codelineno-0-54" id="__codelineno-0-54" name="__codelineno-0-54"></a>      means any form of electronic, verbal, or written communication sent
+</span><span id="__span-0-55"><a href="#__codelineno-0-55" id="__codelineno-0-55" name="__codelineno-0-55"></a>      to the Licensor or its representatives, including but not limited to
+</span><span id="__span-0-56"><a href="#__codelineno-0-56" id="__codelineno-0-56" name="__codelineno-0-56"></a>      communication on electronic mailing lists, source code control systems,
+</span><span id="__span-0-57"><a href="#__codelineno-0-57" id="__codelineno-0-57" name="__codelineno-0-57"></a>      and issue tracking systems that are managed by, or on behalf of, the
+</span><span id="__span-0-58"><a href="#__codelineno-0-58" id="__codelineno-0-58" name="__codelineno-0-58"></a>      Licensor for the purpose of discussing and improving the Work, but
+</span><span id="__span-0-59"><a href="#__codelineno-0-59" id="__codelineno-0-59" name="__codelineno-0-59"></a>      excluding communication that is conspicuously marked or otherwise
+</span><span id="__span-0-60"><a href="#__codelineno-0-60" id="__codelineno-0-60" name="__codelineno-0-60"></a>      designated in writing by the copyright owner as "Not a Contribution."
+</span><span id="__span-0-61"><a href="#__codelineno-0-61" id="__codelineno-0-61" name="__codelineno-0-61"></a>
+</span><span id="__span-0-62"><a href="#__codelineno-0-62" id="__codelineno-0-62" name="__codelineno-0-62"></a>      "Contributor" shall mean Licensor and any individual or Legal Entity
+</span><span id="__span-0-63"><a href="#__codelineno-0-63" id="__codelineno-0-63" name="__codelineno-0-63"></a>      on behalf of whom a Contribution has been received by Licensor and
+</span><span id="__span-0-64"><a href="#__codelineno-0-64" id="__codelineno-0-64" name="__codelineno-0-64"></a>      subsequently incorporated within the Work.
+</span><span id="__span-0-65"><a href="#__codelineno-0-65" id="__codelineno-0-65" name="__codelineno-0-65"></a>
+</span><span id="__span-0-66"><a href="#__codelineno-0-66" id="__codelineno-0-66" name="__codelineno-0-66"></a>   2. Grant of Copyright License. Subject to the terms and conditions of
+</span><span id="__span-0-67"><a href="#__codelineno-0-67" id="__codelineno-0-67" name="__codelineno-0-67"></a>      this License, each Contributor hereby grants to You a perpetual,
+</span><span id="__span-0-68"><a href="#__codelineno-0-68" id="__codelineno-0-68" name="__codelineno-0-68"></a>      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+</span><span id="__span-0-69"><a href="#__codelineno-0-69" id="__codelineno-0-69" name="__codelineno-0-69"></a>      copyright license to reproduce, prepare Derivative Works of,
+</span><span id="__span-0-70"><a href="#__codelineno-0-70" id="__codelineno-0-70" name="__codelineno-0-70"></a>      publicly display, publicly perform, sublicense, and distribute the
+</span><span id="__span-0-71"><a href="#__codelineno-0-71" id="__codelineno-0-71" name="__codelineno-0-71"></a>      Work and such Derivative Works in Source or Object form.
+</span><span id="__span-0-72"><a href="#__codelineno-0-72" id="__codelineno-0-72" name="__codelineno-0-72"></a>
+</span><span id="__span-0-73"><a href="#__codelineno-0-73" id="__codelineno-0-73" name="__codelineno-0-73"></a>   3. Grant of Patent License. Subject to the terms and conditions of
+</span><span id="__span-0-74"><a href="#__codelineno-0-74" id="__codelineno-0-74" name="__codelineno-0-74"></a>      this License, each Contributor hereby grants to You a perpetual,
+</span><span id="__span-0-75"><a href="#__codelineno-0-75" id="__codelineno-0-75" name="__codelineno-0-75"></a>      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+</span><span id="__span-0-76"><a href="#__codelineno-0-76" id="__codelineno-0-76" name="__codelineno-0-76"></a>      (except as stated in this section) patent license to make, have made,
+</span><span id="__span-0-77"><a href="#__codelineno-0-77" id="__codelineno-0-77" name="__codelineno-0-77"></a>      use, offer to sell, sell, import, and otherwise transfer the Work,
+</span><span id="__span-0-78"><a href="#__codelineno-0-78" id="__codelineno-0-78" name="__codelineno-0-78"></a>      where such license applies only to those patent claims licensable
+</span><span id="__span-0-79"><a href="#__codelineno-0-79" id="__codelineno-0-79" name="__codelineno-0-79"></a>      by such Contributor that are necessarily infringed by their
+</span><span id="__span-0-80"><a href="#__codelineno-0-80" id="__codelineno-0-80" name="__codelineno-0-80"></a>      Contribution(s) alone or by combination of their Contribution(s)
+</span><span id="__span-0-81"><a href="#__codelineno-0-81" id="__codelineno-0-81" name="__codelineno-0-81"></a>      with the Work to which such Contribution(s) was submitted. If You
+</span><span id="__span-0-82"><a href="#__codelineno-0-82" id="__codelineno-0-82" name="__codelineno-0-82"></a>      institute patent litigation against any entity (including a
+</span><span id="__span-0-83"><a href="#__codelineno-0-83" id="__codelineno-0-83" name="__codelineno-0-83"></a>      cross-claim or counterclaim in a lawsuit) alleging that the Work
+</span><span id="__span-0-84"><a href="#__codelineno-0-84" id="__codelineno-0-84" name="__codelineno-0-84"></a>      or a Contribution incorporated within the Work constitutes direct
+</span><span id="__span-0-85"><a href="#__codelineno-0-85" id="__codelineno-0-85" name="__codelineno-0-85"></a>      or contributory patent infringement, then any patent licenses
+</span><span id="__span-0-86"><a href="#__codelineno-0-86" id="__codelineno-0-86" name="__codelineno-0-86"></a>      granted to You under this License for that Work shall terminate
+</span><span id="__span-0-87"><a href="#__codelineno-0-87" id="__codelineno-0-87" name="__codelineno-0-87"></a>      as of the date such litigation is filed.
+</span><span id="__span-0-88"><a href="#__codelineno-0-88" id="__codelineno-0-88" name="__codelineno-0-88"></a>
+</span><span id="__span-0-89"><a href="#__codelineno-0-89" id="__codelineno-0-89" name="__codelineno-0-89"></a>   4. Redistribution. You may reproduce and distribute copies of the
+</span><span id="__span-0-90"><a href="#__codelineno-0-90" id="__codelineno-0-90" name="__codelineno-0-90"></a>      Work or Derivative Works thereof in any medium, with or without
+</span><span id="__span-0-91"><a href="#__codelineno-0-91" id="__codelineno-0-91" name="__codelineno-0-91"></a>      modifications, and in Source or Object form, provided that You
+</span><span id="__span-0-92"><a href="#__codelineno-0-92" id="__codelineno-0-92" name="__codelineno-0-92"></a>      meet the following conditions:
+</span><span id="__span-0-93"><a href="#__codelineno-0-93" id="__codelineno-0-93" name="__codelineno-0-93"></a>
+</span><span id="__span-0-94"><a href="#__codelineno-0-94" id="__codelineno-0-94" name="__codelineno-0-94"></a>      (a) You must give any other recipients of the Work or
+</span><span id="__span-0-95"><a href="#__codelineno-0-95" id="__codelineno-0-95" name="__codelineno-0-95"></a>          Derivative Works a copy of this License; and
+</span><span id="__span-0-96"><a href="#__codelineno-0-96" id="__codelineno-0-96" name="__codelineno-0-96"></a>
+</span><span id="__span-0-97"><a href="#__codelineno-0-97" id="__codelineno-0-97" name="__codelineno-0-97"></a>      (b) You must cause any modified files to carry prominent notices
+</span><span id="__span-0-98"><a href="#__codelineno-0-98" id="__codelineno-0-98" name="__codelineno-0-98"></a>          stating that You changed the files; and
+</span><span id="__span-0-99"><a href="#__codelineno-0-99" id="__codelineno-0-99" name="__codelineno-0-99"></a>
+</span><span id="__span-0-100"><a href="#__codelineno-0-100" id="__codelineno-0-100" name="__codelineno-0-100"></a>      (c) You must retain, in the Source form of any Derivative Works
+</span><span id="__span-0-101"><a href="#__codelineno-0-101" id="__codelineno-0-101" name="__codelineno-0-101"></a>          that You distribute, all copyright, patent, trademark, and
+</span><span id="__span-0-102"><a href="#__codelineno-0-102" id="__codelineno-0-102" name="__codelineno-0-102"></a>          attribution notices from the Source form of the Work,
+</span><span id="__span-0-103"><a href="#__codelineno-0-103" id="__codelineno-0-103" name="__codelineno-0-103"></a>          excluding those notices that do not pertain to any part of
+</span><span id="__span-0-104"><a href="#__codelineno-0-104" id="__codelineno-0-104" name="__codelineno-0-104"></a>          the Derivative Works; and
+</span><span id="__span-0-105"><a href="#__codelineno-0-105" id="__codelineno-0-105" name="__codelineno-0-105"></a>
+</span><span id="__span-0-106"><a href="#__codelineno-0-106" id="__codelineno-0-106" name="__codelineno-0-106"></a>      (d) If the Work includes a "NOTICE" text file as part of its
+</span><span id="__span-0-107"><a href="#__codelineno-0-107" id="__codelineno-0-107" name="__codelineno-0-107"></a>          distribution, then any Derivative Works that You distribute must
+</span><span id="__span-0-108"><a href="#__codelineno-0-108" id="__codelineno-0-108" name="__codelineno-0-108"></a>          include a readable copy of the attribution notices contained
+</span><span id="__span-0-109"><a href="#__codelineno-0-109" id="__codelineno-0-109" name="__codelineno-0-109"></a>          within such NOTICE file, excluding those notices that do not
+</span><span id="__span-0-110"><a href="#__codelineno-0-110" id="__codelineno-0-110" name="__codelineno-0-110"></a>          pertain to any part of the Derivative Works, in at least one
+</span><span id="__span-0-111"><a href="#__codelineno-0-111" id="__codelineno-0-111" name="__codelineno-0-111"></a>          of the following places: within a NOTICE text file distributed
+</span><span id="__span-0-112"><a href="#__codelineno-0-112" id="__codelineno-0-112" name="__codelineno-0-112"></a>          as part of the Derivative Works; within the Source form or
+</span><span id="__span-0-113"><a href="#__codelineno-0-113" id="__codelineno-0-113" name="__codelineno-0-113"></a>          documentation, if provided along with the Derivative Works; or,
+</span><span id="__span-0-114"><a href="#__codelineno-0-114" id="__codelineno-0-114" name="__codelineno-0-114"></a>          within a display generated by the Derivative Works, if and
+</span><span id="__span-0-115"><a href="#__codelineno-0-115" id="__codelineno-0-115" name="__codelineno-0-115"></a>          wherever such third-party notices normally appear. The contents
+</span><span id="__span-0-116"><a href="#__codelineno-0-116" id="__codelineno-0-116" name="__codelineno-0-116"></a>          of the NOTICE file are for informational purposes only and
+</span><span id="__span-0-117"><a href="#__codelineno-0-117" id="__codelineno-0-117" name="__codelineno-0-117"></a>          do not modify the License. You may add Your own attribution
+</span><span id="__span-0-118"><a href="#__codelineno-0-118" id="__codelineno-0-118" name="__codelineno-0-118"></a>          notices within Derivative Works that You distribute, alongside
+</span><span id="__span-0-119"><a href="#__codelineno-0-119" id="__codelineno-0-119" name="__codelineno-0-119"></a>          or as an addendum to the NOTICE text from the Work, provided
+</span><span id="__span-0-120"><a href="#__codelineno-0-120" id="__codelineno-0-120" name="__codelineno-0-120"></a>          that such additional attribution notices cannot be construed
+</span><span id="__span-0-121"><a href="#__codelineno-0-121" id="__codelineno-0-121" name="__codelineno-0-121"></a>          as modifying the License.
+</span><span id="__span-0-122"><a href="#__codelineno-0-122" id="__codelineno-0-122" name="__codelineno-0-122"></a>
+</span><span id="__span-0-123"><a href="#__codelineno-0-123" id="__codelineno-0-123" name="__codelineno-0-123"></a>      You may add Your own copyright statement to Your modifications and
+</span><span id="__span-0-124"><a href="#__codelineno-0-124" id="__codelineno-0-124" name="__codelineno-0-124"></a>      may provide additional or different license terms and conditions
+</span><span id="__span-0-125"><a href="#__codelineno-0-125" id="__codelineno-0-125" name="__codelineno-0-125"></a>      for use, reproduction, or distribution of Your modifications, or
+</span><span id="__span-0-126"><a href="#__codelineno-0-126" id="__codelineno-0-126" name="__codelineno-0-126"></a>      for any such Derivative Works as a whole, provided Your use,
+</span><span id="__span-0-127"><a href="#__codelineno-0-127" id="__codelineno-0-127" name="__codelineno-0-127"></a>      reproduction, and distribution of the Work otherwise complies with
+</span><span id="__span-0-128"><a href="#__codelineno-0-128" id="__codelineno-0-128" name="__codelineno-0-128"></a>      the conditions stated in this License.
+</span><span id="__span-0-129"><a href="#__codelineno-0-129" id="__codelineno-0-129" name="__codelineno-0-129"></a>
+</span><span id="__span-0-130"><a href="#__codelineno-0-130" id="__codelineno-0-130" name="__codelineno-0-130"></a>   5. Submission of Contributions. Unless You explicitly state otherwise,
+</span><span id="__span-0-131"><a href="#__codelineno-0-131" id="__codelineno-0-131" name="__codelineno-0-131"></a>      any Contribution intentionally submitted for inclusion in the Work
+</span><span id="__span-0-132"><a href="#__codelineno-0-132" id="__codelineno-0-132" name="__codelineno-0-132"></a>      by You to the Licensor shall be under the terms and conditions of
+</span><span id="__span-0-133"><a href="#__codelineno-0-133" id="__codelineno-0-133" name="__codelineno-0-133"></a>      this License, without any additional terms or conditions.
+</span><span id="__span-0-134"><a href="#__codelineno-0-134" id="__codelineno-0-134" name="__codelineno-0-134"></a>      Notwithstanding the above, nothing herein shall supersede or modify
+</span><span id="__span-0-135"><a href="#__codelineno-0-135" id="__codelineno-0-135" name="__codelineno-0-135"></a>      the terms of any separate license agreement you may have executed
+</span><span id="__span-0-136"><a href="#__codelineno-0-136" id="__codelineno-0-136" name="__codelineno-0-136"></a>      with Licensor regarding such Contributions.
+</span><span id="__span-0-137"><a href="#__codelineno-0-137" id="__codelineno-0-137" name="__codelineno-0-137"></a>
+</span><span id="__span-0-138"><a href="#__codelineno-0-138" id="__codelineno-0-138" name="__codelineno-0-138"></a>   6. Trademarks. This License does not grant permission to use the trade
+</span><span id="__span-0-139"><a href="#__codelineno-0-139" id="__codelineno-0-139" name="__codelineno-0-139"></a>      names, trademarks, service marks, or product names of the Licensor,
+</span><span id="__span-0-140"><a href="#__codelineno-0-140" id="__codelineno-0-140" name="__codelineno-0-140"></a>      except as required for reasonable and customary use in describing the
+</span><span id="__span-0-141"><a href="#__codelineno-0-141" id="__codelineno-0-141" name="__codelineno-0-141"></a>      origin of the Work and reproducing the content of the NOTICE file.
+</span><span id="__span-0-142"><a href="#__codelineno-0-142" id="__codelineno-0-142" name="__codelineno-0-142"></a>
+</span><span id="__span-0-143"><a href="#__codelineno-0-143" id="__codelineno-0-143" name="__codelineno-0-143"></a>   7. Disclaimer of Warranty. Unless required by applicable law or
+</span><span id="__span-0-144"><a href="#__codelineno-0-144" id="__codelineno-0-144" name="__codelineno-0-144"></a>      agreed to in writing, Licensor provides the Work (and each
+</span><span id="__span-0-145"><a href="#__codelineno-0-145" id="__codelineno-0-145" name="__codelineno-0-145"></a>      Contributor provides its Contributions) on an "AS IS" BASIS,
+</span><span id="__span-0-146"><a href="#__codelineno-0-146" id="__codelineno-0-146" name="__codelineno-0-146"></a>      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+</span><span id="__span-0-147"><a href="#__codelineno-0-147" id="__codelineno-0-147" name="__codelineno-0-147"></a>      implied, including, without limitation, any warranties or conditions
+</span><span id="__span-0-148"><a href="#__codelineno-0-148" id="__codelineno-0-148" name="__codelineno-0-148"></a>      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+</span><span id="__span-0-149"><a href="#__codelineno-0-149" id="__codelineno-0-149" name="__codelineno-0-149"></a>      PARTICULAR PURPOSE. You are solely responsible for determining the
+</span><span id="__span-0-150"><a href="#__codelineno-0-150" id="__codelineno-0-150" name="__codelineno-0-150"></a>      appropriateness of using or redistributing the Work and assume any
+</span><span id="__span-0-151"><a href="#__codelineno-0-151" id="__codelineno-0-151" name="__codelineno-0-151"></a>      risks associated with Your exercise of permissions under this License.
+</span><span id="__span-0-152"><a href="#__codelineno-0-152" id="__codelineno-0-152" name="__codelineno-0-152"></a>
+</span><span id="__span-0-153"><a href="#__codelineno-0-153" id="__codelineno-0-153" name="__codelineno-0-153"></a>   8. Limitation of Liability. In no event and under no legal theory,
+</span><span id="__span-0-154"><a href="#__codelineno-0-154" id="__codelineno-0-154" name="__codelineno-0-154"></a>      whether in tort (including negligence), contract, or otherwise,
+</span><span id="__span-0-155"><a href="#__codelineno-0-155" id="__codelineno-0-155" name="__codelineno-0-155"></a>      unless required by applicable law (such as deliberate and grossly
+</span><span id="__span-0-156"><a href="#__codelineno-0-156" id="__codelineno-0-156" name="__codelineno-0-156"></a>      negligent acts) or agreed to in writing, shall any Contributor be
+</span><span id="__span-0-157"><a href="#__codelineno-0-157" id="__codelineno-0-157" name="__codelineno-0-157"></a>      liable to You for damages, including any direct, indirect, special,
+</span><span id="__span-0-158"><a href="#__codelineno-0-158" id="__codelineno-0-158" name="__codelineno-0-158"></a>      incidental, or consequential damages of any character arising as a
+</span><span id="__span-0-159"><a href="#__codelineno-0-159" id="__codelineno-0-159" name="__codelineno-0-159"></a>      result of this License or out of the use or inability to use the
+</span><span id="__span-0-160"><a href="#__codelineno-0-160" id="__codelineno-0-160" name="__codelineno-0-160"></a>      Work (including but not limited to damages for loss of goodwill,
+</span><span id="__span-0-161"><a href="#__codelineno-0-161" id="__codelineno-0-161" name="__codelineno-0-161"></a>      work stoppage, computer failure or malfunction, or any and all
+</span><span id="__span-0-162"><a href="#__codelineno-0-162" id="__codelineno-0-162" name="__codelineno-0-162"></a>      other commercial damages or losses), even if such Contributor
+</span><span id="__span-0-163"><a href="#__codelineno-0-163" id="__codelineno-0-163" name="__codelineno-0-163"></a>      has been advised of the possibility of such damages.
+</span><span id="__span-0-164"><a href="#__codelineno-0-164" id="__codelineno-0-164" name="__codelineno-0-164"></a>
+</span><span id="__span-0-165"><a href="#__codelineno-0-165" id="__codelineno-0-165" name="__codelineno-0-165"></a>   9. Accepting Warranty or Additional Liability. While redistributing
+</span><span id="__span-0-166"><a href="#__codelineno-0-166" id="__codelineno-0-166" name="__codelineno-0-166"></a>      the Work or Derivative Works thereof, You may choose to offer,
+</span><span id="__span-0-167"><a href="#__codelineno-0-167" id="__codelineno-0-167" name="__codelineno-0-167"></a>      and charge a fee for, acceptance of support, warranty, indemnity,
+</span><span id="__span-0-168"><a href="#__codelineno-0-168" id="__codelineno-0-168" name="__codelineno-0-168"></a>      or other liability obligations and/or rights consistent with this
+</span><span id="__span-0-169"><a href="#__codelineno-0-169" id="__codelineno-0-169" name="__codelineno-0-169"></a>      License. However, in accepting such obligations, You may act only
+</span><span id="__span-0-170"><a href="#__codelineno-0-170" id="__codelineno-0-170" name="__codelineno-0-170"></a>      on Your own behalf and on Your sole responsibility, not on behalf
+</span><span id="__span-0-171"><a href="#__codelineno-0-171" id="__codelineno-0-171" name="__codelineno-0-171"></a>      of any other Contributor, and only if You agree to indemnify,
+</span><span id="__span-0-172"><a href="#__codelineno-0-172" id="__codelineno-0-172" name="__codelineno-0-172"></a>      defend, and hold each Contributor harmless for any liability
+</span><span id="__span-0-173"><a href="#__codelineno-0-173" id="__codelineno-0-173" name="__codelineno-0-173"></a>      incurred by, or claims asserted against, such Contributor by reason
+</span><span id="__span-0-174"><a href="#__codelineno-0-174" id="__codelineno-0-174" name="__codelineno-0-174"></a>      of your accepting any such warranty or additional liability.
+</span><span id="__span-0-175"><a href="#__codelineno-0-175" id="__codelineno-0-175" name="__codelineno-0-175"></a>
+</span><span id="__span-0-176"><a href="#__codelineno-0-176" id="__codelineno-0-176" name="__codelineno-0-176"></a>   END OF TERMS AND CONDITIONS
+</span><span id="__span-0-177"><a href="#__codelineno-0-177" id="__codelineno-0-177" name="__codelineno-0-177"></a>
+</span><span id="__span-0-178"><a href="#__codelineno-0-178" id="__codelineno-0-178" name="__codelineno-0-178"></a>   APPENDIX: How to apply the Apache License to your work.
+</span><span id="__span-0-179"><a href="#__codelineno-0-179" id="__codelineno-0-179" name="__codelineno-0-179"></a>
+</span><span id="__span-0-180"><a href="#__codelineno-0-180" id="__codelineno-0-180" name="__codelineno-0-180"></a>      To apply the Apache License to your work, attach the following
+</span><span id="__span-0-181"><a href="#__codelineno-0-181" id="__codelineno-0-181" name="__codelineno-0-181"></a>      boilerplate notice, with the fields enclosed by brackets "[]"
+</span><span id="__span-0-182"><a href="#__codelineno-0-182" id="__codelineno-0-182" name="__codelineno-0-182"></a>      replaced with your own identifying information. (Don't include
+</span><span id="__span-0-183"><a href="#__codelineno-0-183" id="__codelineno-0-183" name="__codelineno-0-183"></a>      the brackets!)  The text should be enclosed in the appropriate
+</span><span id="__span-0-184"><a href="#__codelineno-0-184" id="__codelineno-0-184" name="__codelineno-0-184"></a>      comment syntax for the file format. We also recommend that a
+</span><span id="__span-0-185"><a href="#__codelineno-0-185" id="__codelineno-0-185" name="__codelineno-0-185"></a>      file or class name and description of purpose be included on the
+</span><span id="__span-0-186"><a href="#__codelineno-0-186" id="__codelineno-0-186" name="__codelineno-0-186"></a>      same "printed page" as the copyright notice for easier
+</span><span id="__span-0-187"><a href="#__codelineno-0-187" id="__codelineno-0-187" name="__codelineno-0-187"></a>      identification within third-party archives.
+</span><span id="__span-0-188"><a href="#__codelineno-0-188" id="__codelineno-0-188" name="__codelineno-0-188"></a>
+</span><span id="__span-0-189"><a href="#__codelineno-0-189" id="__codelineno-0-189" name="__codelineno-0-189"></a>   Copyright [yyyy] [name of copyright owner]
+</span><span id="__span-0-190"><a href="#__codelineno-0-190" id="__codelineno-0-190" name="__codelineno-0-190"></a>
+</span><span id="__span-0-191"><a href="#__codelineno-0-191" id="__codelineno-0-191" name="__codelineno-0-191"></a>   Licensed under the Apache License, Version 2.0 (the "License");
+</span><span id="__span-0-192"><a href="#__codelineno-0-192" id="__codelineno-0-192" name="__codelineno-0-192"></a>   you may not use this file except in compliance with the License.
+</span><span id="__span-0-193"><a href="#__codelineno-0-193" id="__codelineno-0-193" name="__codelineno-0-193"></a>   You may obtain a copy of the License at
+</span><span id="__span-0-194"><a href="#__codelineno-0-194" id="__codelineno-0-194" name="__codelineno-0-194"></a>
+</span><span id="__span-0-195"><a href="#__codelineno-0-195" id="__codelineno-0-195" name="__codelineno-0-195"></a>       http://www.apache.org/licenses/LICENSE-2.0
+</span><span id="__span-0-196"><a href="#__codelineno-0-196" id="__codelineno-0-196" name="__codelineno-0-196"></a>
+</span><span id="__span-0-197"><a href="#__codelineno-0-197" id="__codelineno-0-197" name="__codelineno-0-197"></a>   Unless required by applicable law or agreed to in writing, software
+</span><span id="__span-0-198"><a href="#__codelineno-0-198" id="__codelineno-0-198" name="__codelineno-0-198"></a>   distributed under the License is distributed on an "AS IS" BASIS,
+</span><span id="__span-0-199"><a href="#__codelineno-0-199" id="__codelineno-0-199" name="__codelineno-0-199"></a>   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+</span><span id="__span-0-200"><a href="#__codelineno-0-200" id="__codelineno-0-200" name="__codelineno-0-200"></a>   See the License for the specific language governing permissions and
+</span><span id="__span-0-201"><a href="#__codelineno-0-201" id="__codelineno-0-201" name="__codelineno-0-201"></a>   limitations under the License.
+</span></code></pre></div>
+<aside class="md-source-file">
+<span class="md-source-file__fact">
+<span class="md-icon" title="Last update">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
+</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 6, 2026 21:09:06 UTC">September 6, 2026</span>
+</span>
+</aside>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<nav aria-label="Footer" class="md-footer__inner md-grid">
+<a aria-label="Previous: UML generation" class="md-footer__link md-footer__link--prev" href="../examples/generated_uml.html">
+<div class="md-footer__button md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</div>
+<div class="md-footer__title">
+<span class="md-footer__direction">
+                Previous
+              </span>
+<div class="md-ellipsis">
+                UML generation
+              </div>
+</div>
+</a>
+<a aria-label="Next: External libraries" class="md-footer__link md-footer__link--next" href="licensed_code_in_sen.html">
+<div class="md-footer__title">
+<span class="md-footer__direction">
+                Next
+              </span>
+<div class="md-ellipsis">
+                External libraries
+              </div>
+</div>
+<div class="md-footer__button md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"></path></svg>
+</div>
+</a>
+</nav>
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+<div class="md-copyright__highlight">
+      Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+    </div>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.footer", "navigation.top", "content.code.annotate", "content.code.copy", "content.tooltips", "toc.follow", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+<script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script><script>document$.subscribe(() => {
+            const dark_scheme_name = "slate"
+            
+            window.scheme = document.body.getAttribute("data-md-color-scheme")
+            const options = {
+                attributeFilter: ['data-md-color-scheme'],
+            };
+            function color_scheme_callback(mutations) {
+                for (let mutation of mutations) {
+                    if (mutation.attributeName === "data-md-color-scheme") {
+                        scheme = document.body.getAttribute("data-md-color-scheme")
+                        var iframe_list = document.getElementsByClassName("redoc-iframe")
+                        for(var i = 0; i < iframe_list.length; i++) {
+                            var ele = iframe_list.item(i);
+                            if (ele) {
+                                if (scheme === dark_scheme_name) {
+                                    ele.contentWindow.enable_dark_mode();
+                                } else {
+                                    ele.contentWindow.disable_dark_mode();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            observer = new MutationObserver(color_scheme_callback);
+            observer.observe(document.body, options);
+            })</script></body></html>

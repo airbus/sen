@@ -1,0 +1,24 @@
+# $schema: ../base/schema.json
+#
+# Sen instance exposing the `animals` package over JSON-RPC. Two objects (a Cat and a Dog) both
+# extending Animal. Smallest of the 14_jsonrpc configs; useful for exercising the @sen/client
+# TS library against a simple class hierarchy with a method that takes arguments
+# (Cat::jumpToLocation).
+
+load:
+  - name: jsonrpc
+    address: "0.0.0.0"
+    port: 8080
+
+build:
+  - name: animalsComponent
+    freqHz: 30
+    imports: [animals]
+    group: 3
+    objects:
+      - class: animals.CatImpl
+        name: rufus
+        bus: my.tutorial
+      - class: animals.DogImpl
+        name: elon
+        bus: my.tutorial

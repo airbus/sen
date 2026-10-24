@@ -1,0 +1,44 @@
+package animals;
+
+// See https://en.wikipedia.org/wiki/Taxonomy_(biology)
+struct Taxonomy
+{
+  domain  : string,
+  kingdom : string,
+  phylum  : string,
+  type    : string,
+  order   : string,
+  family  : string,
+  genus   : string,
+  species : string,
+}
+
+quantity<u32, m> MetersU32;
+
+// A position in a 2D-grid
+struct Vec2
+{
+  x : MetersU32,  // Horizontal dimension
+  y : MetersU32,  // Vertical dimension
+}
+
+// Base class for animals
+class Animal
+{
+  // The taxonomy of the animal
+  var taxonomy : Taxonomy [static_no_config];
+
+  // The animal position
+  var position : Vec2;
+
+  // Advances a steps in the x direction and b steps in the y direction.
+  //
+  // @param a meters to advance in the x direction.
+  // @param b meters to advance in the y direction.
+  fn advance(a: MetersU32, b: MetersU32);
+
+  // Emitted when the animal makes a sound.
+  //
+  // @param content the sound
+  event madeSound(content: string);
+}

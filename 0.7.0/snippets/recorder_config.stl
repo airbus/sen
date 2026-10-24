@@ -1,0 +1,27 @@
+package sen.components.recorder;
+
+// List of selection queries
+sequence<string> SelectionList;
+
+// Configuration of a predefined recording
+struct RecordingSettings
+{
+  name           : string,         // name of the recording (cannot be empty)
+  folder         : string,         // storage folder
+  selections     : SelectionList,  // which objects shall be recorded
+  keyframePeriod : Duration,       // period between keyframes (0 means no keyframes)
+  indexKeyframes : bool,           // should we create indexes for keyframes
+  indexObjects   : bool,           // should we create indexes for objects
+  autoStart      : bool            // should we start recording automatically
+}
+
+// List of predefined recordings
+sequence<RecordingSettings> RecordingSettingsList;
+
+// Overall component configuration
+struct Configuration
+{
+  samplingPeriod : Duration,               // sampling period for the recordings
+  recordings     : RecordingSettingsList,  // predefined recordings
+  bus            : string                  // bus to publish the object (local.rec by default)
+}

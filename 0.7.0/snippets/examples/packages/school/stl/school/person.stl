@@ -1,0 +1,24 @@
+package school;
+
+// A base class for persons.
+class Person
+{
+  // The first name.
+  var firstName : string [static];
+
+  // The last name.
+  var surName : string [static];
+
+  // The brain activity index. Goes from 0 to 1.
+  var brainActivity : f32;
+
+  // Ask a question and get an answer.
+  //
+  // @param question human-readable question text.
+  fn ask(question : string) -> string;
+
+  // Emitted when the person says something.
+  //
+  // @param words human-readable words being said.
+  event saidSomething(words : string) [confirmed];
+}
