@@ -87,6 +87,15 @@ protected:
   std::string describeImpl(const ::term::test::Shape& /*s*/) const override { return "shape"; }
   std::string anchorImpl(const ::term::test::MaybePoint& /*p*/) const override { return "anchor"; }
   i32 limitImpl(const ::term::test::MaybeInt& v) const override { return v.value_or(0); }
+  std::string configureEntityImpl(const std::string& /*name*/,
+                                  const ::term::test::OptionalParams& /*params*/) const override
+  {
+    return "configured";
+  }
+  std::string configureDeepImpl(const std::string& /*name*/, const ::term::test::DeepParams& /*params*/) const override
+  {
+    return "configured deeply";
+  }
   std::string waitImpl(sen::Duration /*duration*/) const override { return "waited"; }
   std::string setLengthImpl(::term::test::Meters /*length*/) const override { return "length set"; }
   std::string setRatioImpl(::term::test::Ratio /*ratio*/) const override { return "ratio set"; }
