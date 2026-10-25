@@ -132,6 +132,10 @@ public:
   /// state is not 'running'. @see kill_thread().
   void stopThread();
 
+  /// Joins a faulted component's thread. The error state takes a runner out of every lifecycle
+  /// stage, including the one holding the kernel's only join, so nothing else reclaims it.
+  void joinFaultedThread() noexcept;
+
   /// Whether the caller is this component's own thread. `stopThread` on your own thread joins yourself,
   /// which is EDEADLK and ends in std::terminate.
   [[nodiscard]] bool isCurrentThread() const noexcept;
