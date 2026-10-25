@@ -1,0 +1,54 @@
+package rich;
+
+// Every kind of value a query path can pass before the field it reads.
+enum Force : u8
+{
+  neutral,
+  friendly,
+  hostile
+}
+
+struct FixedPos
+{
+  lat : f64,
+  lon : f64
+}
+
+optional<bool> MaybeFlag;
+array<string, 2> PilotNames;
+sequence<u8> Bytes;
+quantity<f64, m> Height;
+
+struct Header
+{
+  tag   : u16,
+  label : string
+}
+
+struct Record : Header
+{
+  maybe   : MaybeFlag,
+  pilots  : PilotNames,
+  bytes   : Bytes,
+  force   : Force,
+  elapsed : Duration,
+  height  : Height,
+  count   : i32,
+  ok      : bool
+}
+
+variant Payload
+{
+  Record,
+  FixedPos
+}
+
+class Rich
+{
+  var record  : Record [writable, confirmed];
+  var payload : Payload [writable, confirmed];
+  var height  : Height [writable];
+  var force   : Force [writable];
+  var elapsed : Duration [writable];
+  var label   : string [writable, confirmed];
+}

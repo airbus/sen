@@ -7,6 +7,12 @@
 
 add_sen_unit_test_suite(
   kernel_test
+  bus/generic_local_object_against_generated_test.cpp
+  bus/generic_local_object_helpers.h
+  bus/generic_local_object_proxy_test.cpp
+  bus/generic_local_object_query_test.cpp
+  bus/generic_local_object_same_process_test.cpp
+  bus/generic_local_object_test.cpp
   bus/generic_remote_object_test.cpp
   bus/remote_interest_handler_test.cpp
   build_provenance_test.cpp
@@ -42,7 +48,7 @@ sen_add_build_info(kernel_test kernel_test)
 
 sen_generate_cpp(
   TARGET kernel_test
-  STL_FILES test_kernel/stl/my_class.stl
+  STL_FILES test_kernel/stl/my_class.stl bus/stl/rich.stl
   GEN_HDR_FILES public_generated_files
 )
 
