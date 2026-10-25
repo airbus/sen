@@ -7,6 +7,7 @@
 
 add_sen_unit_test_suite(
   kernel_test
+  bus/generic_remote_object_test.cpp
   bus/remote_interest_handler_test.cpp
   build_provenance_test.cpp
   env_substitution_test.cpp
