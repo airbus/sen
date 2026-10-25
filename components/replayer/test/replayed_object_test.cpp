@@ -7,7 +7,6 @@
 
 // component
 #include "replayed_object.h"
-#include "replayed_object_proxy.h"
 #include "replayer_test_helpers.h"
 
 // sen
@@ -30,6 +29,7 @@
 #include "sen/core/obj/connection_guard.h"
 #include "sen/core/obj/detail/work_queue.h"
 #include "sen/core/obj/native_object.h"
+#include "sen/core/obj/object.h"
 #include "sen/db/creation.h"
 #include "sen/db/event.h"
 #include "sen/db/input.h"
@@ -39,6 +39,7 @@
 #include "sen/db/snapshot.h"
 #include "sen/kernel/component.h"
 #include "sen/kernel/component_api.h"
+#include "sen/kernel/detail/generic_local_object_proxy.h"
 #include "sen/kernel/test_kernel.h"
 
 // generated code
@@ -77,52 +78,104 @@ public:
   using ReplayedObject::senImplRemoveTypedConnection;
   using ReplayedObject::senImplStreamCall;
   using ReplayedObject::senImplVariantCall;
-  using ReplayedObject::senImplWriteAllPropertiesToStream;
   using ReplayedObject::senImplWriteChangedPropertiesToStream;
   using ReplayedObject::senImplWriteDynamicPropertiesToStream;
   using ReplayedObject::senImplWriteStaticPropertiesToStream;
-};
 
-class TestReplayedObjectProxy final: public sen::components::replayer::ReplayedObjectProxy
-{
-public:
-  SEN_NOCOPY_NOMOVE(TestReplayedObjectProxy)
-  TestReplayedObjectProxy(sen::components::replayer::ReplayedObject* owner, std::string_view localPrefix)
-    : ReplayedObjectProxy(owner, localPrefix)
+  /// Writes all properties, as ReplayedObject does, and counts the calls.
+  void senImplWriteAllPropertiesToStream(sen::OutputStream& out) const override
   {
-    eventQueue_.enable();
-
-    for (const auto& prop: owner->getAllProps())
-    {
-      guards.push_back(onPropertyChangedUntyped(
-        prop.get(),
-        sen::EventCallback<sen::VarList>(&eventQueue_,
-                                         [this, id = prop->getId()](const sen::EventInfo&, const sen::VarList&)
-                                         { emittedEvents.push_back(id); })));
-    }
+    ++allWrites_;
+    ReplayedObject::senImplWriteAllPropertiesToStream(out);
   }
 
-  ~TestReplayedObjectProxy() override = default;
+  /// How many times the object has written all its properties.
+  [[nodiscard]] std::size_t getAllWrites() const noexcept { return allWrites_; }
 
-  using ReplayedObjectProxy::drainInputsImpl;
-  using ReplayedObjectProxy::senImplGetPropertyImpl;
-  using ReplayedObjectProxy::senImplRemoveTypedConnection;
-  using ReplayedObjectProxy::senImplWriteAllPropertiesToStream;
-  using ReplayedObjectProxy::senImplWriteDynamicPropertiesToStream;
-  using ReplayedObjectProxy::senImplWriteStaticPropertiesToStream;
-
-  void executeCallbacks()
+  /// Returns a property's encoding, as ReplayedObject does, and records which property was asked for.
+  [[nodiscard]] sen::Span<const uint8_t> getPropertyEncoding(sen::MemberHash propertyId) const override
   {
-    while (eventQueue_.executeAll())
-    {
-    }
+    encodingsAsked_.push_back(propertyId.get());
+    return ReplayedObject::getPropertyEncoding(propertyId);
   }
-  // intercept events for validation
-  std::vector<sen::MemberHash> emittedEvents;  // NOLINT(misc-non-private-member-variables-in-classes)
-  std::vector<sen::ConnectionGuard> guards;    // NOLINT(misc-non-private-member-variables-in-classes)
+
+  /// The ids of the properties whose encodings were asked for, in order.
+  [[nodiscard]] const std::vector<uint32_t>& getEncodingsAsked() const noexcept { return encodingsAsked_; }
 
 private:
-  sen::impl::WorkQueue eventQueue_ {256U, false};
+  mutable std::size_t allWrites_ = 0U;
+  mutable std::vector<uint32_t> encodingsAsked_;
+};
+
+/// Gives the tests access to Object's protected property writers and senImplRemoveTypedConnection.
+struct ObjectAccess: sen::Object
+{
+  static auto writeStatic() { return &ObjectAccess::senImplWriteStaticPropertiesToStream; }
+  static auto writeDynamic() { return &ObjectAccess::senImplWriteDynamicPropertiesToStream; }
+  static auto removeTypedConnection() { return &ObjectAccess::senImplRemoveTypedConnection; }
+};
+
+/// What object writes when it writes all its properties.
+[[nodiscard]] std::vector<uint8_t> writeAll(const sen::Object& object)
+{
+  std::vector<uint8_t> bytes;
+  sen::ResizableBufferWriter writer(bytes);
+  sen::OutputStream out(writer);
+  sen::impl::writeAllPropertiesToStream(&object, out);
+  return bytes;
+}
+
+/// What object writes with one of its property writers.
+template <typename Writer>
+[[nodiscard]] std::vector<uint8_t> writeWith(const sen::Object& object, Writer writer)
+{
+  std::vector<uint8_t> bytes;
+  sen::ResizableBufferWriter bufferWriter(bytes);
+  sen::OutputStream out(bufferWriter);
+  (object.*writer)(out);
+  return bytes;
+}
+
+/// A replayed object's local proxy, recording the property and time of each change notification.
+struct LocalProxyOf
+{
+  using Told = std::vector<std::pair<sen::MemberHash, sen::TimeStamp>>;
+  using Proxy = sen::kernel::impl::GenericLocalObjectProxy;
+
+  std::shared_ptr<Proxy> proxy;  // NOLINT(misc-non-private-member-variables-in-classes)
+  Told told;                     // NOLINT(misc-non-private-member-variables-in-classes)
+
+  explicit LocalProxyOf(sen::components::replayer::ReplayedObject* object)
+    : proxy(std::dynamic_pointer_cast<Proxy>(object->senImplMakeLocalProxy("local")))
+  {
+    if (proxy == nullptr)
+    {
+      throw std::runtime_error("LocalProxyOf: a replayed object made no generic local proxy");
+    }
+
+    queue_.enable();
+    for (const auto& prop: object->getAllProps())
+    {
+      guards_.push_back(proxy->onPropertyChangedUntyped(
+        prop.get(),
+        sen::EventCallback<sen::VarList>(&queue_,
+                                         [this, id = prop->getId()](const sen::EventInfo& info, const sen::VarList&)
+                                         { told.emplace_back(id, info.creationTime); })));
+    }
+  }
+
+  /// Drains the proxy, as the subscriber's component does each cycle, and runs the queued callbacks.
+  void drain()
+  {
+    proxy->drainInputs();
+    while (queue_.executeAll())
+    {
+    }
+  }
+
+private:
+  sen::impl::WorkQueue queue_ {256U, false};
+  std::vector<sen::ConnectionGuard> guards_;
 };
 
 [[nodiscard]] const sen::Property* findPropertyByName(const TestReplayedObject& obj, std::string_view propertyName)
@@ -706,9 +759,7 @@ TEST(ReplayedObjectTest, FieldGetterHandlesSupportedAndInvalidPaths)
 }
 
 /// @test
-/// Mirrors the owner's committed property values through the proxy, a drain after a committed
-/// change fires exactly one change callback for that property and a repeated drain fires
-/// none, while the proxy's native write and connection operations throw logic errors.
+/// A local proxy notifies each replayed change once, with its recorded time, even for a repeated value.
 /// @requirements(SEN-364)
 TEST(ReplayedObjectTest, ProxyDrainInputsDetectsChanges)
 {
@@ -716,38 +767,164 @@ TEST(ReplayedObjectTest, ProxyDrainInputsDetectsChanges)
   auto snapshot = setup.findCreationSnapshot();
   const auto t0 = makeTime(1);
   auto obj = makeObject(snapshot, t0);
-  TestReplayedObjectProxy proxy(obj.get(), "local");
+  ASSERT_TRUE(obj->getClass()->hasProxyMakers());
+
+  LocalProxyOf local(obj.get());
 
   const auto* prop = findPropertyByName(*obj, "testProp");
-  auto val = proxy.senImplGetPropertyImpl(prop->getId());
+  auto val = local.proxy->getPropertyUntyped(prop);
   EXPECT_FALSE(val.isEmpty());
   EXPECT_EQ(val.getCopyAs<float64_t>(), obj->getPropertyUntyped(prop).getCopyAs<float64_t>());
 
-  proxy.drainInputsImpl(t0);
-  proxy.executeCallbacks();
-  EXPECT_TRUE(proxy.emittedEvents.empty());
+  local.drain();
+  EXPECT_TRUE(local.told.empty());
 
+  // recorded at t1, then flushed and committed later
   auto propChange = setup.findPropertyChangeNamed("testProp");
   const auto t1 = makeTime(5);
-  injectFlushCommit(*obj, t1, propChange);
+  obj->inject(t1, propChange);
+  obj->flushPendingChanges(makeTime(6));
+  obj->commit(makeTime(7));
+  ASSERT_NE(obj->getLastCommitTime(), t1);
 
-  proxy.drainInputsImpl(t1);
-  proxy.executeCallbacks();
-  ASSERT_EQ(proxy.emittedEvents.size(), 1);
-  EXPECT_EQ(proxy.emittedEvents.front(), prop->getId());
+  local.drain();
+  ASSERT_EQ(local.told.size(), 1U);
+  EXPECT_EQ(local.told.front().first, prop->getId());
+  EXPECT_EQ(local.told.front().second, t1);
+  EXPECT_DOUBLE_EQ(local.proxy->getPropertyUntyped(prop).getCopyAs<float64_t>(), 12.3);
 
-  proxy.emittedEvents.clear();
-  proxy.drainInputsImpl(t1);
-  proxy.executeCallbacks();
-  EXPECT_TRUE(proxy.emittedEvents.empty());
+  local.told.clear();
+  local.drain();
+  EXPECT_TRUE(local.told.empty());
 
-  std::vector<uint8_t> buf;
-  sen::ResizableBufferWriter writer(buf);
-  sen::OutputStream out(writer);
-  EXPECT_THROW(proxy.senImplWriteAllPropertiesToStream(out), std::logic_error);
-  EXPECT_THROW(proxy.senImplWriteStaticPropertiesToStream(out), std::logic_error);
-  EXPECT_THROW(proxy.senImplWriteDynamicPropertiesToStream(out), std::logic_error);
-  EXPECT_THROW(proxy.senImplRemoveTypedConnection(sen::ConnId {1}), std::logic_error);
+  const auto t2 = makeTime(9);
+  obj->inject(t2, propChange);
+  obj->flushPendingChanges(makeTime(10));
+  obj->commit(makeTime(11));
+  local.drain();
+  ASSERT_EQ(local.told.size(), 1U);
+  EXPECT_EQ(local.told.front().first, prop->getId());
+  EXPECT_EQ(local.told.front().second, t2);
+  EXPECT_DOUBLE_EQ(local.proxy->getPropertyUntyped(prop).getCopyAs<float64_t>(), 12.3);
+}
+
+/// @test
+/// A local proxy writes the object's bytes as of its last drain; typed-connection removal is a no-op.
+/// @requirements(SEN-364)
+TEST(ReplayedObjectTest, ProxyWritesTheReplayedValues)
+{
+  ReplayedObjectSetup setup;
+  auto snapshot = setup.findCreationSnapshot();
+  auto obj = makeObject(snapshot, makeTime(1));
+  LocalProxyOf local(obj.get());
+
+  EXPECT_EQ(writeAll(*local.proxy), writeAll(*obj));
+  EXPECT_EQ(writeWith(*local.proxy, ObjectAccess::writeStatic()), writeWith(*obj, ObjectAccess::writeStatic()));
+  EXPECT_EQ(writeWith(*local.proxy, ObjectAccess::writeDynamic()), writeWith(*obj, ObjectAccess::writeDynamic()));
+
+  injectFlushCommit(*obj, makeTime(5), setup.findPropertyChangeNamed("testProp"));
+  const auto before = writeAll(*local.proxy);
+  EXPECT_NE(writeAll(*obj), before);
+
+  local.drain();
+  EXPECT_EQ(writeAll(*local.proxy), writeAll(*obj));
+
+  EXPECT_NO_THROW(((*local.proxy).*ObjectAccess::removeTypedConnection())(sen::ConnId {1}));
+}
+
+/// @test
+/// A replayed object writes all its properties only once, when its local proxy is made.
+/// @requirements(SEN-364)
+TEST(ReplayedObjectTest, ProxyDoesNotRewriteAnUnchangedObject)
+{
+  ReplayedObjectSetup setup;
+  auto obj = makeObject(setup.findCreationSnapshot(), makeTime(1));
+  LocalProxyOf local(obj.get());
+  ASSERT_EQ(obj->getAllWrites(), 1U) << "the proxy takes the object's state when it is made";
+
+  local.drain();
+  obj->commit(makeTime(2));
+  local.drain();
+  EXPECT_EQ(obj->getAllWrites(), 1U);
+  EXPECT_TRUE(local.told.empty());
+
+  injectFlushCommit(*obj, makeTime(5), setup.findPropertyChangeNamed("testProp"));
+  local.drain();
+  EXPECT_EQ(obj->getAllWrites(), 1U);
+  EXPECT_EQ(local.told.size(), 1U);
+
+  local.drain();
+  EXPECT_EQ(obj->getAllWrites(), 1U);
+}
+
+/// @test
+/// A drain reads each property's encoding once and notifies only those whose recorded time moved.
+/// @requirements(SEN-364)
+TEST(ReplayedObjectTest, ProxyTellsOnlyOfPropertiesWhoseTimeMoved)
+{
+  ReplayedObjectSetup setup;
+  auto obj = makeObject(setup.findCreationSnapshot(), makeTime(1));
+  LocalProxyOf local(obj.get());
+  ASSERT_TRUE(obj->getEncodingsAsked().empty()) << "the proxy is made from a full write";
+
+  std::vector<uint32_t> everyProperty;
+  for (const auto& prop: obj->getAllProps())
+  {
+    everyProperty.push_back(prop->getId().get());
+  }
+
+  const auto* testProp = findPropertyByName(*obj, "testProp");
+  const auto* uniProp = findPropertyByName(*obj, "uniProp");
+  const auto t1 = makeTime(5);
+  obj->inject(t1, setup.findPropertyChangeNamed("testProp"));
+  obj->inject(t1, setup.findPropertyChangeNamed("uniProp"));
+  obj->flushPendingChanges(t1);
+  obj->commit(t1);
+  local.drain();
+
+  EXPECT_EQ(obj->getEncodingsAsked(), everyProperty);
+  ASSERT_EQ(local.told.size(), 2U);
+  EXPECT_EQ(local.told[0].first, testProp->getId());
+  EXPECT_EQ(local.told[1].first, uniProp->getId());
+  EXPECT_DOUBLE_EQ(local.proxy->getPropertyUntyped(testProp).getCopyAs<float64_t>(), 12.3);
+  EXPECT_EQ(local.proxy->getPropertyUntyped(uniProp).getCopyAs<int32_t>(), 1);
+
+  local.told.clear();
+  local.drain();
+  EXPECT_EQ(obj->getEncodingsAsked().size(), 2U * everyProperty.size()) << "compared again";
+  EXPECT_TRUE(local.told.empty()) << "no time moved since";
+  EXPECT_EQ(obj->getAllWrites(), 1U);
+}
+
+/// @test
+/// A value committed without its recorded time moving is read at the next drain but not notified.
+/// @requirements(SEN-364)
+TEST(ReplayedObjectTest, ProxyReadsAValueChangedUnderAnUnmovedTime)
+{
+  ReplayedObjectSetup setup;
+  auto obj = makeObject(setup.findCreationSnapshot(), makeTime(1));
+  LocalProxyOf local(obj.get());
+  const auto* prop = findPropertyByName(*obj, "testProp");
+  const auto recorded = obj->getPropertyUntyped(prop).getCopyAs<float64_t>();
+  ASSERT_NE(recorded, 12.3);
+
+  const auto t1 = makeTime(5);
+  injectFlushCommit(*obj, t1, setup.findPropertyChangeNamed("testProp"));
+  local.drain();
+  ASSERT_DOUBLE_EQ(local.proxy->getPropertyUntyped(prop).getCopyAs<float64_t>(), 12.3);
+  local.told.clear();
+
+  // a keyframe at the change's own time, holding the value from before it
+  injectFlushCommit(*obj, t1, setup.findKeyframeSnapshot());
+  ASSERT_EQ(obj->getPropertyLastTime(prop), t1);
+  ASSERT_DOUBLE_EQ(obj->getPropertyUntyped(prop).getCopyAs<float64_t>(), recorded);
+
+  local.drain();
+  EXPECT_DOUBLE_EQ(local.proxy->getPropertyUntyped(prop).getCopyAs<float64_t>(), recorded);
+  for (const auto& told: local.told)
+  {
+    EXPECT_NE(told.first, prop->getId()) << "told of a property whose time did not move";
+  }
 }
 
 }  // namespace replayer::test

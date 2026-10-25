@@ -39,6 +39,7 @@
 #include "sen/db/event.h"
 #include "sen/db/property_change.h"
 #include "sen/db/snapshot.h"
+#include "sen/kernel/detail/generic_local_object_proxy.h"
 
 // std
 #include <algorithm>
@@ -290,13 +291,32 @@ TimeStamp ReplayedObject::getLastCommitTime() const noexcept { return lastCommit
 
 ConstTypeHandle<ClassType> ReplayedObject::getClass() const noexcept { return meta_; }
 
-TimeStamp ReplayedObject::getPropertyLastTime(const Property* property) const
+std::shared_ptr<impl::NativeObjectProxy> ReplayedObject::senImplMakeLocalProxy(const std::string& localPrefix)
 {
-  if (auto itr = timeCache_.find(property->getId()); itr != timeCache_.end())
+  return kernel::impl::makeGenericLocalProxy(this, this, this, localPrefix);
+}
+
+Span<const uint8_t> ReplayedObject::getPropertyEncoding(MemberHash propertyId) const
+{
+  if (auto itr = bufferCache_.find(propertyId); itr != bufferCache_.end())
+  {
+    return itr->second;
+  }
+  return {};
+}
+
+TimeStamp ReplayedObject::getPropertyChangeTime(MemberHash propertyId) const
+{
+  if (auto itr = timeCache_.find(propertyId); itr != timeCache_.end())
   {
     return itr->second;
   }
   return lastCommitTime_;
+}
+
+TimeStamp ReplayedObject::getPropertyLastTime(const Property* property) const
+{
+  return getPropertyChangeTime(property->getId());
 }
 
 void ReplayedObject::senImplRemoveTypedConnection(ConnId id)

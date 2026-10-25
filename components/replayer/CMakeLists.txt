@@ -19,8 +19,6 @@ add_sen_package(
   SOURCES src/component.cpp
           src/replayed_object.h
           src/replayed_object.cpp
-          src/replayed_object_proxy.h
-          src/replayed_object_proxy.cpp
           src/replayer.h
           src/replayer.cpp
           src/replay.h

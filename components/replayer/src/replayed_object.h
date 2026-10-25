@@ -9,6 +9,7 @@
 #define SEN_COMPONENTS_REPLAYER_SRC_REPLAYED_OBJECT_H
 
 // sen
+#include "sen/core/base/span.h"
 #include "sen/core/base/timestamp.h"
 #include "sen/core/meta/class_type.h"
 #include "sen/core/meta/property.h"
@@ -19,15 +20,20 @@
 #include "sen/db/event.h"
 #include "sen/db/property_change.h"
 #include "sen/db/snapshot.h"
+#include "sen/kernel/detail/generic_local_object_proxy.h"
 
 // std
 #include <memory>
-#include <shared_mutex>
+#include <string>
 
 namespace sen::components::replayer
 {
 
-class ReplayedObject: public NativeObject
+/// An object being replayed from a recording. It holds each property's recorded encoding and time,
+/// so local subscribers are notified of each change at its recorded time.
+class ReplayedObject: public NativeObject,
+                      public kernel::impl::EncodedPropertyValues,
+                      public kernel::impl::PropertyChangeTimes
 {
 public:
   SEN_NOCOPY_NOMOVE(ReplayedObject)
@@ -41,6 +47,15 @@ public:  // implements Object
   [[nodiscard]] TimeStamp getLastCommitTime() const noexcept override;
   [[nodiscard]] ConstTypeHandle<ClassType> getClass() const noexcept override;
 
+public:  // implements NativeObject
+  [[nodiscard]] std::shared_ptr<impl::NativeObjectProxy> senImplMakeLocalProxy(const std::string& localPrefix) override;
+
+public:  // implements kernel::impl::EncodedPropertyValues
+  [[nodiscard]] Span<const uint8_t> getPropertyEncoding(MemberHash propertyId) const override;
+
+public:  // implements kernel::impl::PropertyChangeTimes
+  [[nodiscard]] TimeStamp getPropertyChangeTime(MemberHash propertyId) const override;
+
 public:
   void flushPendingChanges(TimeStamp entryTime);
   void inject(TimeStamp entryTime, const db::PropertyChange& propertyChange);
@@ -48,7 +63,6 @@ public:
   void inject(TimeStamp entryTime, const db::Snapshot& snapshot);
   TimeStamp getPropertyLastTime(const Property* property) const;
   const PropertyList& getAllProps() const noexcept;
-  [[nodiscard]] std::shared_lock<std::shared_mutex> getReplayerReadLock() const { return createReaderLock(); }
 
 private:
   inline void writePropertyToStream(impl::BufferProvider& provider,
