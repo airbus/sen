@@ -12,6 +12,7 @@
 #include "sen/core/base/result.h"
 #include "sen/core/base/timestamp.h"
 #include "sen/core/io/util.h"
+#include "sen/core/meta/class_type.h"
 #include "sen/core/meta/event.h"
 #include "sen/core/meta/method.h"
 #include "sen/core/meta/type.h"
@@ -20,6 +21,7 @@
 #include "sen/core/obj/connection_guard.h"
 #include "sen/core/obj/detail/event_buffer.h"
 #include "sen/core/obj/detail/native_object_impl.h"
+#include "sen/core/obj/detail/native_object_proxy.h"
 #include "sen/core/obj/detail/work_queue.h"
 #include "sen/core/obj/object.h"
 
@@ -298,6 +300,16 @@ void NativeObject::registered(kernel::RegistrationApi& api) { std::ignore = api;
 void NativeObject::update(kernel::RunApi& runApi) { std::ignore = runApi; }
 
 void NativeObject::unregistered(kernel::RegistrationApi& api) { std::ignore = api; }
+
+std::shared_ptr<impl::NativeObjectProxy> NativeObject::senImplMakeLocalProxy(const std::string& localPrefix)
+{
+  auto proxy = getClass()->createLocalProxy(this, localPrefix);
+  if (proxy != nullptr)
+  {
+    proxy->drainInputs();
+  }
+  return proxy;
+}
 
 NativeObject* NativeObject::asNativeObject() noexcept { return this; }
 
