@@ -5,8 +5,8 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
-#ifndef SEN_LIBS_KERNEL_SRC_BUS_GENERIC_REMOTE_OBJECT_H
-#define SEN_LIBS_KERNEL_SRC_BUS_GENERIC_REMOTE_OBJECT_H
+#ifndef SEN_KERNEL_DETAIL_GENERIC_REMOTE_OBJECT_H
+#define SEN_KERNEL_DETAIL_GENERIC_REMOTE_OBJECT_H
 
 // sen
 #include "sen/core/base/compiler_macros.h"
@@ -68,4 +68,4 @@ private:
 
 }  // namespace sen::kernel::impl
 
-#endif  // SEN_LIBS_KERNEL_SRC_BUS_GENERIC_REMOTE_OBJECT_H
+#endif  // SEN_KERNEL_DETAIL_GENERIC_REMOTE_OBJECT_H

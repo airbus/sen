@@ -37,7 +37,7 @@ set(public_headers
     include/sen/kernel/test_kernel.h
 )
 
-set(detail_headers include/sen/kernel/detail/kernel_fwd.h)
+set(detail_headers include/sen/kernel/detail/kernel_fwd.h include/sen/kernel/detail/generic_remote_object.h)
 
 set(sources
     src/bootloader.cpp
@@ -109,7 +109,6 @@ set(bus_sources
     src/bus/remote_interest_manager.cpp
     src/bus/remote_participant.h
     src/bus/remote_participant.cpp
-    src/bus/generic_remote_object.h
     src/bus/generic_remote_object.cpp
     src/bus/util.h
     src/bus/session.h

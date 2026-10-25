@@ -12,7 +12,6 @@
 
 // bus
 #include "bus/bus.h"
-#include "bus/generic_remote_object.h"
 #include "bus/local_participant.h"
 #include "bus/remote_interest_manager.h"
 #include "bus/session.h"
@@ -41,6 +40,7 @@
 #include "sen/core/obj/native_object.h"
 #include "sen/core/obj/object.h"
 #include "sen/core/obj/object_provider.h"
+#include "sen/kernel/detail/generic_remote_object.h"
 #include "sen/kernel/transport.h"
 #include "sen/kernel/type_specs_utils.h"
 

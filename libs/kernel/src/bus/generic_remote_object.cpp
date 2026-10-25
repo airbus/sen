@@ -5,7 +5,7 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
-#include "generic_remote_object.h"
+#include "sen/kernel/detail/generic_remote_object.h"
 
 // sen
 #include "sen/core/base/assert.h"
