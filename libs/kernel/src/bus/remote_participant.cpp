@@ -1840,18 +1840,7 @@ RemoteObjectDiscovery RemoteParticipant::makeRemoteObjectDiscovery(const ObjectA
   // the remote class is known locally
   else
   {
-    // the local class should have proxy makers
-    if (!localClass.value()->asClassType()->hasProxyMakers())
-    {
-      std::string err = "RP ";
-      err.append(getDebugName());
-      err.append(": local class ");
-      err.append(addition.className);
-      err.append(". Does not have the expected proxy makers.");
-      logger_->error(err);
-      throw std::logic_error(err);
-    }
-
+    // a local class without proxy makers gets a GenericRemoteObject (see startTrackingProxy)
     proxyClass = dynamicTypeHandleCast<const ClassType>(localClass.value()).value();
 
     // the local and remote types are equivalent
