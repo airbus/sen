@@ -125,6 +125,56 @@ TEST(RuntimeCompatibility, AcceptsTheVersionDifferencesItIsMeantTo)
 }
 
 /// @test
+/// A remote alias is compatible with the type it aliases, such as a FOM's Octet with a local u8.
+TEST(RuntimeCompatibility, SeesThroughARemoteAlias)
+{
+  const auto octet = AliasType::make({"Octet", "ns.Octet", "", sen::UInt8Type::get()});
+  EXPECT_TRUE(sen::kernel::runtimeCompatible(sen::UInt8Type::get().type(), octet.type()).empty()) << "remote alias";
+  EXPECT_TRUE(sen::kernel::runtimeCompatible(octet.type(), sen::UInt8Type::get().type()).empty()) << "local alias";
+
+  const auto structOf = [](const ConstTypeHandle<>& fieldType)
+  { return StructType::make({"S", "ns.S", "", {{"f", "", fieldType}}, {}}); };
+  EXPECT_TRUE(sen::kernel::runtimeCompatible(structOf(sen::UInt8Type::get()).type(), structOf(octet).type()).empty())
+    << "an alias in a remote field";
+
+  const auto optionalOf = OptionalType::make({"MaybeU8", "ns.MaybeU8", "", sen::UInt8Type::get()});
+  EXPECT_TRUE(sen::kernel::runtimeCompatible(optionalOf.type(), octet.type()).empty()) << "a local optional";
+
+  // but not with a type that its aliased type cannot be read as
+  const auto held = classHolding(sen::UInt32Type::get());
+  EXPECT_FALSE(sen::kernel::runtimeCompatible(held.type(), octet.type()).empty()) << "remote alias against a class";
+}
+
+/// @test
+/// The loss grading of a method argument, where the sides are swapped, does not see through the
+/// reader's own alias.
+TEST(RuntimeCompatibility, GradesMethodArgumentsAsBefore)
+{
+  const auto meters = AliasType::make({"Meters", "ns.Meters", "", sen::Float64Type::get()});
+  const auto f32 = sen::Float32Type::get();
+  const auto f64 = sen::Float64Type::get();
+  EXPECT_TRUE(lossyReading(classCalling(f32, f64), classCalling(meters, f64)).empty()) << "argument";
+
+  const auto structOf = [](const ConstTypeHandle<>& fieldType)
+  { return StructType::make({"S", "ns.S", "", {{"f", "", fieldType}}, {}}); };
+  EXPECT_TRUE(lossyReading(classCalling(structOf(f32), f64), classCalling(structOf(meters), f64)).empty())
+    << "a field of an argument";
+}
+
+/// @test
+/// getRuntimeDifferences lists no differences between a type and a remote alias of itself.
+TEST(RuntimeDifferences, SeeThroughARemoteAlias)
+{
+  const auto octet = AliasType::make({"Octet", "ns.Octet", "", sen::UInt8Type::get()});
+  EXPECT_TRUE(sen::kernel::getRuntimeDifferences(sen::UInt8Type::get().type(), octet.type()).empty()) << "native";
+
+  // also for a struct against a remote alias of itself
+  const auto record = StructType::make({"S", "ns.S", "", {{"f", "", sen::UInt8Type::get()}}, {}});
+  const auto aliasOfRecord = AliasType::make({"SAlias", "ns.SAlias", "", record});
+  EXPECT_TRUE(sen::kernel::getRuntimeDifferences(record.type(), aliasOfRecord.type()).empty()) << "struct";
+}
+
+/// @test
 /// Pins what the kernel refuses, so a laxer answer is a regression too.
 TEST(RuntimeCompatibility, RefusesWhatCannotBeConverted)
 {

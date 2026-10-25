@@ -1784,6 +1784,12 @@ private:
 
 std::vector<std::string> getRuntimeDifferences(const Type* localType, const Type* remoteType)
 {
+  // a remote alias is compared as the type it aliases; the visitor compares two aliases itself
+  if (const auto* aliasRemote = remoteType->asAliasType(); aliasRemote != nullptr && !localType->isAliasType())
+  {
+    return getRuntimeDifferences(localType, aliasRemote->getAliasedType().type());
+  }
+
   std::vector<std::string> differences;
   RuntimeDifferencesVisitor visitor {remoteType, differences};
   localType->accept(visitor);
@@ -1877,6 +1883,13 @@ bool acceptsUnderCompatibilityMode(CompatibilityMode mode,
 namespace
 {
 
+/// runtimeCompatible, checking a remote alias as the type it aliases when seeThroughRemoteAlias is
+/// set. The loss grading of method arguments, which swaps the two sides, leaves it unset.
+[[nodiscard]] std::vector<std::string> checkRuntimeCompatible(const Type* localType,
+                                                              const Type* remoteType,
+                                                              std::vector<std::string>* lossy,
+                                                              bool seeThroughRemoteAlias);
+
 /// Walks the local type against the remote one, collecting the incompatibilities between
 /// them and, when asked, the conversions that would lose data.
 class RuntimeCompatVisitor: public FullTypeVisitor
@@ -1885,8 +1898,11 @@ public:
   SEN_NOCOPY_NOMOVE(RuntimeCompatVisitor)
 
 public:
-  RuntimeCompatVisitor(const Type* remoteType, std::vector<std::string>& problems, std::vector<std::string>* lossy)
-    : remoteType_(remoteType), problems_(problems), lossy_(lossy)
+  RuntimeCompatVisitor(const Type* remoteType,
+                       std::vector<std::string>& problems,
+                       std::vector<std::string>* lossy,
+                       bool seeThroughRemoteAlias)
+    : remoteType_(remoteType), problems_(problems), lossy_(lossy), seeThroughRemoteAlias_(seeThroughRemoteAlias)
   {
   }
 
@@ -2004,7 +2020,7 @@ public:
     {
       if (const auto* localField = type.getFieldFromName(remoteField.name); localField != nullptr)
       {
-        if (const auto fieldProblems = runtimeCompatible(localField->type.type(), remoteField.type.type(), lossy_);
+        if (const auto fieldProblems = checkNested(localField->type.type(), remoteField.type.type());
             !fieldProblems.empty())
         {
           std::string error;
@@ -2045,7 +2061,7 @@ public:
         continue;
       }
 
-      if (const auto fieldProblems = runtimeCompatible(localField.type.type(), remoteField->type.type(), lossy_);
+      if (const auto fieldProblems = checkNested(localField.type.type(), remoteField->type.type());
           !fieldProblems.empty())
       {
         std::string error;
@@ -2074,7 +2090,7 @@ public:
 
     const auto* remoteSequence = remoteType_->asSequenceType();
     // check the element type
-    concatProblems(runtimeCompatible(type.getElementType().type(), remoteSequence->getElementType().type(), lossy_));
+    concatProblems(checkNested(type.getElementType().type(), remoteSequence->getElementType().type()));
   }
 
   // NOLINTNEXTLINE
@@ -2094,8 +2110,7 @@ public:
     {
       if (const auto* localProp = type.searchPropertyByName(remoteProp->getName()); localProp != nullptr)
       {
-        if (const auto propProblems =
-              runtimeCompatible(localProp->getType().type(), remoteProp->getType().type(), lossy_);
+        if (const auto propProblems = checkNested(localProp->getType().type(), remoteProp->getType().type());
             !propProblems.empty())
         {
           std::string error;
@@ -2125,7 +2140,7 @@ public:
         {
           if (const auto& localArg = localEvent->getArgFromName(remoteArg.name); localArg != nullptr)
           {
-            if (const auto eventProblems = runtimeCompatible(localArg->type.type(), remoteArg.type.type(), lossy_);
+            if (const auto eventProblems = checkNested(localArg->type.type(), remoteArg.type.type());
                 !eventProblems.empty())
             {
               std::string error;
@@ -2159,20 +2174,22 @@ public:
         auto localReturnType = localMethod->getReturnType();
         auto remoteReturnType = remoteMethod->getReturnType();
 
-        concatProblems(runtimeCompatible(localReturnType.type(), remoteReturnType.type(), lossy_));
+        concatProblems(checkNested(localReturnType.type(), remoteReturnType.type()));
 
         // check args
         for (const auto& localArg: localMethod->getArgs())
         {
           if (const auto* remoteArg = remoteMethod->getArgFromName(localArg.name); remoteArg != nullptr)
           {
-            // we supply the arguments, so for them the loss runs from us to the writer
+            // we supply the arguments, so the sides are swapped: our argument is the "remote" type,
+            // and its alias is not seen through
             if (lossy_ != nullptr)
             {
-              std::ignore = runtimeCompatible(remoteArg->type.type(), localArg.type.type(), lossy_);
+              std::ignore = checkRuntimeCompatible(remoteArg->type.type(), localArg.type.type(), lossy_, false);
             }
 
-            if (const auto argProblems = runtimeCompatible(localArg.type.type(), remoteArg->type.type());
+            if (const auto argProblems =
+                  checkRuntimeCompatible(localArg.type.type(), remoteArg->type.type(), nullptr, seeThroughRemoteAlias_);
                 !argProblems.empty())
             {
               std::string error;
@@ -2284,12 +2301,15 @@ public:
     }
   }
 
-  void apply(const OptionalType& type) override
-  {
-    concatProblems(runtimeCompatible(type.getType().type(), remoteType_, lossy_));
-  }
+  void apply(const OptionalType& type) override { concatProblems(checkNested(type.getType().type(), remoteType_)); }
 
 private:
+  /// Checks a type within this one, the same way.
+  [[nodiscard]] std::vector<std::string> checkNested(const Type* localType, const Type* remoteType) const
+  {
+    return checkRuntimeCompatible(localType, remoteType, lossy_, seeThroughRemoteAlias_);
+  }
+
   /// Records a conversion that is allowed but can drop a value.
   void checkForLoss(const Type& from, const Type& to)
   {
@@ -2317,13 +2337,13 @@ private:
   const Type* remoteType_;
   std::vector<std::string>& problems_;
   std::vector<std::string>* lossy_;
+  bool seeThroughRemoteAlias_;
 };
 
-}  // namespace
-
-std::vector<std::string> runtimeCompatible(const Type* localType,
-                                           const Type* remoteType,
-                                           std::vector<std::string>* lossy)
+std::vector<std::string> checkRuntimeCompatible(const Type* localType,
+                                                const Type* remoteType,
+                                                std::vector<std::string>* lossy,
+                                                bool seeThroughRemoteAlias)
 {
   // always runtime compatible if equivalent
   if (equivalent(localType, remoteType))
@@ -2334,7 +2354,15 @@ std::vector<std::string> runtimeCompatible(const Type* localType,
   // handle the case where the remote type is optional first
   if (const auto* optionalRemote = remoteType->asOptionalType(); optionalRemote != nullptr)
   {
-    return runtimeCompatible(localType, optionalRemote->getType().type(), lossy);
+    return checkRuntimeCompatible(localType, optionalRemote->getType().type(), lossy, seeThroughRemoteAlias);
+  }
+
+  // a remote alias is encoded as the type it aliases, so check that type where the visitor would
+  // reject any alias
+  if (const auto* aliasRemote = remoteType->asAliasType();
+      seeThroughRemoteAlias && aliasRemote != nullptr && !localType->isAliasType() && !localType->isOptionalType())
+  {
+    return checkRuntimeCompatible(localType, aliasRemote->getAliasedType().type(), lossy, seeThroughRemoteAlias);
   }
 
   // remote type is a timestamp
@@ -2350,9 +2378,18 @@ std::vector<std::string> runtimeCompatible(const Type* localType,
   }
 
   std::vector<std::string> problems;
-  RuntimeCompatVisitor visitor {remoteType, problems, lossy};
+  RuntimeCompatVisitor visitor {remoteType, problems, lossy, seeThroughRemoteAlias};
   localType->accept(visitor);
   return problems;
+}
+
+}  // namespace
+
+std::vector<std::string> runtimeCompatible(const Type* localType,
+                                           const Type* remoteType,
+                                           std::vector<std::string>* lossy)
+{
+  return checkRuntimeCompatible(localType, remoteType, lossy, true);
 }
 
 /// A quantity range as the older protocol versions encoded it, where a minimum that is not below
