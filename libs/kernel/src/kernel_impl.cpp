@@ -224,7 +224,12 @@ void KernelImpl::idleThread()
 
 void KernelImpl::configureCrashReporting()
 {
-  if (!config_.getParams().crashReportDisabled)
+  // A self-armed process keeps its reporter whatever this kernel asks for, so the key has to reach
+  // the reporter. Set either way, because the last kernel to configure owns the record.
+  const bool disabled = config_.getParams().crashReportDisabled;
+  CrashReporter::get().setReportSuppressed(disabled);
+
+  if (!disabled)
   {
     CrashReporter::get().registerKernel(config_);
   }
