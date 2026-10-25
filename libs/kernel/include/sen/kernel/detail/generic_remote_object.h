@@ -5,8 +5,8 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
-#ifndef SEN_LIBS_KERNEL_SRC_BUS_GENERIC_REMOTE_OBJECT_H
-#define SEN_LIBS_KERNEL_SRC_BUS_GENERIC_REMOTE_OBJECT_H
+#ifndef SEN_KERNEL_DETAIL_GENERIC_REMOTE_OBJECT_H
+#define SEN_KERNEL_DETAIL_GENERIC_REMOTE_OBJECT_H
 
 // sen
 #include "sen/core/base/compiler_macros.h"
@@ -14,6 +14,7 @@
 #include "sen/core/io/input_stream.h"
 #include "sen/core/io/output_stream.h"
 #include "sen/core/meta/class_type.h"
+#include "sen/core/meta/event.h"
 #include "sen/core/meta/method.h"
 #include "sen/core/meta/type.h"
 #include "sen/core/meta/var.h"
@@ -28,7 +29,10 @@
 namespace sen::kernel::impl
 {
 
-class GenericRemoteObject final: public ::sen::impl::RemoteObject
+/// The proxy for a remote object whose class has no generated proxy in this process. When the
+/// writer's class differs, members are matched by name and converted; an event that cannot be
+/// matched is dropped with a warning.
+class SEN_EXPORT GenericRemoteObject final: public ::sen::impl::RemoteObject
 {
 public:
   SEN_NOCOPY_NOMOVE(GenericRemoteObject)
@@ -61,6 +65,13 @@ private:
 private:
   [[nodiscard]] const Method* searchMethodById(MemberHash methodId) const;
 
+  /// Reads an event's arguments with the writer's types and converts them, matching by name.
+  /// Returns false if they cannot be matched.
+  [[nodiscard]] bool readAdaptedEventArgs(const Event& event,
+                                          MemberHash eventId,
+                                          InputStream& in,
+                                          VarList& values) const;
+
 private:
   std::unordered_map<MemberHash, PropertyData> properties_;
   PropertyList metaProperties_;
@@ -68,4 +79,4 @@ private:
 
 }  // namespace sen::kernel::impl
 
-#endif  // SEN_LIBS_KERNEL_SRC_BUS_GENERIC_REMOTE_OBJECT_H
+#endif  // SEN_KERNEL_DETAIL_GENERIC_REMOTE_OBJECT_H

@@ -168,22 +168,18 @@ def stop(instances):
 
 def main():
     """Run the test setup."""
-    if len(sys.argv) != 4:
-        print("Usage: python runner.py <arg1> <arg2> <arg3>")
+    if len(sys.argv) < 3:
+        print("Usage: python runner.py <supporting>... <tester>")
         sys.exit(1)
 
-    arg1 = sys.argv[1]
-    arg2 = sys.argv[2]
-    arg3 = sys.argv[3]
-
-    # Run the other 2 instances
-    supporting = [run_sen_command(arg1), run_sen_command(arg2)]
+    # Every argument but the last starts a supporting instance; the last is the tester.
+    supporting = [run_sen_command(arg) for arg in sys.argv[1:-1]]
 
     try:
         # Run the main instance for the smoke test, as a child rather than through exec.
         # Exec replaces this process, so when the main instance dies on its own there is
-        # nothing left to stop the other two. The status is still the main instance's.
-        tester = subprocess.Popen([os.path.join(os.curdir, "sen"), "run", arg3])  # noqa: S603
+        # nothing left to stop the others. The status is still the main instance's.
+        tester = subprocess.Popen([os.path.join(os.curdir, "sen"), "run", sys.argv[-1]])  # noqa: S603
         return tester.wait(timeout=TESTER_BUDGET_SECONDS)
     except subprocess.TimeoutExpired:
         # Popen and wait() rather than run(timeout=): run kills the process on expiry, and a

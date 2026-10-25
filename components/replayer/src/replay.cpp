@@ -9,14 +9,11 @@
 
 // component
 #include "replayed_object.h"
-#include "replayed_object_proxy.h"
 #include "util.h"
 
 // sen
 #include "sen/core/base/assert.h"
 #include "sen/core/base/class_helpers.h"
-#include "sen/core/obj/detail/native_object_proxy.h"
-#include "sen/core/obj/native_object.h"
 #include "sen/db/creation.h"
 #include "sen/db/deletion.h"
 #include "sen/db/event.h"
@@ -319,13 +316,6 @@ void ReplayImpl::expectedObject(TimeStamp time, ObjectId id, const std::vector<s
 
 void ReplayImpl::addObject(TimeStamp time, const db::Snapshot& snapshot, ObjectMap& map)
 {
-  snapshot.getType()->setLocalProxyMaker(
-    [](NativeObject* instance, const std::string& name) -> std::shared_ptr<impl::NativeObjectProxy>
-    {
-      auto* owner = dynamic_cast<ReplayedObject*>(instance);
-      return std::make_shared<ReplayedObjectProxy>(owner, name);
-    });
-
   auto instance = std::make_shared<ReplayedObject>(snapshot, time);
 
   // add it to the bus

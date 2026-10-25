@@ -114,6 +114,11 @@ public:  // implements Object
   void invokeUntyped(const Method* method, const VarList& args, MethodCallback<Var>&& onDone) final;
   [[nodiscard]] ConnectionGuard onPropertyChangedUntyped(const Property* prop, EventCallback<VarList>&& callback) final;
 
+public:
+  /// A local proxy of this object, holding its current state; by default its class's generated
+  /// proxy. Objects without generated members override it. May return nullptr.
+  [[nodiscard]] virtual std::shared_ptr<impl::NativeObjectProxy> senImplMakeLocalProxy(const std::string& localPrefix);
+
 protected:
   explicit NativeObject(const std::string& name);
   void commit(TimeStamp time);

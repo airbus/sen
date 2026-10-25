@@ -1,0 +1,37 @@
+load:
+  - name: ether
+    group: 10
+    runDiscoveryHub: 65456
+    discovery:
+      type: TcpDiscovery
+      value:
+        beamPeriod: 200 ms
+        beamExpiryTime: 1 s
+        hubAddress:
+          host: 127.0.0.1
+          port: 65456
+
+build:
+  - name: aircraft_publisher
+    freqHz: 10
+    group: 2
+    imports: [dummy_entities]
+    objects:
+      - name: aircraft_1
+        class: dummy_entities.DummyAircraft
+        bus: session.bus
+        # required by the class's constructor; DummyAircraft then sets its own entity type
+        entityType: &entityType
+          entityKind: 1
+          domain: 2
+          countryCode: 198
+          category: 1
+          subcategory: 3
+          specific: 0
+          extra: 0
+        alternateEntityType: *entityType
+        entityIdentifier:
+          entityNumber: 1
+          federateIdentifier:
+            siteID: 1
+            applicationID: 1

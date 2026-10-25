@@ -5,7 +5,10 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
-#include "generic_remote_object.h"
+#include "sen/kernel/detail/generic_remote_object.h"
+
+// implementation
+#include "kernel_impl.h"
 
 // sen
 #include "sen/core/base/assert.h"
@@ -14,7 +17,9 @@
 #include "sen/core/io/input_stream.h"
 #include "sen/core/io/output_stream.h"
 #include "sen/core/io/util.h"
+#include "sen/core/meta/callable.h"
 #include "sen/core/meta/class_type.h"
+#include "sen/core/meta/event.h"
 #include "sen/core/meta/method.h"
 #include "sen/core/meta/property.h"
 #include "sen/core/meta/type.h"
@@ -23,7 +28,11 @@
 #include "sen/core/obj/detail/remote_object.h"
 #include "sen/core/obj/object.h"
 
+// spdlog
+#include <spdlog/logger.h>  // NOLINT (misc-include-cleaner): indirectly used by log function
+
 // std
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <mutex>
@@ -82,10 +91,17 @@ void GenericRemoteObject::eventReceived(MemberHash eventId, TimeStamp creationTi
   values.reserve(eventArgs.size());
 
   InputStream in(args);
-  for (const auto& arg: eventArgs)
+  if (memberTypesInSync(eventId))
   {
-    values.emplace_back();
-    ::sen::impl::readFromStream(values.back(), in, *arg.type);
+    for (const auto& arg: eventArgs)
+    {
+      values.emplace_back();
+      ::sen::impl::readFromStream(values.back(), in, *arg.type);
+    }
+  }
+  else if (!readAdaptedEventArgs(*event, eventId, in, values))
+  {
+    return;
   }
 
   EventInfo info {};
@@ -93,6 +109,49 @@ void GenericRemoteObject::eventReceived(MemberHash eventId, TimeStamp creationTi
 
   auto getter = [vars = std::move(values)]() { return vars; };
   senImplEventEmitted(eventId, std::move(getter), info);
+}
+
+bool GenericRemoteObject::readAdaptedEventArgs(const Event& event,
+                                               MemberHash eventId,
+                                               InputStream& in,
+                                               VarList& values) const
+{
+  // The stream holds the writer's arguments: read them with the writer's types, then match them to
+  // this event's by name.
+  const auto* writerEvent = getWriterSchema().value()->searchEventById(eventId);
+  if (writerEvent == nullptr)
+  {
+    return false;
+  }
+
+  const auto writerArgs = writerEvent->getArgs();
+  VarList written;
+  written.reserve(writerArgs.size());
+  for (const auto& arg: writerArgs)
+  {
+    written.emplace_back();
+    ::sen::impl::readFromStream(written.back(), in, *arg.type);
+  }
+
+  for (const auto& arg: event.getArgs())
+  {
+    const auto* match =
+      std::find_if(writerArgs.begin(),
+                   writerArgs.end(),
+                   [&arg](const Arg& writerArg) { return writerArg.getNameHash() == arg.getNameHash(); });
+    if (match == writerArgs.end())
+    {
+      KernelImpl::getKernelLogger()->warn(
+        "Cannot dispatch incoming event {}. The remote implementation has no argument {}.", event.getName(), arg.name);
+      return false;
+    }
+
+    auto& value = written.at(static_cast<std::size_t>(match - writerArgs.begin()));
+    std::ignore = ::sen::impl::adaptVariant(*arg.type, value, match->type);
+    values.push_back(std::move(value));
+  }
+
+  return true;
 }
 
 bool GenericRemoteObject::readPropertyFromStream(MemberHash id, InputStream& in, bool advanceCurrent)
@@ -103,6 +162,18 @@ bool GenericRemoteObject::readPropertyFromStream(MemberHash id, InputStream& in,
     return false;
   }
 
+  // If the writer's type differs, read the value with the writer's type and convert it, as
+  // RemoteObject::readOrAdapt does for generated proxies.
+  const Property* writerProp = nullptr;
+  if (!memberTypesInSync(id))
+  {
+    writerProp = getWriterSchema().value()->searchPropertyById(id);
+    if (writerProp == nullptr)
+    {
+      return false;
+    }
+  }
+
   auto propItr = properties_.find(id);
   if (propItr == properties_.end())
   {
@@ -111,7 +182,19 @@ bool GenericRemoteObject::readPropertyFromStream(MemberHash id, InputStream& in,
   }
   auto& propData = propItr->second;
 
-  ::sen::impl::readFromStream(propData.value.at(propData.flags.advanceNext()), in, *prop->getType());
+  auto& value = propData.value.at(propData.flags.advanceNext());
+  if (writerProp == nullptr)
+  {
+    ::sen::impl::readFromStream(value, in, *prop->getType());
+  }
+  else
+  {
+    ::sen::impl::readFromStream(value, in, *writerProp->getType());
+    // As in RemoteObject::readOrAdapt, the result is ignored: a value adaptVariant cannot convert
+    // stays as the writer sent it.
+    std::ignore = ::sen::impl::adaptVariant(*prop->getType(), value, writerProp->getType());
+  }
+
   if (advanceCurrent)
   {
     propData.flags.advanceCurrent();

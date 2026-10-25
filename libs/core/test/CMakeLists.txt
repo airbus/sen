@@ -86,6 +86,7 @@ set(obj_tests
     obj/object_provider_test.cpp
     obj/remote_object_test.cpp
     obj/native_object_proxy_test.cpp
+    obj/encoded_field_reader_test.cpp
     obj/connection_guard_test.cpp
     obj/object_filter_test.cpp
     obj/object_list_test.cpp

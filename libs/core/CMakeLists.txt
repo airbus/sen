@@ -86,6 +86,7 @@ set(obj_detail_headers
     include/sen/core/obj/detail/work_queue.h
     include/sen/core/obj/detail/native_object_proxy.h
     include/sen/core/obj/detail/native_object_impl.h
+    include/sen/core/obj/detail/encoded_field_reader.h
     include/sen/core/obj/detail/property_flags.h
     include/sen/core/obj/detail/proxy_object.h
     include/sen/core/obj/detail/remote_object.h
@@ -104,6 +105,7 @@ set(obj_sources
     src/obj/object_mux.cpp
     src/obj/object_provider.cpp
     src/obj/native_object_proxy.cpp
+    src/obj/encoded_field_reader.cpp
     src/obj/callback.cpp
     src/obj/object_list.cpp
     src/obj/subscription.cpp
