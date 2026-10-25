@@ -20,6 +20,7 @@ if(NOT MSVC)
   add_subdirectory(integration/crash_report)
   add_subdirectory(integration/type_clash)
   add_subdirectory(integration/termination)
+  add_subdirectory(integration/runtime_types)
 endif()
 
 # integration tests that use containers (only available in Linux)

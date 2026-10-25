@@ -1,0 +1,15 @@
+load:
+  - name: ether
+    group: 10
+    discovery:
+      type: TcpDiscovery
+      value:
+        beamPeriod: 200 ms
+        beamExpiryTime: 1 s
+        hubAddress:
+          host: 127.0.0.1
+          port: 65456
+  - name: runtime_types_subscriber
+    group: 5
+    fomDirectory: "@env(SEN_RUNTIME_TYPES_FOM_DIR)"
+    mappingsFile: "@env(SEN_RUNTIME_TYPES_MAPPINGS_FILE)"
