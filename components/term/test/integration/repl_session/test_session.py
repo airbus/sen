@@ -872,30 +872,33 @@ class TestTermSession(unittest.TestCase):
 
     def test_ctrl_k_erases_to_end_of_line(self) -> None:
         """Ctrl+K clears text from the cursor to the end of the line."""
-        self.term.type_text("hello world")
+        self.term.type_text("dummy world")
         self.term.send_keys(ARROW_LEFT * 6, settle=0.2)
         self.term.send_keys(CTRL_K, settle=0.2)
         self.term.send_keys(b"\r", settle=1.5)
         self.assertTrue(self.term.wait_for("recognized command", timeout=2.0))
-        self.assertIn("'hello' is not a recognized command", self.term.screen())
+        self.assertIn("'dummy' is not a recognized command", self.term.screen())
 
     def test_ctrl_a_and_ctrl_e_navigate_line(self) -> None:
         """Ctrl+A moves to start, Ctrl+E moves to end."""
         self.term.type_text("world")
         self.term.send_keys(CTRL_A, settle=0.2)
-        self.term.type_text("hello ", settle=0.2)
+        self.term.type_text("dummy ", settle=0.2)
         self.term.send_keys(CTRL_E, settle=0.2)
         self.term.type_text(" test", settle=0.2)
         self.term.send_keys(b"\r", settle=1.5)
-        self.assertIn("'hello world test'", self.term.screen())
+        self.assertTrue(self.term.wait_for("recognized command", timeout=2.0))
+        self.assertIn("'dummy' is not a recognized command", self.term.screen())
+        self.assertIn("dummy world test", self.term.screen())
 
     def test_alt_d_erases_word_after_cursor(self) -> None:
         """Alt+D erases the word following the cursor."""
-        self.term.type_text("remove this word")
+        self.term.type_text("dummy this word")
         self.term.send_keys(ARROW_LEFT * 9, settle=0.2)
         self.term.send_keys(ALT_D, settle=0.2)
         self.term.send_keys(b"\r", settle=1.5)
-        self.assertIn("'remove word'", self.term.screen())
+        self.assertTrue(self.term.wait_for("recognized command", timeout=2.0))
+        self.assertIn("'dummy' is not a recognized command", self.term.screen())
 
 
 if __name__ == "__main__":
