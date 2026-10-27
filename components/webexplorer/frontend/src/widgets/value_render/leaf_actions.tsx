@@ -34,7 +34,7 @@ export function rootPlotKind(
   if (value === undefined || value === null) return null;
   if (value instanceof Quantity) return "numeric";
   if (value instanceof Variant) return "discrete";
-  if (typeof value === "number") return "numeric";
+  if (typeof value === "number" || typeof value === "bigint") return "numeric";
   if (typeof value === "boolean") return "discrete";
   if (typeof value === "string") {
     if (declaredType === "string") return "discrete";

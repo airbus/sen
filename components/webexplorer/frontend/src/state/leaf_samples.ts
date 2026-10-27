@@ -81,6 +81,11 @@ function pushSampleLeaves(v: Var, path: string, out: SampleLeaf[]): void {
     if (Number.isFinite(v)) out.push([path, v, null]);
     return;
   }
+  // i64 / u64: a plot can do without the digits a double drops above 2^53
+  if (typeof v === "bigint") {
+    out.push([path, Number(v), null]);
+    return;
+  }
   if (typeof v === "boolean") {
     out.push([path, v, null]);
     return;

@@ -50,7 +50,7 @@ export function ValueInput({ client, declaredType, value, onChange }: ValueInput
     case "i64":
       return (
         <NumberInput
-          value={typeof value === "number" ? value : 0}
+          value={typeof value === "number" ? value : typeof value === "bigint" ? Number(value) : 0}
           integer
           onChange={onChange}
         />
