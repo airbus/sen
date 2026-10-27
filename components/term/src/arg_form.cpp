@@ -675,7 +675,7 @@ MaybeConstTypeHandle<NumericType> asIntegerType(MaybeConstTypeHandle<> t)
     return {};
   }
 
-  return dynamicTypeHandleCast<const NumericType>(t.value());
+  return dynamicTypeHandleCast<const NumericType>(leaf.value());
 }
 
 /// True for float, Duration, Timestamp, Quantity (types sharing the float-like input grammar).
@@ -1388,7 +1388,10 @@ std::optional<ArgForm> ArgForm::build(const Method& method, std::string_view obj
   // Prime validation state.
   for (auto* leaf: form.leaves_)
   {
-    std::ignore = form.revalidateLeaf(*leaf);
+    if (isLeaf(*leaf))
+    {
+      std::ignore = form.revalidateLeaf(*leaf);
+    }
   }
 
   return form;
@@ -1501,11 +1504,12 @@ void ArgForm::toggleFocused()
   {
     return;
   }
-  if (!focusedHoldsText())
+  auto& leaf = *leaves_[focused_];
+  if (leaf.kind == FieldKind::optionalGroup)
   {
+    toggleFocusedOptional();
     return;
   }
-  auto& leaf = *leaves_[focused_];
   if (leaf.editor == EditorKind::boolean)
   {
     toggleBoolField(leaf);
@@ -1519,11 +1523,11 @@ void ArgForm::cycleFocused(bool forward)
   {
     return;
   }
-  if (!focusedHoldsText())
+  auto& leaf = *leaves_[focused_];
+  if (!isLeaf(leaf))
   {
     return;
   }
-  auto& leaf = *leaves_[focused_];
   if (leaf.editor == EditorKind::boolean)
   {
     toggleBoolField(leaf);
@@ -1556,11 +1560,23 @@ bool ArgForm::focusedIsOptionalRow() const noexcept
   return !leaves_.empty() && leaves_[focused_]->kind == FieldKind::optionalGroup;
 }
 
-bool ArgForm::focusedHoldsText() const noexcept { return !leaves_.empty() && isLeaf(*leaves_[focused_]); }
+bool ArgForm::focusedHoldsText() const noexcept
+{
+  if (leaves_.empty())
+  {
+    return false;
+  }
+  const auto& leaf = *leaves_[focused_];
+  return isLeaf(leaf) && (leaf.editor == EditorKind::text || leaf.editor == EditorKind::integerSpin);
+}
 
 EditorKind ArgForm::focusedEditor() const noexcept
 {
   if (leaves_.empty())
+  {
+    return EditorKind::text;
+  }
+  if (!isLeaf(*leaves_[focused_]))
   {
     return EditorKind::text;
   }
@@ -1711,7 +1727,8 @@ std::size_t firstLeafOf(const std::vector<ArgFormField*>& leaves, const ArgFormF
     {
       return;
     }
-    if (isLeaf(f))
+    if (isLeaf(f) || (f.kind == FieldKind::optionalGroup && f.optionalIsEmpty) ||
+        (f.kind == FieldKind::sequenceGroup && f.children.empty()))
     {
       firstLeaf = &f;
       return;
@@ -1749,7 +1766,14 @@ void ArgForm::addElementToFocusedSequence()
   ArgFormField* seq = nullptr;
   if (!leaves_.empty())
   {
-    seq = findNearestSequenceAncestor(fields_, leaves_[focused_]);
+    if (leaves_[focused_]->kind == FieldKind::sequenceGroup)
+    {
+      seq = leaves_[focused_];
+    }
+    else
+    {
+      seq = findNearestSequenceAncestor(fields_, leaves_[focused_]);
+    }
   }
   if (seq == nullptr)
   {
@@ -1993,9 +2017,16 @@ std::vector<ArgFormField>& ArgForm::mutableFields() const
 bool ArgForm::focusedIsInsideSequence() const noexcept
 {
   // Mirrors addElementToFocusedSequence dispatch: ancestor or empty top-level sequence.
-  if (!leaves_.empty() && findNearestSequenceAncestor(mutableFields(), leaves_[focused_]) != nullptr)
+  if (!leaves_.empty())
   {
-    return true;
+    if (leaves_[focused_]->kind == FieldKind::sequenceGroup)
+    {
+      return true;
+    }
+    if (findNearestSequenceAncestor(mutableFields(), leaves_[focused_]) != nullptr)
+    {
+      return true;
+    }
   }
   for (const auto& f: fields_)
   {
@@ -2013,7 +2044,14 @@ bool ArgForm::focusedCanAddElement() const noexcept
   ArgFormField* seq = nullptr;
   if (!leaves_.empty())
   {
-    seq = findNearestSequenceAncestor(mutableFields(), leaves_[focused_]);
+    if (leaves_[focused_]->kind == FieldKind::sequenceGroup)
+    {
+      seq = leaves_[focused_];
+    }
+    else
+    {
+      seq = findNearestSequenceAncestor(mutableFields(), leaves_[focused_]);
+    }
   }
   if (seq == nullptr)
   {
@@ -2281,9 +2319,14 @@ Result<VarList, ArgForm::SubmitError> ArgForm::trySubmit()
 
 std::optional<Var> ArgForm::revalidateLeaf(ArgFormField& leaf)
 {
-  // Unit and variant-type selectors are not value leaves, and neither is an empty optional.
-  if (leaf.editor == EditorKind::unitSelector || leaf.editor == EditorKind::variantType ||
-      leaf.kind == FieldKind::optionalGroup)
+  if (!isLeaf(leaf))
+  {
+    leaf.validationError.clear();
+    return Var {};
+  }
+
+  // Unit and variant-type selectors are not value leaves.
+  if (leaf.editor == EditorKind::unitSelector || leaf.editor == EditorKind::variantType)
   {
     leaf.validationError.clear();
     return Var {};
