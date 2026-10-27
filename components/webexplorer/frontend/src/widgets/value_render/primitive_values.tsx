@@ -16,7 +16,7 @@ export function NumberCell({
   value,
   integer = false,
 }: {
-  value: number;
+  value: number | bigint;
   integer?: boolean | undefined;
 }) {
   const fmt = formatNumber(value, { integer });
@@ -110,7 +110,7 @@ export function PrimitiveValue({
   client,
 }: {
   declaredType: string;
-  value: string | number | boolean | null;
+  value: string | number | bigint | boolean | null;
   client: Client | null;
 }) {
   if (typeof value === "boolean") {
@@ -126,7 +126,7 @@ export function PrimitiveValue({
       </span>
     );
   }
-  if (typeof value === "number") {
+  if (typeof value === "number" || typeof value === "bigint") {
     return <NumberCell value={value} integer={isIntegerType(declaredType)} />;
   }
   if (typeof value === "string") {

@@ -35,7 +35,8 @@ export function InlineValue({
 
   if (isQuantity(value)) return <QuantityValue q={value} />;
   if (isVariant(value)) return <InlineVariant client={client} v={value} />;
-  if (isPrimitive(value)) {
+  // i64 / u64 arrive as bigint, which the JSON.stringify fallback cannot print
+  if (isPrimitive(value) || typeof value === "bigint") {
     return <PrimitiveValue declaredType={declaredType} value={value} client={client} />;
   }
   if (isSequence(value)) {

@@ -54,7 +54,8 @@ export function ValueRenderer({
       />
     );
   }
-  if (isPrimitive(value)) {
+  // i64 / u64 arrive as bigint, which the JSON.stringify fallback cannot print
+  if (isPrimitive(value) || typeof value === "bigint") {
     return (
       <PrimitiveValue
         declaredType={declaredType}
