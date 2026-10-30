@@ -12,6 +12,7 @@ from conan import ConanFile
 from conan.tools.build import cross_building
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.env import Environment
+from conan.tools.system import PyEnv
 
 
 class TestPackageConan(ConanFile):
@@ -31,7 +32,14 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         """Generate the toolchain files."""
+        pyver = self.dependencies[self.tested_reference_str].options.with_python_version
+        pyenv = PyEnv(self, py_version=str(pyver))
+        pyenv.generate()
+        python_path = pyenv.env_exe.replace("\\", "/")
+
         tc = CMakeToolchain(self, generator="Ninja")
+        tc.cache_variables["Python3_EXECUTABLE"] = python_path
+        tc.cache_variables["Python3_FIND_VIRTUALENV"] = "STANDARD"
         tc.generate()
 
     def build(self):
