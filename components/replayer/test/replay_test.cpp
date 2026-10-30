@@ -59,6 +59,8 @@ public:
   void stopDirect() { stopImpl(); }
   void advanceDirect(sen::Duration time) { advanceImpl(time); }
   void seekDirect(sen::TimeStamp time) { seekImpl(time); }
+  void updateAtDirect(sen::TimeStamp now) { updateAt(now); }
+  void commitDirect(sen::TimeStamp time) { commit(time); }
 };
 
 struct ReplaySetup
@@ -317,6 +319,104 @@ TEST(ReplayTest, SeekToIntermediateTime)
   setup.step();
 
   EXPECT_EQ(replay.getNextPlaybackTime(), seekTarget);
+}
+
+/// An archive with keyframes at 0, 10 and 20 seconds, the last two carrying one object, so a seek
+/// to an intermediate time has a keyframe to land on.
+void populateSeekArchive(sen::db::Output& output, sen::kernel::TestKernel& /*kernel*/)
+{
+  auto t = makeTime(0);
+  output.keyframe(t, {});
+
+  auto dummyObj = std::make_shared<DummyReplayObjImpl>("dummy", sen::VarMap {});
+  auto info = makeObjectInfo(dummyObj, "local", "replay_test");
+
+  t += std::chrono::seconds(10);
+  output.creation(t, info, true);
+  output.propertyChange(t, dummyObj->getId(), firstPropertyId(*dummyObj), {});
+  output.keyframe(t, {info});
+
+  t += std::chrono::seconds(10);
+  output.keyframe(t, {info});
+}
+
+/// @test
+/// A seek issued while playing rebuilds the object set recorded at the target.
+/// @requirements(SEN-364)
+TEST(ReplayTest, SeekWhilePlayingAppliesTheKeyframe)
+{
+  ReplaySetup setup("test_seek_playing_keyframe", populateSeekArchive);
+
+  registerDummyReplayType(setup);
+  auto& replay = startReplay(setup);
+  auto objects = observeReplayObjects(setup);
+
+  const auto initialTime = replay.getNextPlaybackTime();
+
+  replay.playDirect();
+  setup.step();
+  EXPECT_FALSE(hasObjectNamed(objects.list, "dummy"));
+
+  EXPECT_NO_THROW(replay.seekDirect(initialTime + std::chrono::seconds(15)));
+  setup.step();
+
+  EXPECT_TRUE(hasObjectNamed(objects.list, "dummy"));
+}
+
+/// @test
+/// Playback carries on from the target of a seek issued while playing.
+/// @requirements(SEN-364)
+TEST(ReplayTest, SeekWhilePlayingCarriesOnFromTheTarget)
+{
+  ReplaySetup setup("test_seek_playing_time", populateSeekArchive);
+
+  registerDummyReplayType(setup);
+  auto& replay = startReplay(setup);
+
+  const auto initialTime = replay.getNextPlaybackTime();
+  const auto seekTarget = initialTime + std::chrono::seconds(15);
+
+  replay.playDirect();
+  setup.step();
+
+  EXPECT_NO_THROW(replay.seekDirect(seekTarget));
+  setup.step();
+
+  EXPECT_GE(replay.getNextPlaybackTime(), seekTarget);
+}
+
+/// @test
+/// Playing again after a stretch spent stopped advances by one cycle.
+/// @requirements(SEN-364)
+TEST(ReplayTest, PlayingAfterAStretchStoppedAdvancesOneCycle)
+{
+  ReplaySetup setup;
+  auto& replay = startReplay(setup);
+
+  const sen::TimeStamp base {std::chrono::seconds(100)};
+
+  // The status guards read the committed value, so each transition is committed here.
+  replay.playDirect();
+  replay.commitDirect(base);
+  replay.updateAtDirect(base);
+  replay.updateAtDirect(base + std::chrono::seconds(1));
+  replay.commitDirect(base + std::chrono::seconds(1));
+
+  replay.stopDirect();
+  replay.commitDirect(base + std::chrono::seconds(1));
+
+  for (int cycle = 2; cycle < 30; ++cycle)
+  {
+    replay.updateAtDirect(base + std::chrono::seconds(cycle));
+  }
+
+  const auto beforePlay = replay.getNextPlaybackTime();
+
+  replay.playDirect();
+  replay.commitDirect(base + std::chrono::seconds(29));
+  replay.updateAtDirect(base + std::chrono::seconds(30));
+
+  EXPECT_LT(replay.getNextPlaybackTime(), beforePlay + std::chrono::seconds(5));
 }
 
 /// @test
