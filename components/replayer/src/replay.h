@@ -33,6 +33,7 @@ public:
   void update(kernel::RunApi& runApi) override;
 
 protected:
+  void updateAt(TimeStamp now);
   void playImpl() override;
   void pauseImpl() override;
   void stopImpl() override;
@@ -50,6 +51,7 @@ private:
 
 private:
   void advanceCursor(Duration delta);
+  void advanceCursorTo(TimeStamp target);
   void doStop();
   void applyCursor();
   void apply(TimeStamp time, std::monostate value) const;
@@ -57,6 +59,7 @@ private:
   void apply(TimeStamp time, const db::PropertyChange& value);
   void apply(TimeStamp time, const db::Event& value);
   void apply(TimeStamp time, const db::Keyframe& value);
+  void applyKeyframe(TimeStamp time, const db::Keyframe& value);
   void apply(TimeStamp time, const db::Creation& value);
   void apply(TimeStamp time, const db::Deletion& value);
   void expectedObject(TimeStamp time, ObjectId id, const std::vector<std::string_view>& reasons) const;
