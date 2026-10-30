@@ -8,8 +8,9 @@
 import { parseSenTimestamp } from "@sen/client";
 
 // Leading U+00A0 on non-negatives keeps the column aligned when values flip sign;
-// a regular space would collapse inside the span.
-export function formatNumber(v: number, opts: { integer?: boolean } = {}): string {
+// a regular space would collapse inside the span. A bigint (i64 / u64) is printed in full.
+export function formatNumber(v: number | bigint, opts: { integer?: boolean } = {}): string {
+  if (typeof v === "bigint") return v < 0n ? v.toString() : " " + v.toString();
   if (!isFinite(v)) return String(v);
   const body = opts.integer ? Math.trunc(v).toString() : v.toFixed(6);
   return body.startsWith("-") ? body : " " + body;
