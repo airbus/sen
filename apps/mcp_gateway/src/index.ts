@@ -6,7 +6,6 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
-import { TransportError } from "@sen/client";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
@@ -18,13 +17,24 @@ import {
 
 import { makeAuditChannel } from "./audit_log.js";
 import { PACKAGE_NAME, PACKAGE_VERSION } from "./baked_package.js";
-import { GatewayError } from "./errors.js";
 import { INSTRUCTIONS } from "./instructions.js";
 import { KernelRegistry } from "./kernel_registry.js";
 import { RecordingRunner, type RecordingRunnerConfig } from "./recording_runner.js";
 import { listResources, readResource } from "./resources.js";
+import { toolErrorText } from "./tool_error.js";
 import { makeKernelTools, makeRecordingTools, type GatewayContext, type Tool } from "./tools.js";
 import { isEnvFlagSet } from "./util/env_flags.js";
+
+// Whether the kernel a tool call addressed still has an open connection: a TransportError from a
+// call on an open kernel is a call the client refused to send, not a lost connection.
+function kernelIsOpen(registry: KernelRegistry, args: Record<string, unknown>): boolean {
+  try {
+    const kernel = typeof args["kernel"] === "string" ? args["kernel"] : undefined;
+    return registry.resolve(kernel).state === "open";
+  } catch {
+    return false;
+  }
+}
 
 async function main(): Promise<void> {
   const log = (msg: string): void => {
@@ -104,16 +114,11 @@ async function main(): Promise<void> {
     if (tool === undefined) {
       return { isError: true, content: [{ type: "text", text: `unknown tool: ${name}` }] };
     }
+    const toolArgs = (args as Record<string, unknown> | undefined) ?? {};
     try {
-      return await tool.handler(registry, (args as Record<string, unknown> | undefined) ?? {});
+      return await tool.handler(registry, toolArgs);
     } catch (err) {
-      if (err instanceof GatewayError) {
-        return { isError: true, content: [{ type: "text", text: err.message }] };
-      }
-      if (err instanceof TransportError) {
-        return { isError: true, content: [{ type: "text", text: `${name} failed: kernel disconnected mid-call` }] };
-      }
-      const text = `${name} failed: ${err instanceof Error ? err.message : String(err)}`;
+      const text = toolErrorText(name, err, kernelIsOpen(registry, toolArgs));
       return { isError: true, content: [{ type: "text", text }] };
     }
   });
