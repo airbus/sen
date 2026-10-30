@@ -10,6 +10,7 @@
 // implementation
 #include "kernel_impl.h"
 #include "runner.h"
+#include "step_duration.h"
 
 // sen
 #include "sen/core/base/assert.h"
@@ -257,20 +258,19 @@ private:
                  });
 
     // call flushOutputs on all clocks and update the next step duration
-    stepDuration_ = std::numeric_limits<Duration::ValueType>::max();
+    stepDuration_ = noStepReported;
     forAllClocks(clocks,
                  [this](VirtualKernelClockInterface* clock, std::size_t& pending)
                  {
                    clock->flushOutputs({this,
                                         [this, &pending](const auto& result)
                                         {
-                                          if (result.getValue() < stepDuration_)
-                                          {
-                                            stepDuration_ = result.getValue();
-                                          }
+                                          stepDuration_ = soonestStep(stepDuration_, result);
                                           pending--;
                                         }});
                  });
+
+    stepDuration_ = stepOrNone(stepDuration_);
   }
 
 private:
