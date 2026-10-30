@@ -31,6 +31,7 @@
 #include <ftxui/component/event.hpp>
 #include <ftxui/component/loop.hpp>
 #include <ftxui/dom/elements.hpp>
+#include <ftxui/screen/box.hpp>
 #include <ftxui/screen/string.hpp>
 #include <ftxui/screen/terminal.hpp>
 
@@ -38,6 +39,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cstddef>
+#include <deque>
 #include <filesystem>
 #include <iostream>
 #include <memory>
@@ -141,6 +143,10 @@ struct App::UiState
   // Submitting a line that was cut sends an argument the user never finished, and the failure is then
   // reported as a parse error naming text they did not type.
   bool inputTruncated = false;
+
+  // Captured bounding box of the command pane from the previous frame. Used to know the exact height available for soft
+  // clear.
+  ftxui::Box lastCommandBox;
 
   /// Record the span a completion candidate replaces, and the state of the buffer it was measured
   /// against.
@@ -287,6 +293,8 @@ void App::clearCommandPane()
   ui_->commandPane.clear();
   requestRedraw();
 }
+
+const std::deque<std::string>& App::getHistory() const { return ui_->inputPane.getHistory(); }
 
 void App::setCompleter(Completer* completer) { completer_ = completer; }
 
@@ -543,12 +551,12 @@ bool App::handleInputKey(const ftxui::Event& event)
     setCursor(nextWord(buf, cursor()));
     return true;
   }
-  if (event == ftxui::Event::Home)
+  if (event == ftxui::Event::Home || event == ftxui::Event::CtrlA)
   {
     ui_->cursorPos = 0;
     return true;
   }
-  if (event == ftxui::Event::End)
+  if (event == ftxui::Event::End || event == ftxui::Event::CtrlE)
   {
     setCursor(buf.size());
     return true;
@@ -569,10 +577,25 @@ bool App::handleInputKey(const ftxui::Event& event)
     ui_->inputTruncated = false;
     return true;
   }
+  if (event == ftxui::Event::CtrlU)
+  {
+    buf.erase(0, cursor());
+    setCursor(0);
+    ui_->inputTruncated = false;
+    ui_->clearCompletion();
+    return true;
+  }
+  if (event == ftxui::Event::CtrlK)
+  {
+    buf.erase(cursor());
+    ui_->inputTruncated = false;
+    ui_->clearCompletion();
+    return true;
+  }
   // Recall by substring, so an earlier command can be found without pressing Up until it appears. The
   // query is whatever is already on the line, which needs no search prompt, and the typed line comes
   // back on ArrowDown.
-  if (event == ftxui::Event::Special("\x12"))  // Ctrl+R
+  if (event == ftxui::Event::CtrlR)
   {
     if (!ui_->inputPane.searchHistory(buf))
     {
@@ -594,6 +617,13 @@ bool App::handleInputKey(const ftxui::Event& event)
     auto from = prevWord(buf, cursor());
     buf.erase(from, cursor() - from);
     setCursor(from);
+    ui_->inputTruncated = false;
+    return true;
+  }
+  if (event == ftxui::Event::AltD)
+  {
+    auto to = nextWord(buf, cursor());
+    buf.erase(cursor(), to - cursor());
     ui_->inputTruncated = false;
     return true;
   }
@@ -784,7 +814,14 @@ ftxui::Component App::createRenderer(ftxui::Component wrappedInput)
     wrappedInput,
     [this, wrappedInput]() -> ftxui::Element
     {
-      auto commandArea = ui_->commandPane.render() | styles::inputBg() | styles::inputFg();
+      int availableHeight = ui_->lastCommandBox.y_max - ui_->lastCommandBox.y_min + 1;
+      if (availableHeight > 1 && ui_->commandPane.getVisibleHeight() != availableHeight)
+      {
+        ui_->commandPane.setVisibleHeight(availableHeight);
+      }
+
+      auto commandArea =
+        ui_->commandPane.render() | ftxui::reflect(ui_->lastCommandBox) | styles::inputBg() | styles::inputFg();
       if (toastVisible())
       {
         commandArea = ftxui::dbox(
@@ -849,7 +886,8 @@ ftxui::Component App::createEventHandler(ftxui::Component renderer)
                                // than all of handleGlobalEvent: Ctrl+D here would end the process with a
                                // half-filled form on screen.
                                if (event == ftxui::Event::PageUp || event == ftxui::Event::PageDown ||
-                                   event == ftxui::Event::F1 || event == ftxui::Event::CtrlY)
+                                   event == ftxui::Event::F1 || event == ftxui::Event::CtrlY ||
+                                   event == ftxui::Event::CtrlL)
                                {
                                  return handleGlobalEvent(event);
                                }
@@ -881,7 +919,7 @@ bool App::handleFormEvent(ftxui::Event event)
     return true;
   }
   // Clear the focused field. Without a key for it, emptying a field means holding Backspace.
-  if (event == ftxui::Event::Special("\x15"))  // Ctrl+U
+  if (event == ftxui::Event::CtrlU)
   {
     form.clearField();
     return true;
@@ -901,17 +939,17 @@ bool App::handleFormEvent(ftxui::Event event)
     form.backspace();
     return true;
   }
-  if (event == ftxui::Event::Special({14}))  // Ctrl+N
+  if (event == ftxui::Event::CtrlN)
   {
     form.addElementToFocusedSequence();
     return true;
   }
-  if (event == ftxui::Event::Special({24}))  // Ctrl+X
+  if (event == ftxui::Event::CtrlX)
   {
     form.removeFocusedSequenceElement();
     return true;
   }
-  if (event == ftxui::Event::Special({15}))  // Ctrl+O
+  if (event == ftxui::Event::CtrlO)
   {
     form.toggleFocusedOptional();
     return true;
@@ -990,8 +1028,9 @@ bool App::handleFormEvent(ftxui::Event event)
   //
   // Anything else returns false, and the caller then offers it to the scroll, copy and help handlers.
   return event == ftxui::Event::Delete || event == ftxui::Event::Backspace || event == ftxui::Event::Home ||
-         event == ftxui::Event::End || event == ftxui::Event::CtrlW || event == ftxui::Event::ArrowLeftCtrl ||
-         event == ftxui::Event::ArrowRightCtrl;
+         event == ftxui::Event::CtrlA || event == ftxui::Event::End || event == ftxui::Event::CtrlE ||
+         event == ftxui::Event::CtrlK || event == ftxui::Event::CtrlW || event == ftxui::Event::AltD ||
+         event == ftxui::Event::ArrowLeftCtrl || event == ftxui::Event::ArrowRightCtrl;
 }
 
 void App::insertPastedText(std::string_view text)
@@ -1309,10 +1348,10 @@ bool App::handleCompletionEvent(ftxui::Event event)
 
 bool App::handleGlobalEvent(ftxui::Event event)
 {
-  // Ctrl+D exits, but only from an empty line, as every shell does. A 0x04 inside a paste never reaches
-  // here, because handlePasteEvent runs first and drops it; a 0x04 typed on a line with text in it does,
+  // Ctrl+D exits, but only from an empty line, as every shell does. A Ctrl+D inside a paste never reaches
+  // here, because handlePasteEvent runs first and drops it; a Ctrl+D typed on a line with text in it does,
   // and quitting on that would end the term with a half-typed line on screen.
-  if (event == ftxui::Event::Special({4}))
+  if (event == ftxui::Event::CtrlD)
   {
     if (!ui_->inputPane.getBuffer().empty())
     {
@@ -1364,6 +1403,13 @@ bool App::handleGlobalEvent(ftxui::Event event)
   {
     ui_->exitConfirmPending = false;
     requestRedraw();
+  }
+
+  if (event == ftxui::Event::CtrlL)
+  {
+    ui_->commandPane.softClear();
+    requestRedraw();
+    return true;
   }
 
   if (event == ftxui::Event::F1)

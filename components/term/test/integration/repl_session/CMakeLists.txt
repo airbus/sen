@@ -67,6 +67,12 @@ set(_term_session_cases
     test_arrow_up_recalls_the_previous_command
     test_escape_twice_on_an_empty_line_shuts_the_kernel_down
     test_exit_shuts_the_kernel_down
+    test_history_command_shows_past_inputs
+    test_ctrl_l_soft_clears_the_output
+    test_ctrl_u_erases_to_start_of_line
+    test_ctrl_k_erases_to_end_of_line
+    test_ctrl_a_and_ctrl_e_navigate_line
+    test_alt_d_erases_word_after_cursor
 )
 
 # Not on Windows: the harness drives the term through a pty, and pty, fcntl, termios and SIGKILL do not

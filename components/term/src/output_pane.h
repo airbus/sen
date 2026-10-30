@@ -9,7 +9,6 @@
 #define SEN_COMPONENTS_TERM_SRC_OUTPUT_PANE_H
 
 // sen
-// sen
 #include "sen/core/base/compiler_macros.h"
 
 // ftxui
@@ -60,6 +59,9 @@ public:
   /// Clear all output.
   void clear();
 
+  /// Soft clear output by pushing old content out of view.
+  void softClear();
+
   /// Scroll up by a number of lines.
   void scrollUp(int rows = 3);
 
@@ -71,6 +73,12 @@ public:
 
   /// Set the maximum number of lines to retain. 0 means unlimited.
   void setMaxLines(std::size_t maxLines);
+
+  /// Set the visible height of the pane.
+  void setVisibleHeight(int height);
+
+  /// Get the visible height of the pane.
+  [[nodiscard]] int getVisibleHeight() const noexcept { return visibleHeight_; }
 
   /// Render the output pane as an FTXUI element.
   [[nodiscard]] ftxui::Element render();
@@ -100,6 +108,9 @@ private:
   /// measured then rather than on every frame, since most frames are spinner ticks and idle redraws.
   bool contentHeightDirty_ = true;
   int lastWrapWidth_ = 0;
+
+  int visibleHeight_ = 1;
+  std::size_t softClearIndex_ = 0;
 
   /// The composed vbox, kept between frames. Dropped whenever the content or the wrap width changes, and
   /// bypassed while a pending call is animating.

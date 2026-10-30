@@ -22,6 +22,7 @@
 // std
 #include <chrono>
 #include <cstddef>
+#include <deque>
 #include <filesystem>
 #include <memory>
 #include <string>
@@ -119,6 +120,9 @@ public:
 
   /// Whether the input area is currently occupied by a form.
   [[nodiscard]] bool hasActiveForm() const noexcept;
+
+  /// Get the recorded command history.
+  [[nodiscard]] const std::deque<std::string>& getHistory() const;
 
 private:
   // init() helpers: each builds one layer of the FTXUI component tree.

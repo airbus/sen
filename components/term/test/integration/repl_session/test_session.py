@@ -19,10 +19,16 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent))
 from term_runner import (
+    ALT_D,
     ARROW_DOWN,
+    ARROW_LEFT,
     ARROW_RIGHT,
     ARROW_UP,
+    CTRL_A,
     CTRL_D,
+    CTRL_E,
+    CTRL_K,
+    CTRL_L,
     CTRL_U,
     ESCAPE,
     F1,
@@ -836,6 +842,63 @@ class TestTermSession(unittest.TestCase):
         self.assertTrue(
             self.term.wait_for_exit(), f"the process kept running after 'exit'. Screen:\n{self.term.screen()}"
         )
+
+    def test_history_command_shows_past_inputs(self) -> None:
+        """The history command outputs previously entered commands."""
+        self.term.send_command("pwd", settle=1.0)
+        self.term.send_command("cd local.demo", settle=1.0)
+        self.term.forget()
+        self.term.send_command("history", settle=1.5)
+        screen = self.term.screen()
+        self.assertIn("pwd", screen)
+        self.assertIn("cd local.demo", screen)
+
+    def test_ctrl_l_soft_clears_the_output(self) -> None:
+        """Ctrl+L scrolls the output out of view."""
+        self.term.send_command("help", settle=1.5)
+        self.term.forget()
+        self.term.send_keys(CTRL_L, settle=1.0)
+        screen = self.term.grid()
+        self.assertEqual(0, screen.row_of("inspect"), f"Ctrl+L did not clear the screen:\n{screen.numbered()}")
+
+    def test_ctrl_u_erases_to_start_of_line(self) -> None:
+        """Ctrl+U clears text from the cursor to the beginning of the line."""
+        self.term.type_text("hello world")
+        self.term.send_keys(ARROW_LEFT * 5, settle=0.2)
+        self.term.send_keys(CTRL_U, settle=0.2)
+        self.term.send_keys(b"\r", settle=1.5)
+        self.assertTrue(self.term.wait_for("recognized command", timeout=2.0))
+        self.assertIn("'world' is not a recognized command", self.term.screen())
+
+    def test_ctrl_k_erases_to_end_of_line(self) -> None:
+        """Ctrl+K clears text from the cursor to the end of the line."""
+        self.term.type_text("dummy world")
+        self.term.send_keys(ARROW_LEFT * 6, settle=0.2)
+        self.term.send_keys(CTRL_K, settle=0.2)
+        self.term.send_keys(b"\r", settle=1.5)
+        self.assertTrue(self.term.wait_for("recognized command", timeout=2.0))
+        self.assertIn("'dummy' is not a recognized command", self.term.screen())
+
+    def test_ctrl_a_and_ctrl_e_navigate_line(self) -> None:
+        """Ctrl+A moves to start, Ctrl+E moves to end."""
+        self.term.type_text("world")
+        self.term.send_keys(CTRL_A, settle=0.2)
+        self.term.type_text("dummy ", settle=0.2)
+        self.term.send_keys(CTRL_E, settle=0.2)
+        self.term.type_text(" test", settle=0.2)
+        self.term.send_keys(b"\r", settle=1.5)
+        self.assertTrue(self.term.wait_for("recognized command", timeout=2.0))
+        self.assertIn("'dummy' is not a recognized command", self.term.screen())
+        self.assertIn("dummy world test", self.term.screen())
+
+    def test_alt_d_erases_word_after_cursor(self) -> None:
+        """Alt+D erases the word following the cursor."""
+        self.term.type_text("dummy this word")
+        self.term.send_keys(ARROW_LEFT * 9, settle=0.2)
+        self.term.send_keys(ALT_D, settle=0.2)
+        self.term.send_keys(b"\r", settle=1.5)
+        self.assertTrue(self.term.wait_for("recognized command", timeout=2.0))
+        self.assertIn("'dummy' is not a recognized command", self.term.screen())
 
 
 if __name__ == "__main__":

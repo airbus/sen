@@ -87,6 +87,18 @@ ftxui::Element renderPendingEntry(const std::string& description, std::chrono::s
 
 void OutputPane::setMaxLines(std::size_t maxLines) { maxLines_ = maxLines; }
 
+void OutputPane::setVisibleHeight(int height)
+{
+  if (visibleHeight_ != height)
+  {
+    visibleHeight_ = height;
+    if (softClearIndex_ > 0)
+    {
+      contentHeightDirty_ = true;
+    }
+  }
+}
+
 void OutputPane::appendText(std::string_view text)
 {
   // paragraph() builds a node per word and re-solves the flexbox every frame, and both callers carry
@@ -179,6 +191,10 @@ void OutputPane::trimLines()
     for (std::size_t i = 0; i < dropCount; ++i)
     {
       lines_.pop_front();
+      if (softClearIndex_ > 0)
+      {
+        --softClearIndex_;
+      }
     }
   }
 }
@@ -186,10 +202,19 @@ void OutputPane::trimLines()
 void OutputPane::clear()
 {
   lines_.clear();
+  softClearIndex_ = 0;
   contentHeightDirty_ = true;
   pendingCount_ = 0;
   scrollPosition_ = scrollBottom;
   followBottom_ = true;
+}
+
+void OutputPane::softClear()
+{
+  softClearIndex_ = lines_.size();
+  contentHeightDirty_ = true;
+  followBottom_ = true;
+  scrollPosition_ = scrollBottom;
 }
 
 void OutputPane::scrollUp(int rows)
@@ -232,19 +257,43 @@ ftxui::Element OutputPane::render()
   if (!contentCache_ || layoutChanged || pendingCount_ > 0)
   {
     ftxui::Elements content;
-    content.reserve(lines_.size());
+    content.reserve(lines_.size() + 1);
 
-    for (const auto& entry: lines_)
+    ftxui::Elements newItems;
+
+    for (std::size_t i = 0; i < lines_.size(); ++i)
     {
-      if (const auto* pending = std::get_if<PendingEntry>(&entry); pending != nullptr)
+      ftxui::Element elem;
+      if (const auto* pending = std::get_if<PendingEntry>(&lines_[i]); pending != nullptr)
       {
-        content.push_back(renderPendingEntry(pending->description, pending->startTime));
+        elem = renderPendingEntry(pending->description, pending->startTime);
       }
       else
       {
-        content.push_back(std::get<ftxui::Element>(entry));
+        elem = std::get<ftxui::Element>(lines_[i]);
+      }
+
+      content.push_back(elem);
+
+      if (i >= softClearIndex_)
+      {
+        newItems.push_back(elem);
       }
     }
+
+    if (softClearIndex_ > 0 && visibleHeight_ > 0)
+    {
+      auto newBox = ftxui::vbox(std::move(newItems));
+      newBox->ComputeRequirement();
+      int newHeight = newBox->requirement().min_y;
+      int padAfter = std::max(0, visibleHeight_ - newHeight);
+
+      if (padAfter > 0)
+      {
+        content.push_back(ftxui::text("") | ftxui::size(ftxui::HEIGHT, ftxui::EQUAL, padAfter));
+      }
+    }
+
     contentCache_ = ftxui::vbox(std::move(content));
   }
 
