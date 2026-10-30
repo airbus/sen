@@ -15,6 +15,8 @@
 // sen
 #include "sen/core/base/assert.h"
 #include "sen/core/base/class_helpers.h"
+#include "sen/core/base/span.h"
+#include "sen/core/base/timestamp.h"
 #include "sen/core/obj/detail/native_object_proxy.h"
 #include "sen/core/obj/native_object.h"
 #include "sen/db/creation.h"
@@ -41,6 +43,29 @@
 namespace sen::components::replayer
 {
 
+namespace
+{
+
+/// The latest keyframe index at or before a time, or nullptr when the archive has none there.
+/// A later one holds a state the cursor cannot walk back from.
+const db::KeyframeIndex* latestIndexAtOrBefore(Span<const db::KeyframeIndex> indexes, TimeStamp time)
+{
+  const db::KeyframeIndex* result = nullptr;
+  for (const auto& index: indexes)
+  {
+    if (index.time > time)
+    {
+      break;
+    }
+
+    result = &index;
+  }
+
+  return result;
+}
+
+}  // namespace
+
 ReplayImpl::ReplayImpl(std::string name, std::string path, std::unique_ptr<db::Input> input, kernel::RunApi& api)
   : ReplayBase(std::move(name), input->getSummary(), std::move(path))
   , input_(std::move(input))
@@ -53,41 +78,38 @@ ReplayImpl::ReplayImpl(std::string name, std::string path, std::unique_ptr<db::I
 
 ReplayImpl::~ReplayImpl() { doStop(); }
 
-void ReplayImpl::update(kernel::RunApi& runApi)
+void ReplayImpl::update(kernel::RunApi& runApi) { updateAt(runApi.getTime()); }
+
+void ReplayImpl::updateAt(TimeStamp now)
 {
-  auto nextStatus = getNextStatus();
-
-  if (nextStatus == ReplayStatus::playing)
+  if (getNextStatus() == ReplayStatus::playing && lastUpdateTime_.sinceEpoch().get() != 0)
   {
-    if (lastUpdateTime_.sinceEpoch().get() != 0)
-    {
-      auto delta = runApi.getTime() - lastUpdateTime_;
-      advanceCursor(delta);
-    }
+    advanceCursor(now - lastUpdateTime_);
   }
 
-  // Update lastUpdateTime_ only on playing and paused mode so advanceCursor
-  // gets called with an updated delta time
-  if (nextStatus == ReplayStatus::playing || nextStatus == ReplayStatus::paused)
-  {
-    lastUpdateTime_ = runApi.getTime();
-  }
+  // Updated whatever the status: a stale stamp would make the next delta cover the time spent
+  // stopped.
+  lastUpdateTime_ = now;
 }
 
 void ReplayImpl::advanceCursor(Duration delta)
 {
-  bool cursorMoved = false;
-  const auto currentTime = getPlaybackTime();
-  const auto nextTime = currentTime + delta;
+  // From the staged time: a seek earlier in the same cycle has already set it.
+  advanceCursorTo(getNextPlaybackTime() + delta);
+}
 
-  while (!cursor_.atEnd() && cursor_.get().time <= nextTime)
+void ReplayImpl::advanceCursorTo(TimeStamp target)
+{
+  bool cursorMoved = false;
+
+  while (!cursor_.atEnd() && cursor_.get().time <= target)
   {
     applyCursor();
     ++cursor_;
     cursorMoved = true;
   }
 
-  setNextPlaybackTime(nextTime);
+  setNextPlaybackTime(target);
 
   if (cursorMoved)
   {
@@ -176,8 +198,8 @@ void ReplayImpl::seekImpl(TimeStamp time)
     throwRuntimeError(err);
   }
 
-  auto maybeIndex = input_->getKeyframeIndex(time);
-  if (!maybeIndex.has_value())
+  const auto* index = latestIndexAtOrBefore(input_->getAllKeyframeIndexes(), time);
+  if (index == nullptr)
   {
     std::string err;
     err.append("the archive ");
@@ -187,15 +209,20 @@ void ReplayImpl::seekImpl(TimeStamp time)
     throwRuntimeError(err);
   }
 
-  cursor_ = input_->at(maybeIndex.value());
-  applyCursor();
-  setNextPlaybackTime(cursor_.get().time);
-  flushObjectsActivity();
+  // at() leaves the cursor on the entry before the indexed one
+  cursor_ = input_->at(*index);
+  ++cursor_;
 
-  if (auto diff = time - cursor_.get().time; diff.get() > 0)
+  // The keyframe a seek lands on rebuilds the object set, so it applies whatever the status is.
+  // Keyframes crossed while playing do not: the stream carries the same changes.
+  if (const auto* keyframe = std::get_if<db::Keyframe>(&cursor_.get().payload))
   {
-    advanceCursor(diff);
+    applyKeyframe(cursor_.get().time, *keyframe);
+    ++cursor_;
   }
+
+  advanceCursorTo(time);
+  flushObjectsActivity();
 }
 
 void ReplayImpl::applyCursor()
@@ -251,6 +278,11 @@ void ReplayImpl::apply(TimeStamp time, const db::Keyframe& value)
     return;
   }
 
+  applyKeyframe(time, value);
+}
+
+void ReplayImpl::applyKeyframe(TimeStamp time, const db::Keyframe& value)
+{
   decltype(objects_) nextObjects;
 
   for (const auto& snapshot: value.getSnapshots())
