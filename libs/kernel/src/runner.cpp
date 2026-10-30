@@ -482,6 +482,19 @@ void Runner::signalThreadToStop()
 
 bool Runner::isCurrentThread() const noexcept { return os_.isCurrentThread(thread_); }
 
+void Runner::joinFaultedThread() noexcept
+{
+  // toErrorState also reports a failed thread creation, where there is nothing to join.
+  if (thread_.nativeHandle == nullptr)
+  {
+    return;
+  }
+
+  // A failed join is ignored: the runner is already in the error state and the kernel is on its way
+  // down, so recording another error changes nothing.
+  std::ignore = os_.joinThread(thread_);
+}
+
 void Runner::stopThread()
 {
   if (const auto state = state_.load(); state == ComponentState::stopped)

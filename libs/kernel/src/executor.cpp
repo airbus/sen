@@ -226,9 +226,11 @@ void Executor::shutDown()
     // stop the execution
     for (auto* runner: runnersInThisGroup)
     {
-      // ignore faulted runners
+      // This loop holds the kernel's only join, so a faulted runner's thread has to be reclaimed
+      // here even though the stop itself is skipped.
       if (runner->getState() == ComponentState::error)
       {
+        runner->joinFaultedThread();
         continue;
       }
 
