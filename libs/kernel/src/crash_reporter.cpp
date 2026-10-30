@@ -929,6 +929,8 @@ void CrashReporter::setComponents(Span<const ComponentInfo> loaded, Span<const C
   componentsAnnotation.Set(inventory.c_str());
 }
 
+void CrashReporter::setReportSuppressed(bool suppressed) noexcept { reportSuppressed_ = suppressed; }
+
 void CrashReporter::registerKernel(const KernelConfig& config)
 {
   // One process has one report. A second kernel replaces the first one's name, parameters and
@@ -1289,7 +1291,7 @@ std::filesystem::path CrashReporter::computeCrashReportFile() const
 
 void CrashReporter::writeReport()
 {
-  if (!report_.senData.kernelParams.crashReportDisabled)
+  if (!reportSuppressed_)
   {
     // The configuration key is the fallback for a process that registered a kernel without arming.
     std::error_code ec;

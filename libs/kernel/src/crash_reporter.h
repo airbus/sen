@@ -56,6 +56,10 @@ public:
   /// Register the kernel information into the crash reporter.
   void registerKernel(const KernelConfig& config);
 
+  /// Whether to write the report file at all. The dump is not affected: the handler is already
+  /// running in another process by the time a kernel reads its configuration.
+  void setReportSuppressed(bool suppressed) noexcept;
+
   /// The packages and components this kernel loaded, each with the build it was made by.
   void setComponents(Span<const ComponentInfo> loaded, Span<const ComponentInfo> imported);
 
@@ -143,6 +147,10 @@ private:
 
   /// Whether any kernel has registered, so that a second one can say it is taking the record over.
   bool kernelRegistered_ {false};
+
+  /// Set from a kernel configured with crashReportDisabled. Kept here rather than read back from
+  /// the registered parameters, which a disabled kernel never registers.
+  bool reportSuppressed_ {false};
 
   /// set_terminate cannot fail, so this is set unconditionally. Any handler already in place is
   /// dropped: install() neither restores it nor chains to it.
