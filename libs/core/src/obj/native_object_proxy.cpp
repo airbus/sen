@@ -146,14 +146,17 @@ void NativeObjectProxy::senImplRemoveUntypedConnection(ConnId id, MemberHash mem
       auto& callbackList = itr->second.list;
 
       // Invalidate before erasing so already-queued Callback::invoke calls become no-ops
-      // instead of running user lambdas with dangling captures.
-      const auto removeStart = std::remove_if(
-        callbackList.begin(), callbackList.end(), [&](const auto& elem) -> bool { return elem.id == id.get(); });
-      for (auto it = removeStart; it != callbackList.end(); ++it)
+      // instead of running user lambdas with dangling captures. Not after remove_if: the
+      // elements it leaves past the new end are moved-from, not the removed ones.
+      const auto matches = [&](const auto& elem) -> bool { return elem.id == id.get(); };
+      for (auto& elem: callbackList)
       {
-        it->callback->lock().invalidate();
+        if (matches(elem))
+        {
+          elem.callback->lock().invalidate();
+        }
       }
-      callbackList.erase(removeStart, callbackList.end());
+      callbackList.erase(std::remove_if(callbackList.begin(), callbackList.end(), matches), callbackList.end());
 
       // delete the entry for this member if empty
       if (callbackList.empty())
