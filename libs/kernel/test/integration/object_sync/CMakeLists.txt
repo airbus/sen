@@ -459,6 +459,7 @@ add_sen_integration_test(
     USE_TESTCONTAINERS
 )
 
+set(LISTENER_TYPE ListenerLocalMethod)
 configure_file(
   config/single_component.yaml.in ${CMAKE_CURRENT_BINARY_DIR}/9_local_method/single_component.yaml @ONLY
 )
@@ -633,4 +634,473 @@ add_sen_integration_test(
     kernel
     FLAKY # marked as flaky (sanitizer tickets have been created and the test can fail around once every 100 runs)
     USE_TESTCONTAINERS
+)
+
+set(NODE_TYPE NodeStaticProps)
+generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/p2p_1_static_props)
+
+add_sen_integration_test(
+  object_sync_p2p_static_props_local
+  DESCRIPTION
+  "Carries static properties within one component."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_1_static_props/p2p_single_component.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+add_sen_integration_test(
+  object_sync_p2p_static_props_single_process
+  DESCRIPTION
+  "Carries static properties between multiple components in one process."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_1_static_props/p2p_single_process.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+add_sen_integration_test(
+  object_sync_p2p_static_props_multi_process
+  DESCRIPTION
+  "Carries static properties between multiple processes."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_1_static_props/p2p_multi_process_1.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_1_static_props/p2p_multi_process_2.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_1_static_props/p2p_multi_process_3.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+set(NODE_TYPE NodeBestEffortProps)
+generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/p2p_2_best_effort_props)
+
+add_sen_integration_test(
+  object_sync_p2p_best_effort_props_local
+  DESCRIPTION
+  "Carries best-effort properties within one component."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_2_best_effort_props/p2p_single_component.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+add_sen_integration_test(
+  object_sync_p2p_best_effort_props_single_process
+  DESCRIPTION
+  "Carries best-effort properties between multiple components in one process."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_2_best_effort_props/p2p_single_process.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+add_sen_integration_test(
+  object_sync_p2p_best_effort_props_multi_process
+  DESCRIPTION
+  "Carries best-effort properties between multiple processes."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_2_best_effort_props/p2p_multi_process_1.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_2_best_effort_props/p2p_multi_process_2.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_2_best_effort_props/p2p_multi_process_3.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+set(NODE_TYPE NodeConfirmedProps)
+generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/p2p_3_confirmed_props)
+
+add_sen_integration_test(
+  object_sync_p2p_confirmed_props_local
+  DESCRIPTION
+  "Carries confirmed properties within one component."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_3_confirmed_props/p2p_single_component.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+add_sen_integration_test(
+  object_sync_p2p_confirmed_props_single_process
+  DESCRIPTION
+  "Carries confirmed properties between multiple components in one process."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_3_confirmed_props/p2p_single_process.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+add_sen_integration_test(
+  object_sync_p2p_confirmed_props_multi_process
+  DESCRIPTION
+  "Carries confirmed properties between multiple processes."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_3_confirmed_props/p2p_multi_process_1.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_3_confirmed_props/p2p_multi_process_2.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_3_confirmed_props/p2p_multi_process_3.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+set(NODE_TYPE NodeMulticastProps)
+generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/p2p_4_multicast_props)
+
+add_sen_integration_test(
+  object_sync_p2p_multicast_props_local
+  DESCRIPTION
+  "Carries multicast properties within one component."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_4_multicast_props/p2p_single_component.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+add_sen_integration_test(
+  object_sync_p2p_multicast_props_single_process
+  DESCRIPTION
+  "Carries multicast properties between multiple components in one process."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_4_multicast_props/p2p_single_process.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+add_sen_integration_test(
+  object_sync_p2p_multicast_props_multi_process
+  DESCRIPTION
+  "Carries multicast properties between multiple processes."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_4_multicast_props/p2p_multi_process_1.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_4_multicast_props/p2p_multi_process_2.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_4_multicast_props/p2p_multi_process_3.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+set(NODE_TYPE NodeWritableProps)
+generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/p2p_5_writable_props)
+
+add_sen_integration_test(
+  object_sync_p2p_writable_props_local
+  DESCRIPTION
+  "Carries writable properties within one component."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_5_writable_props/p2p_single_component.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+add_sen_integration_test(
+  object_sync_p2p_writable_props_single_process
+  DESCRIPTION
+  "Carries writable properties between multiple components in one process."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_5_writable_props/p2p_single_process.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+add_sen_integration_test(
+  object_sync_p2p_writable_props_multi_process
+  DESCRIPTION
+  "Carries writable properties between multiple processes."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_5_writable_props/p2p_multi_process_1.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_5_writable_props/p2p_multi_process_2.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_5_writable_props/p2p_multi_process_3.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+set(NODE_TYPE NodeBestEffortEvent)
+generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/p2p_6_best_effort_events)
+
+add_sen_integration_test(
+  object_sync_p2p_best_effort_events_local
+  DESCRIPTION
+  "Delivers best-effort events within one component."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_6_best_effort_events/p2p_single_component.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+add_sen_integration_test(
+  object_sync_p2p_best_effort_events_single_process
+  DESCRIPTION
+  "Delivers best-effort events between multiple components in one process."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_6_best_effort_events/p2p_single_process.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+add_sen_integration_test(
+  object_sync_p2p_best_effort_events_multi_process
+  DESCRIPTION
+  "Delivers best-effort events between multiple processes."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_6_best_effort_events/p2p_multi_process_1.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_6_best_effort_events/p2p_multi_process_2.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_6_best_effort_events/p2p_multi_process_3.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+set(NODE_TYPE NodeConfirmedEvent)
+generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/p2p_7_confirmed_events)
+
+add_sen_integration_test(
+  object_sync_p2p_confirmed_events_local
+  DESCRIPTION
+  "Delivers confirmed events within one component."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_7_confirmed_events/p2p_single_component.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+add_sen_integration_test(
+  object_sync_p2p_confirmed_events_single_process
+  DESCRIPTION
+  "Delivers confirmed events between multiple components in one process."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_7_confirmed_events/p2p_single_process.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+add_sen_integration_test(
+  object_sync_p2p_confirmed_events_multi_process
+  DESCRIPTION
+  "Delivers confirmed events between multiple processes."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_7_confirmed_events/p2p_multi_process_1.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_7_confirmed_events/p2p_multi_process_2.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_7_confirmed_events/p2p_multi_process_3.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+set(NODE_TYPE NodeMulticastEvent)
+generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/p2p_8_multicast_events)
+
+add_sen_integration_test(
+  object_sync_p2p_multicast_events_local
+  DESCRIPTION
+  "Delivers multicast events within one component."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_8_multicast_events/p2p_single_component.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+add_sen_integration_test(
+  object_sync_p2p_multicast_events_single_process
+  DESCRIPTION
+  "Delivers multicast events between multiple components in one process."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_8_multicast_events/p2p_single_process.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+add_sen_integration_test(
+  object_sync_p2p_multicast_events_multi_process
+  DESCRIPTION
+  "Delivers multicast events between multiple processes."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_8_multicast_events/p2p_multi_process_1.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_8_multicast_events/p2p_multi_process_2.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_8_multicast_events/p2p_multi_process_3.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+set(NODE_TYPE NodeLocalMethod)
+configure_file(
+  config/p2p_single_component.yaml.in ${CMAKE_CURRENT_BINARY_DIR}/p2p_9_local_method/p2p_single_component.yaml
+  @ONLY
+)
+
+add_sen_integration_test(
+  object_sync_p2p_local_method_local
+  DESCRIPTION
+  "Calls a method on a published object within one component."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_9_local_method/p2p_single_component.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+set(NODE_TYPE NodeConstMethod)
+generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/p2p_10_const_method)
+
+add_sen_integration_test(
+  object_sync_p2p_const_method_local
+  DESCRIPTION
+  "Calls a const method on a published object within one component."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_10_const_method/p2p_single_component.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+add_sen_integration_test(
+  object_sync_p2p_const_method_single_process
+  DESCRIPTION
+  "Calls a const method on a published object between multiple components in one process."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_10_const_method/p2p_single_process.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+add_sen_integration_test(
+  object_sync_p2p_const_method_multi_process
+  DESCRIPTION
+  "Calls a const method on a published object between multiple processes."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_10_const_method/p2p_multi_process_1.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_10_const_method/p2p_multi_process_2.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_10_const_method/p2p_multi_process_3.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+set(NODE_TYPE NodeConfirmedMethod)
+generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/p2p_11_confirmed_method)
+
+add_sen_integration_test(
+  object_sync_p2p_confirmed_method_local
+  DESCRIPTION
+  "Calls a confirmed method on a published object within one component."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_11_confirmed_method/p2p_single_component.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+add_sen_integration_test(
+  object_sync_p2p_confirmed_method_single_process
+  DESCRIPTION
+  "Calls a confirmed method on a published object between multiple components in one process."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_11_confirmed_method/p2p_single_process.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+add_sen_integration_test(
+  object_sync_p2p_confirmed_method_multi_process
+  DESCRIPTION
+  "Calls a confirmed method on a published object between multiple processes."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_11_confirmed_method/p2p_multi_process_1.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_11_confirmed_method/p2p_multi_process_2.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_11_confirmed_method/p2p_multi_process_3.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+set(NODE_TYPE NodeBestEffortMethod)
+generate_config_files(${CMAKE_CURRENT_BINARY_DIR}/p2p_12_best_effort_method)
+
+add_sen_integration_test(
+  object_sync_p2p_best_effort_method_local
+  DESCRIPTION
+  "Calls a best-effort method on a published object within one component."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_12_best_effort_method/p2p_single_component.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+add_sen_integration_test(
+  object_sync_p2p_best_effort_method_single_process
+  DESCRIPTION
+  "Calls a best-effort method on a published object between multiple components in one process."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_12_best_effort_method/p2p_single_process.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
+add_sen_integration_test(
+  object_sync_p2p_best_effort_method_multi_process
+  DESCRIPTION
+  "Calls a best-effort method on a published object between multiple processes."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script_file}
+  ${_working_dir}
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_12_best_effort_method/p2p_multi_process_1.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_12_best_effort_method/p2p_multi_process_2.yaml
+  ${CMAKE_CURRENT_BINARY_DIR}/p2p_12_best_effort_method/p2p_multi_process_3.yaml
+  REQ_DEPS object_sync py ether kernel FLAKY USE_TESTCONTAINERS
 )

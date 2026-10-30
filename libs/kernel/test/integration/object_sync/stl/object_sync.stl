@@ -7,6 +7,11 @@ class ListenerObjectSync : extends sen.test.Listener
   var query : string [static, confirmed];
 }
 
+class SyncNode : extends sen.test.StatefulObject
+{
+  var numOfNodes : u32 [static];
+}
+
 struct TestStruct
 {
   field1 : u32,
