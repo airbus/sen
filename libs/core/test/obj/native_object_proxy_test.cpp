@@ -10,6 +10,7 @@
 #include "sen/core/meta/type.h"
 #include "sen/core/meta/var.h"
 #include "sen/core/obj/callback.h"
+#include "sen/core/obj/connection_guard.h"
 #include "sen/core/obj/detail/work_queue.h"
 #include "sen/core/obj/native_object.h"
 
@@ -21,12 +22,14 @@
 
 // std
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 
 namespace
 {
 
+using sen::ConnectionGuard;
 using sen::EventCallback;
 using sen::PropertyCallback;
 using sen::TimeStamp;
@@ -299,6 +302,38 @@ TEST(NativeObjectProxy, RemovesUntypedConnections)
   }
 
   EXPECT_FALSE(untypedTriggered);
+}
+
+/// @test
+/// Removing the first of two untyped connections to a property leaves the second one working.
+/// @requirements(SEN-573, SEN-574)
+TEST(NativeObjectProxy, RemovesOneOfTwoUntypedConnections)
+{
+  const ProxyTestFixture fixture;
+  const auto* metaClass = example_class::ExampleClassInterface::meta().type();
+  const auto* propertyInfo = metaClass->searchPropertyByName("prop1");
+
+  bool firstTriggered = false;
+  bool secondTriggered = false;
+  EventCallback<VarList> second(fixture.getQueue(), [&](const auto&, const auto&) { secondTriggered = true; });
+  std::optional<ConnectionGuard> secondGuard;
+  {
+    EventCallback<VarList> first(fixture.getQueue(), [&](const auto&, const auto&) { firstTriggered = true; });
+    auto firstGuard = fixture.proxy->onPropertyChangedUntyped(propertyInfo, std::move(first));
+    secondGuard.emplace(fixture.proxy->onPropertyChangedUntyped(propertyInfo, std::move(second)));
+  }
+
+  fixture.owner->setNextProp1("second_only_val");
+  fixture.owner->commit(TimeStamp {550});
+
+  fixture.proxy->drainInputs();
+
+  while (fixture.getQueue()->executeAll())
+  {
+  }
+
+  EXPECT_FALSE(firstTriggered);
+  EXPECT_TRUE(secondTriggered);
 }
 
 /// @test
