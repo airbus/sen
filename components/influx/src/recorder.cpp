@@ -10,6 +10,7 @@
 // component
 #include "data_point.h"
 #include "database.h"
+#include "source_time.h"
 
 // sen
 #include "sen/core/base/assert.h"
@@ -115,7 +116,7 @@ void Recorder::objectAdded(Object* object)
 {
   subscribeToEvents(object);
   subscribeToPropertyChanges(object);
-  sendCreation(runApi_.getTime(), object);
+  sendCreation(sourceTime(object->getLastCommitTime(), runApi_.getTime()), object);
 }
 
 void Recorder::subscribeToEvents(Object* object)
@@ -171,7 +172,7 @@ void Recorder::objectRemoved(Object* object)
 {
   // remove all connections to this object
   guards_.erase(object->getId());
-  sendDeletion(runApi_.getTime(), object);
+  sendDeletion(sourceTime(object->getLastCommitTime(), runApi_.getTime()), object);
 }
 
 void Recorder::eventProduced(const Object* instance, const Event* event, const EventInfo& info, const VarList& args)
