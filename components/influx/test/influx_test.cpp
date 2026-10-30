@@ -8,6 +8,7 @@
 // components
 #include "data_point.h"
 #include "database.h"
+#include "source_time.h"
 
 // sen
 #include "sen/core/base/duration.h"
@@ -21,6 +22,7 @@
 #include <gtest/gtest.h>
 
 // std
+#include <chrono>
 #include <cstdint>
 #include <exception>
 #include <memory>
@@ -33,6 +35,7 @@ namespace influx::test
 
 using sen::components::influx::Database;
 using sen::components::influx::DataPoint;
+using sen::components::influx::sourceTime;
 using sen::components::influx::Transport;
 
 /// A transport that keeps what it was asked to send, so a test can read the line protocol the
@@ -60,6 +63,18 @@ constexpr std::int64_t fixedTime = 1'700'000'000'000'000'000;
 
 /// @test
 /// A point with a tag and a field becomes one line of influx line protocol.
+/// @test
+/// A point takes the time the value was committed. The component's own time stands in only for an
+/// object that has committed nothing.
+TEST(InfluxSourceTime, TheCommittedTimeWinsOverTheComponentsOwn)
+{
+  const sen::TimeStamp committed {std::chrono::seconds(1000)};
+  const sen::TimeStamp componentsOwn {std::chrono::seconds(2000)};
+
+  EXPECT_EQ(sourceTime(committed, componentsOwn), committed);
+  EXPECT_EQ(sourceTime(sen::TimeStamp {}, componentsOwn), componentsOwn);
+}
+
 TEST(InfluxLineProtocolTest, APointBecomesOneLine)
 {
   std::vector<std::string> sent;
