@@ -251,6 +251,7 @@ export function enumerateTopLevelPaths(client: Client | null, declaredType: stri
 export function extractNumericAt(value: Var | undefined, path: string): number | null {
   const v = extractAt(value, path);
   if (typeof v === "number") return Number.isFinite(v) ? v : null;
+  if (typeof v === "bigint") return Number(v);
   if (v instanceof Quantity) return Number.isFinite(v.value) ? v.value : null;
   return null;
 }
