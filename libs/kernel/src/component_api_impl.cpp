@@ -36,24 +36,17 @@
 
 // spdlog
 #include <spdlog/common.h>
-#include <spdlog/details/console_globals.h>
-#include <spdlog/details/log_msg.h>
 #include <spdlog/details/registry.h>
 #include <spdlog/logger.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
 // std
-#include <spdlog/sinks/ansicolor_sink.h>
-#include <spdlog/sinks/sink.h>
-#include <spdlog/sinks/stdout_sinks.h>
-
 #include <algorithm>
 #include <atomic>
 #include <cstdint>
 #include <functional>
 #include <memory>
-#include <mutex>
 #include <optional>
 #include <string>
 #include <utility>
