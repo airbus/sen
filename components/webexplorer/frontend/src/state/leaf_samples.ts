@@ -58,10 +58,13 @@ export function valueAt(view: BufferView, i: number): SampleValue {
   return 0;
 }
 
-/** Server timestamp when parseable, local `at` otherwise. */
+/**
+ * Arrival time, for every sample. The source timestamp stays in the buffer for display: a source
+ * that carries its own time, as a replay does, puts samples of one series weeks apart from the
+ * ones that arrive without it.
+ */
 export function timeMsAt(view: BufferView, i: number): number {
-  const ts = view.tServer[i] ?? NaN;
-  return Number.isFinite(ts) ? ts : (view.at[i] ?? 0);
+  return view.at[i] ?? 0;
 }
 
 
