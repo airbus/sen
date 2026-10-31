@@ -206,9 +206,11 @@ inline void EtherTransport::sendTo(kernel::ParticipantAddr& to,
     {
       if (config_.busConfig.multicastDisabled)
       {
+        // Every peer needs its own handle: the callee takes the block by value, so moving into the
+        // first call would hand each later peer an empty pointer that it dereferences.
         for (auto& [id, procHandler]: readyProcesses_)
         {
-          procHandler->sendBusMessageConfirmed(to, busId, std::move(data));
+          procHandler->sendBusMessageConfirmed(to, busId, data);
         }
       }
       else
@@ -256,9 +258,10 @@ inline void EtherTransport::sendTo(kernel::ParticipantAddr& to,
     {
       if (config_.busConfig.multicastDisabled)
       {
+        // Same as the single-buffer overload above: a copy per peer, not a move.
         for (auto& [id, procHandler]: readyProcesses_)
         {
-          procHandler->sendBusMessageConfirmed(to, busId, std::move(data1), std::move(data2));
+          procHandler->sendBusMessageConfirmed(to, busId, data1, data2);
         }
       }
       else

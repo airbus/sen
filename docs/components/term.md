@@ -235,13 +235,13 @@ argument, with an editor chosen for the type. Tab and Shift+Tab move between fie
 | **Duration**                 | Text field           | Type with unit suffix (e.g., `100ms`, `1.5s`, `2m`)                       |
 | **Timestamp**                | Text field           | Type as ISO 8601 string                                                   |
 
-| Type         | Editor                              | Keys                                                               |
-|--------------|-------------------------------------|--------------------------------------------------------------------|
-| **struct**   | Named sub-fields in a tree          | Tab into each field                                                |
-| **sequence** | Indexed elements, dynamically sized | **Ctrl+N** to add element, **Ctrl+X** to remove focused element    |
-| **variant**  | Type selector + value editor        | Left/Right to change the active type; value editor adapts          |
-| **optional** | Presence toggle + value editor      | **Ctrl+O** to toggle between empty and filled                      |
-| **quantity** | Value field + unit selector         | Edit the numeric value; Left/Right on the unit row to change units |
+| Type         | Editor                              | Keys                                                                          |
+|--------------|-------------------------------------|-------------------------------------------------------------------------------|
+| **struct**   | Named sub-fields in a tree          | Tab into each field                                                           |
+| **sequence** | Indexed elements, dynamically sized | **Ctrl+N** to add element, **Ctrl+X** to remove focused element               |
+| **variant**  | Type selector + value editor        | Left/Right to change the active type; value editor adapts                     |
+| **optional** | Presence toggle + value editor      | **Space** on the row or **Ctrl+O** inside, to toggle between empty and filled |
+| **quantity** | Value field + unit selector         | Edit the numeric value; Left/Right on the unit row to change units            |
 
 A bounded sequence shows a count and refuses Ctrl+N at capacity. A fixed-size array starts full and
 refuses both add and remove.

@@ -150,7 +150,7 @@ TEST(AppRenderers, TheFieldAreaUsesTheRoomItIsGiven)
   {
     for (std::size_t step = 0; step < form->leafCount(); ++step)
     {
-      if (form->focusedIsOptionalRow())
+      if (form->focusedIsOptionalRow() && form->focusedField().optionalIsEmpty)
       {
         form->toggleFocusedOptional();
       }

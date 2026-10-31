@@ -228,21 +228,25 @@ void renderQuantityRow(const ArgFormField& f,
   cols.push_back(ftxui::text("  "));
   cols.push_back(valueBodyFor(unitLeaf, unitFocused));
 
-  if (!valueLeaf.validationError.empty())
-  {
-    cols.push_back(ftxui::text("  ⚠ " + valueLeaf.validationError) | styles::errorMessage());
-  }
-  if (!unitLeaf.validationError.empty())
-  {
-    cols.push_back(ftxui::text("  ⚠ " + unitLeaf.validationError) | styles::errorMessage());
-  }
-
   auto row = ftxui::hbox(std::move(cols));
   if (rowFocused)
   {
     row = row | ftxui::focus;
   }
   out.push_back(std::move(row));
+
+  if (!valueLeaf.validationError.empty())
+  {
+    std::string errIndent = "  " + indent + std::string(nameWidth + 2, ' ');
+    out.push_back(ftxui::hbox(
+      {ftxui::text(errIndent), ftxui::paragraph("⚠ " + valueLeaf.validationError) | styles::errorMessage()}));
+  }
+  if (!unitLeaf.validationError.empty())
+  {
+    std::string errIndent = "  " + indent + std::string(nameWidth + 2, ' ');
+    out.push_back(ftxui::hbox(
+      {ftxui::text(errIndent), ftxui::paragraph("⚠ " + unitLeaf.validationError) | styles::errorMessage()}));
+  }
 }
 
 /// A composite field: its header row, then its children. Lifted out of renderFormField.
@@ -308,8 +312,16 @@ void renderCompositeField(const ArgFormField& f,
 
   if (isSequence && f.children.empty())
   {
-    out.push_back(ftxui::hbox({ftxui::text("  " + indent + "  "),
-                               ftxui::text("(empty, press Ctrl+N to add an element)") | styles::mutedText()}));
+    bool focused = (leafCursor == focusedLeafIdx);
+    ++leafCursor;
+    auto elem = ftxui::hbox({ftxui::text(focused ? "▸ " : "  ") | (focused ? styles::accent() : styles::mutedText()),
+                             ftxui::text(indent + "  "),
+                             ftxui::text("(empty, press Ctrl+N to add an element)") | styles::mutedText()});
+    if (focused)
+    {
+      elem = elem | ftxui::focus;
+    }
+    out.push_back(std::move(elem));
     return;
   }
   if (isOptional && f.optionalIsEmpty)
@@ -371,17 +383,19 @@ void renderFormField(const ArgFormField& f,
   cols.push_back(focused ? (nameElem | ftxui::bold) : (nameElem | styles::mutedText()));
   cols.push_back(valueBodyFor(f, focused));
 
-  if (!f.validationError.empty())
-  {
-    cols.push_back(ftxui::text("  ⚠ " + f.validationError) | styles::errorMessage());
-  }
-
   auto row = ftxui::hbox(std::move(cols));
   if (focused)
   {
     row = row | ftxui::focus;
   }
   out.push_back(std::move(row));
+
+  if (!f.validationError.empty())
+  {
+    std::string errIndent = "  " + indent + std::string(nameWidth + 2, ' ');
+    out.push_back(
+      ftxui::hbox({ftxui::text(errIndent), ftxui::paragraph("⚠ " + f.validationError) | styles::errorMessage()}));
+  }
 }
 
 ftxui::Element renderArgForm(const ArgForm& form, int fieldLines)
