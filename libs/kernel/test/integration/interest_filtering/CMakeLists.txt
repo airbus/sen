@@ -62,3 +62,21 @@ add_sen_integration_test(
   ${CMAKE_CURRENT_SOURCE_DIR}/config/dynamic_subscriptions_3.yaml
   REQ_DEPS interest_filtering py ether kernel FLAKY USE_TESTCONTAINERS
 )
+
+# The same three processes with bus multicast turned off, which makes every property update a TCP
+# fan-out across readyProcesses_. Three is the point: the publisher's process holds two ready peers,
+# so the fan-out has to carry one frame to both of them. Two processes run the loop once and exercise
+# nothing.
+add_sen_integration_test(
+  interest_filtering_no_bus_multicast
+  DESCRIPTION
+  "Carries property updates to every peer when bus multicast is disabled."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script}
+  ${_working_dir}
+  ${CMAKE_CURRENT_SOURCE_DIR}/config/no_bus_multicast_1.yaml
+  ${CMAKE_CURRENT_SOURCE_DIR}/config/no_bus_multicast_2.yaml
+  ${CMAKE_CURRENT_SOURCE_DIR}/config/no_bus_multicast_3.yaml
+  REQ_DEPS interest_filtering py ether kernel USE_TESTCONTAINERS
+)
