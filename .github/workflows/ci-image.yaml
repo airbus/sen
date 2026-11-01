@@ -66,7 +66,7 @@ jobs:
       # Before the build, not before the push: the layer cache is read from the
       # registry as well, and the package is private so even reading needs this.
       - name: Log in to the registry
-        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1  # v3.5.0
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6  # v4.7.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
