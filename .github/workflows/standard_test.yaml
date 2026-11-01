@@ -394,7 +394,7 @@ jobs:
       # what it replaced.
       - name: Publish what this leg measured
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           # Every leg writes one and a name cannot be written twice, so the fields that
           # tell the jobs apart tell their reports apart.
@@ -638,7 +638,7 @@ jobs:
       # Not test-report-*: the release collects the legs by that pattern and would read this
       # document as a sixth configuration.
       - name: Publish it
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: combined-test-report
           path: |

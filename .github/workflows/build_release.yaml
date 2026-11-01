@@ -70,7 +70,7 @@ jobs:
           echo "changelog entries: $(grep -cE '^- ' "$changelog")"
 
       - name: Archive the generated changelog
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: changelog
           # The release body comes from this file; an empty artifact would ship
@@ -177,7 +177,7 @@ jobs:
           IN
 
       - name: Archive generated release package
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           # An archive that does not match is a broken release, not a warning.
           if-no-files-found: error
@@ -240,7 +240,7 @@ jobs:
           ls -l documents
 
       - name: Archive the documents
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: test-documents
           if-no-files-found: error

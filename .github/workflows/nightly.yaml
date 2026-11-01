@@ -142,7 +142,7 @@ jobs:
 
       - name: Archive the ${{ matrix.lane }} reports
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: sanitizer-reports-${{ matrix.sanitizer }}
           path: sanitizer-reports/
@@ -367,7 +367,7 @@ jobs:
 
       - name: Archive test logs on failure
         if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: flake-hunt-logs
           path: build/gcc/Release/Testing/
@@ -377,7 +377,7 @@ jobs:
       # is tens of megabytes rather than hundreds.
       - name: Archive any core
         if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: flake-hunt-cores
           path: cores/
@@ -423,7 +423,7 @@ jobs:
       # Result history lives in these artifacts until a baseline comparison
       # exists to fail on.
       - name: Archive benchmark results
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: benchmark-results
           # An empty archive would mean the benchmarks never ran, which is the
@@ -701,7 +701,7 @@ jobs:
           IN
 
       - name: Publish the coverage report
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: coverage-report
           if-no-files-found: error
