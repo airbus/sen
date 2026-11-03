@@ -545,6 +545,11 @@ change notifications and serialization as the attributes the module declares. No
 and no existing one is removed. Measured on the bundled RPR modules: one contributed attribute
 changes two of the 56 generated files and nothing else.
 
+`HLAobjectRoot` is also a valid extension target. Its contributed attributes appear on
+`hla.ObjectRoot`, beside the `rtiId` property Sen provides. Attributes that an ordinary module or
+the MIM puts directly on `HLAobjectRoot` remain outside the generated model; only files explicitly
+passed as extensions add to Sen's synthetic root class.
+
 A contributed interaction parameter arrives the same way, as the last argument of the event or
 method the mapping binds that interaction to.
 

@@ -253,7 +253,9 @@ std::vector<std::string_view> splitString(const std::string_view input, const st
 void collectClassesNodes(pugi::xml_node node, std::vector<pugi::xml_node>& result)
 {
   // The HLA root is the root, not a class. It reaches here when it carries an attribute of its
-  // own, as the MIM's privilegeToDelete does, and a class with no parent cannot be built.
+  // own, as the MIM's privilegeToDelete does, and a class with no parent cannot be built through
+  // the ordinary class path. buildRootTypeSet merges attributes explicitly supplied as extensions
+  // into the synthetic root instead.
   const bool isRoot = std::string(node.child_value("name")) == "HLAobjectRoot";
 
   if (!isRoot && (!node.select_nodes("semantics").empty() || !node.select_nodes("attribute").empty()))
