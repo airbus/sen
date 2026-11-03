@@ -38,6 +38,9 @@ namespace
 /// A function rather than a namespace-scope object, which has a static initialisation order.
 std::filesystem::path fomData() { return std::filesystem::path {FOM_TEST_DATA_DIR}; }
 
+/// The complete RPR and NETN FOM shipped with the example package.
+std::filesystem::path exampleFomData() { return std::filesystem::path {HLA_FOM_EXAMPLE_DATA_DIR}; }
+
 class AFomParser: public ::testing::Test
 {
 protected:
@@ -130,6 +133,13 @@ protected:
       }
     }
     return {};
+  }
+
+  [[nodiscard]] const sen::lang::TypeSet* setFrom(std::string_view fileName) const
+  {
+    const auto itr =
+      std::find_if(context.begin(), context.end(), [fileName](const auto& set) { return set.fileName == fileName; });
+    return itr != context.end() ? &*itr : nullptr;
   }
 
   [[nodiscard]] const sen::ClassType* vehicle() const
@@ -335,6 +345,73 @@ TEST_F(AFomParser, adoptsATypeAnExtensionIntroduces)
   const auto* added = property(*vehicle(), "track");
   ASSERT_NE(added, nullptr);
   EXPECT_EQ(added->getType()->getName(), "TrackStruct");
+}
+
+/// @test
+/// A NETN extension can use FederateName from NETN-BASE on an RPR class without redeclaring the type.
+TEST_F(AFomParser, addsAllocatedFederateToTheRprActiveSonarBeam)
+{
+  context = sen::lang::parseFomDocuments({exampleFomData() / "rpr", exampleFomData() / "netn"},
+                                         {fomData() / "extensions" / "netn_tmr_active_sonar_beam.xml"},
+                                         {},
+                                         sen::lang::TypeSettings {});
+
+  const auto* activeSonarBeam = classAt("rpr.ActiveSonarBeam");
+  ASSERT_NE(activeSonarBeam, nullptr);
+  const auto* allocatedFederate = property(*activeSonarBeam, "allocatedFederate");
+  ASSERT_NE(allocatedFederate, nullptr);
+  EXPECT_TRUE(allocatedFederate->getType()->isStringType());
+  EXPECT_EQ(allocatedFederate->getCategory(), sen::PropertyCategory::dynamicRO);
+
+  // FederateName reduces to the native string type, so resolving its NETN declaration must not
+  // make the generated RPR-UA file import NETN-BASE.
+  const auto* rprUa = setFrom("rpr-ua_v2.0.xml");
+  ASSERT_NE(rprUa, nullptr);
+  EXPECT_TRUE(std::none_of(rprUa->importedSets.begin(),
+                           rprUa->importedSets.end(),
+                           [](const auto* imported) { return imported->fileName == "netn-base.xml"; }));
+}
+
+/// @test
+/// A custom type reached through extension content keeps its owner and adds a generated-file import.
+TEST_F(AFomParser, importsACustomTypeOwnedByAnotherModuleForAnExtension)
+{
+  context = sen::lang::parseFomDocuments({fomData() / "extension_target", fomData() / "extension_types"},
+                                         {fomData() / "extensions" / "external_custom_property.xml"},
+                                         {},
+                                         sen::lang::TypeSettings {});
+
+  const auto* vehicle = classAt("extension_target.Vehicle");
+  ASSERT_NE(vehicle, nullptr);
+  const auto* externalData = property(*vehicle, "externalData");
+  ASSERT_NE(externalData, nullptr);
+  EXPECT_EQ(externalData->getType()->asCustomType()->getQualifiedName(), "extension_types.ExternalStruct");
+
+  const auto* consumer = setFrom("consumer.xml");
+  ASSERT_NE(consumer, nullptr);
+  EXPECT_TRUE(std::any_of(consumer->importedSets.begin(),
+                          consumer->importedSets.end(),
+                          [](const auto* imported) { return imported->fileName == "provider.xml"; }));
+}
+
+/// @test
+/// A custom type is refused when importing its owner would close a generated-file cycle.
+TEST_F(AFomParser, refusesACustomExtensionTypeThatWouldCreateAnImportCycle)
+{
+  try
+  {
+    context = sen::lang::parseFomDocuments({fomData() / "extension_target", fomData() / "extension_cycle_types"},
+                                           {fomData() / "extensions" / "external_cycle_property.xml"},
+                                           {},
+                                           sen::lang::TypeSettings {});
+    FAIL() << "an extension-created circular import was accepted";
+  }
+  catch (const std::exception& err)
+  {
+    const std::string what = err.what();
+    EXPECT_NE(what.find("CycleStruct"), std::string::npos) << what;
+    EXPECT_NE(what.find("circular generated-file import"), std::string::npos) << what;
+  }
 }
 
 //--------------------------------------------------------------------------------------------------------------

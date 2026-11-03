@@ -162,6 +162,9 @@ source_group("obj" FILES ${obj_tests})
 
 target_compile_definitions(core_test PRIVATE ABS_FILE="${CMAKE_CURRENT_SOURCE_DIR}/base/hash32_test.cpp")
 target_compile_definitions(core_test PRIVATE FOM_TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/lang/fom")
+target_compile_definitions(
+  core_test PRIVATE HLA_FOM_EXAMPLE_DATA_DIR="${PROJECT_SOURCE_DIR}/examples/packages/hla_fom"
+)
 
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/lang/stl/stl_resolver_test/complex_stl_file.stl
