@@ -406,20 +406,81 @@ FomDocuments::FomDocuments(const std::vector<std::filesystem::path>& paths,
 
 void FomDocuments::buildRootTypeSet()
 {
+  rootSet_ = std::make_unique<TypeSet>();
+  rootSet_->fileName = "hla.stl";
+  rootSet_->package = {"hla"};
+
   {
     // The class every imported HLA class inherits from. It carries the RTI object id so that a
-    // bridge to a federation has somewhere to put it; sen never writes to it.
+    // bridge to a federation has somewhere to put it; sen never writes to it. HLAobjectRoot is
+    // not built through classNode because it has no parent. Attributes from explicitly named
+    // extensions therefore have to be merged here, into the synthetic class itself.
     ClassSpec spec {};
     spec.isInterface = false;
     spec.name = "ObjectRoot";
     spec.qualifiedName = "hla.ObjectRoot";
     spec.description = formatSemantics("HLA Base Class that contains the RTI object ID");
 
-    spec.properties.emplace_back(toSenPropertyName("RtiId"),
-                                 formatSemantics("HLA RTI object ID"),
-                                 MetaTypeTrait<std::string>::meta(),
-                                 PropertyCategory::dynamicRW,
-                                 TransportMode::confirmed);
+    std::vector<PropertySpec> properties;
+    properties.emplace_back(toSenPropertyName("RtiId"),
+                            formatSemantics("HLA RTI object ID"),
+                            MetaTypeTrait<std::string>::meta(),
+                            PropertyCategory::dynamicRW,
+                            TransportMode::confirmed);
+
+    // Where every contributed property came from, so two extensions that disagree get the same
+    // useful diagnostic as contributions to ordinary classes. A null document marks rtiId,
+    // which Sen declares rather than any input file.
+    std::map<std::string, const Document*> propertyFrom {{properties.front().name, nullptr}};
+    const auto annotationItr = settings_.classAnnotations.find(spec.qualifiedName);
+    const ClassAnnotations* annotations =
+      annotationItr != settings_.classAnnotations.end() ? &annotationItr->second : nullptr;
+
+    for (const auto& document: documents_)
+    {
+      if (!document->isExtension)
+      {
+        continue;
+      }
+
+      for (const auto& root: document->objectModel.child("objects").children("objectClass"))
+      {
+        if (std::string(root.child_value("name")) != "HLAobjectRoot")
+        {
+          continue;
+        }
+
+        for (const auto& attribute: root.children("attribute"))
+        {
+          auto property = propertyFromAttribute(attribute, *document, annotations);
+          const auto existing = std::find_if(
+            properties.begin(), properties.end(), [&property](const auto& elem) { return elem.name == property.name; });
+          if (existing == properties.end())
+          {
+            propertyFrom.emplace(property.name, document.get());
+            properties.push_back(std::move(property));
+          }
+          else if (!(*existing == property))
+          {
+            const auto* owner = propertyFrom.at(property.name);
+            if (owner != nullptr)
+            {
+              refuseMemberClash("property", property.name, "HLAobjectRoot", *owner, *document);
+            }
+
+            std::string err;
+            err.append("property '");
+            err.append(property.name);
+            err.append("' of 'HLAobjectRoot' conflicts with the property Sen generates, in '");
+            err.append(document->path.string());
+            err.append("'");
+            throwRuntimeError(err);
+          }
+        }
+      }
+    }
+
+    spec.properties = std::move(properties);
 
     CallableSpec constructor;
     collectConstructorArgs(constructor.args, spec);
@@ -430,9 +491,6 @@ void FomDocuments::buildRootTypeSet()
     rootClass_ = ClassType::make(spec);
   }
 
-  rootSet_ = std::make_unique<TypeSet>();
-  rootSet_->fileName = "hla.stl";
-  rootSet_->package = {"hla"};
   rootSet_->types.emplace_back(rootClass_.value());
 
   for (const auto& native: getNativeTypes())
