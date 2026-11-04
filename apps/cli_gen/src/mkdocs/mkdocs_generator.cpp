@@ -200,6 +200,7 @@ protected:
     typeInfo["level"] = 1;
 
     result_.classesDoc.append(env_.render(templates_.classTemplate, typeInfo));
+    result_.classesDoc.append("\n\n");
     result_.groups.classTypes.push_back(&type);
   }
 
@@ -218,6 +219,7 @@ private:
   {
     auto typeInfo = typeStorage_.getOrCreate(type);
     typeInfo["package"] = packageName_;
+    target.append("\n\n");
     target.append(env_.render(templateObject, typeInfo));
   }
 
@@ -277,6 +279,8 @@ void getClassPath(const sen::ClassType* current, std::vector<const sen::ClassTyp
     typeInfo["level"] = getLevel(meta);
 
     result = env.render(tmp, typeInfo);
+
+    result.append("\n\n");
   }
 
   for (auto& child: currentNode->getChildren())

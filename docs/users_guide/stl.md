@@ -188,7 +188,7 @@ The second type argument is the **unit abbreviation** (`m`, `rad`, `deg`, `kph`,
 metric prefix, so `km`, `ms`, `us`, `cm`, `MPa` all resolve out of the box.
 
 See the
-[full list of registered units](stl_grammar.md#appendix-a--registered-quantity-units)
+[full list of registered units](stl_grammar.md#appendix-a-registered-quantity-units)
 for what is currently available.
 
 Quantities accept an attribute list containing `min:` and/or `max:` bounds,

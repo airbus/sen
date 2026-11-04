@@ -111,4 +111,4 @@ add_executable(fibonacci_algorithm_test test/fibonacci_algorithm_test.cpp)
 target_link_libraries(fibonacci_algorithm_test PRIVATE fibonacci_test GTest::GTest GTest::Main)
 ```
 
-Any modifications to the target (e.g. `target_include_directories`) must be applied to `fibonacci_obj`, the intermediate OBJECT target, not to `fibonacci` or `fibonacci_test` directly (see the [CMake documentation](../../users_guide/cmake.md) for details).
+Any modifications to the target (e.g. `target_include_directories`) must be applied to `fibonacci_obj`, the intermediate OBJECT target, not to `fibonacci` or `fibonacci_test` directly (see the [CMake documentation](../../../../users_guide/cmake.md) for details).

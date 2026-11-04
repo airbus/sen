@@ -123,9 +123,9 @@ private:
 ///   } // lock release after the loop
 /// @endcode
 template <template <typename> typename LockType, typename IteratorType, typename MutexType>
-auto makeLockedRange(IteratorType begin, IteratorType end, MutexType& m)
+auto makeLockedRange(IteratorType begin, IteratorType end, MutexType& mutex)
 {
-  return LockedRangeAdapter<LockType, IteratorType, MutexType>(begin, end, m);
+  return LockedRangeAdapter<LockType, IteratorType, MutexType>(begin, end, mutex);
 }
 
 /// Create a LockedRangeAdapter for the given container and lock the given mutex.
@@ -143,15 +143,15 @@ auto makeLockedRange(IteratorType begin, IteratorType end, MutexType& m)
 ///   } // lock release after the loop
 /// @endcode
 template <template <typename> typename LockType, typename ContainerType, typename MutexType>
-auto makeLockedRange(ContainerType& container, MutexType& m)
+auto makeLockedRange(ContainerType& container, MutexType& mutex)
 {
   if constexpr (std::is_const_v<ContainerType>)
   {
-    return LockedRangeAdapter<LockType, typename ContainerType::const_iterator, MutexType>(container, m);
+    return LockedRangeAdapter<LockType, typename ContainerType::const_iterator, MutexType>(container, mutex);
   }
   else
   {
-    return LockedRangeAdapter<LockType, typename ContainerType::iterator, MutexType>(container, m);
+    return LockedRangeAdapter<LockType, typename ContainerType::iterator, MutexType>(container, mutex);
   }
 }
 

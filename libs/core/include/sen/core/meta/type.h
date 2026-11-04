@@ -276,11 +276,11 @@ TypeHandle(std::shared_ptr<T> type) -> TypeHandle<T>;
 /// responsible for ensuring a long enough lifetime of the underlying type (e.g., through a object with static storage
 /// duration).
 ///
-/// @param typePtr: which should be wrapped by the handle
+/// @param type: which should be wrapped by the handle
 template <typename T>
-TypeHandle<T> makeNonOwningTypeHandle(T* typePtr)
+TypeHandle<T> makeNonOwningTypeHandle(T* type)
 {  // explicit factory function to prevent accidental creation/convertion from a type *
-  return TypeHandle<T> {typePtr};
+  return TypeHandle<T> {type};
 }
 
 /// Downcasts the type inside the type handle to the specified one, if possible.

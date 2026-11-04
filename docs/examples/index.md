@@ -19,18 +19,19 @@ The [examples](../examples/index.md) are numbered and ordered by complexity. Fol
 
 | # | Example | What you learn |
 |---|---------|---------------|
-| 1 | [Calculators](../../examples/config/1_calculators/readme.md) | Basic package, multiple implementations, shell interaction |
-| 2 | [Inheritance](../../examples/config/2_inheritance/readme.md) | STL inheritance, template injection |
-| 3 | [Aircraft](../../examples/config/3_aircraft/readme.md) | HLA FOMs, `update()` loop, virtual time |
-| 4 | [School](../../examples/config/4_school/readme.md) | Object discovery, events, multi-component |
-| 6 | [Recorder](../../examples/config/6_recorder/readme.md) | Recording, Python post-processing |
-| 7 | [Replayer](../../examples/config/7_replayer/readme.md) | Replay with real-time and stepped execution |
-| 8 | [InfluxDB](../../examples/config/8_influx/readme.md) | Grafana visualisation |
-| 9 | [HLA Servers](../../examples/config/9_hla_servers/readme.md) | Request/response servers |
-| 10 | [Python](../../examples/config/10_python/readme.md) | Embedded Python scripting |
-| 11 | [Shapes](../../examples/config/11_shapes/readme.md) | Interest management, Sen Query Language |
-| 12 | [Fibonacci](../../examples/config/12_fibonacci/readme.md) | Deferred methods, load balancing |
-| 13 | [Timer](../../examples/config/13_timer/readme.md) | Checked properties, state validation |
+| 0 | [Counter](../snippets/examples/config/0_counter/readme.md) | The introductory package built in Getting Started |
+| 1 | [Calculators](../snippets/examples/config/1_calculators/readme.md) | Basic package, multiple implementations, shell interaction |
+| 2 | [Inheritance](../snippets/examples/config/2_inheritance/readme.md) | STL inheritance, template injection |
+| 3 | [Aircraft](../snippets/examples/config/3_aircraft/readme.md) | HLA FOMs, `update()` loop, virtual time |
+| 4 | [School](../snippets/examples/config/4_school/readme.md) | Object discovery, events, multi-component |
+| 6 | [Recorder](../snippets/examples/config/6_recorder/readme.md) | Recording, Python post-processing |
+| 7 | [Replayer](../snippets/examples/config/7_replayer/readme.md) | Replay with real-time and stepped execution |
+| 8 | [InfluxDB](../snippets/examples/config/8_influx/readme.md) | Grafana visualisation |
+| 9 | [HLA Servers](../snippets/examples/config/9_hla_servers/readme.md) | Request/response servers |
+| 10 | [Python](../snippets/examples/config/10_python/readme.md) | Embedded Python scripting |
+| 11 | [Shapes](../snippets/examples/config/11_shapes/readme.md) | Interest management, Sen Query Language |
+| 12 | [Fibonacci](../snippets/examples/config/12_fibonacci/readme.md) | Deferred methods, load balancing |
+| 13 | [Timer](../snippets/examples/config/13_timer/readme.md) | Checked properties, state validation |
 
 ### 4. Go deeper with the how-to guides
 

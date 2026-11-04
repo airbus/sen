@@ -26,7 +26,7 @@ The `sen::db` API uses a cursor model: open the recording, seek to a position, a
 or backward. The replayer component wraps this with real-time clock synchronisation.
 
 For scripted post-processing, Sen ships Python bindings that expose the same cursor API - see the
-[Recorder example](../../examples/config/6_recorder/readme.md) for a working script.
+[Recorder example](../snippets/examples/config/6_recorder/readme.md) for a working script.
 
 ## Writing a recording
 
@@ -37,5 +37,5 @@ writes through the `sen::db` API are possible for custom archiving scenarios.
 
 - [Recorder component](../components/recording.md)
 - [Replayer component](../components/replaying.md)
-- [Recorder example](../../examples/config/6_recorder/readme.md)
+- [Recorder example](../snippets/examples/config/6_recorder/readme.md)
 - [API Reference](../doxygen_gen/html/index.html) - full Doxygen documentation (available after building the docs)

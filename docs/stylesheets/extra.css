@@ -31,10 +31,13 @@
     color: white
 }
 
-.md-content a:link {
+
+.md-content a:link,
+.md-content a:visited {
     color: #048297;
 }
 
-.md-content a:visited {
-    color: #048297;
+.md-nav__link--active,
+.md-nav__link--active:hover {
+    color: #048297 !important;
 }

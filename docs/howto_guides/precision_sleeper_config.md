@@ -85,7 +85,7 @@ the same time it affects the wake-up precision negatively.
 The YAML below shows how to configure the sleep policy for all types of components in a process
 (kernel, loaded components and pipeline components):
 
-```yaml"
+```yaml
 # configuring the sleep policy for the kernel component (the one used by the kernel to
 # interact with other components).
 kernel:
