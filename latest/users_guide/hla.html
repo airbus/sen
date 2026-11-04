@@ -2416,6 +2416,10 @@ interaction class. Each goes in the element the <abbr title="Federation Object M
 change notifications and serialization as the attributes the module declares. No new file appears
 and no existing one is removed. Measured on the bundled <abbr title="Real-time Platform Reference">RPR</abbr> modules: one contributed attribute
 changes two of the 56 generated files and nothing else.</p>
+<p><code>HLAobjectRoot</code> is also a valid extension target. Its contributed attributes appear on
+<code>hla.ObjectRoot</code>, beside the <code>rtiId</code> property Sen provides. Attributes that an ordinary module or
+the <abbr title="Management Object Model and Initialization Module, part of every HLA FOM">MIM</abbr> puts directly on <code>HLAobjectRoot</code> remain outside the generated model; only files explicitly
+passed as extensions add to Sen's synthetic root class.</p>
 <p>A contributed interaction parameter arrives the same way, as the last argument of the event or
 method the mapping binds that interaction to.</p>
 <p>Members are <strong>appended</strong>, never interleaved. That matters in one place: the generated constructor
@@ -2657,7 +2661,7 @@ not part of this distribution. They may be open-sourced in the future; nothing i
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 22, 2026 09:10:05 UTC">October 22, 2026</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 4, 2026 08:27:27 UTC">November 4, 2026</span>
 </span>
 </aside>
 </article>
