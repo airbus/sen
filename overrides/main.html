@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+<!--
+  A reader arriving by link never sees the version selector, so nothing on the page says whether
+  it describes main or an older release. These banners do.
+-->
+
+{# Whitespace-controlled: Material renders the bar whenever this block has any content, and
+newlines count, so a release's pages would carry an empty banner. #}
+{% block announce %}{%- if config.extra.unreleased -%}
+You are reading the <strong>development version</strong>. Pick a release from the selector below.
+{%- endif -%}{% endblock %}
+
+{% block outdated %}
+<style>
+    .md-banner--warning { display: none; }
+</style>
+
+<div id="version-warning-banner-text" data-base-url="{{ base_url }}" style="width: 100%; text-align: left;"></div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    (function() {
+        if (window.__senBannerInitialized) {
+            return;
+        }
+        window.__senBannerInitialized = true;
+
+        function updateVersionBanner() {
+            var bannerText = document.getElementById("version-warning-banner-text");
+            if (!bannerText) return;
+
+            var banner = bannerText.closest(".md-banner");
+
+            var baseUrl = bannerText.getAttribute("data-base-url");
+            var versionRoot = new URL(baseUrl + "/", window.location.href);
+            var versionsUrl = new URL("../versions.json", versionRoot);
+
+            fetch(versionsUrl.href)
+                .then(function(r) { return r.json(); })
+                .then(function(versions) {
+                    var stable = versions.filter(function(v) { return v.version !== 'latest'; });
+
+                    if (stable.length > 0) {
+                        var latestStable = stable[0].version;
+                        var currentPath = window.location.pathname;
+
+                        if (!currentPath.includes('/latest/') && !currentPath.includes('/' + latestStable + '/')) {
+                            if (banner) {
+                                var rootUrl = new URL("..", versionRoot).pathname.replace(/\/$/, "");
+                                bannerText.innerHTML = 'This is an older release. <a href="' + rootUrl + '/' + latestStable + '/"><strong>Go to the latest stable release</strong></a> or <a href="' + rootUrl + '/latest/"><strong>view the development version</strong></a>.';
+                                banner.style.display = "block";
+                            }
+                        }
+                    }
+                }).catch(function(e) { console.warn("Could not load versions.json: ", e); });
+        }
+
+        updateVersionBanner();
+
+        if (typeof document$ !== "undefined") {
+            document$.subscribe(function() {
+                updateVersionBanner();
+            });
+        }
+    })();
+</script>
+{% endblock %}

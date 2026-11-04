@@ -7,7 +7,7 @@
 # Project information
 site_name: "Sen"
 site_description: "Sen Software Infrastructure"
-site_url: https://github.com/airbus/sen
+site_url: https://airbus.github.io/sen
 site_author: "Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS"
 
 # Repository
@@ -22,6 +22,7 @@ copyright: &copy Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SA
 # --------------------------------------------------------------------------------------------------------------------#
 theme:
   name: material
+  custom_dir: overrides
   logo: assets/images/logo_simple.svg
   highlightjs: true
   favicon: assets/images/logo_simple.svg
