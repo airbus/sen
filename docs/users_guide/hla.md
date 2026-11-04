@@ -572,6 +572,14 @@ A type that only an extension declares is adopted by the module that referenced 
 module's package, because the generator emits one file per module and a file of its own would have
 to import the module that uses it and be imported by it.
 
+An extension member may also name a datatype owned by another published module, even when the
+decorated module has no Dependency reference to that owner. If the datatype reduces to a native
+Sen type, such as a dynamic array of `HLAunicodeChar` reducing to `string`, no generated import is
+needed. A custom datatype keeps its original package and the decorated module gains an inferred
+generated-file import. Sen refuses that import when the owner already reaches the decorated module
+and the new edge would close a cycle. This global fallback applies only to extension content;
+ordinary module declarations remain limited to their declared dependencies.
+
 ### When several modules declare one type
 
 A type named by more than one module is one type, holding the union of what they declare. This is
