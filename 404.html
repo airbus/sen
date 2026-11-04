@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Redirecting...</title>
+    <script>
+        var path = window.location.pathname;
+        if (!path.endsWith('/404.html')) {
+            var match = path.match(/\/(0\.[0-9]+\.[0-9]+|latest)\//);
+
+            if (match && match[1]) {
+                window.location.replace("/sen/" + match[1] + "/404.html");
+            } else {
+                fetch("/sen/versions.json")
+                    .then(function(r) { return r.json(); })
+                    .then(function(versions) {
+                        var stableVersions = versions.filter(function(v) { return v.version !== 'latest'; });
+                        var targetVersion = stableVersions.length > 0 ? stableVersions[0].version : 'latest';
+                        window.location.replace("/sen/" + targetVersion + "/404.html");
+                    })
+                    .catch(function() {
+                        window.location.replace("/sen/latest/404.html");
+                    });
+            }
+        }
+    </script>
+</head>
+<body>
+</body>
+</html>
