@@ -9,6 +9,7 @@ var namespacesen_1_1lang_1_1fom_structsen_1_1lang_1_1fom_1_1_document_dup =
     [ "built", "namespacesen_1_1lang_1_1fom.html#a2fa7255a8975a5937ec3744fdc3fbf8b", null ],
     [ "dependencies", "namespacesen_1_1lang_1_1fom.html#a4e76c9616177bdf2d92b374c89209ca5", null ],
     [ "mappingImports", "namespacesen_1_1lang_1_1fom.html#aae769b40f3ce2edf24437091d6e7523c", null ],
+    [ "extensionImports", "namespacesen_1_1lang_1_1fom.html#a2a07aacda444312fd4b24f3925853561", null ],
     [ "classNodes", "namespacesen_1_1lang_1_1fom.html#ac11ccf19bdd7663dbe4470a9c4e68efa", null ],
     [ "interactionNodes", "namespacesen_1_1lang_1_1fom.html#aca9ac508d63d12a86aed8a2afee0655b", null ],
     [ "registry", "namespacesen_1_1lang_1_1fom.html#a12692354d3f24933883bf853c97c58c0", null ],
