@@ -252,7 +252,7 @@ The first type argument is the underlying numeric type, the second is the
 unit **abbreviation** (short form). The resolver looks the second argument up
 with `UnitRegistry::searchUnitByAbbreviation`, so `m`, `deg`, `kph`, `degC`
 are valid but the long names (`meter`, `degree`, `km_per_hour`, `centigrade`)
-are not. See [Appendix A](#appendix-a--registered-quantity-units) for the
+are not. See [Appendix A](#appendix-a-registered-quantity-units) for the
 full list.
 
 ```

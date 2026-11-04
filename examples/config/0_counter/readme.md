@@ -1,6 +1,7 @@
 # My Counter
 
-> **Prerequisites:** none - this is the introductory package used in the [Getting Started](../../docs/getting_started.md) guide.
+> **Prerequisites:** none. This is the first package, built step by step in the
+[Getting Started](../../../../getting_started/first_package.md) guide.
 
 This package demonstrates the minimal structure of a Sen package: a single STL file that declares one class, and one
 C++ implementation class. It is intentionally small so you can focus on the mechanics of writing and wiring a Sen

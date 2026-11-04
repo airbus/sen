@@ -44,7 +44,6 @@ theme:
     - navigation.tracking
     - navigation.footer
     - navigation.top
-    - navigation.footer
     - navigation.instant
     - navigation.instant.progress
     - content.code.annotate
@@ -91,7 +90,6 @@ markdown_extensions:
   - admonition
   - def_list
   - pymdownx.tasklist
-  - pymdownx.details
   - pymdownx.critic
   - tables
   - footnotes
@@ -132,8 +130,14 @@ plugins:
   - git-revision-date-localized:
       enable_creation_date: false
       fallback_to_build_date: true
+      exclude:
+        - licenses/licensed_code_in_sen.md
+        - snippets/fom.md
+        - snippets/examples/**/*.md
   - redoc-tag:
       height: 100vh
+hooks:
+  - docs/hooks.py
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Navigation
@@ -198,6 +202,7 @@ nav:
       - "Tutorial 2: Two Objects Talking": tutorials/two_objects.md
   - Examples:
       - examples/index.md
+      - Counter: snippets/examples/config/0_counter/readme.md
       - Simple package: snippets/examples/config/1_calculators/readme.md
       - Inheritance: snippets/examples/config/2_inheritance/readme.md
       - Updates: snippets/examples/config/3_aircraft/readme.md
