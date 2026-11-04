@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <objects>
+        <objectClass>
+            <name>HLAobjectRoot</name>
+            <attribute>
+                <name>Federation</name>
+                <dataType>HLAunicodeString</dataType>
+                <updateType>Conditional</updateType>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAreliable</transportation>
+                <semantics>The federation this object belongs to.</semantics>
+            </attribute>
+        </objectClass>
+    </objects>
+</objectModel>
