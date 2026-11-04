@@ -12,7 +12,7 @@ var group__db =
       [ "getSnapshot", "classsen_1_1db_1_1_creation.html#adbc8bd4fbfa03ef5b4c62775b9e68ec3", null ],
       [ "Input", "classsen_1_1db_1_1_creation.html#a9732a2f3b51c8d069f54b1a13fb64c68", null ]
     ] ],
-    [ "sen::db::Cursor< End, T >", "classsen_1_1db_1_1_cursor.html", [
+    [ "sen::db::Cursor&lt; End, T &gt;", "classsen_1_1db_1_1_cursor.html", [
       [ "Entry", "classsen_1_1db_1_1_cursor.html#structsen_1_1db_1_1_cursor_1_1_entry", [
         [ "time", "classsen_1_1db_1_1_cursor.html#af2ec14564542e234fc9dead5b4a6ef4e", null ],
         [ "payload", "classsen_1_1db_1_1_cursor.html#a5296fa14c65bd00272ec91ea0950034b", null ]
@@ -110,8 +110,8 @@ var group__db =
       [ "getAllPropertiesBuffer", "classsen_1_1db_1_1_snapshot.html#a77586e296d8cfeca1caf299105cf37bc", null ],
       [ "Input", "classsen_1_1db_1_1_snapshot.html#a9732a2f3b51c8d069f54b1a13fb64c68", null ]
     ] ],
-    [ "sen::db::DataCursor", "group__db.html#gaef7cfc67ee75cc3570e6407dd6ad0339", null ],
-    [ "sen::db::AnnotationCursor", "group__db.html#gaab5e7bb175834c601918c7b7a9a97f17", null ],
-    [ "sen::db::ErrorHandler", "group__db.html#gadd80de20d286617489bc491abf6f5ffe", null ],
-    [ "sen::db::ObjectInfoList", "group__db.html#ga821cc6c473d568cbbfd82011363d8bf2", null ]
+    [ "sen::db::DataCursor", "group__db.html#ga1282506e3e6fe58d1397620d262774a3", null ],
+    [ "sen::db::AnnotationCursor", "group__db.html#ga3dc4b7b3b64103e8f79b49aba36ea46c", null ],
+    [ "sen::db::ErrorHandler", "group__db.html#gaac91ac50c14cdb3ae26db21bd27475cf", null ],
+    [ "sen::db::ObjectInfoList", "group__db.html#gaf639b0f6a3f3654eb5db87147067cb2b", null ]
 ];

@@ -1,6 +1,6 @@
 var structsen_1_1_var =
 [
-    [ "ValueType", "structsen_1_1_var.html#a999b85673241c0a118b68eaf7498935f", null ],
+    [ "ValueType", "structsen_1_1_var.html#aff1e6d232b5ce5f46ce070561072f4e1", null ],
     [ "Var", "structsen_1_1_var.html#a99843ebabad74a818d48a3ea4e231ba5", null ],
     [ "~Var", "structsen_1_1_var.html#a479097ea33a35a1c85331298922377c0", null ],
     [ "Var", "structsen_1_1_var.html#aa689b3b082233db9584fa0dbf12e2544", null ],

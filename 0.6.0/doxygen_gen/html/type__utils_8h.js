@@ -1,7 +1,7 @@
 var type__utils_8h =
 [
-    [ "sen::remove_cvref< T >", "namespacesen.html#structsen_1_1remove__cvref", [
-      [ "type", "namespacesen.html#afb6408f82fcf37cd277ed35ca0b35d29", null ]
+    [ "sen::remove_cvref&lt; T &gt;", "namespacesen.html#structsen_1_1remove__cvref", [
+      [ "type", "namespacesen.html#a30ed3b255c8996a409cbc3cef08b26e2", null ]
     ] ],
-    [ "remove_cvref_t", "type__utils_8h.html#a3f6d57240b23ceca067ac38a8d440b8c", null ]
+    [ "sen::remove_cvref_t", "namespacesen.html#a826cace37423a149c0448ec2716231c7", null ]
 ];

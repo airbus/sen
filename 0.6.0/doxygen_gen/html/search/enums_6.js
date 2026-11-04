@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['searchmode_0',['searchmode',['../classsen_1_1_class_type.html#a40810b7243ab9a6a7e6ceb9c5e40ece2',1,'sen::ClassType::SearchMode'],['../classsen_1_1_object_list.html#a276f396d6f187606fc4e7820d0249652',1,'sen::ObjectList::SearchMode']]],
+  ['searchmode_0',['SearchMode',['../classsen_1_1_object_list.html#a276f396d6f187606fc4e7820d0249652',1,'sen::ObjectList']]],
   ['spatialalgorithm_1',['SpatialAlgorithm',['../group__dr.html#gae590e1953e07eedfe043f716be48ef74',1,'sen::util']]],
   ['staticvectorerror_2',['StaticVectorError',['../group__util.html#ga63ebc9e6480040f24a518a6edea180ec',1,'sen']]],
   ['stlbinaryoperator_3',['StlBinaryOperator',['../group__lang.html#ga2f282d2524541d36339abfa3b4b25782',1,'sen::lang']]],

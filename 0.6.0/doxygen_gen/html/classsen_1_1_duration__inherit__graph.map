@@ -1,7 +1,7 @@
 <map id="sen::Duration" name="sen::Duration">
-<area shape="rect" id="Node000001" title="A time duration." alt="" coords="25,587,172,792"/>
-<area shape="rect" id="Node000002" href="$classsen_1_1_strong_type.html" title=" " alt="" coords="23,259,175,539"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="101,552,101,586,96,586,96,552"/>
-<area shape="rect" id="Node000003" href="$classsen_1_1_strong_type_base.html" title="Wraps T to make it a strong type." alt="" coords="5,5,192,211"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="101,224,101,258,96,258,96,224"/>
+<area shape="rect" id="Node000001" title="A time duration." alt="" coords="9,581,155,787"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_strong_type.html" title=" " alt="" coords="6,213,158,533"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="85,547,85,581,79,581,79,547"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1_strong_type_base.html" title=" " alt="" coords="5,5,159,165"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="85,179,85,213,79,213,79,179"/>
 </map>

@@ -1,9 +1,9 @@
 <map id="sen::ObjectProviderListener" name="sen::ObjectProviderListener">
 <area shape="rect" id="Node000001" title="Allows reacting to objects being added or removed to an object provider. It automatically unregisters..." alt="" coords="565,5,763,171"/>
-<area shape="rect" id="Node000002" href="$classsen_1_1_object_list.html" title=" " alt="" coords="5,346,192,586"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="552,97,469,108,377,131,331,147,286,167,244,192,206,221,180,248,159,279,128,347,124,345,155,276,176,244,202,217,241,187,284,162,329,142,375,126,468,103,551,92"/>
-<area shape="rect" id="Node000003" href="$classsen_1_1_object_list.html" title=" " alt="" coords="216,346,421,586"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="554,136,491,173,462,195,435,220,412,249,392,281,359,347,354,344,387,278,408,246,431,217,458,191,488,169,551,132"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_object_list.html" title=" " alt="" coords="5,336,192,596"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="552,97,469,108,377,131,331,147,286,167,244,192,206,221,182,246,162,274,132,337,127,334,157,271,178,242,202,217,241,187,284,162,329,142,375,126,468,103,551,92"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1_object_list.html" title=" " alt="" coords="216,336,421,596"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="554,136,491,173,462,195,435,220,394,276,363,337,358,335,390,273,431,217,458,191,488,169,551,132"/>
 <area shape="rect" id="Node000004" href="$classsen_1_1_muxed_provider_listener.html" title="An extended ObjectProviderListener that works together with ObjectMux and notifies when objects provi..." alt="" coords="446,403,666,529"/>
 <area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="639,185,576,404,571,402,634,183"/>
 <area shape="rect" id="Node000005" href="$classsen_1_1_object_list.html" title="A list of objects that is managed by some source based on user&#45;expressed interests." alt="" coords="691,353,856,579"/>

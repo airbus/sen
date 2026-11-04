@@ -178,7 +178,7 @@ exit 0"
   file(APPEND ${_lic_page} "original authors:\n")
   file(APPEND ${_lic_page} "\n")
 
-  set(licenses_dir ${PROJECT_SOURCE_DIR}/build/foss_licenses)
+  set(licenses_dir ${CMAKE_BINARY_DIR}/foss_licenses)
 
   if(EXISTS "${licenses_dir}")
     file(

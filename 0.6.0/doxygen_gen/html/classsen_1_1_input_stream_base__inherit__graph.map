@@ -1,5 +1,7 @@
 <map id="sen::InputStreamBase" name="sen::InputStreamBase">
-<area shape="rect" id="Node000001" title="Base class for input streams." alt="" coords="19,5,181,211"/>
-<area shape="rect" id="Node000002" href="$classsen_1_1_input_stream_template.html" title="Binary input stream. Deserializes values. In general, I/O operations throw on failure." alt="" coords="5,259,195,619"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,224,103,258,97,258,97,224"/>
+<area shape="rect" id="Node000001" title="Base class for input streams." alt="" coords="126,5,287,211"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1_input_stream_template.html" title=" " alt="" coords="5,289,195,589"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,224,151,289,146,287,167,223"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1_input_stream_template.html" title="Binary input stream. Deserializes values. In general, I/O operations throw on failure." alt="" coords="219,259,408,619"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="246,223,258,258,253,259,241,225"/>
 </map>

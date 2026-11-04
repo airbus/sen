@@ -37,33 +37,35 @@
 <g id="Node000002" class="node">
 <title>Node2</title>
 <g id="a_Node000002"><a xlink:href="classsen_1_1_object_list.html" target="_top" xlink:title=" ">
-<polygon fill="white" stroke="transparent" points="140,-275.5 0,-275.5 0,-95.5 140,-95.5 140,-275.5"/>
-<text text-anchor="start" x="5" y="-263.5" font-family="Helvetica,sans-Serif" font-size="10.00">sen::ObjectList&lt; TestClass</text>
-<text text-anchor="start" x="42.5" y="-252.5" font-family="Helvetica,sans-Serif" font-size="10.00">Interface &gt;</text>
-<text text-anchor="start" x="8" y="-237.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="25" y="-237.5" font-family="Helvetica,sans-Serif" font-size="10.00">defaultListSizeHint</text>
-<text text-anchor="start" x="8" y="-222.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="25" y="-222.5" font-family="Helvetica,sans-Serif" font-size="10.00">ObjectList()</text>
-<text text-anchor="start" x="8" y="-207.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="25" y="-207.5" font-family="Helvetica,sans-Serif" font-size="10.00">ObjectList()</text>
-<text text-anchor="start" x="8" y="-192.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="25" y="-192.5" font-family="Helvetica,sans-Serif" font-size="10.00">~ObjectList()</text>
-<text text-anchor="start" x="8" y="-177.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="25" y="-177.5" font-family="Helvetica,sans-Serif" font-size="10.00">onAdded()</text>
-<text text-anchor="start" x="8" y="-162.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="25" y="-162.5" font-family="Helvetica,sans-Serif" font-size="10.00">onRemoved()</text>
-<text text-anchor="start" x="8" y="-147.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="25" y="-147.5" font-family="Helvetica,sans-Serif" font-size="10.00">getObjects()</text>
-<text text-anchor="start" x="8" y="-132.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="25" y="-132.5" font-family="Helvetica,sans-Serif" font-size="10.00">getUntypedObjects()</text>
-<text text-anchor="start" x="8" y="-117.5" font-family="Helvetica,sans-Serif" font-size="10.00">#</text>
-<text text-anchor="start" x="25" y="-117.5" font-family="Helvetica,sans-Serif" font-size="10.00">onObjectsAdded()</text>
-<text text-anchor="start" x="8" y="-102.5" font-family="Helvetica,sans-Serif" font-size="10.00">#</text>
-<text text-anchor="start" x="25" y="-102.5" font-family="Helvetica,sans-Serif" font-size="10.00">onObjectsRemoved()</text>
-<polygon fill="#666666" stroke="#666666" points="0,-247.5 0,-247.5 140,-247.5 140,-247.5 0,-247.5"/>
-<polygon fill="#666666" stroke="#666666" points="0,-232.5 0,-232.5 23,-232.5 23,-232.5 0,-232.5"/>
-<polygon fill="#666666" stroke="#666666" points="23,-232.5 23,-232.5 140,-232.5 140,-232.5 23,-232.5"/>
-<polygon fill="none" stroke="#666666" points="0,-95.5 0,-275.5 140,-275.5 140,-95.5 0,-95.5"/>
+<polygon fill="white" stroke="transparent" points="140,-283 0,-283 0,-88 140,-88 140,-283"/>
+<text text-anchor="start" x="5" y="-270.5" font-family="Helvetica,sans-Serif" font-size="10.00">sen::ObjectList&lt; TestClass</text>
+<text text-anchor="start" x="42.5" y="-259.5" font-family="Helvetica,sans-Serif" font-size="10.00">Interface &gt;</text>
+<text text-anchor="start" x="7" y="-244.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="23" y="-244.5" font-family="Helvetica,sans-Serif" font-size="10.00">defaultListSizeHint</text>
+<text text-anchor="start" x="7" y="-229.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="23" y="-229.5" font-family="Helvetica,sans-Serif" font-size="10.00">ObjectList()</text>
+<text text-anchor="start" x="7" y="-214.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="23" y="-214.5" font-family="Helvetica,sans-Serif" font-size="10.00">~ObjectList()</text>
+<text text-anchor="start" x="7" y="-199.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="23" y="-199.5" font-family="Helvetica,sans-Serif" font-size="10.00">onAdded()</text>
+<text text-anchor="start" x="7" y="-184.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="23" y="-184.5" font-family="Helvetica,sans-Serif" font-size="10.00">onRemoved()</text>
+<text text-anchor="start" x="7" y="-169.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="23" y="-169.5" font-family="Helvetica,sans-Serif" font-size="10.00">getObjects()</text>
+<text text-anchor="start" x="7" y="-154.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="23" y="-154.5" font-family="Helvetica,sans-Serif" font-size="10.00">getUntypedObjects()</text>
+<text text-anchor="start" x="7" y="-139.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="23" y="-139.5" font-family="Helvetica,sans-Serif" font-size="10.00">isRemoteParticipant()</text>
+<text text-anchor="start" x="7" y="-124.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="23" y="-124.5" font-family="Helvetica,sans-Serif" font-size="10.00">isLocalParticipant()</text>
+<text text-anchor="start" x="7" y="-109.5" font-family="Helvetica,sans-Serif" font-size="10.00">#</text>
+<text text-anchor="start" x="23" y="-109.5" font-family="Helvetica,sans-Serif" font-size="10.00">onObjectsAdded()</text>
+<text text-anchor="start" x="7" y="-94.5" font-family="Helvetica,sans-Serif" font-size="10.00">#</text>
+<text text-anchor="start" x="23" y="-94.5" font-family="Helvetica,sans-Serif" font-size="10.00">onObjectsRemoved()</text>
+<polygon fill="#666666" stroke="#666666" points="0,-254.5 0,-254.5 140,-254.5 140,-254.5 0,-254.5"/>
+<polygon fill="#666666" stroke="#666666" points="0,-239.5 0,-239.5 21,-239.5 21,-239.5 0,-239.5"/>
+<polygon fill="#666666" stroke="#666666" points="21,-239.5 21,-239.5 140,-239.5 140,-239.5 21,-239.5"/>
+<polygon fill="none" stroke="#666666" points="0,-88 0,-283 140,-283 140,-88 0,-88"/>
 </a>
 </g>
 </g>
@@ -71,7 +73,7 @@
 <g id="edge1_Node000001_Node000002" class="edge">
 <title>Node1&#45;&gt;Node2</title>
 <g id="a_edge1_Node000001_Node000002"><a xlink:title=" ">
-<path fill="none" stroke="#63b8ff" d="M409.89,-464.39C333.42,-456.89 221.73,-434.81 149,-371 120.84,-346.3 102.4,-309.81 90.48,-275.78"/>
+<path fill="none" stroke="#63b8ff" d="M409.89,-464.39C333.42,-456.89 221.73,-434.81 149,-371 122.94,-348.14 105.2,-315.17 93.26,-283.42"/>
 <polygon fill="none" stroke="#63b8ff" points="409.69,-467.89 419.97,-465.32 410.33,-460.92 409.69,-467.89"/>
 </a>
 </g>
@@ -80,33 +82,35 @@
 <g id="Node000003" class="node">
 <title>Node3</title>
 <g id="a_Node000003"><a xlink:href="classsen_1_1_object_list.html" target="_top" xlink:title=" ">
-<polygon fill="white" stroke="transparent" points="312,-275.5 158,-275.5 158,-95.5 312,-95.5 312,-275.5"/>
-<text text-anchor="start" x="163" y="-263.5" font-family="Helvetica,sans-Serif" font-size="10.00">sen::ObjectList&lt; sen</text>
-<text text-anchor="start" x="163" y="-252.5" font-family="Helvetica,sans-Serif" font-size="10.00">::kernel::KernelApiInterface &gt;</text>
-<text text-anchor="start" x="169.5" y="-237.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="190" y="-237.5" font-family="Helvetica,sans-Serif" font-size="10.00">defaultListSizeHint</text>
-<text text-anchor="start" x="169.5" y="-222.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="190" y="-222.5" font-family="Helvetica,sans-Serif" font-size="10.00">ObjectList()</text>
-<text text-anchor="start" x="169.5" y="-207.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="190" y="-207.5" font-family="Helvetica,sans-Serif" font-size="10.00">ObjectList()</text>
-<text text-anchor="start" x="169.5" y="-192.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="190" y="-192.5" font-family="Helvetica,sans-Serif" font-size="10.00">~ObjectList()</text>
-<text text-anchor="start" x="169.5" y="-177.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="190" y="-177.5" font-family="Helvetica,sans-Serif" font-size="10.00">onAdded()</text>
-<text text-anchor="start" x="169.5" y="-162.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="190" y="-162.5" font-family="Helvetica,sans-Serif" font-size="10.00">onRemoved()</text>
-<text text-anchor="start" x="169.5" y="-147.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="190" y="-147.5" font-family="Helvetica,sans-Serif" font-size="10.00">getObjects()</text>
-<text text-anchor="start" x="169.5" y="-132.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
-<text text-anchor="start" x="190" y="-132.5" font-family="Helvetica,sans-Serif" font-size="10.00">getUntypedObjects()</text>
-<text text-anchor="start" x="169.5" y="-117.5" font-family="Helvetica,sans-Serif" font-size="10.00">#</text>
-<text text-anchor="start" x="190" y="-117.5" font-family="Helvetica,sans-Serif" font-size="10.00">onObjectsAdded()</text>
-<text text-anchor="start" x="169.5" y="-102.5" font-family="Helvetica,sans-Serif" font-size="10.00">#</text>
-<text text-anchor="start" x="190" y="-102.5" font-family="Helvetica,sans-Serif" font-size="10.00">onObjectsRemoved()</text>
-<polygon fill="#666666" stroke="#666666" points="158,-247.5 158,-247.5 312,-247.5 312,-247.5 158,-247.5"/>
-<polygon fill="#666666" stroke="#666666" points="158,-232.5 158,-232.5 188,-232.5 188,-232.5 158,-232.5"/>
-<polygon fill="#666666" stroke="#666666" points="188,-232.5 188,-232.5 312,-232.5 312,-232.5 188,-232.5"/>
-<polygon fill="none" stroke="#666666" points="158,-95.5 158,-275.5 312,-275.5 312,-95.5 158,-95.5"/>
+<polygon fill="white" stroke="transparent" points="312,-283 158,-283 158,-88 312,-88 312,-283"/>
+<text text-anchor="start" x="163" y="-270.5" font-family="Helvetica,sans-Serif" font-size="10.00">sen::ObjectList&lt; sen</text>
+<text text-anchor="start" x="163" y="-259.5" font-family="Helvetica,sans-Serif" font-size="10.00">::kernel::KernelApiInterface &gt;</text>
+<text text-anchor="start" x="168.5" y="-244.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="188" y="-244.5" font-family="Helvetica,sans-Serif" font-size="10.00">defaultListSizeHint</text>
+<text text-anchor="start" x="168.5" y="-229.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="188" y="-229.5" font-family="Helvetica,sans-Serif" font-size="10.00">ObjectList()</text>
+<text text-anchor="start" x="168.5" y="-214.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="188" y="-214.5" font-family="Helvetica,sans-Serif" font-size="10.00">~ObjectList()</text>
+<text text-anchor="start" x="168.5" y="-199.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="188" y="-199.5" font-family="Helvetica,sans-Serif" font-size="10.00">onAdded()</text>
+<text text-anchor="start" x="168.5" y="-184.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="188" y="-184.5" font-family="Helvetica,sans-Serif" font-size="10.00">onRemoved()</text>
+<text text-anchor="start" x="168.5" y="-169.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="188" y="-169.5" font-family="Helvetica,sans-Serif" font-size="10.00">getObjects()</text>
+<text text-anchor="start" x="168.5" y="-154.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="188" y="-154.5" font-family="Helvetica,sans-Serif" font-size="10.00">getUntypedObjects()</text>
+<text text-anchor="start" x="168.5" y="-139.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="188" y="-139.5" font-family="Helvetica,sans-Serif" font-size="10.00">isRemoteParticipant()</text>
+<text text-anchor="start" x="168.5" y="-124.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>
+<text text-anchor="start" x="188" y="-124.5" font-family="Helvetica,sans-Serif" font-size="10.00">isLocalParticipant()</text>
+<text text-anchor="start" x="168.5" y="-109.5" font-family="Helvetica,sans-Serif" font-size="10.00">#</text>
+<text text-anchor="start" x="188" y="-109.5" font-family="Helvetica,sans-Serif" font-size="10.00">onObjectsAdded()</text>
+<text text-anchor="start" x="168.5" y="-94.5" font-family="Helvetica,sans-Serif" font-size="10.00">#</text>
+<text text-anchor="start" x="188" y="-94.5" font-family="Helvetica,sans-Serif" font-size="10.00">onObjectsRemoved()</text>
+<polygon fill="#666666" stroke="#666666" points="158,-254.5 158,-254.5 312,-254.5 312,-254.5 158,-254.5"/>
+<polygon fill="#666666" stroke="#666666" points="158,-239.5 158,-239.5 186,-239.5 186,-239.5 158,-239.5"/>
+<polygon fill="#666666" stroke="#666666" points="186,-239.5 186,-239.5 312,-239.5 312,-239.5 186,-239.5"/>
+<polygon fill="none" stroke="#666666" points="158,-88 158,-283 312,-283 312,-88 158,-88"/>
 </a>
 </g>
 </g>
@@ -114,7 +118,7 @@
 <g id="edge2_Node000001_Node000003" class="edge">
 <title>Node1&#45;&gt;Node3</title>
 <g id="a_edge2_Node000001_Node000003"><a xlink:title=" ">
-<path fill="none" stroke="#63b8ff" d="M410.62,-434.49C379.48,-418.82 345.73,-397.65 321,-371 296,-344.06 277.12,-308.56 263.51,-275.9"/>
+<path fill="none" stroke="#63b8ff" d="M410.62,-434.49C379.48,-418.82 345.73,-397.65 321,-371 297.8,-346 279.88,-313.63 266.54,-283"/>
 <polygon fill="none" stroke="#63b8ff" points="409.23,-437.71 419.75,-438.97 412.31,-431.42 409.23,-437.71"/>
 </a>
 </g>

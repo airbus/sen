@@ -1,0 +1,20 @@
+package sen.components.influx;
+
+sequence<string> SelectionList;
+
+enum Protocol: u8
+{
+  udp,
+  tcp
+}
+
+// Overall component configuration
+struct Configuration
+{
+  samplingPeriod  : Duration,       // sampling period for the recordings
+  selections      : SelectionList,  // objects to be monitored (using sql)
+  telegrafAddress : string,         // ip or name of the Telegraf server
+  telegrafPort    : u16,            // port used by the Telegraf server
+  protocol        : Protocol,       // protocol used
+  batchSize       : u32             // points to batch before emission (0 means no batching)
+}

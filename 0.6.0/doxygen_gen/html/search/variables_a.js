@@ -6,7 +6,6 @@ var searchData=
   ['linenumber_3',['lineNumber',['../group__util.html#a983654797b497256031d746967116e0a',1,'sen::SourceLocation']]],
   ['list_4',['list',['../structsen_1_1_subscription.html#a4cf03a561c26b52e6374b3e7e7fb4aca',1,'sen::Subscription']]],
   ['localonly_5',['localOnly',['../structsen_1_1_method_spec.html#aff243e727fb92a685fcc5e8f588d8901',1,'sen::MethodSpec']]],
-  ['localproxymaker_6',['localProxyMaker',['../group__types.html#adc739a14be4efc4dc8a904a25ea116bf',1,'sen::ClassSpec']]],
-  ['longitude_7',['longitude',['../group__dr.html#a9d52daa2eb934c31d354abdca0f2a550',1,'sen::util::GeodeticWorldLocation']]],
-  ['lt_8',['lt',['../structsen_1_1_has_operator.html#a8df9eda413c977c685becab373479bd3',1,'sen::HasOperator']]]
+  ['longitude_6',['longitude',['../group__dr.html#a9d52daa2eb934c31d354abdca0f2a550',1,'sen::util::GeodeticWorldLocation']]],
+  ['lt_7',['lt',['../structsen_1_1_has_operator.html#a8df9eda413c977c685becab373479bd3',1,'sen::HasOperator']]]
 ];

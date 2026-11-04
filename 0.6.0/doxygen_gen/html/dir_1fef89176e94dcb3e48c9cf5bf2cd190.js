@@ -4,7 +4,7 @@ var dir_1fef89176e94dcb3e48c9cf5bf2cd190 =
     [ "alias_type.h", "alias__type_8h.html", null ],
     [ "basic_traits.h", "basic__traits_8h.html", null ],
     [ "callable.h", "callable_8h.html", null ],
-    [ "class_type.h", "class__type_8h.html", "class__type_8h" ],
+    [ "class_type.h", "class__type_8h.html", null ],
     [ "custom_type.h", "custom__type_8h.html", null ],
     [ "enum_traits.h", "enum__traits_8h.html", null ],
     [ "enum_type.h", "enum__type_8h.html", null ],

@@ -1,6 +1,6 @@
 var classsen_1_1_custom_type_registry =
 [
-    [ "CustomTypeMap", "classsen_1_1_custom_type_registry.html#adae17d61b24cfdde37ffcfa64ab8c18f", null ],
+    [ "CustomTypeMap", "classsen_1_1_custom_type_registry.html#a2ad06f7ca0c963ab8ada0a8093946e2b", null ],
     [ "CustomTypeHashMap", "classsen_1_1_custom_type_registry.html#a1d7dac7fb1ce9bc28d7c80ab67d5cd8d", null ],
     [ "CustomTypeList", "classsen_1_1_custom_type_registry.html#a81473ff7b5005c8fee94e1ffd0d8df57", null ],
     [ "CustomTypeRegistry", "classsen_1_1_custom_type_registry.html#a5eb245294f9c00a31bf89bf718e0e75c", null ],

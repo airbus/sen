@@ -1,10 +1,6 @@
 var classsen_1_1_object_filter =
 [
-    [ "ObjectSet", "classsen_1_1_object_filter.html#structsen_1_1_object_filter_1_1_object_set", [
-      [ "newObjects", "classsen_1_1_object_filter.html#a76647bda133a061e70f7bb228f19c58b", null ],
-      [ "currentObjects", "classsen_1_1_object_filter.html#ae3d542cc47ace04c36f5a600a84a5f6f", null ],
-      [ "deletedObjects", "classsen_1_1_object_filter.html#acee97ae6b1f7ab3f015bab435e4c1625", null ]
-    ] ],
+    [ "ObjectSet", "structsen_1_1_object_filter_1_1_object_set.html", "structsen_1_1_object_filter_1_1_object_set" ],
     [ "ObjectFilter", "classsen_1_1_object_filter.html#a3b048291fc68e5829289e4662074b46e", null ],
     [ "~ObjectFilter", "classsen_1_1_object_filter.html#a45991059d3b4d843b0837ed82538564d", null ],
     [ "addSubscriber", "classsen_1_1_object_filter.html#afd11b52f75789d699ca16ba6e6a096aa", null ],

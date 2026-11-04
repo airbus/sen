@@ -13,5 +13,9 @@ var classsen_1_1_result_3_01void_00_01std_1_1monostate_01_4 =
     [ "operator!=", "classsen_1_1_result_3_01void_00_01std_1_1monostate_01_4.html#ab60caa3f7ea2fa5441bc43975d70ab65", null ],
     [ "isOk", "classsen_1_1_result_3_01void_00_01std_1_1monostate_01_4.html#a3956a0c31c756e15e5d609374490e6e7", null ],
     [ "isError", "classsen_1_1_result_3_01void_00_01std_1_1monostate_01_4.html#a35c1af756a3392e0f8cab2a5bab2daeb", null ],
-    [ "operator bool", "classsen_1_1_result_3_01void_00_01std_1_1monostate_01_4.html#ae5ef1d291d641c4018d1e6fbf2fa3fd5", null ]
+    [ "operator bool", "classsen_1_1_result_3_01void_00_01std_1_1monostate_01_4.html#ae5ef1d291d641c4018d1e6fbf2fa3fd5", null ],
+    [ "getValueOr", "classsen_1_1_result.html#a64551fa08aa04c16f48f3db03597cf0d", null ],
+    [ "getValue", "classsen_1_1_result.html#a757b783a5b84ce6acf56af8b16dce4b9", null ],
+    [ "getError", "classsen_1_1_result.html#ad498370f873eb49725c0ec3670ab1300", null ],
+    [ "expect", "classsen_1_1_result.html#a1059c62c83e86d0dc1d24eaf0a97eaa2", null ]
 ];

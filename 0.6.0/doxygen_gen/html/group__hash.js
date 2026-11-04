@@ -1,6 +1,6 @@
 var group__hash =
 [
-    [ "sen::GradientNoise< FloatType, dimensionCount >", "classsen_1_1_gradient_noise.html", [
+    [ "sen::GradientNoise&lt; FloatType, dimensionCount &gt;", "classsen_1_1_gradient_noise.html", [
       [ "EngineType", "classsen_1_1_gradient_noise.html#a195f0c7ec0ccd4dcd4ab7da8a241d3bb", null ],
       [ "DistType", "classsen_1_1_gradient_noise.html#abf41d3ef7a1ed980dc770735b4ce7c3e", null ],
       [ "SeedType", "classsen_1_1_gradient_noise.html#a99e2a92ef78d1efb0e89a271f5492368", null ],

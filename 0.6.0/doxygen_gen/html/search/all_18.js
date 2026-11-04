@@ -1,7 +1,4 @@
 var searchData=
 [
-  ['z_0',['z',['../group__dr.html#a90180eaac01b2cd73d44551fc25f10d7',1,'sen::util::Location::z'],['../group__dr.html#a93fd483b7bd35736aed5706a15f90365',1,'sen::util::Velocity::z'],['../group__dr.html#a103ab0cc9c8e2f246601a2cdb951f21c',1,'sen::util::Acceleration::z'],['../group__dr.html#a31c4f8527ba4cfd93d4466ee062609a0',1,'sen::util::AngularVelocity::z'],['../group__dr.html#a785e8bba4ecd2a1040817c5e3503aae7',1,'sen::util::AngularAcceleration::z']]],
-  ['zerorotation_1',['zeroRotation',['../classsen_1_1util_1_1_quat.html#afd0785aca264dea38aedf287dd2eb18c',1,'sen::util::Quat']]],
-  ['zoneend_2',['zoneEnd',['../classsen_1_1kernel_1_1_tracer.html#ade8bab825b6f53b3b048cc79f78c7ed8',1,'sen::kernel::Tracer']]],
-  ['zonestart_3',['zoneStart',['../classsen_1_1kernel_1_1_tracer.html#a956806ef263a6f5e0109b4732e809608',1,'sen::kernel::Tracer']]]
+  ['y_0',['y',['../structsen_1_1_unit_spec.html#ab64bea26113e9e089f6bc2012a63458f',1,'sen::UnitSpec::y'],['../group__dr.html#a2d68d5ec96c6582f97586d64decb08d1',1,'sen::util::Location::y'],['../group__dr.html#a34e71c9d579c1e490f8ec1d5f1ddf139',1,'sen::util::Velocity::y'],['../group__dr.html#a3da78a1b010a9a812cd7377e7d22b1aa',1,'sen::util::Acceleration::y'],['../group__dr.html#a75edbf36b253f76b0b34894955f28a0e',1,'sen::util::AngularVelocity::y'],['../group__dr.html#a703146abfc5a304a13dc44350518b6f0',1,'sen::util::AngularAcceleration::y']]]
 ];
