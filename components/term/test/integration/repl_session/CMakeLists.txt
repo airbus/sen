@@ -19,7 +19,7 @@ set(_term_session_cases
     test_ctrl_d_exits_only_from_an_empty_line
     test_a_huge_paste_leaves_the_term_responsive
     test_the_term_asks_the_terminal_for_bracketed_paste
-    test_a_multi_line_paste_runs_nothing_and_becomes_one_line
+    test_a_multi_line_paste_runs_each_line
     test_a_tab_inside_a_paste_is_text_not_completion
     test_a_paste_whose_end_marker_never_arrives_releases_itself
     test_a_torn_end_marker_ends_the_paste_and_leaves_no_stray_bytes

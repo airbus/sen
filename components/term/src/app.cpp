@@ -1096,7 +1096,7 @@ bool App::handlePasteEvent(ftxui::Event event)
   if (event == ftxui::Event::Special(pasteStart))
   {
     pasting_ = true;
-    pastedNewlines_ = 0;
+    pastedLinesRun_ = 0;
     pasteIdleTicks_ = 0;
     // The recorded completion span indexes the buffer the paste is about to change.
     ui_->clearCompletion();
@@ -1109,15 +1109,14 @@ bool App::handlePasteEvent(ftxui::Event event)
   if (event == ftxui::Event::Special(pasteEnd))
   {
     pasting_ = false;
-    if (pastedNewlines_ > 0)
+    if (pastedLinesRun_ > 0)
     {
-      // Say it rather than let the line look like something the user typed. Joining is the useful
-      // behaviour for the common case, a single long command wrapped across lines.
-      appendInfo("Pasted text held " + std::to_string(pastedNewlines_) +
-                 (pastedNewlines_ == 1 ? " line break, joined with a space." : " line breaks, joined with spaces.") +
-                 " Check the line before pressing Enter.");
+      // Say how many ran, so a paste that was meant as one wrapped command is visible as the
+      // several commands it became rather than only as the errors they produced.
+      appendInfo("Pasted text ran " + std::to_string(pastedLinesRun_) + (pastedLinesRun_ == 1 ? " line." : " lines.") +
+                 " Anything after the last line break is on the line, unsent.");
     }
-    pastedNewlines_ = 0;
+    pastedLinesRun_ = 0;
     return true;
   }
 
@@ -1140,7 +1139,7 @@ bool App::handlePasteEvent(ftxui::Event event)
   if (event == ftxui::Event::Escape)
   {
     pasting_ = false;
-    pastedNewlines_ = 0;
+    pastedLinesRun_ = 0;
     appendInfo("Paste cancelled. The text received so far is on the line.");
     return true;
   }
@@ -1148,12 +1147,28 @@ bool App::handlePasteEvent(ftxui::Event event)
   // A form takes pasted text as text too, without its editing keys firing.
   const bool intoForm = ui_->activeForm.has_value();
 
+  // A line break inside pasted text runs the line, the way a shell does, which is what the text was
+  // written for: a block of commands pasted to set a session up. Joining them with a space instead
+  // made one wrapped command paste well and a block of commands paste into a single invalid line.
+  // A command the sender's editor wrapped now arrives as its fragments.
+  if (event == ftxui::Event::Return && !intoForm)
+  {
+    // A line the paste filled past maxLineBytes is not what was sent, and running it would report a
+    // parse failure naming text nobody wrote. The "line is full" notice has already been shown.
+    if (!ui_->inputPane.getBuffer().empty() && !ui_->inputTruncated)
+    {
+      ui_->cursorPos = 0;
+      ui_->commandPane.scrollToBottom();
+      ui_->inputPane.submit();
+      ++pastedLinesRun_;
+    }
+    return true;
+  }
+
   if (event == ftxui::Event::Return || event == ftxui::Event::Tab || event == ftxui::Event::TabReverse)
   {
-    // A line break or a tab inside pasted text is a separator, not the key of the same name. Turning
-    // it into a space keeps one wrapped command on one line; submitting on it ran every pasted line
-    // as its own command.
-    const auto sizeBefore = ui_->inputPane.getBuffer().size();
+    // A tab is a separator rather than the key of the same name, and a form takes a line break as
+    // one too: its fields are single-line, so there is nothing for a break to submit.
     if (intoForm)
     {
       static_cast<void>(ui_->activeForm->insertText(" "));
@@ -1161,12 +1176,6 @@ bool App::handlePasteEvent(ftxui::Event event)
     else
     {
       insertPastedText(" ");
-    }
-    // Only count a line break the line actually took: past the bound the space is dropped, and the
-    // notice would otherwise claim joins that are not there.
-    if (event == ftxui::Event::Return && (intoForm || ui_->inputPane.getBuffer().size() != sizeBefore))
-    {
-      ++pastedNewlines_;
     }
     return true;
   }
@@ -1508,7 +1517,7 @@ void App::tick()
     {
       pasting_ = false;
       pasteIdleTicks_ = 0;
-      pastedNewlines_ = 0;
+      pastedLinesRun_ = 0;
       appendInfo("The paste did not finish, so it was ended here. Check the line before pressing Enter.");
       requestRedraw();
     }

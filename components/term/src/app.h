@@ -172,7 +172,7 @@ private:
   /// the protocol offers no other way to tell a paste from someone typing very fast, so without this
   /// a newline in pasted text submitted the line and a stray tab opened completion.
   bool pasting_ = false;
-  std::size_t pastedNewlines_ = 0;  ///< newlines joined in the paste being received
+  std::size_t pastedLinesRun_ = 0;  ///< lines submitted by the paste being received
   unsigned pasteIdleTicks_ = 0;     ///< ticks since the last pasted event, to end a paste whose marker was lost
 
   /// Bytes of a torn paste marker still owed. FTXUI flushes an incomplete escape after 50 ms and both
