@@ -74,10 +74,13 @@ namespace
 {
 
 /// Escapes the three characters a depfile reader treats as syntax rather than path.
-std::string escapedForDepFile(const std::filesystem::path& path)
+///
+/// Takes text rather than a path: the target has to reach the file unchanged, and building a
+/// path from it first can normalise separators.
+std::string escapedForDepFile(const std::string& path)
 {
   std::string escaped;
-  for (const char character: path.string())
+  for (const char character: path)
   {
     switch (character)
     {
@@ -100,26 +103,33 @@ std::string escapedForDepFile(const std::filesystem::path& path)
 
 }  // namespace
 
+std::string depFileTargetOr(const std::string& given, const std::vector<std::filesystem::path>& written)
+{
+  if (!given.empty())
+  {
+    return given;
+  }
+  SEN_ENSURE(!written.empty());
+  return std::filesystem::absolute(written.front()).string();
+}
+
 void writeDepFile(const std::filesystem::path& path,
-                  const std::vector<std::filesystem::path>& targets,
+                  const std::string& target,
                   const std::set<std::filesystem::path>& dependencies)
 {
-  // `absolute("")` is the current directory, so an empty target would name a real path.
-  // `-o` is optional on every subcommand, so a caller can reach this.
-  SEN_ENSURE(!targets.empty());
+  // An empty target writes a rule with no left-hand side, which a reader takes as the whole
+  // file being malformed. `-o` is optional on every subcommand, so a caller can reach this.
+  SEN_ENSURE(!target.empty());
 
-  std::string body;
-  for (const auto& target: targets)
-  {
-    SEN_ENSURE(!target.empty());
-    body += body.empty() ? "" : " ";
-    body += escapedForDepFile(std::filesystem::absolute(target));
-  }
+  // Written as given rather than resolved. The build graph records its outputs in a form only
+  // it knows, and an absolute path matched none of them: ninja dropped the dependencies and ran
+  // the generator again on every build.
+  std::string body = escapedForDepFile(target);
   body += ":";
   for (const auto& dependency: dependencies)
   {
     body += " ";
-    body += escapedForDepFile(std::filesystem::absolute(dependency));
+    body += escapedForDepFile(std::filesystem::absolute(dependency).string());
   }
   body += "\n";
 

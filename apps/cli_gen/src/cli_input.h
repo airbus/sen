@@ -36,6 +36,9 @@ struct StlArgs
   std::string codegenOptionsFile;
   // Where to record the files read. Empty writes none.
   std::filesystem::path depFile;
+  // The depfile's target, as the build graph records the output it attaches to.
+  // Empty falls back to the first file written, which suits a hand-run generator.
+  std::string depFileTarget;
 };
 
 struct FomArgs

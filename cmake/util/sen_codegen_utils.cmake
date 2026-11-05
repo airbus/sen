@@ -71,6 +71,13 @@ include_guard()
 #     Defaults to NO. Set to YES when the generated headers must be consumed
 #     across shared-library boundaries (e.g. Python bindings).
 function(sen_generate_code)
+  # Under CMP0116 OLD a depfile reaches ninja untransformed, so the absolute paths in it
+  # match no output and every import is dropped. The consumer's cmake_minimum_required
+  # decides that policy, and this function's own commands should not depend on it. Scoped
+  # to this function, so the setting does not reach the calling project.
+  if(POLICY CMP0116)
+    cmake_policy(SET CMP0116 NEW)
+  endif()
 
   set(_one_value_args
       TARGET
@@ -309,11 +316,15 @@ function(sen_generate_code)
       # records what it opened and DEPFILE carries that to the build graph.
       set(_dep_file ${_output_file_prefix}.d)
 
+      # ninja attaches the depfile to the first OUTPUT and refuses it unless that is the
+      # target named inside, so the target is passed rather than guessed: the generator
+      # wrote them in its own order and named the .cpp, leaving the edge permanently dirty.
       add_custom_command(
         OUTPUT ${_file_output_files}
         COMMAND_EXPAND_LISTS VERBATIM
-        COMMAND sen::cli_gen ${_arg_LANG} ${_public_symbols_opt} stl --depfile ${_dep_file}
-                ${_settings_file_option} ${_base_path_opt} ${_abs_stl_file} ${_extra_options}
+        COMMAND
+          sen::cli_gen ${_arg_LANG} ${_public_symbols_opt} stl --depfile ${_dep_file} --depfile-target
+          ${_file_output_headers} ${_settings_file_option} ${_base_path_opt} ${_abs_stl_file} ${_extra_options}
         DEPENDS ${_abs_stl_file} sen::cli_gen ${_abs_settings_path}
         DEPFILE ${_dep_file}
         WORKING_DIRECTORY ${_file_output_dir}
@@ -340,8 +351,9 @@ function(sen_generate_code)
         OUTPUT ${_arg_SCHEMA_FILE}
         COMMAND_EXPAND_LISTS VERBATIM
         COMMAND
-          sen::cli_gen json ${_schema_type} stl --depfile ${_schema_dep_file} -b ${_abs_base_path}
-          ${_stl_files} ${_extra_options} ${_schema_classes_opt} -o ${_arg_SCHEMA_FILE} ${_component_name_opt}
+          sen::cli_gen json ${_schema_type} stl --depfile ${_schema_dep_file} --depfile-target
+          ${_arg_SCHEMA_FILE} -b ${_abs_base_path} ${_stl_files} ${_extra_options} ${_schema_classes_opt} -o
+          ${_arg_SCHEMA_FILE} ${_component_name_opt}
         DEPENDS ${_stl_files} sen::cli_gen ${_abs_settings_path}
         DEPFILE ${_schema_dep_file}
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}

@@ -58,32 +58,33 @@ void setupPythonCli(CLI::App& app)
   auto py = app.add_subcommand("py", "Generate Python dataclasses");
   py->require_subcommand();
 
-  auto stl = setupStlInput(*py,
-                           [](auto args)
-                           {
-                             // One shared context across all inputs so common imports parse once.
-                             sen::lang::TypeSetContext context;
-                             std::vector<const sen::lang::TypeSet*> docs;
-                             docs.reserve(args->inputs.size());
-                             for (const auto& fileName: args->inputs)
-                             {
-                               const auto* newDoc = sen::lang::readTypesFile(fileName, args->includePaths, context, {});
-                               SEN_ASSERT(newDoc && "There should always be a document returned.");
-                               docs.push_back(newDoc);
-                             }
-                             sen::gen::PythonGenerator generator;
-                             std::vector<std::filesystem::path> outputs;
-                             outputs.reserve(docs.size());
-                             for (std::size_t i = 0; i < docs.size(); ++i)
-                             {
-                               outputs.emplace_back(writeModule(generator, *docs[i], args->inputs[i]));
-                             }
+  auto stl =
+    setupStlInput(*py,
+                  [](auto args)
+                  {
+                    // One shared context across all inputs so common imports parse once.
+                    sen::lang::TypeSetContext context;
+                    std::vector<const sen::lang::TypeSet*> docs;
+                    docs.reserve(args->inputs.size());
+                    for (const auto& fileName: args->inputs)
+                    {
+                      const auto* newDoc = sen::lang::readTypesFile(fileName, args->includePaths, context, {});
+                      SEN_ASSERT(newDoc && "There should always be a document returned.");
+                      docs.push_back(newDoc);
+                    }
+                    sen::gen::PythonGenerator generator;
+                    std::vector<std::filesystem::path> outputs;
+                    outputs.reserve(docs.size());
+                    for (std::size_t i = 0; i < docs.size(); ++i)
+                    {
+                      outputs.emplace_back(writeModule(generator, *docs[i], args->inputs[i]));
+                    }
 
-                             if (!args->depFile.empty())
-                             {
-                               writeDepFile(args->depFile, outputs, context.readFiles());
-                             }
-                           });
+                    if (!args->depFile.empty())
+                    {
+                      writeDepFile(args->depFile, depFileTargetOr(args->depFileTarget, outputs), context.readFiles());
+                    }
+                  });
 
   auto fom = setupFomInput(*py,
                            [](auto args)
