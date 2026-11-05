@@ -8,5 +8,6 @@ Options:
   -h,--help                        Print this help message and exit
   -i,--import TEXT ...             Paths where other STL files can be found
   --depfile TEXT                   Write the files read to this make-style depfile
+  --depfile-target TEXT            Name this exact path as the depfile's target, rather than the first file written
   -b,--base-path,--base_path TEXT  Base path for including generated files
   -s,--settings TEXT:FILE          Code generation settings file
