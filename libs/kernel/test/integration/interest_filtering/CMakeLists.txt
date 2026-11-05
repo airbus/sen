@@ -67,6 +67,12 @@ add_sen_integration_test(
 # fan-out across readyProcesses_. Three is the point: the publisher's process holds two ready peers,
 # so the fan-out has to carry one frame to both of them. Two processes run the loop once and exercise
 # nothing.
+#
+# FLAKY like the three above, and for their reason rather than its own: this suite hangs against the
+# 20-second cap now and then, whatever the case. Left unlabelled it ran in the parallel pass, where
+# --stop-on-failure and no retry turn one hang into a failed job, and it did that three times in a
+# week on changes it had nothing to do with. The label buys --repeat until-pass:5, which is how the
+# others survive the same hang.
 add_sen_integration_test(
   interest_filtering_no_bus_multicast
   DESCRIPTION
@@ -78,5 +84,5 @@ add_sen_integration_test(
   ${CMAKE_CURRENT_SOURCE_DIR}/config/no_bus_multicast_1.yaml
   ${CMAKE_CURRENT_SOURCE_DIR}/config/no_bus_multicast_2.yaml
   ${CMAKE_CURRENT_SOURCE_DIR}/config/no_bus_multicast_3.yaml
-  REQ_DEPS interest_filtering py ether kernel USE_TESTCONTAINERS
+  REQ_DEPS interest_filtering py ether kernel FLAKY USE_TESTCONTAINERS
 )
