@@ -5,8 +5,20 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import type * as React from "react";
+import {
+  FloatingPortal,
+  autoUpdate,
+  flip,
+  offset,
+  shift,
+  size,
+  useDismiss,
+  useFloating,
+  useInteractions,
+  useRole,
+} from "@floating-ui/react";
 
 import { baseInputStyle } from "../_styles.js";
 import type { PickerItem } from "./adaptive_picker.js";
@@ -24,19 +36,41 @@ export function PopupPicker({
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const wrapRef = useRef<HTMLSpanElement | null>(null);
 
-  useEffect(() => {
-    if (!open) return;
-    const onClick = (e: MouseEvent) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
-        setOpen(false);
-        setQuery("");
-      }
-    };
-    window.addEventListener("mousedown", onClick);
-    return () => window.removeEventListener("mousedown", onClick);
-  }, [open]);
+  const MAX_HEIGHT = 280;
+
+  // Floated and portalled, like Tooltip. Positioned absolutely, the list sat inside the pane that
+  // scrolls above it and was cut at that pane's edge, so the options below the cut could not be
+  // reached; a z-index does not escape an ancestor's overflow. `flip` moves the list above the
+  // trigger when the room below is short, and `size` caps its height to the room that is left.
+  const closeAndClear = (next: boolean) => {
+    setOpen(next);
+    if (!next) setQuery("");
+  };
+  const { refs, floatingStyles, context } = useFloating({
+    open,
+    onOpenChange: closeAndClear,
+    placement: "bottom-start",
+    middleware: [
+      offset(2),
+      flip({ padding: 6 }),
+      shift({ padding: 6 }),
+      size({
+        padding: 6,
+        apply({ availableHeight, elements }) {
+          elements.floating.style.maxHeight = `${Math.min(MAX_HEIGHT, availableHeight)}px`;
+        },
+      }),
+    ],
+    whileElementsMounted: autoUpdate,
+  });
+  // Replaces a hand-written mousedown listener that closed on any click outside the trigger.
+  // The trigger no longer contains the list, so that listener would have read a click on an
+  // option as outside and closed the popup before the click reached it. useDismiss counts the
+  // floating element as part of the widget.
+  const dismiss = useDismiss(context);
+  const role = useRole(context, { role: "listbox" });
+  const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, role]);
 
   const filtered: readonly PickerItem[] = useMemo(() => {
     if (!searchable || !query) return items;
@@ -79,13 +113,16 @@ export function PopupPicker({
   const [triggerHover, setTriggerHover] = useState(false);
   const triggerBorder = open || triggerHover ? "var(--accent)" : "var(--accent-border)";
   return (
-    <span ref={wrapRef} style={{ position: "relative", display: "inline-block" }}>
+    <span style={{ display: "inline-block" }}>
       <button
+        ref={refs.setReference}
         type="button"
-        onClick={() => setOpen((o) => !o)}
-        onKeyDown={onTriggerKeyDown}
-        onMouseEnter={() => setTriggerHover(true)}
-        onMouseLeave={() => setTriggerHover(false)}
+        {...getReferenceProps({
+          onClick: () => closeAndClear(!open),
+          onKeyDown: onTriggerKeyDown,
+          onMouseEnter: () => setTriggerHover(true),
+          onMouseLeave: () => setTriggerHover(false),
+        })}
         style={baseInputStyle({
           minWidth: 140,
           display: "inline-flex",
@@ -103,60 +140,60 @@ export function PopupPicker({
         <span style={{ color: "var(--fg-subtle)", fontSize: "var(--fs-xs)" }}>▾</span>
       </button>
       {open && (
-        <div
-          onKeyDown={onPopupKeyDown}
-          style={{
-            position: "absolute",
-            top: "100%",
-            left: 0,
-            marginTop: 2,
-            minWidth: 180,
-            maxHeight: 280,
-            overflow: "auto",
-            background: "var(--bg-elevated)",
-            border: "1px solid var(--border-default)",
-            borderRadius: "var(--radius-sm)",
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.4)",
-            zIndex: 100,
-          }}
-        >
-          {searchable && (
-            <input
-              type="text"
-              autoFocus
-              placeholder="Search..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              style={baseInputStyle({
-                width: "100%",
-                padding: "4px 8px",
-                borderTop: "none",
-                borderLeft: "none",
-                borderRight: "none",
-                borderRadius: 0,
-                background: "var(--bg-input)",
-              })}
-            />
-          )}
-          {filtered.map((item) => (
-            <PopupPickerItem
-              key={item.name}
-              label={item.label ?? item.name}
-              description={item.description}
-              active={item.name === value}
-              onClick={() => {
-                onChange(item.name);
-                setOpen(false);
-                setQuery("");
-              }}
-            />
-          ))}
-          {filtered.length === 0 && (
-            <div style={{ padding: "6px 10px", color: "var(--fg-muted)", fontSize: "var(--fs-sm)" }}>
-              no matches
-            </div>
-          )}
-        </div>
+        <FloatingPortal>
+          <div
+            ref={refs.setFloating}
+            {...getFloatingProps({ onKeyDown: onPopupKeyDown })}
+            style={{
+              ...floatingStyles,
+              minWidth: 180,
+              maxHeight: MAX_HEIGHT,
+              overflow: "auto",
+              background: "var(--bg-elevated)",
+              border: "1px solid var(--border-default)",
+              borderRadius: "var(--radius-sm)",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.4)",
+              zIndex: 100,
+            }}
+          >
+            {searchable && (
+              <input
+                type="text"
+                autoFocus
+                placeholder="Search..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                style={baseInputStyle({
+                  width: "100%",
+                  padding: "4px 8px",
+                  borderTop: "none",
+                  borderLeft: "none",
+                  borderRight: "none",
+                  borderRadius: 0,
+                  background: "var(--bg-input)",
+                })}
+              />
+            )}
+            {filtered.map((item) => (
+              <PopupPickerItem
+                key={item.name}
+                label={item.label ?? item.name}
+                description={item.description}
+                active={item.name === value}
+                onClick={() => {
+                  onChange(item.name);
+                  setOpen(false);
+                  setQuery("");
+                }}
+              />
+            ))}
+            {filtered.length === 0 && (
+              <div style={{ padding: "6px 10px", color: "var(--fg-muted)", fontSize: "var(--fs-sm)" }}>
+                no matches
+              </div>
+            )}
+          </div>
+        </FloatingPortal>
       )}
     </span>
   );
