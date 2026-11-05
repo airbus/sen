@@ -198,67 +198,76 @@ function ViewSidebar() {
         flexDirection: "column",
         borderRight: "1px solid var(--border-default)",
         background: "var(--surface-pane-nav)",
-        overflowY: "auto",
         position: "relative",
       }}
     >
       <SidebarResizeHandle currentWidth={width} onWidth={setWidth} onCommit={commitWidth} />
       <div
         style={{
-          padding: "6px 12px 4px 12px",
-          fontFamily: "var(--font-ui)",
-          fontSize: "var(--fs-xs)",
-          textTransform: "uppercase",
-          letterSpacing: "0.08em",
-          color: "var(--fg-subtle)",
+          flex: 1,
+          overflowY: "auto",
+          overflowX: "hidden",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
-        Views
+        <div
+          style={{
+            padding: "6px 12px 4px 12px",
+            fontFamily: "var(--font-ui)",
+            fontSize: "var(--fs-xs)",
+            textTransform: "uppercase",
+            letterSpacing: "0.08em",
+            color: "var(--fg-subtle)",
+          }}
+        >
+          Views
+        </div>
+        <SidebarItem
+          label="All events"
+          leadingIcon={<ListIcon />}
+          active={active === STREAM_TAB}
+          onClick={() => eventsDrawerTabsActions.setActive(STREAM_TAB)}
+          pulsing={activity.anyActivity}
+        />
+        {groups.length > 0 && <SidebarDivider />}
+        {groups.map(([className, tabs]) => {
+          const isCollapsed = collapsed.has(className);
+          return (
+            <Fragment key={className}>
+              <SidebarClassHeader
+                className={className}
+                collapsed={isCollapsed}
+                onToggle={() => toggleClass(className)}
+              />
+              {!isCollapsed &&
+                tabs.map((t, i) => (
+                  <SidebarItem
+                    key={t.key}
+                    label={t.eventName}
+                    leadingIcon={<EventsIcon />}
+                    treeBranch={i === tabs.length - 1 ? "last" : "mid"}
+                    active={active === t.key}
+                    onClick={() => eventsDrawerTabsActions.setActive(t.key)}
+                    onClose={() => eventsDrawerTabsActions.closeType(t.key)}
+                    pulsing={activity.byEvent.has(
+                      `${t.interestName}\0${t.className}\0${t.eventName}`,
+                    )}
+                  />
+                ))}
+            </Fragment>
+          );
+        })}
       </div>
-      <SidebarItem
-        label="All events"
-        leadingIcon={<ListIcon />}
-        active={active === STREAM_TAB}
-        onClick={() => eventsDrawerTabsActions.setActive(STREAM_TAB)}
-        pulsing={activity.anyActivity}
-      />
-      {groups.length > 0 && <SidebarDivider />}
-      {groups.map(([className, tabs]) => {
-        const isCollapsed = collapsed.has(className);
-        return (
-          <Fragment key={className}>
-            <SidebarClassHeader
-              className={className}
-              collapsed={isCollapsed}
-              onToggle={() => toggleClass(className)}
-            />
-            {!isCollapsed &&
-              tabs.map((t, i) => (
-                <SidebarItem
-                  key={t.key}
-                  label={t.eventName}
-                  leadingIcon={<EventsIcon />}
-                  treeBranch={i === tabs.length - 1 ? "last" : "mid"}
-                  active={active === t.key}
-                  onClick={() => eventsDrawerTabsActions.setActive(t.key)}
-                  onClose={() => eventsDrawerTabsActions.closeType(t.key)}
-                  pulsing={activity.byEvent.has(
-                    `${t.interestName}\0${t.className}\0${t.eventName}`,
-                  )}
-                />
-              ))}
-          </Fragment>
-        );
-      })}
     </div>
   );
 }
 
 function SidebarResizeHandle({
-  currentWidth,
-  onWidth,
-  onCommit,
-}: {
+                               currentWidth,
+                               onWidth,
+                               onCommit,
+                             }: {
   currentWidth: number;
   onWidth: (next: number) => void;
   onCommit: (next: number) => void;

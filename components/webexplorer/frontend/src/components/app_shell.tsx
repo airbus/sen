@@ -32,6 +32,7 @@ export interface AppShellProps {
   /** Flip in the same batch as `wsHidden` so the fold animates; off otherwise so splitter
    *  drags don't tween. */
   wsAnimating?: boolean;
+  wsRemoved?: boolean;
 }
 
 function AppShellImpl({
@@ -40,6 +41,7 @@ function AppShellImpl({
   workspace,
   wsHidden = false,
   wsAnimating = false,
+  wsRemoved = false,
 }: AppShellProps) {
   const [navWidth, setNavWidth] = useState(() => readStoredWidth(NAV_KEY, NAV_DEFAULT));
   const [wsWidth, setWsWidth] = useState(() => readStoredWidth(WS_KEY, WS_DEFAULT));
@@ -77,14 +79,14 @@ function AppShellImpl({
     [navWidth],
   );
 
-  const wsColPx = wsHidden ? WS_FOLDED_WIDTH : wsWidth;
+  const wsColPx = wsRemoved ? 0 : wsHidden ? WS_FOLDED_WIDTH : wsWidth;
   return (
     <div
       style={{
         display: "grid",
         gridTemplateRows: "1fr",
         gridTemplateColumns: `${navWidth}px 1fr ${wsColPx}px`,
-        gridTemplateAreas: `"nav detail ws"`,
+        gridTemplateAreas: wsRemoved ? `"nav detail detail"` : `"nav detail ws"`,
         height: "100%",
         transition: wsAnimating ? "grid-template-columns 220ms ease" : "none",
       }}
@@ -111,33 +113,35 @@ function AppShellImpl({
       <main style={{ gridArea: "detail", overflow: "auto", minWidth: 0 }}>
         {detail}
       </main>
-      <aside
-        style={{
-          gridArea: "ws",
-          position: "relative",
-          // Flush against the viewport's right edge; only the left edge rounds.
-          margin: "var(--pane-gutter-top) 0 var(--pane-gutter-top) 0",
-          borderRadius: "var(--radius-xl) 0 0 var(--radius-xl)",
-          border: "1px solid var(--border-glass)",
-          borderRight: "none",
-          boxShadow: "var(--surface-shadow), var(--surface-glass-bevel)",
-          overflow: "hidden",
-          background: "var(--surface-glass-top-sheen), var(--surface-pane)",
-          backdropFilter: "var(--surface-blur)",
-          WebkitBackdropFilter: "var(--surface-blur)",
-          minWidth: 0,
-        }}
-      >
-        <div
+      {!wsRemoved && (
+        <aside
           style={{
-            position: "absolute",
-            inset: 0,
+            gridArea: "ws",
+            position: "relative",
+            // Flush against the viewport's right edge; only the left edge rounds.
+            margin: "var(--pane-gutter-top) 0 var(--pane-gutter-top) 0",
+            borderRadius: "var(--radius-xl) 0 0 var(--radius-xl)",
+            border: "1px solid var(--border-glass)",
+            borderRight: "none",
+            boxShadow: "var(--surface-shadow), var(--surface-glass-bevel)",
             overflow: "hidden",
+            background: "var(--surface-glass-top-sheen), var(--surface-pane)",
+            backdropFilter: "var(--surface-blur)",
+            WebkitBackdropFilter: "var(--surface-blur)",
+            minWidth: 0,
           }}
         >
-          {workspace({ onResize: onDragWs, onResizeEnd: commitWsWidth })}
-        </div>
-      </aside>
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              overflow: "hidden",
+            }}
+          >
+            {workspace({ onResize: onDragWs, onResizeEnd: commitWsWidth })}
+          </div>
+        </aside>
+      )}
     </div>
   );
 }

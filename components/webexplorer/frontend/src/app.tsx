@@ -31,7 +31,7 @@ import {
   useLiveSelections,
   useOpenExplorers,
 } from "./state/explorer_hosts.js";
-import { plotsPopoutActions, usePlotsPopout } from "./state/plots_popout.js";
+import {plotsPopoutActions, usePlotsPopout, eventsPopoutActions, useEventsPopout, watchPopoutActions, useWatchPopout,} from "./state/popouts.js";
 import "./state/color_scheme.js";
 import { SampleStoreProvider } from "./state/sample_store.js";
 import { PopoutErrorBoundary } from "./ui/popout.js";
@@ -51,6 +51,7 @@ import {
 } from "./state/ui_prefs.js";
 import { useConnection } from "./state/use_connection.js";
 import { usePanels, usePlottedLeaves, useWatchSources, watchActions } from "./state/watch_plot.js";
+import { WatchTab } from "./components/watch_tab.js";
 
 function defaultUrl(): string {
   // Prod: same-origin (bundled SPA served by the JSON-RPC server hosting the WS).
@@ -82,7 +83,10 @@ export function App() {
   const workspaceHidden = useWorkspaceHidden();
   const workspaceAnimating = useWorkspaceAnimating();
   const pinnedObjects = usePinnedObjects();
+
   const plotsPopout = usePlotsPopout();
+  const eventsPopout = useEventsPopout();
+  const watchPopout = useWatchPopout();
 
   // Auto-unfold on the 0 -> >=1 transition only; user folds stick. bottomFolded read
   // via ref so this effect runs only when panelCount changes.
@@ -196,14 +200,25 @@ export function App() {
         ),
       });
     }
-    tabs.push({
-      key: "events",
-      title: "Events",
-      icon: <EventsIcon />,
-      content: <EventsWorkspace client={client} />,
-    });
+    if (!eventsPopout) {
+      tabs.push({
+        key: "events",
+        title: "Events",
+        icon: <EventsIcon />,
+        trailing: (
+          <HoverIconButton
+            onClick={eventsPopoutActions.open}
+            tooltip="Open events in a separate window"
+            ariaLabel="pop out events"
+            icon={<PopOutIcon />}
+            size={20}
+          />
+        ),
+        content: <EventsWorkspace client={client} />,
+      });
+    }
     return tabs;
-  }, [client, panels, plottedLeaves, plotsPopout]);
+  }, [client, panels, plottedLeaves, plotsPopout, eventsPopout]);
 
   const detail = useMemo(
     () => (
@@ -217,18 +232,20 @@ export function App() {
             banner={error ? <ErrorBanner message={error.message} /> : null}
           />
         </div>
-        <BottomPane
-          tabs={bottomTabs}
-          activeTabKey={bottomTab}
-          onActiveTabChange={bottomTabActions.set}
-          folded={bottomFolded}
-          onToggleFolded={onToggleFolded}
-          height={bottomHeight}
-          onResize={bottomPaneActions.setHeight}
-          onResizeCommit={bottomPaneActions.commitHeight}
-          marginLeft={0}
-          marginRight={14}
-        />
+        {bottomTabs.length > 0 && (
+          <BottomPane
+            tabs={bottomTabs}
+            activeTabKey={bottomTab}
+            onActiveTabChange={bottomTabActions.set}
+            folded={bottomFolded}
+            onToggleFolded={onToggleFolded}
+            height={bottomHeight}
+            onResize={bottomPaneActions.setHeight}
+            onResizeCommit={bottomPaneActions.commitHeight}
+            marginLeft={0}
+            marginRight={14}
+          />
+        )}
       </div>
     ),
     [
@@ -272,39 +289,61 @@ export function App() {
     <StoreProviders>
       <InterestOwner client={client} />
       <WatchCollectors sources={watchSources} />
-        <EventWatchCollectors client={client} />
-        <SelectionCollectors client={client} selections={liveSelections} />
-        {popouts}
-        {plotsPopout && (
-          <PopoutWindow handle={plotsPopout} onClose={plotsPopoutActions.clearOnUnload}>
-            {/* Drag/resize of gridstack panels is auto-disabled in the popup; gridstack's
+      <EventWatchCollectors client={client} />
+      <SelectionCollectors client={client} selections={liveSelections} />
+      {popouts}
+
+      {plotsPopout && (
+        <PopoutWindow handle={plotsPopout} onClose={plotsPopoutActions.clearOnUnload}>
+          {/* Drag/resize of gridstack panels is auto-disabled in the popup; gridstack's
                 mouse handlers don't cross documents. Plot data + uPlot pan/zoom still work. */}
-            <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-              <div
-                style={{
-                  padding: "3px 10px",
-                  fontFamily: "var(--font-ui)",
-                  fontSize: "var(--fs-xs)",
-                  color: "var(--fg-subtle)",
-                  background: "var(--bg-elevated)",
-                  borderBottom: "1px solid var(--border-subtle)",
-                  flex: "none",
-                }}
-              >
-                Layout locked - rearrange panels in the main window.
-              </div>
-              <PopoutErrorBoundary>
-                <PlotsView
-                  client={client}
-                  panels={panels}
-                  onRemoveSeries={watchActions.removeSeries}
-                  onMoveSeriesToPanel={watchActions.moveSeriesToPanel}
-                  onMoveSeriesToNewPanel={watchActions.moveSeriesToNewPanel}
-                />
-              </PopoutErrorBoundary>
+          <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+            <div
+              style={{
+                padding: "3px 10px",
+                fontFamily: "var(--font-ui)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--fg-subtle)",
+                background: "var(--bg-elevated)",
+                borderBottom: "1px solid var(--border-subtle)",
+                flex: "none",
+              }}
+            >
+              Layout locked - rearrange panels in the main window.
             </div>
-          </PopoutWindow>
-        )}
+            <PopoutErrorBoundary>
+              <PlotsView
+                client={client}
+                panels={panels}
+                onRemoveSeries={watchActions.removeSeries}
+                onMoveSeriesToPanel={watchActions.moveSeriesToPanel}
+                onMoveSeriesToNewPanel={watchActions.moveSeriesToNewPanel}
+              />
+            </PopoutErrorBoundary>
+          </div>
+        </PopoutWindow>
+      )}
+
+      {eventsPopout && (
+        <PopoutWindow handle={eventsPopout} onClose={eventsPopoutActions.clearOnUnload}>
+          <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+            <PopoutErrorBoundary>
+              <EventsWorkspace client={client} />
+            </PopoutErrorBoundary>
+          </div>
+        </PopoutWindow>
+      )}
+
+      {watchPopout && (
+        <PopoutWindow handle={watchPopout} onClose={watchPopoutActions.clearOnUnload}>
+          <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+            <PopoutErrorBoundary>
+              <WatchTab client={client} />
+            </PopoutErrorBoundary>
+          </div>
+        </PopoutWindow>
+      )}
+
       <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
         <ConnectionStatusBanner
           state={state}
@@ -329,6 +368,7 @@ export function App() {
             workspace={workspace}
             wsHidden={workspaceHidden}
             wsAnimating={workspaceAnimating}
+            wsRemoved={!!watchPopout}
           />
         </div>
       </div>
