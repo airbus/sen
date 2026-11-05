@@ -24,6 +24,7 @@
 
 // std
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <filesystem>
 #include <map>
@@ -48,7 +49,8 @@ struct Document
   bool isExtension {};  ///< from the extensions input: adds members, never owns a type
   bool built {};        ///< guards ensureBuilt's recursion
   std::vector<Document*> dependencies;
-  std::vector<Document*> mappingImports;  ///< documents a mapping pulled in
+  std::vector<Document*> mappingImports;    ///< documents a mapping pulled in
+  std::vector<Document*> extensionImports;  ///< documents a member contributed by an extension pulled in
   std::vector<pugi::xml_node> classNodes;
   std::vector<pugi::xml_node> interactionNodes;
 
@@ -165,6 +167,12 @@ private:
   [[nodiscard]] std::optional<Declaration> introducedType(const std::string& category,
                                                           const std::string& fomName) const;
 
+  /// A module-owned datatype declaration, wherever it lives. Used only while resolving a member
+  /// contributed by an extension: ordinary modules remain limited to their declared dependencies.
+  [[nodiscard]] std::optional<Declaration> externallyOwnedType(const std::string& category,
+                                                               const std::string& fomName,
+                                                               const Document& document) const;
+
   /// Builds the `hla` type set: the object root class and one optional per native type.
   void buildRootTypeSet();
 
@@ -175,6 +183,9 @@ private:
   /// Builds a document's types, its dependencies' first. A reference into a dependency needs
   /// that dependency's types, so this is not the order the documents were read.
   void ensureBuilt(Document& document);
+
+  /// Refuses a cycle across declared, mapped, or extension-inferred generated-file imports.
+  void validateImportGraph() const;
 
   /// Builds every type one document declares, in the order the categories are listed.
   void populateTypes(Document& document);
@@ -199,6 +210,20 @@ private:
   /// The type for a FOM name, built if it is not there yet. Looked for in this document, then
   /// its dependencies; the one the search succeeds in owns the type.
   [[nodiscard]] std::pair<ConstTypeHandle<>, Document*> getOrCreateType(const std::string& fomName, Document& document);
+
+  /// Resolves a type named by extension content. This enables the global-owner fallback for the
+  /// duration of the complete build, including types nested inside a datatype the extension introduced.
+  [[nodiscard]] std::pair<ConstTypeHandle<>, Document*> getOrCreateExtensionType(const std::string& fomName,
+                                                                                 Document& document);
+
+  /// Records a generated-file import inferred from extension content, refusing an import whose
+  /// reverse path already exists.
+  void addExtensionImport(Document& document, Document& imported, const std::string& fomName);
+
+  /// Whether following every kind of generated import from `from` can reach `target`.
+  [[nodiscard]] bool importsTransitively(const Document& from,
+                                         const Document& target,
+                                         std::vector<const Document*>& visited) const;
 
   /// A type already built, by FOM name or by sen name.
   [[nodiscard]] std::optional<std::pair<ConstTypeHandle<>, Document*>> searchType(const std::string& fomName,
@@ -243,13 +268,16 @@ private:
   /// none.
   [[nodiscard]] PropertySpec propertyFromAttribute(pugi::xml_node attrNode,
                                                    Document& document,
-                                                   const ClassAnnotations* annotations);
+                                                   const ClassAnnotations* annotations,
+                                                   bool fromExtension = false);
 
   /// Reads a basicData entry so a FOM's own representations resolve.
   void basicDataRepresentation(pugi::xml_node node, const Document& document);
 
   /// The optional that wraps a member's type.
-  [[nodiscard]] ConstTypeHandle<> optionalPropertyType(const std::string& fomElementTypeName, Document& document);
+  [[nodiscard]] ConstTypeHandle<> optionalPropertyType(const std::string& fomElementTypeName,
+                                                       Document& document,
+                                                       bool fromExtension = false);
 
   //--------------------------------------------------------------------------------------------------------------
   // Interactions
@@ -269,7 +297,7 @@ private:
 
   [[nodiscard]] FoundInteraction findInteraction(const std::string& path, Document& document);
   [[nodiscard]] FoundInteraction findInteractionAnywhere(const std::string& path, const std::string& askedBy);
-  [[nodiscard]] Arg argFromParameter(pugi::xml_node paramNode, Document& document);
+  [[nodiscard]] Arg argFromParameter(pugi::xml_node paramNode, Document& document, bool fromExtension = false);
   [[nodiscard]] std::vector<Arg> collectArgs(pugi::xml_node interactionNode,
                                              const std::vector<std::string>& ignoredParams,
                                              Document& document);
@@ -332,6 +360,10 @@ private:
   /// Guards a type that names itself, directly or through a chain. The document is part of the
   /// key because resolving the same name in a dependency is how the search descends.
   std::vector<std::pair<std::string, const Document*>> resolving_;
+
+  /// Non-zero while a datatype is being resolved on behalf of extension content. Kept as a depth
+  /// because an introduced record can contain another introduced or externally owned datatype.
+  size_t extensionResolutionDepth_ {};
 };
 
 }  // namespace sen::lang::fom

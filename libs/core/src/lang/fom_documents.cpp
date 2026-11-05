@@ -402,6 +402,8 @@ FomDocuments::FomDocuments(const std::vector<std::filesystem::path>& paths,
       ensureBuilt(*document);
     }
   }
+
+  validateImportGraph();
 }
 
 void FomDocuments::buildRootTypeSet()
@@ -791,6 +793,26 @@ std::optional<Declaration> FomDocuments::introducedType(const std::string& categ
   return itr->second.all.front();
 }
 
+std::optional<Declaration> FomDocuments::externallyOwnedType(const std::string& category,
+                                                             const std::string& fomName,
+                                                             const Document& document) const
+{
+  const auto itr = declarations_.find(indexKey(category, fomName));
+  if (itr == declarations_.end() || itr->second.owner == nullptr || itr->second.owner == &document)
+  {
+    return std::nullopt;
+  }
+
+  for (const auto& declaration: itr->second.all)
+  {
+    if (declaration.document == itr->second.owner)
+    {
+      return declaration;
+    }
+  }
+  return std::nullopt;
+}
+
 //--------------------------------------------------------------------------------------------------------------
 // Building
 //--------------------------------------------------------------------------------------------------------------
@@ -809,6 +831,78 @@ void FomDocuments::ensureBuilt(Document& document)
   }
 
   populateTypes(document);
+}
+
+void FomDocuments::validateImportGraph() const
+{
+  enum class State : uint8_t
+  {
+    unseen,
+    visiting,
+    visited
+  };
+
+  std::map<const Document*, State> states;
+  std::vector<const Document*> path;
+
+  auto visit = [&](auto&& self, const Document& document) -> void
+  {
+    states[&document] = State::visiting;
+    path.push_back(&document);
+
+    auto follow = [&](Document* imported)
+    {
+      if (imported == nullptr || imported->isExtension)
+      {
+        return;
+      }
+
+      const auto state = states[imported];
+      if (state == State::visiting)
+      {
+        const auto first = std::find(path.begin(), path.end(), imported);
+        std::string err = "circular generated-file import";
+        for (auto itr = first; itr != path.end(); ++itr)
+        {
+          err.append(itr == first ? ": '" : " -> '");
+          err.append((*itr)->path.string());
+          err.append("'");
+        }
+        err.append(" -> '");
+        err.append(imported->path.string());
+        err.append("'");
+        throwRuntimeError(err);
+      }
+      if (state == State::unseen)
+      {
+        self(self, *imported);
+      }
+    };
+
+    for (auto* imported: document.dependencies)
+    {
+      follow(imported);
+    }
+    for (auto* imported: document.mappingImports)
+    {
+      follow(imported);
+    }
+    for (auto* imported: document.extensionImports)
+    {
+      follow(imported);
+    }
+
+    path.pop_back();
+    states[&document] = State::visited;
+  };
+
+  for (const auto& document: documents_)
+  {
+    if (!document->isExtension && states[document.get()] == State::unseen)
+    {
+      visit(visit, *document);
+    }
+  }
 }
 
 void FomDocuments::populateTypes(Document& document)
@@ -1054,6 +1148,35 @@ std::pair<ConstTypeHandle<>, Document*> FomDocuments::getOrCreateType(const std:
     }
   }
 
+  // An extension may add a member to a type in one module while naming a datatype owned by
+  // another. Ordinary FOM content is deliberately not allowed this fallback: its Dependency
+  // references remain the authority. Build the external declaration under its owner's normal
+  // rules, then import its generated set only when the result is a custom type. Native results
+  // such as FederateName -> string need no generated-file edge.
+  if (extensionResolutionDepth_ != 0U)
+  {
+    for (const auto& category: dataTypeCategories())
+    {
+      if (const auto external = externallyOwnedType(category.element, fomName, document))
+      {
+        auto result = [&]()
+        {
+          const auto previousDepth = extensionResolutionDepth_;
+          extensionResolutionDepth_ = 0U;
+          const auto restoreDepth =
+            makeScopeGuard([this, previousDepth]() { extensionResolutionDepth_ = previousDepth; });
+          return getOrCreateType(fomName, *external->document);
+        }();
+
+        if (result.first->asCustomType() != nullptr && result.second != nullptr)
+        {
+          addExtensionImport(document, *result.second, fomName);
+        }
+        return result;
+      }
+    }
+  }
+
   std::string err;
   err.append("could not find type '");
   err.append(fomName);
@@ -1065,6 +1188,69 @@ std::pair<ConstTypeHandle<>, Document*> FomDocuments::getOrCreateType(const std:
     err.append(reason);
   }
   throwRuntimeError(err);
+}
+
+std::pair<ConstTypeHandle<>, Document*> FomDocuments::getOrCreateExtensionType(const std::string& fomName,
+                                                                               Document& document)
+{
+  ++extensionResolutionDepth_;
+  const auto leaveExtension = makeScopeGuard([this]() { --extensionResolutionDepth_; });
+  return getOrCreateType(fomName, document);
+}
+
+bool FomDocuments::importsTransitively(const Document& from,
+                                       const Document& target,
+                                       std::vector<const Document*>& visited) const
+{
+  if (&from == &target)
+  {
+    return true;
+  }
+  if (std::find(visited.begin(), visited.end(), &from) != visited.end())
+  {
+    return false;
+  }
+  visited.push_back(&from);
+
+  auto reaches = [this, &target, &visited](const auto& imports)
+  {
+    return std::any_of(imports.begin(),
+                       imports.end(),
+                       [this, &target, &visited](const auto* imported)
+                       { return imported != nullptr && importsTransitively(*imported, target, visited); });
+  };
+
+  return reaches(from.dependencies) || reaches(from.mappingImports) || reaches(from.extensionImports);
+}
+
+void FomDocuments::addExtensionImport(Document& document, Document& imported, const std::string& fomName)
+{
+  if (&document == &imported)
+  {
+    return;
+  }
+
+  auto contains = [&imported](const auto& imports)
+  { return std::find(imports.begin(), imports.end(), &imported) != imports.end(); };
+  if (contains(document.dependencies) || contains(document.mappingImports) || contains(document.extensionImports))
+  {
+    return;
+  }
+
+  std::vector<const Document*> visited;
+  if (importsTransitively(imported, document, visited))
+  {
+    std::string err = "type '";
+    err.append(fomName);
+    err.append("' contributed by an extension would make '");
+    err.append(document.path.string());
+    err.append("' import '");
+    err.append(imported.path.string());
+    err.append("', creating a circular generated-file import");
+    throwRuntimeError(err);
+  }
+
+  document.extensionImports.push_back(&imported);
 }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -1135,6 +1321,17 @@ std::vector<DocumentTypeSet> FomDocuments::takeTypeSets()
     {
       if (std::find(document->dependencies.begin(), document->dependencies.end(), extra) ==
           document->dependencies.end())
+      {
+        typeSet->importedSets.push_back(setPerDocument.at(extra));
+      }
+    }
+
+    for (auto* extra: document->extensionImports)
+    {
+      if (std::find(document->dependencies.begin(), document->dependencies.end(), extra) ==
+            document->dependencies.end() &&
+          std::find(document->mappingImports.begin(), document->mappingImports.end(), extra) ==
+            document->mappingImports.end())
       {
         typeSet->importedSets.push_back(setPerDocument.at(extra));
       }
@@ -1324,17 +1521,18 @@ ConstTypeHandle<> FomDocuments::recordType(pugi::xml_node node, Document& docume
     }
   }
 
-  auto readField = [this, &document](pugi::xml_node fieldNode)
+  auto readField = [this, &document](pugi::xml_node fieldNode, bool fromExtension)
   {
-    return StructField(toLowerCamelCase(fieldNode.child_value("name")),
-                       formatSemantics(fieldNode.child_value("semantics")),
-                       getOrCreateType(fieldNode.child_value("dataType"), document).first);
+    const auto type = fromExtension ? getOrCreateExtensionType(fieldNode.child_value("dataType"), document)
+                                    : getOrCreateType(fieldNode.child_value("dataType"), document);
+    return StructField(
+      toLowerCamelCase(fieldNode.child_value("name")), formatSemantics(fieldNode.child_value("semantics")), type.first);
   };
 
   std::vector<StructField> fields;
   for (const auto& fieldNode: node.children("field"))
   {
-    fields.push_back(readField(fieldNode));
+    fields.push_back(readField(fieldNode, false));
   }
 
   // Fields contributed by another declaration of this record, appended after its own, and where
@@ -1351,7 +1549,7 @@ ConstTypeHandle<> FomDocuments::recordType(pugi::xml_node node, Document& docume
 
     for (const auto& fieldNode: contribution.node.children("field"))
     {
-      auto field = readField(fieldNode);
+      auto field = readField(fieldNode, contribution.document->isExtension);
 
       auto itr =
         std::find_if(fields.begin(), fields.end(), [&field](const auto& elem) { return elem.name == field.name; });
@@ -1383,10 +1581,10 @@ ConstTypeHandle<> FomDocuments::variantRecord(pugi::xml_node node, Document& doc
 
   // Its own alternatives, then those contributed by another declaration of this variant. The
   // key counts on across the two, so contributed alternatives take the keys after the last.
-  std::vector<pugi::xml_node> alternativeNodes;
+  std::vector<std::pair<pugi::xml_node, bool>> alternativeNodes;
   for (const auto& alternativeNode: node.children("alternative"))
   {
-    alternativeNodes.push_back(alternativeNode);
+    alternativeNodes.emplace_back(alternativeNode, false);
   }
   for (const auto& contribution: contributions(indexKey("variantRecordData", name), node, document))
   {
@@ -1401,12 +1599,13 @@ ConstTypeHandle<> FomDocuments::variantRecord(pugi::xml_node node, Document& doc
       // same one when its type and its discriminant agree, and is then kept once.
       const auto same = std::find_if(alternativeNodes.begin(),
                                      alternativeNodes.end(),
-                                     [&alternativeName](auto existing)
-                                     { return std::string(existing.child_value("name")) == alternativeName; });
+                                     [&alternativeName](const auto& existing)
+                                     { return std::string(existing.first.child_value("name")) == alternativeName; });
       if (same != alternativeNodes.end())
       {
-        const bool agrees = std::string(same->child_value("dataType")) == alternativeNode.child_value("dataType") &&
-                            std::string(same->child_value("enumerator")) == alternativeNode.child_value("enumerator");
+        const bool agrees =
+          std::string(same->first.child_value("dataType")) == alternativeNode.child_value("dataType") &&
+          std::string(same->first.child_value("enumerator")) == alternativeNode.child_value("enumerator");
         if (!agrees)
         {
           refuseMemberClash("alternative", alternativeName, name, document, *contribution.document);
@@ -1414,16 +1613,17 @@ ConstTypeHandle<> FomDocuments::variantRecord(pugi::xml_node node, Document& doc
         continue;
       }
 
-      alternativeNodes.push_back(alternativeNode);
+      alternativeNodes.emplace_back(alternativeNode, contribution.document->isExtension);
     }
   }
 
   uint32_t key = 0U;
-  for (const auto& alternativeNode: alternativeNodes)
+  for (const auto& [alternativeNode, fromExtension]: alternativeNodes)
   {
     auto dataType = alternativeNode.child_value("dataType");
 
-    auto fieldType = getOrCreateType(dataType, document).first;
+    auto fieldType =
+      fromExtension ? getOrCreateExtensionType(dataType, document).first : getOrCreateType(dataType, document).first;
     if (fieldType->isVoidType())
     {
       std::string err;
@@ -1599,7 +1799,8 @@ void FomDocuments::basicDataRepresentation(pugi::xml_node node, const Document& 
 
 PropertySpec FomDocuments::propertyFromAttribute(pugi::xml_node attrNode,
                                                  Document& document,
-                                                 const ClassAnnotations* annotations)
+                                                 const ClassAnnotations* annotations,
+                                                 bool fromExtension)
 {
   auto propertySpecName = toSenPropertyName(attrNode.child_value("name"));
 
@@ -1610,10 +1811,11 @@ PropertySpec FomDocuments::propertyFromAttribute(pugi::xml_node attrNode,
     if (startsWith(semanticsString, "Optional.") || startsWith(semanticsString, "Optional (") ||
         startsWith(semanticsString, "Optional:") || startsWith(semanticsString, "Optional,"))
     {
-      return optionalPropertyType(attrNode.child_value("dataType"), document);
+      return optionalPropertyType(attrNode.child_value("dataType"), document, fromExtension);
     }
 
-    return getOrCreateType(attrNode.child_value("dataType"), document).first;
+    return fromExtension ? getOrCreateExtensionType(attrNode.child_value("dataType"), document).first
+                         : getOrCreateType(attrNode.child_value("dataType"), document).first;
   }();
 
   auto propertySpecDescription = formatSemantics(semanticsString);
@@ -1828,13 +2030,14 @@ ConstTypeHandle<> FomDocuments::classNode(pugi::xml_node node, Document& documen
 
   for (const auto& contribution: contributions(indexKey("objectClass", objectClassPath(node)), node, document))
   {
-    // An extension declares no types of its own, so its attribute names one this document has. A
-    // module of the same package declares its own, so its attribute is resolved there.
+    // An extension owns no types, so resolve its attribute from the decorated document. That
+    // resolution may adopt a type introduced by the extension or reach a published external
+    // owner. A module of the same package resolves its attribute from its own document.
     auto& typeSource = contribution.document->isExtension ? document : *contribution.document;
 
     for (const auto& attrNode: contribution.node.children("attribute"))
     {
-      auto property = propertyFromAttribute(attrNode, typeSource, annotations);
+      auto property = propertyFromAttribute(attrNode, typeSource, annotations, contribution.document->isExtension);
 
       auto itr = std::find_if(propertySpecs.begin(),
                               propertySpecs.end(),
@@ -1874,7 +2077,9 @@ ConstTypeHandle<> FomDocuments::classNode(pugi::xml_node node, Document& documen
   return storeType(ClassType::make(classSpec), document);
 }
 
-ConstTypeHandle<> FomDocuments::optionalPropertyType(const std::string& fomElementTypeName, Document& document)
+ConstTypeHandle<> FomDocuments::optionalPropertyType(const std::string& fomElementTypeName,
+                                                     Document& document,
+                                                     bool fromExtension)
 {
   auto senTypeNameUnequal = std::string("Maybe") + capitalizeAndRemoveSeparators(senName(fomElementTypeName));
 
@@ -1883,7 +2088,8 @@ ConstTypeHandle<> FomDocuments::optionalPropertyType(const std::string& fomEleme
     return typeLookup.value().first;
   }
 
-  auto [elementType, elementDoc] = getOrCreateType(fomElementTypeName, document);
+  auto [elementType, elementDoc] = fromExtension ? getOrCreateExtensionType(fomElementTypeName, document)
+                                                 : getOrCreateType(fomElementTypeName, document);
 
   if (elementDoc)
   {
@@ -1934,7 +2140,7 @@ ConstTypeHandle<> FomDocuments::optionalPropertyType(const std::string& fomEleme
   throwRuntimeError(err);
 }
 
-Arg FomDocuments::argFromParameter(pugi::xml_node paramNode, Document& document)
+Arg FomDocuments::argFromParameter(pugi::xml_node paramNode, Document& document, bool fromExtension)
 {
   const std::string semanticsString = paramNode.child_value("semantics");
 
@@ -1943,10 +2149,11 @@ Arg FomDocuments::argFromParameter(pugi::xml_node paramNode, Document& document)
     if (startsWith(semanticsString, "Optional.") || startsWith(semanticsString, "Optional (") ||
         startsWith(semanticsString, "Optional:") || startsWith(semanticsString, "Optional,"))
     {
-      return optionalPropertyType(paramNode.child_value("dataType"), document);
+      return optionalPropertyType(paramNode.child_value("dataType"), document, fromExtension);
     }
 
-    return getOrCreateType(paramNode.child_value("dataType"), document).first;
+    return fromExtension ? getOrCreateExtensionType(paramNode.child_value("dataType"), document).first
+                         : getOrCreateType(paramNode.child_value("dataType"), document).first;
   }();
 
   return {toLowerCamelCase(paramNode.child_value("name")), formatSemantics(semanticsString), argType};
@@ -1998,10 +2205,10 @@ std::vector<Arg> FomDocuments::collectArgs(pugi::xml_node interactionNode,
           continue;
         }
 
-        // The same choice the class path makes: an extension has no types of its own, a module
-        // of the same package has.
+        // The same choice the class path makes: an extension resolves through the decorated
+        // document, while a module of the same package resolves through its own document.
         auto& typeSource = contribution.document->isExtension ? document : *contribution.document;
-        auto arg = argFromParameter(paramNode, typeSource);
+        auto arg = argFromParameter(paramNode, typeSource, true);
         auto itr =
           std::find_if(nodeArgs.begin(), nodeArgs.end(), [&arg](const auto& elem) { return elem.name == arg.name; });
         if (itr == nodeArgs.end())
