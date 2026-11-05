@@ -191,6 +191,19 @@ TEST_F(AFomParser, addsAPropertyToAClass)
 }
 
 /// @test
+/// An extension can add an attribute to the synthetic class that represents HLAobjectRoot.
+TEST_F(AFomParser, addsAPropertyToTheObjectRoot)
+{
+  read({"object_root_property.xml"});
+
+  const auto* objectRoot = classAt("hla.ObjectRoot");
+  ASSERT_NE(objectRoot, nullptr);
+  const auto* added = property(*objectRoot, "federation");
+  ASSERT_NE(added, nullptr);
+  EXPECT_TRUE(added->getType()->isStringType());
+}
+
+/// @test
 /// A contributed property does not move the class out of its own module's package.
 TEST_F(AFomParser, keepsTheClassWhereItsOwnModuleDeclaredIt)
 {
