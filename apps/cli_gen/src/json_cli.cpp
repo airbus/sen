@@ -99,20 +99,21 @@ void setupGenJsonPackage(CLI::App& app)
   auto pkg = app.add_subcommand("package", "Generate JSON schemas for packages");
   pkg->require_subcommand();
 
-  auto stl = setupStlInput(*pkg,
-                           [pkgArgs](auto args)
-                           {
-                             sen::lang::TypeSetContext typeSets;
-                             for (const auto& fileName: args->inputs)
-                             {
-                               std::ignore = sen::lang::readTypesFile(fileName, args->includePaths, typeSets, {});
-                             }
-                             writePackageOutput(typeSets, *pkgArgs);
-                             if (!args->depFile.empty())
-                             {
-                               writeDepFile(args->depFile, {pkgArgs->outFile}, typeSets.readFiles());
-                             }
-                           });
+  auto stl = setupStlInput(
+    *pkg,
+    [pkgArgs](auto args)
+    {
+      sen::lang::TypeSetContext typeSets;
+      for (const auto& fileName: args->inputs)
+      {
+        std::ignore = sen::lang::readTypesFile(fileName, args->includePaths, typeSets, {});
+      }
+      writePackageOutput(typeSets, *pkgArgs);
+      if (!args->depFile.empty())
+      {
+        writeDepFile(args->depFile, depFileTargetOr(args->depFileTarget, {pkgArgs->outFile}), typeSets.readFiles());
+      }
+    });
 
   setupJsonPackageArgs(*stl, *pkgArgs);
 
@@ -134,20 +135,21 @@ void setupGenJsonComponent(CLI::App& app)
   auto comp = app.add_subcommand("component", "Generate JSON schemas for components");
   comp->require_subcommand();
 
-  auto stl = setupStlInput(*comp,
-                           [compArgs](auto args)
-                           {
-                             sen::lang::TypeSetContext typeSets;
-                             for (const auto& fileName: args->inputs)
-                             {
-                               std::ignore = sen::lang::readTypesFile(fileName, args->includePaths, typeSets, {});
-                             }
-                             writeComponentOutput(typeSets, *compArgs);
-                             if (!args->depFile.empty())
-                             {
-                               writeDepFile(args->depFile, {compArgs->outFile}, typeSets.readFiles());
-                             }
-                           });
+  auto stl = setupStlInput(
+    *comp,
+    [compArgs](auto args)
+    {
+      sen::lang::TypeSetContext typeSets;
+      for (const auto& fileName: args->inputs)
+      {
+        std::ignore = sen::lang::readTypesFile(fileName, args->includePaths, typeSets, {});
+      }
+      writeComponentOutput(typeSets, *compArgs);
+      if (!args->depFile.empty())
+      {
+        writeDepFile(args->depFile, depFileTargetOr(args->depFileTarget, {compArgs->outFile}), typeSets.readFiles());
+      }
+    });
 
   setupJsonComponentArgs(*stl, *compArgs);
 

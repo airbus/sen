@@ -585,3 +585,15 @@ add_sen_cli_gen_smoke_test(
   WORKING_DIRECTORY ${working_dir}
 )
 set_tests_properties(typst_gen_refuses_a_missing_input PROPERTIES WILL_FAIL TRUE)
+
+# The depfile itself, which the build graph tests cannot reach: they read build.ninja rather
+# than run the generator. ninja reads the first target in the file and refuses it unless that
+# is the output the edge attached it to, so one target, written as it was given.
+add_sen_cli_gen_smoke_test(
+  cli_gen_depfile_names_one_target DESCRIPTION "Writes one depfile target, unchanged from what it was given."
+  COMMAND
+    ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/check_depfile.py $<TARGET_FILE:sen::cli_gen>
+    ${PROJECT_SOURCE_DIR}/libs/core/test/lang/stl/stl_resolver_test/importing_leaf.stl
+    ${PROJECT_SOURCE_DIR}/libs/core/test
+  WORKING_DIRECTORY ${working_dir}
+)
