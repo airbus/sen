@@ -15,12 +15,20 @@
 // gtest
 #include <gtest/gtest.h>
 
+// spdlog
+#include <spdlog/common.h>
+#include <spdlog/logger.h>
+#include <spdlog/sinks/ringbuffer_sink.h>
+#include <spdlog/spdlog.h>
+
 // std
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <memory>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 using sen::kernel::impl::replaceEnvPattern;
 
@@ -127,6 +135,101 @@ TEST_F(AnEnvPattern, acceptsSpacesAroundTheComma)
   EXPECT_EQ(replaceEnvPattern("value: @env(SEN_TEST_UNSET ,fallback)"), "value: fallback");
   EXPECT_EQ(replaceEnvPattern("value: @env(SEN_TEST_UNSET\t,\tfallback)"), "value: fallback");
   EXPECT_EQ(replaceEnvPattern("value: @env(SEN_TEST_VAR )"), "value: expanded");
+}
+
+/// @test
+/// A default holds anything up to the closing parenthesis: a path, a host and port, a dotted
+/// name. Word characters only did not merely lose the fallback, because the group is optional:
+/// the whole pattern stopped matching and the variable went unread.
+TEST_F(AnEnvPattern, acceptsADefaultThatIsNotAWord)
+{
+  EXPECT_EQ(replaceEnvPattern("path: @env(SEN_TEST_UNSET,/data/git-repo)"), "path: /data/git-repo");
+  EXPECT_EQ(replaceEnvPattern("host: @env(SEN_TEST_UNSET, localhost:8080)"), "host: localhost:8080");
+  EXPECT_EQ(replaceEnvPattern("bus: @env(SEN_TEST_UNSET,local.kernel)"), "bus: local.kernel");
+  EXPECT_EQ(replaceEnvPattern("name: @env(SEN_TEST_UNSET,a-b)"), "name: a-b");
+}
+
+/// @test
+/// A variable that is set wins over a default the expression could not read before. This is the
+/// reported symptom: the variable existed and its pattern still reached the configuration as text.
+TEST_F(AnEnvPattern, prefersTheVariableOverADefaultThatIsAPath)
+{
+  EXPECT_EQ(replaceEnvPattern("path: @env(SEN_TEST_VAR,/data/git-repo)"), "path: expanded");
+}
+
+/// @test
+/// An empty default is how a variable is made optional with nothing behind it.
+TEST_F(AnEnvPattern, acceptsAnEmptyDefault) { EXPECT_EQ(replaceEnvPattern("value: @env(SEN_TEST_UNSET,)"), "value: "); }
+
+/// @test
+/// The closing parenthesis ends the default, so text after it stays where it is.
+TEST_F(AnEnvPattern, endsTheDefaultAtTheParenthesis)
+{
+  EXPECT_EQ(replaceEnvPattern("value: @env(SEN_TEST_UNSET,a)b"), "value: ab");
+}
+
+/// @test
+/// Spaces between the default and the parenthesis belong to the separator, not to the value.
+TEST_F(AnEnvPattern, dropsSpacesAfterTheDefault)
+{
+  EXPECT_EQ(replaceEnvPattern("value: @env(SEN_TEST_UNSET, fallback )"), "value: fallback");
+}
+
+/// @test
+/// Text the expression cannot read is still left where it is, because a configuration that loads
+/// today has to go on loading and a comment naming the pattern is legitimate.
+TEST_F(AnEnvPattern, leavesAPatternItCannotReadAlone)
+{
+  for (const auto* text: {"value: @env(1BAD)", "value: @env()", "value: @env(SEN_TEST_VAR"})
+  {
+    EXPECT_EQ(replaceEnvPattern(text), text);
+  }
+}
+
+/// @test
+/// The pattern it could not read is named in a warning, so a mistyped default does not become
+/// the value in silence.
+TEST_F(AnEnvPattern, warnsAboutAPatternItCannotRead)
+{
+  const auto ring = std::make_shared<spdlog::sinks::ringbuffer_sink_mt>(8);
+  const auto previous = spdlog::default_logger();
+  const auto capture = std::make_shared<spdlog::logger>("env_substitution_capture", ring);
+  capture->set_level(spdlog::level::warn);
+  spdlog::set_default_logger(capture);
+
+  static_cast<void>(replaceEnvPattern("value: @env(1BAD)"));
+
+  spdlog::set_default_logger(previous);
+  spdlog::drop("env_substitution_capture");
+
+  const std::vector<std::string> logged = ring->last_formatted();
+  ASSERT_EQ(logged.size(), 1U);
+  EXPECT_NE(logged.front().find("@env(1BAD)"), std::string::npos);
+}
+
+/// @test
+/// An escaped pattern asked for the text, so it draws no warning.
+TEST_F(AnEnvPattern, staysQuietAboutAnEscapedPattern)
+{
+  const auto ring = std::make_shared<spdlog::sinks::ringbuffer_sink_mt>(8);
+  const auto previous = spdlog::default_logger();
+  const auto capture = std::make_shared<spdlog::logger>("env_substitution_quiet", ring);
+  capture->set_level(spdlog::level::warn);
+  spdlog::set_default_logger(capture);
+
+  static_cast<void>(replaceEnvPattern(R"(value: \@env(1BAD))"));
+
+  spdlog::set_default_logger(previous);
+  spdlog::drop("env_substitution_quiet");
+
+  EXPECT_TRUE(ring->last_formatted().empty());
+}
+
+/// @test
+/// An escaped pattern is text, so one the expression cannot read is left alone and not refused.
+TEST_F(AnEnvPattern, leavesAnEscapedPatternItCannotReadAlone)
+{
+  EXPECT_EQ(replaceEnvPattern(R"(value: \@env(1BAD))"), R"(value: \@env(1BAD))");
 }
 
 /// @test
