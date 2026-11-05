@@ -90,25 +90,38 @@ def ninja() -> str | None:
 needs_cmake = pytest.mark.skipif(shutil.which("cmake") is None or ninja() is None, reason="needs cmake and ninja")
 
 
-def write_project(source: Path, call: str, minimum: str = "3.21") -> None:
+def write_project(source: Path, call: str, minimum: str = "3.21", gen_is_interface: bool = False) -> None:
     """Lays out a project that calls Sen's real codegen module.
 
     `minimum` is the consumer's declared CMake version, which is what decides CMP0116 and so
     whether the depfile is transformed. Older consumers exist, so it is a parameter.
+
+    `sen::gen` is a real library by default, not an INTERFACE one like the other stubs: a
+    generation rule depends on the file holding the templates, and an INTERFACE target has no
+    file. Stubbing it as INTERFACE hides the dependency under test. `gen_is_interface` puts it
+    back, for the case that asks whether the module survives a target it cannot name a file for.
     """
     source.mkdir(parents=True, exist_ok=True)
     (source / "stub_gen.cpp").write_text("int main() { return 0; }\n", encoding="utf-8")
     (source / "probe.cpp").write_text("int probeDummy() { return 0; }\n", encoding="utf-8")
 
     stubs = "\n".join(f"function({name})\nendfunction()" for name in STUBBED_COMMANDS)
+    interface_targets = STUBBED_TARGETS if gen_is_interface else tuple(n for n in STUBBED_TARGETS if n != "gen")
     stubs += "\n" + "\n".join(
-        f"add_library(stub_{name} INTERFACE)\nadd_library(sen::{name} ALIAS stub_{name})" for name in STUBBED_TARGETS
+        f"add_library(stub_{name} INTERFACE)\nadd_library(sen::{name} ALIAS stub_{name})" for name in interface_targets
     )
+    # Defined *after* the call, the way the real tree does it: libs/gen is added after libs/kernel,
+    # so sen::gen does not exist at the moment a generation rule is written. A probe that defines it
+    # first cannot see a guard that tests for the target too early.
+    gen_library = ""
+    if not gen_is_interface:
+        gen_library = "\nadd_library(stub_gen_lib STATIC probe.cpp)\nadd_library(sen::gen ALIAS stub_gen_lib)\n"
     body = (
         PREAMBLE.replace("@stubs@", stubs)
         .replace("@codegen_module@", CODEGEN_MODULE.as_posix())
         .replace("@minimum@", minimum)
         + call
+        + gen_library
     )
     (source / "CMakeLists.txt").write_text(body, encoding="utf-8")
 
@@ -134,13 +147,13 @@ def run_cmake(source: Path, build: Path) -> None:
     assert finished.returncode == 0, finished.stdout + finished.stderr
 
 
-def configure(tmp_path: Path, minimum: str = "3.21") -> str:
+def configure(tmp_path: Path, minimum: str = "3.21", gen_is_interface: bool = False) -> str:
     """A project generating from one model that imports another, returning the build graph."""
     source, build = tmp_path / "proj", tmp_path / "build"
     (source / "stl").mkdir(parents=True)
     (source / "stl" / "base.stl").write_text(BASE_STL, encoding="utf-8")
     (source / "stl" / "leaf.stl").write_text(LEAF_STL, encoding="utf-8")
-    write_project(source, STL_CALL, minimum)
+    write_project(source, STL_CALL, minimum, gen_is_interface)
     run_cmake(source, build)
     return (build / "build.ninja").read_text(encoding="utf-8")
 
@@ -276,6 +289,29 @@ def test_an_old_policy_in_the_consumer_still_transforms_the_depfile(tmp_path):
     assert "cmake_transform_depfile" in edge, (
         "the depfile is not transformed, so a consumer on an older minimum gets paths ninja cannot match"
     )
+
+
+@needs_cmake
+def test_the_generation_edge_depends_on_the_template_library(tmp_path):
+    """A rule has to rerun when the templates change, not only when the program does.
+
+    Every rule named sen::cli_gen, the program. On Linux the program relinks whenever the
+    library behind it changes, so the program stood in for both; MSVC does not relink an
+    executable whose imports are unchanged, and a template edit then regenerated nothing.
+    Measured on the Windows box: gen.dll rebuilt while cli_gen.exe and the generated header
+    both kept their earlier timestamps. Reading the graph catches it on any platform.
+    """
+    inputs = edge_inputs(configure(tmp_path), "leaf.stl.h")
+    assert any("stub_gen_lib" in i for i in inputs), (
+        f"the generation edge does not depend on the template library: {inputs}"
+    )
+
+
+@needs_cmake
+def test_a_template_library_with_no_file_is_skipped(tmp_path):
+    """An INTERFACE sen::gen has no file to depend on, and must not stop the configure."""
+    inputs = edge_inputs(configure(tmp_path, gen_is_interface=True), "leaf.stl.h")
+    assert any("leaf.stl" in i for i in inputs), f"the edge lost its model input: {inputs}"
 
 
 @needs_cmake
