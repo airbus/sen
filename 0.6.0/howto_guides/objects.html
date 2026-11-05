@@ -7,7 +7,7 @@
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="Sen Software Infrastructure" name="description"/>
 <meta content="Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS" name="author"/>
-<link href="https://github.com/airbus/sen/0.6.0/howto_guides/objects.html" rel="canonical"/>
+<link href="https://airbus.github.io/sen/0.6.0/howto_guides/objects.html" rel="canonical"/>
 <link href="../components/tracy.html" rel="prev"/>
 <link href="generated_code.html" rel="next"/>
 <link href="../assets/images/logo_simple.svg" rel="icon"/>
@@ -44,29 +44,26 @@
     }
 
     var currentPath = window.location.pathname;
+    var rootUrl = "../..";
 
-    if (currentPath !== '/' && !currentPath.endsWith('/index.html')) {
-        var rootUrl = "../..";
+    fetch(rootUrl + "/versions.json")
+        .then(r => r.json())
+        .then(versions => {
+            var stable = versions.filter(v => v.version !== 'latest');
 
-        fetch(rootUrl + "/versions.json")
-            .then(r => r.json())
-            .then(versions => {
-                var stable = versions.filter(v => v.version !== 'latest');
+            if (stable.length > 0) {
+                var latestStable = stable[0].version;
 
-                if (stable.length > 0) {
-                    var latestStable = stable[0].version;
+                if (!currentPath.includes('/latest/') && !currentPath.includes('/' + latestStable + '/')) {
+                    if (banner) {
+                        var newHtml = 'This is an older release. <a href="' + rootUrl + '/' + latestStable + '/"><strong>Go to the latest stable release</strong></a> or <a href="' + rootUrl + '/latest/"><strong>view the development version</strong></a>.';
 
-                    if (!currentPath.includes('/latest/') && !currentPath.includes('/' + latestStable + '/')) {
-                        if (banner) {
-                            var newHtml = 'This is an older release. <a href="' + rootUrl + '/' + latestStable + '/"><strong>Go to the latest stable release</strong></a> or <a href="' + rootUrl + '/latest/"><strong>view the development version</strong></a>.';
-
-                            currentScript.insertAdjacentHTML('beforebegin', newHtml);
-                            banner.style.display = "block";
-                        }
+                        currentScript.insertAdjacentHTML('beforebegin', newHtml);
+                        banner.style.display = "block";
                     }
                 }
-            }).catch(() => {});
-    }
+            }
+        }).catch(() => {});
 </script>
 </div>
 <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL(".."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
