@@ -18,7 +18,7 @@ import { NavSwitcher, ObjectExplorerPopout } from "./components/object_explorer_
 import { EventsWorkspace } from "./components/events_workspace.js";
 import { PlotsView } from "./components/plots_view.js";
 import { HoverIconButton } from "./ui/buttons.js";
-import { EventsIcon, PlotIcon, PopOutIcon } from "./ui/icons.js";
+import { EventsIcon, PlotIcon, PopOutIcon, CollapseAllIcon, ExpandAllIcon } from "./ui/icons.js";
 import { PopoutWindow } from "./components/popout_window.js";
 import { SelectionCollectors } from "./components/selection_collectors.js";
 import { SidebarHeader } from "./components/sidebar_header.js";
@@ -48,6 +48,9 @@ import {
   useWorkspaceAnimating,
   useWorkspaceHidden,
   workspacePaneActions,
+  useNavFolded,
+  useNavAnimating,
+  navPaneActions,
 } from "./state/ui_prefs.js";
 import { useConnection } from "./state/use_connection.js";
 import { usePanels, usePlottedLeaves, useWatchSources, watchActions } from "./state/watch_plot.js";
@@ -82,6 +85,8 @@ export function App() {
   const bottomTab = useBottomTab();
   const workspaceHidden = useWorkspaceHidden();
   const workspaceAnimating = useWorkspaceAnimating();
+  const navFolded = useNavFolded();
+  const navAnimating = useNavAnimating();
   const pinnedObjects = usePinnedObjects();
 
   const plotsPopout = usePlotsPopout();
@@ -144,7 +149,7 @@ export function App() {
             alignItems: "center",
           }}
         >
-          <SidebarHeader />
+          <SidebarHeader folded={navFolded} />
         </div>
         <div
           style={{
@@ -159,18 +164,48 @@ export function App() {
             flexDirection: "column",
           }}
         >
-          <NavSwitcher
-            showExplorer={!!inPaneExplorer}
-            explorerSelection={inPaneExplorer}
-            onExplorerBack={explorerHostsActions.closeInPaneExplorer}
-            onExplorerPopOut={onExplorerPopOut}
-            client={client}
-            pinnedObjects={pinnedObjects}
-          />
+          <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
+            <NavSwitcher
+              showExplorer={!!inPaneExplorer}
+              explorerSelection={inPaneExplorer}
+              onExplorerBack={explorerHostsActions.closeInPaneExplorer}
+              onExplorerPopOut={onExplorerPopOut}
+              client={client}
+              pinnedObjects={pinnedObjects}
+              folded={navFolded}
+            />
+          </div>
+          <div
+            style={{
+              borderTop: "1px solid var(--border-subtle)",
+              padding: "6px",
+              display: "flex",
+              justifyContent: navFolded ? "center" : "flex-end",
+              flex: "none",
+            }}
+          >
+            <HoverIconButton
+              onClick={navPaneActions.toggle}
+              icon={
+                navFolded ? (
+                  <span style={{ transform: "rotate(-90deg)", display: "inline-flex" }}>
+                    <ExpandAllIcon />
+                  </span>
+                ) : (
+                  <span style={{ transform: "rotate(-90deg)", display: "inline-flex" }}>
+                    <CollapseAllIcon />
+                  </span>
+                )
+              }
+              ariaLabel={navFolded ? "Expand navigation sidebar" : "Collapse navigation sidebar"}
+              tooltip={navFolded ? "Expand sidebar" : "Collapse sidebar"}
+              size={26}
+            />
+          </div>
         </div>
       </div>
     ),
-    [inPaneExplorer, onExplorerPopOut, client, pinnedObjects],
+    [inPaneExplorer, onExplorerPopOut, client, pinnedObjects, navFolded],
   );
   const bottomTabs = useMemo<readonly BottomPaneTab[]>(() => {
     const tabs: BottomPaneTab[] = [];
@@ -369,6 +404,8 @@ export function App() {
             wsHidden={workspaceHidden}
             wsAnimating={workspaceAnimating}
             wsRemoved={!!watchPopout}
+            navFolded={navFolded}
+            navAnimating={navAnimating}
           />
         </div>
       </div>

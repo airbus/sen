@@ -162,6 +162,55 @@ export function useWorkspaceAnimating(): boolean {
   return useSelector(workspacePaneStore, (s) => s.animating);
 }
 
+interface NavPaneState {
+  folded: boolean;
+  animating: boolean;
+}
+
+const NAV_FOLDED_KEY = "webex.navFolded";
+
+const navPaneStore = makeStore<NavPaneState>({
+  folded: (() => {
+    try {
+      return localStorage.getItem(NAV_FOLDED_KEY) === "1";
+    } catch {
+      return false;
+    }
+  })(),
+  animating: false,
+});
+
+let lastPersistedNavFolded = navPaneStore.getState().folded;
+navPaneStore.subscribe(() => {
+  const { folded } = navPaneStore.getState();
+  if (folded === lastPersistedNavFolded) return;
+  lastPersistedNavFolded = folded;
+  writeLocalStorage(NAV_FOLDED_KEY, folded ? "1" : "0");
+});
+
+let navAnimatingTimeout: ReturnType<typeof setTimeout> | null = null;
+
+function toggleNavFolded(): void {
+  if (navAnimatingTimeout !== null) clearTimeout(navAnimatingTimeout);
+  navPaneStore.setState((prev) => ({ folded: !prev.folded, animating: true }));
+  navAnimatingTimeout = setTimeout(() => {
+    navAnimatingTimeout = null;
+    navPaneStore.setState((prev) => (prev.animating ? { ...prev, animating: false } : prev));
+  }, 240);
+}
+
+export const navPaneActions = Object.freeze({
+  toggle: toggleNavFolded,
+});
+
+export function useNavFolded(): boolean {
+  return useSelector(navPaneStore, (s) => s.folded);
+}
+
+export function useNavAnimating(): boolean {
+  return useSelector(navPaneStore, (s) => s.animating);
+}
+
 // --- Pinned objects (Overview workspace input) ---
 //
 // Each pin carries the captured className so the Overview can group by class without
@@ -409,8 +458,13 @@ if (import.meta.hot) {
       clearTimeout(animatingTimeout);
       animatingTimeout = null;
     }
+    if (navAnimatingTimeout !== null) {
+      clearTimeout(navAnimatingTimeout);
+      navAnimatingTimeout = null;
+    }
     bottomPaneStore.dispose();
     workspacePaneStore.dispose();
+    navPaneStore.dispose();
     bottomTabStore.dispose();
     pinnedObjectsStore.dispose();
     overviewDensityStore.dispose();

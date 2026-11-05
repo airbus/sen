@@ -18,6 +18,7 @@ const CENTER_MIN = 320;
 const PANE_OUTER_MARGINS = 24;
 export const WS_STRIP_WIDTH = 24;
 export const WS_FOLDED_WIDTH = WS_STRIP_WIDTH;
+const NAV_FOLDED_WIDTH = 56;
 
 const NAV_KEY = "webex.navWidth";
 const WS_KEY = "webex.wsWidth";
@@ -33,6 +34,8 @@ export interface AppShellProps {
    *  drags don't tween. */
   wsAnimating?: boolean;
   wsRemoved?: boolean;
+  navFolded?: boolean;
+  navAnimating?: boolean;
 }
 
 function AppShellImpl({
@@ -42,6 +45,8 @@ function AppShellImpl({
   wsHidden = false,
   wsAnimating = false,
   wsRemoved = false,
+  navFolded = false,
+  navAnimating = false,
 }: AppShellProps) {
   const [navWidth, setNavWidth] = useState(() => readStoredWidth(NAV_KEY, NAV_DEFAULT));
   const [wsWidth, setWsWidth] = useState(() => readStoredWidth(WS_KEY, WS_DEFAULT));
@@ -80,15 +85,18 @@ function AppShellImpl({
   );
 
   const wsColPx = wsRemoved ? 0 : wsHidden ? WS_FOLDED_WIDTH : wsWidth;
+  const navColPx = navFolded ? NAV_FOLDED_WIDTH : navWidth;
+  const isAnimating = wsAnimating || navAnimating;
+
   return (
     <div
       style={{
         display: "grid",
         gridTemplateRows: "1fr",
-        gridTemplateColumns: `${navWidth}px 1fr ${wsColPx}px`,
+        gridTemplateColumns: `${navColPx}px 1fr ${wsColPx}px`,
         gridTemplateAreas: wsRemoved ? `"nav detail detail"` : `"nav detail ws"`,
         height: "100%",
-        transition: wsAnimating ? "grid-template-columns 220ms ease" : "none",
+        transition: isAnimating ? "grid-template-columns 220ms ease" : "none",
       }}
     >
       <aside
@@ -99,16 +107,18 @@ function AppShellImpl({
             "var(--pane-gutter-top) var(--pane-gutter-side) var(--pane-gutter-top) var(--pane-gutter-side)",
           minWidth: 0,
           overflow: "hidden",
-          paddingRight: EDGE_HANDLE_HIT,
+          paddingRight: navFolded ? 0 : EDGE_HANDLE_HIT,
         }}
       >
         {nav}
-        <EdgeResizeHandle
-          side="right"
-          onDrag={onDragNav}
-          onDragEnd={commitNavWidth}
-          ariaLabel="resize navigation pane"
-        />
+        {!navFolded && (
+          <EdgeResizeHandle
+            side="right"
+            onDrag={onDragNav}
+            onDragEnd={commitNavWidth}
+            ariaLabel="resize navigation pane"
+          />
+        )}
       </aside>
       <main style={{ gridArea: "detail", overflow: "auto", minWidth: 0 }}>
         {detail}
