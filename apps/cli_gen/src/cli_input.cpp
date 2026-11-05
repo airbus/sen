@@ -94,6 +94,9 @@ CLI::App* setupStlInput(CLI::App& app, std::function<void(std::shared_ptr<StlArg
   stl->add_option("stl_files", args->inputs, "STL files")->required()->check(CLI::ExistingFile);
   stl->add_option("-i, --import", args->includePaths, "Paths where other STL files can be found");
   stl->add_option("--depfile", args->depFile, "Write the files read to this make-style depfile");
+  stl->add_option("--depfile-target",
+                  args->depFileTarget,
+                  "Name this exact path as the depfile's target, rather than the first file written");
   // `--base_path` accepted as a snake_case alias for `--base-path`.
   stl->add_option("-b,--base-path,--base_path", args->basePath, "Base path for including generated files");
   stl->add_option("-s, --settings", args->codegenOptionsFile, "Code generation settings file")

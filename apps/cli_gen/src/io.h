@@ -28,12 +28,18 @@ void readFile(const std::filesystem::path& fileName, std::string& contents);
 /// existing file already has identical contents.
 void writeFile(const std::filesystem::path& path, const std::string& body);
 
-/// Writes a make-style depfile naming every path in `targets` and `dependencies`.
+/// Writes a make-style depfile naming `target` and every path in `dependencies`.
 ///
-/// Paths are absolute: CMake resolves a relative one against the build directory. Every
-/// target is named because the build system chooses which output the depfile attaches to.
+/// One target, written exactly as given: ninja reads the first and refuses the file unless it
+/// matches the edge's first output character for character. Only the build system has that
+/// form, so it supplies it. Dependency paths are absolute, which CMake resolves against the
+/// build directory.
 void writeDepFile(const std::filesystem::path& path,
-                  const std::vector<std::filesystem::path>& targets,
+                  const std::string& target,
                   const std::set<std::filesystem::path>& dependencies);
+
+/// The target to name: `given` when the build system supplied one, else the first file
+/// written, resolved. `written` must not be empty.
+std::string depFileTargetOr(const std::string& given, const std::vector<std::filesystem::path>& written);
 
 #endif  // SEN_APPS_CLI_GEN_SRC_IO_H
