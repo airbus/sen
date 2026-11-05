@@ -43,19 +43,23 @@
         banner.style.display = "none";
     }
 
-    var currentPath = window.location.pathname;
-    var rootUrl = "../..";
+    var baseUrl = "..";
 
-    fetch(rootUrl + "/versions.json")
+    var versionRoot = new URL(baseUrl + "/", window.location.href);
+    var versionsUrl = new URL("../versions.json", versionRoot);
+
+    fetch(versionsUrl.href)
         .then(r => r.json())
         .then(versions => {
             var stable = versions.filter(v => v.version !== 'latest');
 
             if (stable.length > 0) {
                 var latestStable = stable[0].version;
+                var currentPath = window.location.pathname;
 
                 if (!currentPath.includes('/latest/') && !currentPath.includes('/' + latestStable + '/')) {
                     if (banner) {
+                        var rootUrl = new URL("..", versionRoot).pathname.replace(/\/$/, "");
                         var newHtml = 'This is an older release. <a href="' + rootUrl + '/' + latestStable + '/"><strong>Go to the latest stable release</strong></a> or <a href="' + rootUrl + '/latest/"><strong>view the development version</strong></a>.';
 
                         currentScript.insertAdjacentHTML('beforebegin', newHtml);
@@ -63,7 +67,7 @@
                     }
                 }
             }
-        }).catch(() => {});
+        }).catch(e => console.warn("Could not load versions.json: ", e));
 </script>
 </div>
 <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL(".."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>

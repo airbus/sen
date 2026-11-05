@@ -43,19 +43,23 @@
         banner.style.display = "none";
     }
 
-    var currentPath = window.location.pathname;
-    var rootUrl = "../..";
+    var baseUrl = "..";
 
-    fetch(rootUrl + "/versions.json")
+    var versionRoot = new URL(baseUrl + "/", window.location.href);
+    var versionsUrl = new URL("../versions.json", versionRoot);
+
+    fetch(versionsUrl.href)
         .then(r => r.json())
         .then(versions => {
             var stable = versions.filter(v => v.version !== 'latest');
 
             if (stable.length > 0) {
                 var latestStable = stable[0].version;
+                var currentPath = window.location.pathname;
 
                 if (!currentPath.includes('/latest/') && !currentPath.includes('/' + latestStable + '/')) {
                     if (banner) {
+                        var rootUrl = new URL("..", versionRoot).pathname.replace(/\/$/, "");
                         var newHtml = 'This is an older release. <a href="' + rootUrl + '/' + latestStable + '/"><strong>Go to the latest stable release</strong></a> or <a href="' + rootUrl + '/latest/"><strong>view the development version</strong></a>.';
 
                         currentScript.insertAdjacentHTML('beforebegin', newHtml);
@@ -63,7 +67,7 @@
                     }
                 }
             }
-        }).catch(() => {});
+        }).catch(e => console.warn("Could not load versions.json: ", e));
 </script>
 </div>
 <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL(".."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
@@ -1658,7 +1662,7 @@ feature.</p>
 <div class="language-shell highlight"><pre><span></span><code><span id="__span-14-1"><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build/Debug<span class="w"> </span>--target<span class="w"> </span>validate-openapi
 </span></code></pre></div>
 <h2 id="openapi-documentation">OpenAPI Documentation<a class="headerlink" href="#openapi-documentation" title="Permanent link">¶</a></h2>
-<p><iframe class="redoc-iframe" frameborder="0" id="7d42da79" src="redoc-7d42da79.html" style="overflow:hidden;width:100%;height:100vh;" width="100%"></iframe></p></div>
+<p><iframe class="redoc-iframe" frameborder="0" id="9703c0bc" src="redoc-9703c0bc.html" style="overflow:hidden;width:100%;height:100vh;" width="100%"></iframe></p></div>
 <aside class="md-source-file">
 <span class="md-source-file__fact">
 <span class="md-icon" title="Last update">
