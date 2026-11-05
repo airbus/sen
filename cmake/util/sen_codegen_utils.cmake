@@ -70,7 +70,38 @@ include_guard()
 #     Whether generated class symbols are exported with public visibility.
 #     Defaults to NO. Set to YES when the generated headers must be consumed
 #     across shared-library boundaries (e.g. Python bindings).
+# What a generation rule has to be rebuilt for: the generator program, and the library holding
+# the templates it writes from. Naming only the program is enough on Linux, where the program
+# relinks whenever the library changes; MSVC does not relink an executable whose imports are
+# unchanged, so a template edit regenerated nothing. Measured on the Windows box: gen.dll rebuilt
+# while cli_gen.exe and the generated header both kept their earlier timestamps.
+#
+# `TARGET_EXISTS` rather than `if(TARGET ...)`, because libs/gen is added after libs/kernel: at the
+# moment the kernel asks, sen::gen does not exist and a configure-time test skips the very rules
+# that need it. A generator expression is read once every directory has been processed. The
+# configure-time test that remains only refuses an INTERFACE target, which has no file to name.
+function(sen_codegen_tool_depends out_var)
+  set(_deps sen::cli_gen)
+
+  set(_name_the_library TRUE)
+  if(TARGET sen::gen)
+    get_target_property(_gen_type sen::gen TYPE)
+    if(_gen_type STREQUAL "INTERFACE_LIBRARY")
+      set(_name_the_library FALSE)
+    endif()
+  endif()
+  if(_name_the_library)
+    list(APPEND _deps "$<$<TARGET_EXISTS:sen::gen>:$<TARGET_FILE:sen::gen>>")
+  endif()
+
+  set(${out_var}
+      "${_deps}"
+      PARENT_SCOPE
+  )
+endfunction()
+
 function(sen_generate_code)
+  sen_codegen_tool_depends(_tool_depends)
   # Under CMP0116 OLD a depfile reaches ninja untransformed, so the absolute paths in it
   # match no output and every import is dropped. The consumer's cmake_minimum_required
   # decides that policy, and this function's own commands should not depend on it. Scoped
@@ -325,7 +356,7 @@ function(sen_generate_code)
         COMMAND
           sen::cli_gen ${_arg_LANG} ${_public_symbols_opt} stl --depfile ${_dep_file} --depfile-target
           ${_file_output_headers} ${_settings_file_option} ${_base_path_opt} ${_abs_stl_file} ${_extra_options}
-        DEPENDS ${_abs_stl_file} sen::cli_gen ${_abs_settings_path}
+        DEPENDS ${_abs_stl_file} ${_tool_depends} ${_abs_settings_path}
         DEPFILE ${_dep_file}
         WORKING_DIRECTORY ${_file_output_dir}
         COMMENT "Generating sen code for ${_abs_stl_file} in ${_file_output_dir}"
@@ -354,7 +385,7 @@ function(sen_generate_code)
           sen::cli_gen json ${_schema_type} stl --depfile ${_schema_dep_file} --depfile-target
           ${_arg_SCHEMA_FILE} -b ${_abs_base_path} ${_stl_files} ${_extra_options} ${_schema_classes_opt} -o
           ${_arg_SCHEMA_FILE} ${_component_name_opt}
-        DEPENDS ${_stl_files} sen::cli_gen ${_abs_settings_path}
+        DEPENDS ${_stl_files} ${_tool_depends} ${_abs_settings_path}
         DEPFILE ${_schema_dep_file}
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
         COMMENT "Generating json schema code for ${_arg_TARGET} in ${_arg_SCHEMA_FILE}"
@@ -532,7 +563,7 @@ function(sen_generate_code)
       COMMAND_EXPAND_LISTS VERBATIM
       COMMAND sen::cli_gen ${_arg_LANG} ${_public_symbols_opt} fom ${_settings_file_option} ${_mapping_opt}
               ${_extensions_opt} --directories=${_abs_fom_dirs}
-      DEPENDS sen::cli_gen ${_xml_files} ${_abs_settings_path}
+      DEPENDS ${_tool_depends} ${_xml_files} ${_abs_settings_path}
       WORKING_DIRECTORY ${_output_dir}
       COMMENT "Generating sen code for ${_arg_HLA_FOM_DIRS} in ${_output_dir}"
     )
@@ -545,7 +576,7 @@ function(sen_generate_code)
           sen::cli_gen json ${_schema_type} fom ${_mapping_opt} ${_extensions_opt}
           --directories=${_abs_fom_dirs} ${_extra_options} ${_schema_classes_opt} -o ${_arg_SCHEMA_FILE}
           ${_component_name_opt}
-        DEPENDS sen::cli_gen ${_xml_files}
+        DEPENDS ${_tool_depends} ${_xml_files}
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
         COMMENT "Generating json schema code for ${_arg_HLA_FOM_DIRS} in ${_arg_SCHEMA_FILE}"
       )
@@ -778,6 +809,7 @@ endmacro()
 #     Like TYPES_ONLY but also omits the individual enumerator values,
 #     showing only the enum names.
 function(sen_generate_uml)
+  sen_codegen_tool_depends(_tool_depends)
 
   set(_options CLASSES_ONLY TYPES_ONLY TYPES_ONLY_NO_ENUMS)
   set(_one_value_args TARGET BASE_PATH OUT)
@@ -843,7 +875,7 @@ function(sen_generate_uml)
     add_custom_target(
       ${_arg_TARGET}
       COMMAND sen::cli_gen uml stl ${_input_files_list} -i ${_abs_base_path} --output ${_arg_OUT} ${_flags}
-      DEPENDS sen::cli_gen ${_input_files_list}
+      DEPENDS ${_tool_depends} ${_input_files_list}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       COMMENT "Generating plantuml diagram for ${_input_files_list} in ${_arg_OUT}"
       VERBATIM COMMAND_EXPAND_LISTS
@@ -895,7 +927,7 @@ function(sen_generate_uml)
       ${_arg_TARGET}
       COMMAND sen::cli_gen uml fom ${_mapping_opt} ${_extensions_opt} --directories=${_abs_fom_dirs} --output
               ${_arg_OUT} ${_flags}
-      DEPENDS sen::cli_gen ${_input_xmls}
+      DEPENDS ${_tool_depends} ${_input_xmls}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       COMMENT "Generating plantuml diagram for ${_arg_HLA_FOM_DIRS} in ${_arg_OUT}"
       VERBATIM COMMAND_EXPAND_LISTS
@@ -935,6 +967,7 @@ endfunction()
 #     XML files, or directories of them, that add members to types the FOM declares.
 #     Requires HLA_FOM_DIRS.
 function(sen_generate_html)
+  sen_codegen_tool_depends(_tool_depends)
 
   set(_options)
   set(_one_value_args
@@ -1004,7 +1037,7 @@ function(sen_generate_html)
       ${_arg_TARGET}
       COMMAND sen::cli_gen html stl ${_input_files_list} -i ${_abs_base_path} --output ${_arg_OUT}
               ${_title_opt}
-      DEPENDS sen::cli_gen ${_input_files_list}
+      DEPENDS ${_tool_depends} ${_input_files_list}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       COMMENT "Generating html reference for ${_input_files_list} in ${_arg_OUT}"
       VERBATIM COMMAND_EXPAND_LISTS
@@ -1056,7 +1089,7 @@ function(sen_generate_html)
       ${_arg_TARGET}
       COMMAND sen::cli_gen html fom ${_mapping_opt} ${_extensions_opt} --directories=${_abs_fom_dirs} --output
               ${_arg_OUT} ${_title_opt}
-      DEPENDS sen::cli_gen ${_input_xmls}
+      DEPENDS ${_tool_depends} ${_input_xmls}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       COMMENT "Generating html reference for ${_arg_HLA_FOM_DIRS} in ${_arg_OUT}"
       VERBATIM COMMAND_EXPAND_LISTS
@@ -1114,6 +1147,7 @@ endfunction()
 #     XML files, or directories of them, that add members to types the FOM declares.
 #     Requires HLA_FOM_DIRS.
 function(sen_generate_typst)
+  sen_codegen_tool_depends(_tool_depends)
 
   set(_options PDF)
   set(_one_value_args
@@ -1234,7 +1268,7 @@ function(sen_generate_typst)
       ${_arg_TARGET}
       COMMAND sen::cli_gen typst stl ${_input_files_list} -i ${_abs_base_path} ${_abs_import_paths} --output
               ${_arg_OUT} ${_opts}
-      DEPENDS sen::cli_gen ${_input_files_list}
+      DEPENDS ${_tool_depends} ${_input_files_list}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       COMMENT "Generating typst reference for ${_input_files_list} in ${_arg_OUT}"
       VERBATIM COMMAND_EXPAND_LISTS
@@ -1285,7 +1319,7 @@ function(sen_generate_typst)
       ${_arg_TARGET}
       COMMAND sen::cli_gen typst fom ${_mapping_opt} ${_extensions_opt} --directories=${_abs_fom_dirs} --output
               ${_arg_OUT} ${_opts}
-      DEPENDS sen::cli_gen ${_input_xmls}
+      DEPENDS ${_tool_depends} ${_input_xmls}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       COMMENT "Generating typst reference for ${_arg_HLA_FOM_DIRS} in ${_arg_OUT}"
       VERBATIM COMMAND_EXPAND_LISTS

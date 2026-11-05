@@ -350,14 +350,25 @@ function(add_sen_unit_test_suite test_name)
   # Windows looks for DLLs beside the executable, not by rpath: without these the
   # binary cannot start, which gtest_discover_tests reports as 0xc0000135 while
   # enumerating. The IF makes it a no-op when a target links nothing shared.
+  #
+  # Driven by the DLLs rather than by POST_BUILD, which runs only when the test program
+  # itself relinks. MSVC does not relink a program for a rebuilt DLL whose exports are
+  # unchanged, so the copy beside the program stayed old and shadowed the rebuilt one in
+  # bin, Windows searching the program's own directory first. Measured on the Windows box:
+  # a test of a deliberately broken template passed, and one build left 21 stale copies.
   if(WIN32)
+    set(_dll_stamp ${CMAKE_CURRENT_BINARY_DIR}/${test_name}_runtime_dlls.stamp)
     add_custom_command(
-      TARGET ${test_name}
-      POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E $<IF:$<BOOL:$<TARGET_RUNTIME_DLLS:${test_name}>>,copy,true>
+      OUTPUT ${_dll_stamp}
+      COMMAND ${CMAKE_COMMAND} -E $<IF:$<BOOL:$<TARGET_RUNTIME_DLLS:${test_name}>>,copy_if_different,true>
               $<TARGET_RUNTIME_DLLS:${test_name}> $<TARGET_FILE_DIR:${test_name}>
-      COMMAND_EXPAND_LISTS
+      COMMAND ${CMAKE_COMMAND} -E touch ${_dll_stamp}
+      DEPENDS $<TARGET_RUNTIME_DLLS:${test_name}>
+      COMMAND_EXPAND_LISTS VERBATIM
+      COMMENT "Refreshing the runtime DLLs beside ${test_name}"
     )
+    add_custom_target(${test_name}_runtime_dlls DEPENDS ${_dll_stamp})
+    add_dependencies(${test_name} ${test_name}_runtime_dlls)
   endif()
 
   # spdlog needs the same and the expression above cannot see it: conan's target carries a library
