@@ -213,18 +213,22 @@ that a configuration is valid.
 Any value may pull from the environment with `@env(NAME)`. **A missing variable is a runtime
 error**, so use the two-argument form `@env(NAME,DEFAULT)` when you want a fallback.
 
-Spaces around the comma are fine. The default itself has to be letters, digits or underscores, so
-the dot in `@env(BUS,local.kernel)` stops it matching. Text that does not match is left alone. You
-get no error and no fallback, just the literal `@env(BUS,local.kernel)` as your value. The pattern
-also does not work across two lines.
+Spaces around the comma are fine, and the default runs to the closing parenthesis, so a path, a
+host and port, or a dotted name all work. The pattern still does not work across two lines. Text
+the kernel cannot read, such as an empty name or a missing parenthesis, is left exactly as written
+and logged as a warning that quotes it, so a mistyped default does not become your value in
+silence. Write a backslash before the `@` when you want the text itself and no warning.
+
+`@` is a reserved indicator in YAML, so quote any value that starts with one.
 
 ```yaml
 load:
   - name: term
     group: 2
-    open: @env(MY_BUS)                       # throws if MY_BUS is unset
-  - name: @env(MY_COMP,defaultComponent)     # falls back if MY_COMP is unset
+    open: "@env(MY_BUS)"                        # throws if MY_BUS is unset
+  - name: "@env(MY_COMP,defaultComponent)"      # falls back if MY_COMP is unset
     group: 3
+    repoPath: "@env(REPO_PATH,/data/git-repo)"  # a default may be a path
 ```
 
 The pattern escapes with backslashes written immediately before the `@`, and what happens depends on
