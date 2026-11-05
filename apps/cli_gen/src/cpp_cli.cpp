@@ -101,31 +101,32 @@ void setupCppCli(CLI::App& app)
   cpp->add_option("-r, --recursive", cppExtraArgs->recursive, "Recursively generate imported packages");
   cpp->add_flag("--public-symbols", cppExtraArgs->publicSymbols, "Make generated classes public");
 
-  auto stl = setupStlInput(*cpp,
-                           [cppExtraArgs](auto args)
-                           {
-                             sen::gen::CppGenerator generator;
-                             sen::gen::CppOptions opts;
-                             opts.recursive = cppExtraArgs->recursive;
-                             opts.publicSymbols = cppExtraArgs->publicSymbols;
-                             opts.basePath = args->basePath;
+  auto stl =
+    setupStlInput(*cpp,
+                  [cppExtraArgs](auto args)
+                  {
+                    sen::gen::CppGenerator generator;
+                    sen::gen::CppOptions opts;
+                    opts.recursive = cppExtraArgs->recursive;
+                    opts.publicSymbols = cppExtraArgs->publicSymbols;
+                    opts.basePath = args->basePath;
 
-                             const auto settings = readTypeSettings(args->codegenOptionsFile);
+                    const auto settings = readTypeSettings(args->codegenOptionsFile);
 
-                             sen::lang::TypeSetContext context;
-                             std::vector<std::filesystem::path> outputs;
-                             for (const auto& fileName: args->inputs)
-                             {
-                               auto typeSet = sen::lang::readTypesFile(fileName, args->includePaths, context, settings);
-                               const auto written = writeGenerated(generator.generate(*typeSet, opts));
-                               outputs.insert(outputs.end(), written.begin(), written.end());
-                             }
+                    sen::lang::TypeSetContext context;
+                    std::vector<std::filesystem::path> outputs;
+                    for (const auto& fileName: args->inputs)
+                    {
+                      auto typeSet = sen::lang::readTypesFile(fileName, args->includePaths, context, settings);
+                      const auto written = writeGenerated(generator.generate(*typeSet, opts));
+                      outputs.insert(outputs.end(), written.begin(), written.end());
+                    }
 
-                             if (!args->depFile.empty())
-                             {
-                               writeDepFile(args->depFile, outputs, context.readFiles());
-                             }
-                           });
+                    if (!args->depFile.empty())
+                    {
+                      writeDepFile(args->depFile, depFileTargetOr(args->depFileTarget, outputs), context.readFiles());
+                    }
+                  });
 
   auto fom = setupFomInput(*cpp,
                            [cppExtraArgs](auto args)

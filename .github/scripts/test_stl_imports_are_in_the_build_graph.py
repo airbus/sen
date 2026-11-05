@@ -29,7 +29,7 @@ STUBBED_COMMANDS = ("sen_skip_linting", "sen_configure_target", "add_properties_
 STUBBED_TARGETS = ("core", "kernel", "db", "util", "gen")
 
 PREAMBLE = """
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION @minimum@)
 project(graph_probe CXX)
 
 @stubs@
@@ -90,8 +90,12 @@ def ninja() -> str | None:
 needs_cmake = pytest.mark.skipif(shutil.which("cmake") is None or ninja() is None, reason="needs cmake and ninja")
 
 
-def write_project(source: Path, call: str) -> None:
-    """Lays out a project that calls Sen's real codegen module."""
+def write_project(source: Path, call: str, minimum: str = "3.21") -> None:
+    """Lays out a project that calls Sen's real codegen module.
+
+    `minimum` is the consumer's declared CMake version, which is what decides CMP0116 and so
+    whether the depfile is transformed. Older consumers exist, so it is a parameter.
+    """
     source.mkdir(parents=True, exist_ok=True)
     (source / "stub_gen.cpp").write_text("int main() { return 0; }\n", encoding="utf-8")
     (source / "probe.cpp").write_text("int probeDummy() { return 0; }\n", encoding="utf-8")
@@ -100,7 +104,12 @@ def write_project(source: Path, call: str) -> None:
     stubs += "\n" + "\n".join(
         f"add_library(stub_{name} INTERFACE)\nadd_library(sen::{name} ALIAS stub_{name})" for name in STUBBED_TARGETS
     )
-    body = PREAMBLE.replace("@stubs@", stubs).replace("@codegen_module@", CODEGEN_MODULE.as_posix()) + call
+    body = (
+        PREAMBLE.replace("@stubs@", stubs)
+        .replace("@codegen_module@", CODEGEN_MODULE.as_posix())
+        .replace("@minimum@", minimum)
+        + call
+    )
     (source / "CMakeLists.txt").write_text(body, encoding="utf-8")
 
 
@@ -125,13 +134,13 @@ def run_cmake(source: Path, build: Path) -> None:
     assert finished.returncode == 0, finished.stdout + finished.stderr
 
 
-def configure(tmp_path: Path) -> str:
+def configure(tmp_path: Path, minimum: str = "3.21") -> str:
     """A project generating from one model that imports another, returning the build graph."""
     source, build = tmp_path / "proj", tmp_path / "build"
     (source / "stl").mkdir(parents=True)
     (source / "stl" / "base.stl").write_text(BASE_STL, encoding="utf-8")
     (source / "stl" / "leaf.stl").write_text(LEAF_STL, encoding="utf-8")
-    write_project(source, STL_CALL)
+    write_project(source, STL_CALL, minimum)
     run_cmake(source, build)
     return (build / "build.ninja").read_text(encoding="utf-8")
 
@@ -177,6 +186,28 @@ def edge_inputs(graph: str, marker: str) -> list[str]:
     return after_rule.split(" || ", 1)[0].split()
 
 
+def depfile_target_of(graph: str, marker: str) -> str:
+    """The `--depfile-target` of the command producing `marker`, relative to the build dir.
+
+    The build directory is read from the `cmake_transform_depfile` call CMake appends, which
+    is the only place in the edge that names it.
+    """
+    edge = generation_edge(graph, marker)
+    target = edge.split("--depfile-target ", 1)[1].split()[0]
+    build_dir = edge.split("cmake_transform_depfile Ninja gccdepfile ", 1)[1].split()[2]
+    return os.path.relpath(os.path.normpath(target), os.path.normpath(build_dir))
+
+
+def edge_outputs(graph: str, marker: str) -> list[str]:
+    """The outputs of the command producing `marker`, in the order ninja records them.
+
+    The first is the only one that matters: ninja attaches the depfile to it and compares it
+    against the target named inside the file.
+    """
+    first_line = generation_edge(graph, marker).splitlines()[0]
+    return first_line[len("build ") :].split(": CUSTOM_COMMAND", 1)[0].split()
+
+
 @needs_cmake
 def test_the_probe_generates_an_edge_at_all(tmp_path):
     """Passes with or without the fixes: it proves the harness works, not that a defect is gone."""
@@ -207,6 +238,44 @@ def test_the_schema_edge_carries_a_depfile(tmp_path):
     edge = generation_edge(configure(tmp_path), "probe_schema.json")
     assert "depfile = " in edge, "the schema edge declares no depfile: its imports cannot reach the graph"
     assert "--depfile" in edge, "the generator is not asked to write the schema depfile"
+
+
+@needs_cmake
+def test_the_generation_edge_targets_its_first_output(tmp_path):
+    """Ninja refuses a depfile whose target is not the output it attached it to.
+
+    The generator named every file it produced, in its own order, which put the `.cpp` first
+    while CMake lists the `.h` first. ninja compared the two, dropped the dependencies and
+    left the edge dirty, so the generator ran on every build and the imports it was added to
+    track reached nothing.
+
+    Compared as files rather than as text: the command carries an absolute path and the edge a
+    relative one, and CMake reconciles the two when it transforms the depfile.
+    """
+    graph = configure(tmp_path)
+    assert depfile_target_of(graph, "leaf.stl.h") == edge_outputs(graph, "leaf.stl.h")[0]
+
+
+@needs_cmake
+def test_the_schema_edge_targets_its_output(tmp_path):
+    """The same for the schema command, which is a separate edge with its own depfile."""
+    graph = configure(tmp_path)
+    assert depfile_target_of(graph, "probe_schema.json") == edge_outputs(graph, "probe_schema.json")[0]
+
+
+@needs_cmake
+def test_an_old_policy_in_the_consumer_still_transforms_the_depfile(tmp_path):
+    """The depfile has to be rewritten into the form ninja records, whatever the consumer declares.
+
+    Under CMP0116 OLD the file reaches ninja as the generator wrote it, with absolute paths
+    that match no output, so every import is dropped again. The policy belongs to the project
+    that calls the module, so the module sets it for its own commands.
+    """
+    graph = configure(tmp_path, minimum="3.16")
+    edge = generation_edge(graph, "leaf.stl.h")
+    assert "cmake_transform_depfile" in edge, (
+        "the depfile is not transformed, so a consumer on an older minimum gets paths ninja cannot match"
+    )
 
 
 @needs_cmake
