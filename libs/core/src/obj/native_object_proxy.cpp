@@ -177,10 +177,13 @@ void NativeObjectProxy::senImplRemoveUntypedConnection(ConnId id, MemberHash mem
 
 void NativeObjectProxy::drainInputs()
 {
-  lastCommitTime_ = owner_->getLastCommitTime();
-
   {  // ensure that the properties of the owner are currenlty not modified
     auto readLock = owner_->createReaderLock();
+
+    // The stamp belongs to the values, so it is read beside them under one lock. Read on its own,
+    // a commit in between would pair the new values with the previous stamp until the next drain.
+    // Going through getLastCommitTime() would re-lock dataAccessMutex_ on this thread.
+    lastCommitTime_ = owner_->lastCommitTime_;
     drainInputsImpl(lastCommitTime_);
   }
 }
