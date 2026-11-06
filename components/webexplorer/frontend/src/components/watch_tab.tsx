@@ -81,7 +81,7 @@ export function WatchTab({ client }: WatchTabProps) {
     eventWatchActions.clearAllWatches();
   };
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0, minWidth: 0 }}>
       <div
         style={{
           display: "flex",
@@ -96,10 +96,20 @@ export function WatchTab({ client }: WatchTabProps) {
           color: "var(--fg-subtle)",
           letterSpacing: "0.06em",
           textTransform: "uppercase",
+          minWidth: 0,
         }}
       >
-        <span>{totalSources} watched</span>
-        <span style={{ flex: 1 }} />
+        <span
+          style={{
+            flex: "1 1 auto",
+            minWidth: 0,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {totalSources} watched
+        </span>
         {!watchPopout && (
           <HoverIconButton
             onClick={watchPopoutActions.open}

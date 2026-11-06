@@ -206,14 +206,14 @@ export function ObjectGroupedGrid({
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       whiteSpace: "nowrap",
-                      flex: "none",
-                      maxWidth: "100%",
+                      flex: "0 1 auto",
+                      minWidth: 0,
                       display: "inline-block",
                     }}
                     title={g.objectName}
                   />
                   {g.className && (
-                    <span style={{ flex: "none" }}>
+                    <span style={{ flex: "0 1 auto", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>
                       <TypeChip client={client} type={g.className} />
                     </span>
                   )}
@@ -224,6 +224,10 @@ export function ObjectGroupedGrid({
                         fontSize: "var(--fs-sm)",
                         color: "var(--fg-subtle)",
                         whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        flex: "0 1 auto",
+                        minWidth: 0,
                       }}
                     >
                       {g.sessionName}.{g.busName}
