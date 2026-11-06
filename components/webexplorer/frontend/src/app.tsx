@@ -5,7 +5,7 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type * as React from "react";
 
 import { useConnectionState, useNotificationsDropped } from "@sen/client/react";
@@ -14,11 +14,12 @@ import { AppShell } from "./components/app_shell.js";
 import { BottomPane, type BottomPaneTab } from "./components/bottom_pane.js";
 import { CenterPane } from "./components/center_pane.js";
 import { ConnectionStatusBanner } from "./components/connection_status_banner.js";
+import type { Selection } from "./state/selection.js";
 import { NavSwitcher, ObjectExplorerPopout } from "./components/object_explorer_hosts.js";
 import { EventsWorkspace } from "./components/events_workspace.js";
 import { PlotsView } from "./components/plots_view.js";
 import { HoverIconButton } from "./ui/buttons.js";
-import { EventsIcon, PlotIcon, PopOutIcon } from "./ui/icons.js";
+import { EventsIcon, PlotIcon, PopOutIcon, CollapseAllIcon, ExpandAllIcon, CloseIcon } from "./ui/icons.js";
 import { PopoutWindow } from "./components/popout_window.js";
 import { SelectionCollectors } from "./components/selection_collectors.js";
 import { SidebarHeader } from "./components/sidebar_header.js";
@@ -31,7 +32,14 @@ import {
   useLiveSelections,
   useOpenExplorers,
 } from "./state/explorer_hosts.js";
-import { plotsPopoutActions, usePlotsPopout } from "./state/plots_popout.js";
+import {
+  plotsPopoutActions,
+  usePlotsPopout,
+  eventsPopoutActions,
+  useEventsPopout,
+  watchPopoutActions,
+  useWatchPopout,
+} from "./state/popouts.js";
 import "./state/color_scheme.js";
 import { SampleStoreProvider } from "./state/sample_store.js";
 import { PopoutErrorBoundary } from "./ui/popout.js";
@@ -48,9 +56,13 @@ import {
   useWorkspaceAnimating,
   useWorkspaceHidden,
   workspacePaneActions,
+  useNavFolded,
+  useNavAnimating,
+  navPaneActions,
 } from "./state/ui_prefs.js";
 import { useConnection } from "./state/use_connection.js";
 import { usePanels, usePlottedLeaves, useWatchSources, watchActions } from "./state/watch_plot.js";
+import { WatchTab } from "./components/watch_tab.js";
 
 function defaultUrl(): string {
   // Prod: same-origin (bundled SPA served by the JSON-RPC server hosting the WS).
@@ -81,8 +93,20 @@ export function App() {
   const bottomTab = useBottomTab();
   const workspaceHidden = useWorkspaceHidden();
   const workspaceAnimating = useWorkspaceAnimating();
+  const navFolded = useNavFolded();
+  const navAnimating = useNavAnimating();
   const pinnedObjects = usePinnedObjects();
+
   const plotsPopout = usePlotsPopout();
+  const eventsPopout = useEventsPopout();
+  const watchPopout = useWatchPopout();
+
+  const [dismissedError, setDismissedError] = useState<Error | null>(null);
+
+  // Clear dismissed error if the connection error resolves itself
+  useEffect(() => {
+    if (!error) setDismissedError(null);
+  }, [error]);
 
   // Auto-unfold on the 0 -> >=1 transition only; user folds stick. bottomFolded read
   // via ref so this effect runs only when panelCount changes.
@@ -100,11 +124,44 @@ export function App() {
   const state = useConnectionState(client);
   const droppedNotifications = useNotificationsDropped(client);
 
+  const prevStateRef = useRef(state);
+  useEffect(() => {
+    if (prevStateRef.current !== "open" && state === "open" && error) {
+      setDismissedError(error);
+    }
+    prevStateRef.current = state;
+  }, [state, error]);
+
+  const navWasFoldedRef = useRef(false);
+
+  const onOpenInPaneExplorer = useCallback(
+    (sel: Selection) => {
+      navWasFoldedRef.current = navFolded;
+      if (navFolded) {
+        navPaneActions.setFolded(false);
+      }
+      explorerHostsActions.openInPaneExplorer(sel);
+    },
+    [navFolded],
+  );
+
+  const onExplorerBack = useCallback(() => {
+    explorerHostsActions.closeInPaneExplorer();
+    if (navWasFoldedRef.current) {
+      navPaneActions.setFolded(true);
+      navWasFoldedRef.current = false;
+    }
+  }, []);
+
   const onExplorerPopOut = useCallback(() => {
     if (inPaneExplorer) {
       const sel = inPaneExplorer;
       explorerHostsActions.closeInPaneExplorer();
       explorerHostsActions.toggleExplorer(sel);
+      if (navWasFoldedRef.current) {
+        navPaneActions.setFolded(true);
+        navWasFoldedRef.current = false;
+      }
     }
   }, [inPaneExplorer]);
 
@@ -140,7 +197,7 @@ export function App() {
             alignItems: "center",
           }}
         >
-          <SidebarHeader />
+          <SidebarHeader folded={navFolded} />
         </div>
         <div
           style={{
@@ -155,18 +212,48 @@ export function App() {
             flexDirection: "column",
           }}
         >
-          <NavSwitcher
-            showExplorer={!!inPaneExplorer}
-            explorerSelection={inPaneExplorer}
-            onExplorerBack={explorerHostsActions.closeInPaneExplorer}
-            onExplorerPopOut={onExplorerPopOut}
-            client={client}
-            pinnedObjects={pinnedObjects}
-          />
+          <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
+            <NavSwitcher
+              showExplorer={!!inPaneExplorer}
+              explorerSelection={inPaneExplorer}
+              onExplorerBack={onExplorerBack}
+              onExplorerPopOut={onExplorerPopOut}
+              client={client}
+              pinnedObjects={pinnedObjects}
+              folded={navFolded}
+            />
+          </div>
+          <div
+            style={{
+              borderTop: "1px solid var(--border-subtle)",
+              padding: "6px",
+              display: "flex",
+              justifyContent: navFolded ? "center" : "flex-end",
+              flex: "none",
+            }}
+          >
+            <HoverIconButton
+              onClick={navPaneActions.toggle}
+              icon={
+                navFolded ? (
+                  <span style={{ transform: "rotate(-90deg)", display: "inline-flex" }}>
+                    <ExpandAllIcon />
+                  </span>
+                ) : (
+                  <span style={{ transform: "rotate(-90deg)", display: "inline-flex" }}>
+                    <CollapseAllIcon />
+                  </span>
+                )
+              }
+              ariaLabel={navFolded ? "Expand navigation sidebar" : "Collapse navigation sidebar"}
+              tooltip={navFolded ? "Expand sidebar" : "Collapse sidebar"}
+              size={26}
+            />
+          </div>
         </div>
       </div>
     ),
-    [inPaneExplorer, onExplorerPopOut, client, pinnedObjects],
+    [inPaneExplorer, onExplorerPopOut, client, pinnedObjects, navFolded],
   );
   const bottomTabs = useMemo<readonly BottomPaneTab[]>(() => {
     const tabs: BottomPaneTab[] = [];
@@ -196,14 +283,25 @@ export function App() {
         ),
       });
     }
-    tabs.push({
-      key: "events",
-      title: "Events",
-      icon: <EventsIcon />,
-      content: <EventsWorkspace client={client} />,
-    });
+    if (!eventsPopout) {
+      tabs.push({
+        key: "events",
+        title: "Events",
+        icon: <EventsIcon />,
+        trailing: (
+          <HoverIconButton
+            onClick={eventsPopoutActions.open}
+            tooltip="Open events in a separate window"
+            ariaLabel="pop out events"
+            icon={<PopOutIcon />}
+            size={20}
+          />
+        ),
+        content: <EventsWorkspace client={client} />,
+      });
+    }
     return tabs;
-  }, [client, panels, plottedLeaves, plotsPopout]);
+  }, [client, panels, plottedLeaves, plotsPopout, eventsPopout]);
 
   const detail = useMemo(
     () => (
@@ -213,27 +311,37 @@ export function App() {
         <div style={{ flex: 1, minHeight: 0, overflow: "hidden", padding: "var(--pane-gutter-top) var(--pane-gutter-side) 0 0" }}>
           <CenterPane
             client={client}
-            onOpenInPaneExplorer={explorerHostsActions.openInPaneExplorer}
-            banner={error ? <ErrorBanner message={error.message} /> : null}
+            onOpenInPaneExplorer={onOpenInPaneExplorer}
+            banner={
+              error && error !== dismissedError ? (
+                <ErrorBanner
+                  message={error.message}
+                  onDismiss={() => setDismissedError(error)}
+                />
+              ) : null
+            }
           />
         </div>
-        <BottomPane
-          tabs={bottomTabs}
-          activeTabKey={bottomTab}
-          onActiveTabChange={bottomTabActions.set}
-          folded={bottomFolded}
-          onToggleFolded={onToggleFolded}
-          height={bottomHeight}
-          onResize={bottomPaneActions.setHeight}
-          onResizeCommit={bottomPaneActions.commitHeight}
-          marginLeft={0}
-          marginRight={14}
-        />
+        {bottomTabs.length > 0 && (
+          <BottomPane
+            tabs={bottomTabs}
+            activeTabKey={bottomTab}
+            onActiveTabChange={bottomTabActions.set}
+            folded={bottomFolded}
+            onToggleFolded={onToggleFolded}
+            height={bottomHeight}
+            onResize={bottomPaneActions.setHeight}
+            onResizeCommit={bottomPaneActions.commitHeight}
+            marginLeft={0}
+            marginRight={14}
+          />
+        )}
       </div>
     ),
     [
       client,
       error,
+      dismissedError,
       bottomTabs,
       bottomTab,
       bottomFolded,
@@ -272,39 +380,61 @@ export function App() {
     <StoreProviders>
       <InterestOwner client={client} />
       <WatchCollectors sources={watchSources} />
-        <EventWatchCollectors client={client} />
-        <SelectionCollectors client={client} selections={liveSelections} />
-        {popouts}
-        {plotsPopout && (
-          <PopoutWindow handle={plotsPopout} onClose={plotsPopoutActions.clearOnUnload}>
-            {/* Drag/resize of gridstack panels is auto-disabled in the popup; gridstack's
+      <EventWatchCollectors client={client} />
+      <SelectionCollectors client={client} selections={liveSelections} />
+      {popouts}
+
+      {plotsPopout && (
+        <PopoutWindow handle={plotsPopout} onClose={plotsPopoutActions.clearOnUnload}>
+          {/* Drag/resize of gridstack panels is auto-disabled in the popup; gridstack's
                 mouse handlers don't cross documents. Plot data + uPlot pan/zoom still work. */}
-            <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-              <div
-                style={{
-                  padding: "3px 10px",
-                  fontFamily: "var(--font-ui)",
-                  fontSize: "var(--fs-xs)",
-                  color: "var(--fg-subtle)",
-                  background: "var(--bg-elevated)",
-                  borderBottom: "1px solid var(--border-subtle)",
-                  flex: "none",
-                }}
-              >
-                Layout locked - rearrange panels in the main window.
-              </div>
-              <PopoutErrorBoundary>
-                <PlotsView
-                  client={client}
-                  panels={panels}
-                  onRemoveSeries={watchActions.removeSeries}
-                  onMoveSeriesToPanel={watchActions.moveSeriesToPanel}
-                  onMoveSeriesToNewPanel={watchActions.moveSeriesToNewPanel}
-                />
-              </PopoutErrorBoundary>
+          <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+            <div
+              style={{
+                padding: "3px 10px",
+                fontFamily: "var(--font-ui)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--fg-subtle)",
+                background: "var(--bg-elevated)",
+                borderBottom: "1px solid var(--border-subtle)",
+                flex: "none",
+              }}
+            >
+              Layout locked - rearrange panels in the main window.
             </div>
-          </PopoutWindow>
-        )}
+            <PopoutErrorBoundary>
+              <PlotsView
+                client={client}
+                panels={panels}
+                onRemoveSeries={watchActions.removeSeries}
+                onMoveSeriesToPanel={watchActions.moveSeriesToPanel}
+                onMoveSeriesToNewPanel={watchActions.moveSeriesToNewPanel}
+              />
+            </PopoutErrorBoundary>
+          </div>
+        </PopoutWindow>
+      )}
+
+      {eventsPopout && (
+        <PopoutWindow handle={eventsPopout} onClose={eventsPopoutActions.clearOnUnload}>
+          <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+            <PopoutErrorBoundary>
+              <EventsWorkspace client={client} />
+            </PopoutErrorBoundary>
+          </div>
+        </PopoutWindow>
+      )}
+
+      {watchPopout && (
+        <PopoutWindow handle={watchPopout} onClose={watchPopoutActions.clearOnUnload}>
+          <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+            <PopoutErrorBoundary>
+              <WatchTab client={client} />
+            </PopoutErrorBoundary>
+          </div>
+        </PopoutWindow>
+      )}
+
       <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
         <ConnectionStatusBanner
           state={state}
@@ -329,6 +459,9 @@ export function App() {
             workspace={workspace}
             wsHidden={workspaceHidden}
             wsAnimating={workspaceAnimating}
+            wsRemoved={!!watchPopout}
+            navFolded={navFolded}
+            navAnimating={navAnimating}
           />
         </div>
       </div>
@@ -336,21 +469,32 @@ export function App() {
   );
 }
 
-function ErrorBanner({ message }: { message: string }) {
+function ErrorBanner({ message, onDismiss }: { message: string; onDismiss: () => void }) {
   return (
     <div
       style={{
         margin: "8px 12px",
-        padding: 10,
+        padding: "8px 12px",
         color: "var(--err)",
         border: "1px solid var(--err)",
         borderRadius: "var(--radius-sm)",
         background: "var(--bg-elevated)",
         fontFamily: "var(--font-mono)",
         fontSize: "var(--fs-md)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 12,
       }}
     >
-      {message}
+      <span style={{ minWidth: 0, overflowWrap: "break-word" }}>{message}</span>
+      <HoverIconButton
+        onClick={onDismiss}
+        icon={<CloseIcon />}
+        ariaLabel="dismiss error"
+        tooltip="Dismiss"
+        danger
+      />
     </div>
   );
 }

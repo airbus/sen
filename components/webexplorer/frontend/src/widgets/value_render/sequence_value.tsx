@@ -75,11 +75,9 @@ export function SequenceValue({
           style={{
             marginTop: 4,
             marginLeft: 8,
-            display: "grid",
-            // name | value | actions; fixed actions column aligns with parent struct grid.
-            gridTemplateColumns: `auto minmax(0, 1fr) ${ACTIONS_COLUMN_WIDTH}px`,
-            rowGap: 2,
-            alignItems: "center",
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
           }}
         >
           {value.map((v, i) => {
@@ -101,21 +99,24 @@ export function SequenceValue({
               <ValueRow key={i} flashKey={composite ? undefined : v}>
                 {composite ? (
                   <>
-                    {indexLabel}
-                    <span aria-hidden />
+                    <span style={{ display: "inline-flex", flex: "1 1 auto", minWidth: 0 }}>
+                      {indexLabel}
+                    </span>
                     {renderLeafActions && (
                       <span
                         style={{
                           display: "inline-flex",
                           alignItems: "center",
-                          justifySelf: "end",
+                          justifyContent: "flex-end",
+                          marginLeft: "auto",
                           gap: 4,
+                          width: ACTIONS_COLUMN_WIDTH,
                         }}
                       >
                         {renderLeafActions(elemPath, v, elementType)}
                       </span>
                     )}
-                    <div style={{ gridColumn: "1 / -1", marginTop: 2 }}>
+                    <div style={{ width: "100%", marginTop: 2 }}>
                       <ValueRenderer
                         client={client}
                         declaredType={elementType}
@@ -127,10 +128,12 @@ export function SequenceValue({
                   </>
                 ) : (
                   <>
-                    {indexLabel}
+                    <span style={{ display: "inline-flex", flex: "0 1 auto", minWidth: 0 }}>
+                      {indexLabel}
+                    </span>
                     <span
                       className="value-cell"
-                      style={{ display: "inline-flex", minWidth: 0, alignItems: "center" }}
+                      style={{ display: "inline-flex", minWidth: 60, alignItems: "center", gap: 8, flex: "1 1 auto" }}
                     >
                       <span className="value-text">
                         <ValueRenderer
@@ -147,8 +150,10 @@ export function SequenceValue({
                         style={{
                           display: "inline-flex",
                           alignItems: "center",
-                          justifySelf: "end",
+                          justifyContent: "flex-end",
+                          marginLeft: "auto",
                           gap: 4,
+                          width: ACTIONS_COLUMN_WIDTH,
                         }}
                       >
                         {renderLeafActions(elemPath, v, elementType)}
