@@ -61,20 +61,34 @@ printf '%s\n' "$doomed" | while read -r id name; do
     fi
 done
 
-if ! after=$(list_entries 2>&1); then
-    echo "cannot re-list caches to confirm the deletes landed" >&2
-    exit 1
-fi
-
+# A successful delete may still leave the cache visible in GET requests for a short period.
+max_attempts=3
+attempt=1
 survivors=""
-while read -r id _; do
-    [ -z "$id" ] && continue
-    # Matched without a pipe: grep -q leaves on the first match and printf then dies
-    # on the closed pipe, which pipefail would make this condition's answer.
-    if grep -qE "^${id} " <<<"$after"; then
-        survivors="$survivors $id"
+
+while [ $attempt -le $max_attempts ]; do
+    if ! after=$(list_entries 2>&1); then
+        echo "cannot re-list caches to confirm the deletes landed" >&2
+        exit 1
     fi
-done <<< "$doomed"
+
+    survivors=""
+    while read -r id _; do
+        [ -z "$id" ] && continue
+        # Matched without a pipe: grep -q leaves on the first match and printf then dies
+        # on the closed pipe, which pipefail would make this condition's answer.
+        if grep -qE "^${id} " <<<"$after"; then
+            survivors="$survivors $id"
+        fi
+    done <<< "$doomed"
+
+    if [ -z "$survivors" ]; then
+        break
+    fi
+
+    sleep 3
+    ((attempt++))
+done
 
 if [ -n "$survivors" ]; then
     echo "entries this run set out to delete are still present:$survivors" >&2
