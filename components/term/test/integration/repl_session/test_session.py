@@ -183,18 +183,28 @@ class TestTermSession(unittest.TestCase):
         """Without the request, the terminal sends pasted text as plain keystrokes."""
         self.assertIn("\x1b[?2004h", self.term.raw(), "the term did not enable bracketed paste")
 
-    def test_a_multi_line_paste_runs_nothing_and_becomes_one_line(self) -> None:
-        """Line breaks in pasted text join into spaces instead of submitting the line.
+    def test_a_multi_line_paste_runs_each_line(self) -> None:
+        """A line break in pasted text submits, so a pasted block runs as the commands it holds.
 
-        Without the paste state, one paste of three commands runs all three inside a single tick, including
-        anything destructive that happens to be in the text.
+        term joined the lines with spaces until this changed, which made a block of commands arrive as
+        one invalid line. Running them is what the block is pasted for, and it is what the shell does.
+
+        The cost is deliberate and was weighed: a paste now executes what it contains, with no pause to
+        read the line first, so text from somewhere untrusted runs as commands. The notice afterwards
+        reports how many lines ran, which is what makes a paste meant as one wrapped command visible as
+        the several it became.
         """
         self.term.forget()
         self.term.send_keys(PASTE_START + b"help\rhelp\r" + PASTE_END, settle=2.5)
+        # wait_for rather than a bare settle: under the sanitizers the term paints several times
+        # slower, and a fixed wait reads the screen before the output of the pasted commands is on it.
+        self.assertTrue(
+            self.term.wait_for("ran 2 lines", timeout=15.0),
+            f"nothing said how many lines ran. Screen:\n{self.term.screen()}",
+        )
         screen: str = self.term.screen()
-        self.assertNotIn("inspect", screen, f"the pasted 'help' was executed. Screen:\n{screen}")
-        self.assertIn("help help", screen, f"the two pasted lines were not joined. Screen:\n{screen}")
-        self.assertIn("line breaks, joined", screen, f"nothing said the lines had been joined. Screen:\n{screen}")
+        self.assertIn("inspect", screen, f"the pasted 'help' did not run. Screen:\n{screen}")
+        self.assertNotIn("help help", screen, f"the two pasted lines were joined. Screen:\n{screen}")
         self.assertTrue(self.term.is_running())
 
     def test_a_tab_inside_a_paste_is_text_not_completion(self) -> None:
