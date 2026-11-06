@@ -5,7 +5,7 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type * as React from "react";
 
 import { useConnectionState, useNotificationsDropped } from "@sen/client/react";
@@ -18,7 +18,7 @@ import { NavSwitcher, ObjectExplorerPopout } from "./components/object_explorer_
 import { EventsWorkspace } from "./components/events_workspace.js";
 import { PlotsView } from "./components/plots_view.js";
 import { HoverIconButton } from "./ui/buttons.js";
-import { EventsIcon, PlotIcon, PopOutIcon, CollapseAllIcon, ExpandAllIcon } from "./ui/icons.js";
+import { EventsIcon, PlotIcon, PopOutIcon, CollapseAllIcon, ExpandAllIcon, CloseIcon } from "./ui/icons.js";
 import { PopoutWindow } from "./components/popout_window.js";
 import { SelectionCollectors } from "./components/selection_collectors.js";
 import { SidebarHeader } from "./components/sidebar_header.js";
@@ -31,7 +31,14 @@ import {
   useLiveSelections,
   useOpenExplorers,
 } from "./state/explorer_hosts.js";
-import {plotsPopoutActions, usePlotsPopout, eventsPopoutActions, useEventsPopout, watchPopoutActions, useWatchPopout,} from "./state/popouts.js";
+import {
+  plotsPopoutActions,
+  usePlotsPopout,
+  eventsPopoutActions,
+  useEventsPopout,
+  watchPopoutActions,
+  useWatchPopout,
+} from "./state/popouts.js";
 import "./state/color_scheme.js";
 import { SampleStoreProvider } from "./state/sample_store.js";
 import { PopoutErrorBoundary } from "./ui/popout.js";
@@ -93,6 +100,13 @@ export function App() {
   const eventsPopout = useEventsPopout();
   const watchPopout = useWatchPopout();
 
+  const [dismissedError, setDismissedError] = useState<Error | null>(null);
+
+  // Clear dismissed error if the connection error resolves itself
+  useEffect(() => {
+    if (!error) setDismissedError(null);
+  }, [error]);
+
   // Auto-unfold on the 0 -> >=1 transition only; user folds stick. bottomFolded read
   // via ref so this effect runs only when panelCount changes.
   const panelCount = panels.length;
@@ -108,6 +122,14 @@ export function App() {
 
   const state = useConnectionState(client);
   const droppedNotifications = useNotificationsDropped(client);
+
+  const prevStateRef = useRef(state);
+  useEffect(() => {
+    if (prevStateRef.current !== "open" && state === "open" && error) {
+      setDismissedError(error);
+    }
+    prevStateRef.current = state;
+  }, [state, error]);
 
   const onExplorerPopOut = useCallback(() => {
     if (inPaneExplorer) {
@@ -264,7 +286,14 @@ export function App() {
           <CenterPane
             client={client}
             onOpenInPaneExplorer={explorerHostsActions.openInPaneExplorer}
-            banner={error ? <ErrorBanner message={error.message} /> : null}
+            banner={
+              error && error !== dismissedError ? (
+                <ErrorBanner
+                  message={error.message}
+                  onDismiss={() => setDismissedError(error)}
+                />
+              ) : null
+            }
           />
         </div>
         {bottomTabs.length > 0 && (
@@ -286,6 +315,7 @@ export function App() {
     [
       client,
       error,
+      dismissedError,
       bottomTabs,
       bottomTab,
       bottomFolded,
@@ -413,21 +443,32 @@ export function App() {
   );
 }
 
-function ErrorBanner({ message }: { message: string }) {
+function ErrorBanner({ message, onDismiss }: { message: string; onDismiss: () => void }) {
   return (
     <div
       style={{
         margin: "8px 12px",
-        padding: 10,
+        padding: "8px 12px",
         color: "var(--err)",
         border: "1px solid var(--err)",
         borderRadius: "var(--radius-sm)",
         background: "var(--bg-elevated)",
         fontFamily: "var(--font-mono)",
         fontSize: "var(--fs-md)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 12,
       }}
     >
-      {message}
+      <span style={{ minWidth: 0, overflowWrap: "break-word" }}>{message}</span>
+      <HoverIconButton
+        onClick={onDismiss}
+        icon={<CloseIcon />}
+        ariaLabel="dismiss error"
+        tooltip="Dismiss"
+        danger
+      />
     </div>
   );
 }
