@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<objectModel xsi:schemaLocation="http://standards.ieee.org/IEEE1516-2010 http://standards.ieee.org/downloads/1516/1516.2-2010/IEEE1516-DIF-2010.xsd" xmlns="http://standards.ieee.org/IEEE1516-2010" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelIdentification>
+        <name>NETN-SE</name>
+        <type>FOM</type>
+        <version>1.0</version>
+        <modificationDate>2020-09-04</modificationDate>
+        <securityClassification>Not Classified</securityClassification>
+        <purpose>Define synthetic environment objects in a HLA Federation Execution.</purpose>
+        <applicationDomain>Simulation, Training</applicationDomain>
+        <description>New definitions of Geo Objects, does not depend on RPR_v2 SE-FOM.
+
+A NETN_Facility object class to define facilities for different services.</description>
+        <useLimitation></useLimitation>
+        <useHistory>v1.0.0 - First version.</useHistory>
+        <poc>
+            <pocType>Primary author</pocType>
+            <pocName>MSG-163 Evolution of NATO Standards for Federated Simulation</pocName>
+            <pocOrg>NATO Modelling and Simulation Group</pocOrg>
+            <pocEmail>msg@cso.nato.int</pocEmail>
+        </poc>
+        <poc>
+            <pocType>Release authority</pocType>
+            <pocName>NATO Modelling and Simulation Group</pocName>
+            <pocOrg>NATO Science and Technology Organization</pocOrg>
+            <pocEmail>msg@cso.nato.int</pocEmail>
+        </poc>
+        <reference>
+            <type>Dependency</type>
+            <identification>NETN-BASE</identification>
+        </reference>
+        <reference>
+            <type>Dependency</type>
+            <identification>RPR-SE</identification>
+        </reference>
+        <other>
+Copyright © 2020 by NATO/OTAN. All rights reserved.
+This work is licensed under a Creative Commons Attribution-NoDerivatives 4.0 International License.
+
+Above license gives you the right to use and redistribute the NETN FOM Module (XML file and Documentation) in its entirety without modification. You are also allowed to develop your own new FOM Modules (in separate XML files and separate documentation) that build-on/extends the NETN module by reference. You are NOT allowed to modify the NETN FOM Module or its documentation without prior permission by the NATO Modelling and Simulation Group.</other>
+        <glyph type="png" height="48" width="48" alt="">iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAKRlWElmTU0AKgAAAAgABQESAAMAAAABAAEAAAEaAAUAAAABAAAASgEbAAUAAAABAAAAUgExAAIAAAAgAAAAWodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABQWRvYmUgUGhvdG9zaG9wIENTNiAoTWFjaW50b3NoKQAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAMKADAAQAAAABAAAAMAAAAAD4+bixAAAACXBIWXMAAAsTAAALEwEAmpwYAAAEE2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS40LjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIKICAgICAgICAgICAgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiCiAgICAgICAgICAgIHhtbG5zOnRpZmY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vdGlmZi8xLjAvIgogICAgICAgICAgICB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iPgogICAgICAgICA8eG1wTU06SW5zdGFuY2VJRD54bXAuaWlkOjVERkE1NkYwNzZDNTExRTY5OTczQ0JDNEQyNDQ2REEwPC94bXBNTTpJbnN0YW5jZUlEPgogICAgICAgICA8eG1wTU06RGVyaXZlZEZyb20gcmRmOnBhcnNlVHlwZT0iUmVzb3VyY2UiPgogICAgICAgICAgICA8c3RSZWY6aW5zdGFuY2VJRD54bXAuaWlkOkZGNDdBRkZGNzZDMjExRTY5OTczQ0JDNEQyNDQ2REEwPC9zdFJlZjpp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</glyph>
+    </modelIdentification>
+    <objects>
+        <objectClass>
+            <name>HLAobjectRoot</name>
+            <objectClass>
+                <name>SE_GeoObject</name>
+                <sharing>Neither</sharing>
+                <semantics>Representation of geographically associated locations, paths, and regions with or without a defined name. E.g. a harbour may be represented as a Location with a specific name, a commonly used route can be represented as a named path and a region can be represented as an specific geographic are and reused as an object instance in the simulation.</semantics>
+                <attribute>
+                    <name>UniqueId</name>
+                    <dataType>UuidArrayOfHLAbyte16</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>Initial</updateCondition>
+                    <ownership>NoTransfer</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>Required. Unique identifier for the GeoObject.</semantics>
+                </attribute>
+                <attribute>
+                    <name>Name</name>
+                    <dataType>HLAunicodeString</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>Initial</updateCondition>
+                    <ownership>NoTransfer</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>Optional. Name of the GeoObject, e.g. Location name, Road name etc.</semantics>
+                </attribute>
+                <objectClass>
+                    <name>Location</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <semantics>A location is a geographical point in latitude, longitude and altitude above mean sea level.</semantics>
+                    <attribute>
+                        <name>Point</name>
+                        <dataType>GeodeticPoint</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>When Changed</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAreliable</transportation>
+                        <order>Receive</order>
+                        <semantics>Required. A geographical point in latitude, longitude, and altitude above mean sea level.</semantics>
+                    </attribute>
+                </objectClass>
+                <objectClass>
+                    <name>Path</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <semantics>A path is defiend as a sequence of at least two locations. Each location in the path is defined geodetic coordinates and altitude above the mean sea level.</semantics>
+                    <attribute>
+                        <name>Points</name>
+                        <dataType>GeodeticPath</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>When Changed</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAreliable</transportation>
+                        <order>Receive</order>
+                        <semantics>Required. A path with at least 2 points expressed as GeodeticPoints.</semantics>
+                    </attribute>
+                </objectClass>
+                <objectClass>
+                    <name>Region</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <semantics>A region is an area on the earth's surface defined by a polygon or a circle.</semantics>
+                    <attribute>
+                        <name>Area</name>
+                        <dataType>AreaVariantStruct</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>When Changed</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAreliable</transportation>
+                        <order>Receive</order>
+                        <semantics>Required. Defines the area, either as a geodetic polygon, circle or quadrangle.</semantics>
+                    </attribute>
+                </objectClass>
+            </objectClass>
+            <objectClass>
+                <name>SE_Facility</name>
+                <sharing>PublishSubscribe</sharing>
+                <semantics>Base class for NETN Syntetic Environment object classes.</semantics>
+                <attribute>
+                    <name>UniqueId</name>
+                    <dataType>UuidArrayOfHLAbyte16</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>NA</updateCondition>
+                    <ownership>NoTransfer</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>Required. Pre-defined or generated unique identifier of the object instance.</semantics>
+                </attribute>
+                <attribute>
+                    <name>LocationReference</name>
+                    <dataType>GeoLocationReferenceVariant</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>Initial</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>Required. A reference that identifies a geographical location directly or indirectly by reference to a simulated object.</semantics>
+                </attribute>
+                <attribute>
+                    <name>Name</name>
+                    <dataType>HLAunicodeString</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>NA</updateCondition>
+                    <ownership>NoTransfer</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>Optional. Name of the facility.</semantics>
+                </attribute>
+                <attribute>
+                    <name>SymbolId</name>
+                    <dataType>SymbolIdentifier</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>NA</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>Optional. A symbol identifier represented as a string.</semantics>
+                </attribute>
+                <attribute>
+                    <name>Status</name>
+                    <dataType>ActiveStatusEnum8</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>Optional. Specifies if the facility is active (operational) or not. Default value is 1 (Active).</semantics>
+                </attribute>
+                <attribute>
+                    <name>ObjectType</name>
+                    <dataType>EnvironmentObjectTypeStruct</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>Initial</updateCondition>
+                    <ownership>NoTransfer</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>Optional. Specifying the domain, the kind and the specific identification of the environment object.</semantics>
+                </attribute>
+                <attribute>
+                    <name>ForceId</name>
+                    <dataType>ForceIdentifierEnum8</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On Change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>Optional. The force that operates the facility. Default is 0 (Other).</semantics>
+                </attribute>
+                <attribute>
+                    <name>PercentComplete</name>
+                    <dataType>PercentFloat32</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>When Changed</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>Optional. Describes a level of completion when establishing/building of the facility. Expressed in percent [0-100]. Default is 100%.</semantics>
+                </attribute>
+                <attribute>
+                    <name>DamageState</name>
+                    <dataType>DamageStatusEnum32</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On Change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>Optional. The damage state on the facility. Default value is 0 (NoDamage).</semantics>
+                </attribute>
+                <attribute>
+                    <name>Comment</name>
+                    <dataType>HLAunicodeString</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>When Changed</updateCondition>
+                    <ownership>NoTransfer</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>Optional. A descriptive text comment.</semantics>
+                </attribute>
+                <objectClass>
+                    <name>CheckPoint</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <semantics>A checkpoint defines a location where simulated aggregate and physical entities should stop and wait a specified time before continuing on their route. 
+If the checkpoint is currently in operation the status attribute should be set to true. A system simulating movement of physical or aggregate entities can be either directly affected by the checkpoint by subscribing to its state or indirectly by receiving an NETN-ETR `Wait` task.</semantics>
+                    <attribute>
+                        <name>DelayTime</name>
+                        <dataType>TimeSecondInteger32</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAreliable</transportation>
+                        <order>Receive</order>
+                        <semantics>Required. The time that an entity shall wait at the checkpoint before passing. The time is a nominal value; federates can use this for modifying delay time for different types of entities, e.g. add or subtract a value or multiply with a type depending factor.</semantics>
+                    </attribute>
+                </objectClass>
+            </objectClass>
+        </objectClass>
+    </objects>
+    <dataTypes>
+        <simpleDataTypes/>
+        <enumeratedDataTypes/>
+        <arrayDataTypes/>
+        <fixedRecordDataTypes/>
+        <variantRecordDataTypes>
+            <variantRecordData>
+                <name>GeoLocationReferenceVariant</name>
+                <discriminant>GeoReferenceType</discriminant>
+                <dataType>GeoLocationTypeEnum32</dataType>
+                <alternative>
+                    <enumerator>Point</enumerator>
+                    <name>GeodeticLocation</name>
+                    <dataType>GeodeticLocation</dataType>
+                    <semantics>A location on the surface of the earth defined by lat, lon WGS84.</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>Circle</enumerator>
+                    <name>GeodeticCircle</name>
+                    <dataType>GeodeticCircle</dataType>
+                    <semantics>A geodetic point and radius specifying a circle on the surface of the earth WGS84 where the radius is a great circle distance on the surface.</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>Quadrangle</enumerator>
+                    <name>GeodeticQuadrangle</name>
+                    <dataType>GeodeticQuadrangle</dataType>
+                    <semantics>A latitude-longitude quadrangle is a region bounded by two meridians and two parallels.</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>Polygon</enumerator>
+                    <name>GeodeticPolygon</name>
+                    <dataType>GeodeticPolygon</dataType>
+                    <semantics>A polygon on the surface of the earth defined by a number of great-circle arcs represented as lat, lon Locations. WGS84.</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>NETN_UUID</enumerator>
+                    <name>NETNGeoObjectReference</name>
+                    <dataType>UUID</dataType>
+                    <semantics>Reference to an object instance of class Location, Path or Region, defined in NETN-SE FOM Module or a NETN Physical or Aggregate entity with UUID.</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>RPR_Entity</enumerator>
+                    <name>RPREntityReference</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>Reference to an instance of a leaf node subclass of RPR-FOM BaseEntity by its EntityIdentifier. E.g. an Aircraft, SurfaceVessel etc.</semantics>
+                </alternative>
+                <encoding>HLAvariantRecord</encoding>
+                <semantics>The area affected by an Environment Condition can be expressed as: 
+- a location on the earth's surface represented by a Point, 
+- an area on the earth's surface, represented by a Quadrangle, GeodeticPolygon, or GeodeticCircle, or 
+- a reference to some other object/data. Objects that can be referenced are RPR entities, NETN entities, NETN-SE GeoObjects and GML Features.</semantics>
+            </variantRecordData>
+        </variantRecordDataTypes>
+    </dataTypes>
+    <notes/>
+</objectModel>

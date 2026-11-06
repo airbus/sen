@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<objectModel xsi:schemaLocation="http://standards.ieee.org/IEEE1516-2010 http://standards.ieee.org/downloads/1516/1516.2-2010/IEEE1516-DIF-2010.xsd" xmlns="http://standards.ieee.org/IEEE1516-2010" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelIdentification>
+        <name>SISO-STD-001.1-2015 - Real-time Platform Reference Logistics FOM Module</name>
+        <type>FOM</type>
+        <version>2.0</version>
+        <modificationDate>2015-08-10</modificationDate>
+        <securityClassification>Unclassified</securityClassification>
+        <purpose>The RPR FOM supports interoperability for real-time, platform oriented defense simulation.</purpose>
+        <applicationDomain>All domains</applicationDomain>
+        <description>The Logistics module defines interactions that represent repair and resupply logistic services.</description>
+        <useLimitation></useLimitation>
+        <poc>
+            <pocType>Primary author</pocType>
+            <pocName>RPR FOM Product Development Group</pocName>
+            <pocOrg>SISO - Simulation Interoperability Standards Organization</pocOrg>
+            <pocTelephone>+1 (407) 882-1348</pocTelephone>
+            <pocEmail>siso-help@sisostds.org</pocEmail>
+        </poc>
+        <reference>
+            <type>Dependency</type>
+            <identification>Real-time Platform Reference Base FOM Module</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>Standard for Guidance, Rationale, and Interoperability Modalities for the Real-time Platform Reference Federation Object Model (RPR FOM)
+SISO-STD-001-2015
+10 August 2015</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>IEEE Standard for Distributed Interactive Simulation - Application Protocols
+IEEE Std 1278.1-1995
+September 21, 1995</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>IEEE Standard for Distributed Interactive Simulation - Application Protocols
+IEEE Std 1278.1a-1998
+19 March 1998</identification>
+        </reference>
+        <other>Copyright © 2015 by the Simulation Interoperability Standards Organization, Inc.
+P.O. Box 781238
+Orlando, FL 32878-1238, USA
+All rights reserved.
+
+Schema and API: SISO hereby grants a general, royalty-free license to copy, distribute, display, and make derivative works from this material, for all purposes, provided that any use of the material contains the following attribution: “Reprinted with permission from SISO Inc.” Should a reader require additional information, contact the SISO Inc. Board of Directors.
+
+Documentation: SISO hereby grants a general, royalty-free license to copy, distribute, display, and make derivative works from this material, for noncommercial purposes, provided that any use of the material contains the following attribution: “Reprinted with permission from SISO Inc.” The material may not be used for a commercial purpose without express written permission from the SISO Inc. Board of Directors.
+
+SISO Inc. Board of Directors
+P.O. Box 781238
+Orlando, FL 32878-1238, USA
+</other>
+        <glyph type="png" height="64" width="64" alt="">iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA3xJREFUeNrsmj1LK0EUhnd1lVwCxg+CiBIFRcFW8S8o3CJ2AT8KGwsbC7Gw0n8gCBaCtYK1ohG0FxTsNBYiooWVit8a3fvczGUTd9d1s7mQWZxTLGfPzM5535kz58xuoicSCU3TdF3XwiamaXI1stns5eWlFk5pbm6uqKqq0kIrgK/QQi6KgCKgCCgCioAioAgoAoqAIqAIKAKKgCLwUwkYAZ55eHhIpVJcy4I4Go2ur6+XRODt7W1jYyPEIaTreiwWKxdim2u1iRUBRUARkK6QHR4ebm5u3t3d1dTUVFZWYuFqmiaW6urqyclJYZRFWltbzQL5+Pjo7+/36L+2tvby8lJbW1vGOmChBbx9BZaXl9PpdH19fWdn5+Pj4/X1NZQovTc3N6+vr3TY29sbHByUdAVA2dLSQuSAMpvNQuD29pbIwT42Nib6j4+PPz8/19XVybgCS0tLFxcX09PTfX193P7KiWiyYub+/p4FkTELgWxxcRGgzLGzH0shlKenJxZHnl818wS2t7fPz8+Hh4c7Ojqc/d7f34XCDoaAjGl0d3eX6/Hx8cLCAnEGYsMwWJCGhgZm/fT01DpLS7UCdgI7OSnsQda3pl/qSswe+GfKiTN48qQNQ/xKLhcBn5FNSpVqQSoK59V64XKGuGUhsTL9MmYhERUgs4VQYau1JajQ5UJsJXT7JiY/ig0APs4RQ0NDPT09WA4ODlZWVshOVs+mpiZKHnU6gHvSWldXV2NjI/rV1VUmkyEmfbYyiaDnQPkpNKjGZ2dnaJx/mFcIpFIpENscw2d1dRUlkUiMjo7G4/EAUcS8DAwM2IxbW1snJyfftiKRSMRWZNva2vJnIfG2PzU1JW5nZ2d/5wRFWGgqZem9R/bplykuPDsD/hMB5kDoExMThb65FXY6BEP/7ch+/IKQiPqSQDQanZ+fR5mZmXEiwEgTHYIR8BjZmmkUb78g9CLAEejo6Ailu7vbORBG0Y3ojxUpPCKedR25vb1dtKJ85RdgjMP2YxN/ScASDj/OgTCaJYvryKKuI1Yh8u8X8C4v9SKL+TEWK66D/J3Fz0pRfl0IJJNJn8ZixXWQkZERm1KcX2cIfZsrSpFgWcgjhNw/r/Nqxs7b399H7+3tnZub+18HAe+RA/jNV+IwCpVYfVpUBH48Aam+UhUrgKd+GySikP79HvB/BBgAyRxp27NRYu0AAAAASUVORK5CYII=</glyph>
+    </modelIdentification>
+    <interactions>
+        <interactionClass>
+            <name>HLAinteractionRoot</name>
+            <interactionClass>
+                <name>RepairComplete</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>Notifies the requesting entity that the requested repair has been completed.</semantics>
+                <parameter notes="RPRnoteLogistics1">
+                    <name>ReceivingObject</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>Object requesting repairs</semantics>
+                </parameter>
+                <parameter notes="RPRnoteLogistics1">
+                    <name>RepairingObject</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>Object that is able to perform the requested repair</semantics>
+                </parameter>
+                <parameter>
+                    <name>RepairType</name>
+                    <dataType>RepairTypeEnum16</dataType>
+                    <semantics>Type of repair performed</semantics>
+                </parameter>
+            </interactionClass>
+            <interactionClass>
+                <name>RepairResponse</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>Acknowledges the notification of the completion of a repair.</semantics>
+                <parameter notes="RPRnoteLogistics1">
+                    <name>ReceivingObject</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>Object requesting repairs</semantics>
+                </parameter>
+                <parameter notes="RPRnoteLogistics1">
+                    <name>RepairingObject</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>Object that is able to perform the requested repair</semantics>
+                </parameter>
+                <parameter>
+                    <name>RepairResultCode</name>
+                    <dataType>RepairResultEnum8</dataType>
+                    <semantics>Result of repair</semantics>
+                </parameter>
+            </interactionClass>
+            <interactionClass>
+                <name>ResupplyCancel</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>Communicates the canceling of a service function by either the receiving or the supplying entity.</semantics>
+                <parameter notes="RPRnoteLogistics1">
+                    <name>ReceivingObject</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>Object that is receiving supplies</semantics>
+                </parameter>
+                <parameter notes="RPRnoteLogistics1">
+                    <name>SupplyingObject</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>Object that has offered supplies</semantics>
+                </parameter>
+            </interactionClass>
+            <interactionClass>
+                <name>ResupplyOffer</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>Communicates the offer of supplies from a supplying entity to a receiving entity.</semantics>
+                <parameter notes="RPRnoteLogistics1">
+                    <name>ReceivingObject</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>Object that the supplies are being offered to.</semantics>
+                </parameter>
+                <parameter notes="RPRnoteLogistics1">
+                    <name>SupplyingObject</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>Object that is offering the supplies</semantics>
+                </parameter>
+                <parameter>
+                    <name>SuppliesData</name>
+                    <dataType>SupplyStructLengthlessArray</dataType>
+                    <semantics>List of supplies that are offered.</semantics>
+                </parameter>
+            </interactionClass>
+            <interactionClass>
+                <name>ResupplyReceived</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>Acknowledge the receipt of supplies.</semantics>
+                <parameter notes="RPRnoteLogistics1">
+                    <name>ReceivingObject</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>Object that is receiving the supplies</semantics>
+                </parameter>
+                <parameter notes="RPRnoteLogistics1">
+                    <name>SupplyingObject</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>Object that is providing the supplies.</semantics>
+                </parameter>
+                <parameter>
+                    <name>SuppliesData</name>
+                    <dataType>SupplyStructLengthlessArray</dataType>
+                    <semantics>List of supplies taken by receiving object.</semantics>
+                </parameter>
+            </interactionClass>
+            <interactionClass>
+                <name>ServiceRequest</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>A request for logistics support. The requesting entity issues the interaction to the supplying entity asking for repair or specific supplies.</semantics>
+                <parameter notes="RPRnoteLogistics1">
+                    <name>RequestingObject</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>Object requesting service</semantics>
+                </parameter>
+                <parameter notes="RPRnoteLogistics1">
+                    <name>ServicingObject</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>Object that is able to provide the requested service</semantics>
+                </parameter>
+                <parameter>
+                    <name>ServiceType</name>
+                    <dataType>ServiceTypeEnum8</dataType>
+                    <semantics>Type of requested service</semantics>
+                </parameter>
+                <parameter>
+                    <name>SuppliesData</name>
+                    <dataType>SupplyStructLengthlessArray</dataType>
+                    <semantics>For a service of resupply, the list of supplies to be exchanged. If the service requested is not resupply, then this parameter shall be omitted.</semantics>
+                </parameter>
+            </interactionClass>
+        </interactionClass>
+    </interactions>
+    <dataTypes>
+        <arrayDataTypes>
+            <arrayData>
+                <name>SupplyStructLengthlessArray</name>
+                <dataType>SupplyStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>A list of supply types and the number of each being offered or requested.</semantics>
+            </arrayData>
+        </arrayDataTypes>
+        <fixedRecordDataTypes>
+            <fixedRecordData>
+                <name>SupplyStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Represents a single supply type and the quantity being offered or requested.</semantics>
+                <field>
+                    <name>SupplyType</name>
+                    <dataType>EntityTypeStruct</dataType>
+                    <semantics>The type of supply being offered or requested.</semantics>
+                </field>
+                <field>
+                    <name>Quantity</name>
+                    <dataType>Float32</dataType>
+                    <semantics>The number of units of the supply type. The unit measure depends on the supply type and shall use the SI units of measurement used for such supplies.</semantics>
+                </field>
+            </fixedRecordData>
+        </fixedRecordDataTypes>
+    </dataTypes>
+    <notes>
+        <note>
+            <label>RPRnoteLogistics1</label>
+            <semantics>This must reference a valid Object instance.</semantics>
+        </note>
+    </notes>
+</objectModel>

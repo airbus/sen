@@ -1,0 +1,9 @@
+# $schema: ../base/schema.json
+
+# this example is similar to the previous one, but we
+# build two components: example and example2 to illustrate
+# that the communication between components (and therefore
+# threads) is transparent to the code you write.
+include:
+  - ../base/explorer_exp.yaml
+  - 5_school_two_classrooms_two_components.yaml

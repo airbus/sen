@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Adds an alternative to a variant record the RPR FOM declares. An alternative is identified
+     by the position it was read in rather than by name, so adding one is a change every
+     participant has to take together, and the extension files must be given in a fixed order. -->
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <dataTypes>
+        <variantRecordDataTypes>
+            <variantRecordData>
+                <name>GridAxisTypeVariantStruct</name>
+                <alternative>
+                    <enumerator>SiteGridAxisType</enumerator>
+                    <name>SiteGridAxis</name>
+                    <dataType>WorldLocationStruct</dataType>
+                    <semantics>An axis this site describes by a world location.</semantics>
+                </alternative>
+            </variantRecordData>
+        </variantRecordDataTypes>
+    </dataTypes>
+</objectModel>

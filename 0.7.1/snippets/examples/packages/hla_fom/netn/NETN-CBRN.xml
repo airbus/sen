@@ -1,0 +1,1480 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<objectModel xsi:schemaLocation="http://standards.ieee.org/IEEE1516-2010 http://standards.ieee.org/downloads/1516/1516.2-2010/IEEE1516-DIF-2010.xsd" xmlns="http://standards.ieee.org/IEEE1516-2010" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelIdentification>
+        <name>NETN-CBRN</name>
+        <type>FOM</type>
+        <version>v1.2</version>
+        <modificationDate>2020-09-02</modificationDate>
+        <securityClassification>Not Classified</securityClassification>
+        <purpose>NETN-CBRN provides a common standard interface for representation of CBRN release, detection, effects, and protective measueres in a federated distributed simulation. E.g the expoure effect on individual humans in a CBRN contaminated Hazard area where the human is represented in one simulation and the effect is modelled in another federate simulation.</purpose>
+        <applicationDomain>Training</applicationDomain>
+        <description>The NATO Education and Training Network (NETN) CBRN FOM Module.
+
+CBRN are Chemical, Biological, Radiological and Nuclear materials that can be delivered intentially as a weapon using conventional bombs, explosive materials and enhanced blast weapons (e.g., dirty bombs) or unintentionally caused by human error or natural or technological
+reasons, such as spills, accidental releases or leakages. 
+
+The NATO Education and Training Network CBRN Module (NETN-CBRN) is a specification of how to model CBRN releated events in a federated distributed simulation. 
+
+The specification is based on IEEE 1516 High Level Architecture (HLA) Object Model Template (OMT) and primarily intended to support interoperability in a federated simulation (federation) based on HLA. A Federation Object Model (FOM) Module is used to specify how data is represented and exchanged in the federation. The NETN-CBRN FOM module is available as an XML file for use in HLA based federations. </description>
+        <useLimitation>The NETN-CBRN FOM module covers:  1.	CBRN Source release modelling 2.	CBRN Detector modelling 3.	CBRN Effects modelling 4.	CBRN Protective measures modelling 5.	Hazard area modelling  Meteorological conditions and CBRN material properties for modelling the dispersion of CBRN material are not explicitly represented in the NETN-CBRN FOM Module. NETN-METOC FOM module can be used to model wether conditions that may impact the dispersion of CBRN materials and cause dynmaic change to hazard areas.</useLimitation>
+        <useHistory>v1.1.9 - Initial version developed by MSG-106. Included in NETN-FOM v2.0 and AMSP-04 Ed A.</useHistory>
+        <useHistory>v1.2.0 - Minor update of the NETN-CBRN FOM Module developed by MSG-163 and included in AMSP-04 Ed B.</useHistory>
+        <poc>
+            <pocType>Release authority</pocType>
+            <pocName>NATO Modelling and Simulation Group</pocName>
+            <pocOrg>NATO Science and Technology Organization</pocOrg>
+            <pocEmail>msg@cso.nato.int</pocEmail>
+        </poc>
+        <poc>
+            <pocType>Primary author</pocType>
+            <pocName>MSG-163 Evolution of NATO Standards for Federated Simulation</pocName>
+            <pocOrg>NATO Modelling and Simulation Group</pocOrg>
+            <pocEmail>msg@cso.nato.int</pocEmail>
+        </poc>
+        <poc>
+            <pocType>Primary author</pocType>
+            <pocName>MSG-134 NATO Distributed Simulation Architecture &amp; Design, Compliance Testing and Certification</pocName>
+            <pocOrg>NATO Modelling and Simulation Group</pocOrg>
+            <pocEmail>msg@cso.nato.int</pocEmail>
+        </poc>
+        <poc>
+            <pocType>Primary author</pocType>
+            <pocName>MSG-106 Enhanced CAX Architecture, Desing and Methodology</pocName>
+            <pocOrg>NATO Modelling and Simulation Group</pocOrg>
+            <pocEmail>msg@cso.nato.int</pocEmail>
+        </poc>
+        <reference>
+            <type>Dependency</type>
+            <identification>NETN-Physical</identification>
+        </reference>
+        <other>
+Copyright © 2020 by NATO/OTAN. All rights reserved.
+This work is licensed under a Creative Commons Attribution-NoDerivatives 4.0 International License.
+
+Above license gives you the right to use and redistribute the NETN FOM Module (XML file and Documentation) in its entirety without modification. You are also allowed to develop your own new FOM Modules (in separate XML files and separate documentation) that build-on/extends the NETN module by reference. You are NOT allowed to modify the NETN FOM Module or its documentation without prior permission by the NATO Modelling and Simulation Group.</other>
+        <glyph type="png" height="48" width="48" alt="">iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAACXBIWXMAABcSAAAXEgFnn9JSAAABWWlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS40LjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyI+CiAgICAgICAgIDx0aWZmOk9yaWVudGF0aW9uPjE8L3RpZmY6T3JpZW50YXRpb24+CiAgICAgIDwvcmRmOkRlc2NyaXB0aW9uPgogICA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgpMwidZAAAHmklEQVRoBc1aSWhVSRS9cdZ2AFvBWXEWbbRVnHFCQXrh0CBRUHDbC2dduHBABEEXoraKgiK604XjQqRR6QbFIQHFGXGKU6JGccDk/yTV91TV+b/yfP/7ExPNg0pVvap3/zn33rp1q4hI3T+Ns4jMNpbls8xDeZmHajwCWY20VGoZrOWvLl3kt8pKSRYXyyXt/62lWEsTLRVaGtQD8ACGJz8vTxLduonRti3du9u6SPsjMEGfpq5qGH8Bnq6R36SJGNU8gJeNGCHJzp0lqe3yXr3su7faHq4FT4MgEWp+ftOmYnr3tkCTO3eK+fBBzMuXYlautO/K+/e3damCbxCWCMHPC8Hv2iWmqkqMMa58/pwikRg0KGWJ360dfpIlQvBW8336OM3v2ZMGXlEhBgVEQGLVKjsnMWDAz7VECD6j5jX6pCzAdkOwRAg+o+YJmC6Emu9iLIGF/UPWRAjeap5us3t32ucJNATPNsd+hiUygg99ngAJOK7mnB9piYzgc9V8lEhIwofYeotOWcETGAGxn0vNb+rTEiH4agu2tpqPEgtJrFjhQmxd7RMh+K8WLIEQAPu1qSkjtMTAgZZMraNTCH5+8+Zierk8xqYH3JhY1wZ09Jtk0u0ZHz+KWbzYWcKTQNpRox0b4JmYzWvRQozPJJMHD6Y3JgKA9sKUge9zran9cD7ebdjgSPjcKWdLVNM8wPfsaQUl9+8X8+KFmIICMVevunZogTggIahoG6TDb16/FnPlipiTJ8VcuiTm8WMx69bVzBKh5vORmPXo4cDv3Svm9GkxmuOn8nu1ks0wr11LWwWAcrFGCPzVKzEICN5FU/KnThVz+bKYjRsdCZ87ZbUE3cZGm759HfhDh8Q8fZoGDr/U/D71QyCyebMYAIGWQSAbCYLHnDNnxPid3MqDtdEfNcrJX7tWzKdPYlavtn3uE7FrguDzmzVL5/M7djhQ9+87gd4frSVat3Za69TJjXXtKubixerWiLoNwZeWilm/3n0HBUBZ7dun+x06uHZ+vpP35YsYhtgYSxC7/AEX8cfAJNID+nhJiRgfEXjSSlkApy8SA5gjR9IWIGBom+1Hj8TMnu0AAkzHjmng+B5l6FBXHziQVkiYO/kDU4nO7avFPs31710PvhyHEWqPJE6ccEJhYn9cTJHQb22katPGzdm+XQzDIoDTpW7edOOYP2xYuo0+CsL1kCGuDTd688bhoCyQ8O5U5iPjUf3OPpP8iyr1uyqCDn8cIBCJdLYt0DoWHkjTAjNmiNmyxY1v2iSmrCytiBs33PtZs8Ts2+fasAD8HgUy2rVz7ydPFvPwofuWliOmd+/EzJljbz2Muu9rxdMFDP70ICo1jFVB+2TNhUmLnDsnZuJE90MkwxoLHvMOH3bjIAHit265PtwQoTiRELNwYbyMbdvSmid4/jb7ujar8JvqSp+1HoyrkCI9fONppK5SNWmS5LVtq5c7ervTWJeIrg1F5uopU3Rb1H1R9wPRECqqETs+frzI9OlWhixY4L5dtEhEFSGqFFHtytmzIhrB7KMgZOZMESUnLVuKKDlR3xe1hn2UuDTCDZN/iOXJExF1cRBo/P696K/LK87518f98mXL3PkVzMkabWgz7FMzYR2OYy2pcFsePHDWgStATvhNtB3KwBjd59kzMapcyCv361DV4B8Nn7hJK/ZxOYGwhbwEAqIC44hgDt4THL71eb4lcOGCk8XxqAx8TxkhIYJ//lzMuHEOvI9CVzXctiF+3qgN0xelPtYmMlki/IGwTXB453dQc+qUmOXLnRWwFjAWVUgoI2xzHjQ/YYKVkejXz9YFGvE6ePCpfYC3ZMN1oMTH/ayWCH8M4Eng2DEHmMkfdmmVafDj2FNyIRGneR9oCnV9tvfgqXjfTV8wWUuQRC6WoLYYLnH/E0ay69cdCbgV35NwqAi0CT5G84Wq+V89Wio8BZ4NDuRsCYJ/+9alBUgNkF1S0wR6/LgjcfRo9fUQEiD4wOcTMZonRmL+quaEb1qC4AACSZ1KMoWFafB4zzkgumaNmxO3Hgi+tpqPsiAJnIZSawILMoxOBIcNDuC5meE9x2gJ1FgDmKf7ib345RitCPA+2tRK89lIlHJNgATyEvw4Cm6fAWruXDHIHAmK46wJElkr5jNZq2vNZyORsgQWNq7OAY75z717mcFjXmiRrVsdidu33Tc4c+huDmJ1ovlsJFKWWLpUTHm5mLt3xZw/74BQ25lqWgGZJlJ2KAFuNXKkA+/jfE7RJgryW/3YNQFLgAQA0xUygef70BLYI0aPrj/NR0mFJFKWWLLEHf0AkBom2Liac7Bgx4ypf81nI1FtTYTRKQ54SBDgx479cZrPRiJlCSSAjE7UckiELoZNKpLb1IvPR0FH+3QnbHaxliBgkGC7ruN8FFRN+ySBtCPWEgBO8A1F81GSJGEtEabiXBOwQFHRV3G+IMgqKSMq+4f1CcBawidf9mR3544Y3N5Nm2aPgeX1Gee/ly1JWEvgpkEFJoJS4a9tGpTmo6RDEvdwbsXFFa4i/QXWP8FJinOjMmrc1zuHOn1wSsJ/ovyiJb9VKxmuITWhu/V/2j+mBQ/nuN53/v0fKASOlp0BasUAAAAASUVORK5CYII=</glyph>
+    </modelIdentification>
+    <objects>
+        <objectClass>
+            <name>HLAobjectRoot</name>
+            <objectClass>
+                <name>ATP45HazardArea</name>
+                <sharing>PublishSubscribe</sharing>
+                <semantics>Represents the footprint generated by a CBRN warning and reporting simulation. This follows the NATO ATP-45 doctrine to generate a hazard area.</semantics>
+                <attribute>
+                    <name>Time</name>
+                    <dataType>EpochTimeSecInt64</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Simulation time at which this hazard area was generated.</semantics>
+                </attribute>
+                <attribute>
+                    <name>ValidityTime</name>
+                    <dataType>TimeSecondInteger32</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Duration (in seconds) from the Time attribute that this hazard area prediction is valid.</semantics>
+                </attribute>
+                <attribute>
+                    <name>Locations</name>
+                    <dataType>GeocentricPolygon</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Array of locations that define the hazard area</semantics>
+                </attribute>
+                <attribute>
+                    <name>ATP45HazardAreaType</name>
+                    <dataType>ATP45HazardAreaTypeEnum8</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>N/A</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>This hazard area's type</semantics>
+                </attribute>
+                <attribute>
+                    <name>AgentClass</name>
+                    <dataType>AgentClassEnum8</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>N/A</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>The agent class</semantics>
+                </attribute>
+                <attribute>
+                    <name>UniqueID</name>
+                    <dataType>UuidArrayOfHLAbyte16</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>N/A</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Unique representation of the area’s ID.</semantics>
+                </attribute>
+            </objectClass>
+            <objectClass>
+                <name>ProbabilityHazardContourGroup</name>
+                <sharing>PublishSubscribe</sharing>
+                <semantics>Represents the footprint covered by a CBRN hazard. This object covers the agent-specific effects which would be the output from a casualty model.</semantics>
+                <attribute>
+                    <name>Time</name>
+                    <dataType>EpochTimeSecInt64</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Simulation time at which this contour group was generated.</semantics>
+                </attribute>
+                <attribute>
+                    <name>Agent</name>
+                    <dataType>AgentTypeEnum16</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>NA</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Agent reflected in this contour.</semantics>
+                </attribute>
+                <attribute>
+                    <name>ExposureType</name>
+                    <dataType>ExposureTypeEnum8</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>NA</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Type of exposure.</semantics>
+                </attribute>
+                <attribute>
+                    <name>Contours</name>
+                    <dataType>ArrayOfProbabilityHazardContourStruct</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Array of contours. These should be ordered in a sequence of ascending PercentProbabilityLevel.</semantics>
+                </attribute>
+                <attribute>
+                    <name>UniqueID</name>
+                    <dataType>UuidArrayOfHLAbyte16</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>N/A</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Unique representation of the contour’s ID.</semantics>
+                </attribute>
+            </objectClass>
+            <objectClass>
+                <name>RawDataHazardContourGroup</name>
+                <sharing>PublishSubscribe</sharing>
+                <semantics>Represents the footprint covered by a CBRN hazard. This object covers the raw data which would be the output from a dispersion model.</semantics>
+                <attribute>
+                    <name>Time</name>
+                    <dataType>EpochTimeSecInt64</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Simulation time at which this contour group was generated.</semantics>
+                </attribute>
+                <attribute>
+                    <name>Agent</name>
+                    <dataType>AgentTypeEnum16</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>NA</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Agent reflected in this contour.</semantics>
+                </attribute>
+                <attribute>
+                    <name>HazardType</name>
+                    <dataType>HazardTypeEnum8</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>NA</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Type of hazard.</semantics>
+                </attribute>
+                <attribute>
+                    <name>Contours</name>
+                    <dataType>ArrayOfRawDataHazardContourStruct</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Array of contours. These should be ordered in a sequence of ascending ExposureLevel.</semantics>
+                </attribute>
+                <attribute>
+                    <name>UniqueID</name>
+                    <dataType>UuidArrayOfHLAbyte16</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>N/A</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Unique representation of the contour’s ID.</semantics>
+                </attribute>
+            </objectClass>
+            <objectClass>
+                <name>BaseEntity</name>
+                <objectClass>
+                    <name>PhysicalEntity</name>
+                    <objectClass>
+                        <name>CulturalFeature</name>
+                        <objectClass>
+                            <name>NETN_CulturalFeature</name>
+                            <objectClass>
+                                <name>COLPRO</name>
+                                <sharing>PublishSubscribe</sharing>
+                                <semantics>Represents a feature that provides Collective Protection (COLPRO) against a CBRN threat.</semantics>
+                                <attribute>
+                                    <name>NumberEntities</name>
+                                    <dataType>QuantityUInt32</dataType>
+                                    <updateType>Static</updateType>
+                                    <updateCondition>N/A</updateCondition>
+                                    <ownership>DivestAcquire</ownership>
+                                    <sharing>PublishSubscribe</sharing>
+                                    <transportation>HLAbestEffort</transportation>
+                                    <order>Receive</order>
+                                    <semantics>The number of entities that this COLPRO can handle.</semantics>
+                                </attribute>
+                                <attribute>
+                                    <name>Protection</name>
+                                    <dataType>ArrayOfProtectionEffectivenessStruct</dataType>
+                                    <updateType>Static</updateType>
+                                    <updateCondition>N/A</updateCondition>
+                                    <ownership>DivestAcquire</ownership>
+                                    <sharing>PublishSubscribe</sharing>
+                                    <transportation>HLAbestEffort</transportation>
+                                    <order>Receive</order>
+                                    <semantics>The effectiveness that this COLPRO offers for each agent.</semantics>
+                                </attribute>
+                            </objectClass>
+                            <objectClass>
+                                <name>DecontaminationStation</name>
+                                <sharing>PublishSubscribe</sharing>
+                                <semantics>Represents a feature that provides treatment for CBRN exposure.</semantics>
+                                <attribute>
+                                    <name>NumberEntities</name>
+                                    <dataType>QuantityUInt32</dataType>
+                                    <updateType>Static</updateType>
+                                    <updateCondition>N/A</updateCondition>
+                                    <ownership>DivestAcquire</ownership>
+                                    <sharing>PublishSubscribe</sharing>
+                                    <transportation>HLAbestEffort</transportation>
+                                    <order>Receive</order>
+                                    <semantics>The number of entities that this decontamination station can handle.</semantics>
+                                </attribute>
+                                <attribute>
+                                    <name>DecontaminationPeriod</name>
+                                    <dataType>TimeSecondInteger32</dataType>
+                                    <updateType>Static</updateType>
+                                    <updateCondition>N/A</updateCondition>
+                                    <ownership>DivestAcquire</ownership>
+                                    <sharing>PublishSubscribe</sharing>
+                                    <transportation>HLAbestEffort</transportation>
+                                    <order>Receive</order>
+                                    <semantics>Duration in seconds it takes to decontaminate an entity.</semantics>
+                                </attribute>
+                                <attribute>
+                                    <name>Treatments</name>
+                                    <dataType>ArrayOfTreatmentStruct</dataType>
+                                    <updateType>Conditional</updateType>
+                                    <updateCondition>On change</updateCondition>
+                                    <ownership>DivestAcquire</ownership>
+                                    <sharing>PublishSubscribe</sharing>
+                                    <transportation>HLAbestEffort</transportation>
+                                    <order>Receive</order>
+                                    <semantics>The types of treatment that this decontamination station currently offers.</semantics>
+                                </attribute>
+                            </objectClass>
+                        </objectClass>
+                    </objectClass>
+                    <objectClass>
+                        <name>Lifeform</name>
+                        <objectClass>
+                            <name>Human</name>
+                            <objectClass>
+                                <name>NETN_Human</name>
+                                <objectClass>
+                                    <name>CBRN_Human</name>
+                                    <sharing>PublishSubscribe</sharing>
+                                    <semantics>Extension of NETN_Human to provide CBRN modelling.</semantics>
+                                    <attribute>
+                                        <name>Exposures</name>
+                                        <dataType>ArrayOfCBRNExposureStruct</dataType>
+                                        <updateType>Conditional</updateType>
+                                        <updateCondition>On change</updateCondition>
+                                        <ownership>DivestAcquire</ownership>
+                                        <sharing>PublishSubscribe</sharing>
+                                        <transportation>HLAbestEffort</transportation>
+                                        <order>Receive</order>
+                                        <semantics>Array of agents to which this entity has been exposed to. Defaults to an empty array.</semantics>
+                                    </attribute>
+                                    <attribute>
+                                        <name>Treatments</name>
+                                        <dataType>ArrayOfTreatmentStruct</dataType>
+                                        <updateType>Conditional</updateType>
+                                        <updateCondition>On change</updateCondition>
+                                        <ownership>DivestAcquire</ownership>
+                                        <sharing>PublishSubscribe</sharing>
+                                        <transportation>HLAbestEffort</transportation>
+                                        <order>Receive</order>
+                                        <semantics>The types of treatment that this entity has used. Defaults to an empty array.</semantics>
+                                    </attribute>
+                                    <attribute>
+                                        <name>TriageLevel</name>
+                                        <dataType>CBRNDamageEnum8</dataType>
+                                        <updateType>Conditional</updateType>
+                                        <updateCondition>On change</updateCondition>
+                                        <ownership>DivestAcquire</ownership>
+                                        <sharing>PublishSubscribe</sharing>
+                                        <transportation>HLAbestEffort</transportation>
+                                        <order>Receive</order>
+                                        <semantics>Triage level of this entity. Defaults to Uninjured.</semantics>
+                                    </attribute>
+                                    <attribute>
+                                        <name>IPEType</name>
+                                        <dataType>IPETypeEnum8</dataType>
+                                        <updateType>Conditional</updateType>
+                                        <updateCondition>On change</updateCondition>
+                                        <ownership>DivestAcquire</ownership>
+                                        <sharing>PublishSubscribe</sharing>
+                                        <transportation>HLAbestEffort</transportation>
+                                        <order>Receive</order>
+                                        <semantics>Type of IPE that the entity has donned. Defaults to None.</semantics>
+                                    </attribute>
+                                </objectClass>
+                            </objectClass>
+                        </objectClass>
+                    </objectClass>
+                    <objectClass>
+                        <name>Platform</name>
+                        <objectClass>
+                            <name>Aircraft</name>
+                            <objectClass>
+                                <name>NETN_Aircraft</name>
+                                <objectClass>
+                                    <name>CBRN_Aircraft</name>
+                                    <sharing>PublishSubscribe</sharing>
+                                    <semantics>Extension of NETN_Aircraft to provide CBRN modelling.</semantics>
+                                    <attribute>
+                                        <name>Contamination</name>
+                                        <dataType>ArrayOfAgentMassStruct</dataType>
+                                        <updateType>Conditional</updateType>
+                                        <updateCondition>On change</updateCondition>
+                                        <ownership>DivestAcquire</ownership>
+                                        <sharing>PublishSubscribe</sharing>
+                                        <transportation>HLAbestEffort</transportation>
+                                        <order>Receive</order>
+                                        <semantics>CBRN hazardous agent inside vehicle due to embedded units.</semantics>
+                                    </attribute>
+                                </objectClass>
+                            </objectClass>
+                        </objectClass>
+                        <objectClass>
+                            <name>AmphibiousVehicle</name>
+                            <objectClass>
+                                <name>NETN_AmphibiousVehicle</name>
+                                <objectClass>
+                                    <name>CBRN_AmphibiousVehicle</name>
+                                    <sharing>PublishSubscribe</sharing>
+                                    <semantics>Extension of NETN_AmphibiousVehicle to provide CBRN modelling.</semantics>
+                                    <attribute>
+                                        <name>Contamination</name>
+                                        <dataType>ArrayOfAgentMassStruct</dataType>
+                                        <updateType>Conditional</updateType>
+                                        <updateCondition>On change</updateCondition>
+                                        <ownership>DivestAcquire</ownership>
+                                        <sharing>PublishSubscribe</sharing>
+                                        <transportation>HLAbestEffort</transportation>
+                                        <order>Receive</order>
+                                        <semantics>CBRN hazardous agent inside vehicle due to embedded units.</semantics>
+                                    </attribute>
+                                </objectClass>
+                            </objectClass>
+                        </objectClass>
+                        <objectClass>
+                            <name>GroundVehicle</name>
+                            <objectClass>
+                                <name>NETN_GroundVehicle</name>
+                                <objectClass>
+                                    <name>CBRN_GroundVehicle</name>
+                                    <sharing>PublishSubscribe</sharing>
+                                    <semantics>Extension of NETN_GroundVehicle to provide CBRN modelling.</semantics>
+                                    <attribute>
+                                        <name>Contamination</name>
+                                        <dataType>ArrayOfAgentMassStruct</dataType>
+                                        <updateType>Conditional</updateType>
+                                        <updateCondition>On change</updateCondition>
+                                        <ownership>DivestAcquire</ownership>
+                                        <sharing>PublishSubscribe</sharing>
+                                        <transportation>HLAbestEffort</transportation>
+                                        <order>Receive</order>
+                                        <semantics>CBRN hazardous agent inside vehicle due to embedded units.</semantics>
+                                    </attribute>
+                                </objectClass>
+                            </objectClass>
+                        </objectClass>
+                        <objectClass>
+                            <name>MultiDomainPlatform</name>
+                            <objectClass>
+                                <name>NETN_MultiDomainPlatform</name>
+                                <objectClass>
+                                    <name>CBRN_MultiDomainPlatform</name>
+                                    <sharing>PublishSubscribe</sharing>
+                                    <semantics>Extension of NETN_MultiDomainPlatform to provide CBRN modelling.</semantics>
+                                    <attribute>
+                                        <name>Contamination</name>
+                                        <dataType>ArrayOfAgentMassStruct</dataType>
+                                        <updateType>Conditional</updateType>
+                                        <updateCondition>On change</updateCondition>
+                                        <ownership>DivestAcquire</ownership>
+                                        <sharing>PublishSubscribe</sharing>
+                                        <transportation>HLAbestEffort</transportation>
+                                        <order>Receive</order>
+                                        <semantics>CBRN hazardous agent inside vehicle due to embedded units.</semantics>
+                                    </attribute>
+                                </objectClass>
+                            </objectClass>
+                        </objectClass>
+                        <objectClass>
+                            <name>Spacecraft</name>
+                            <objectClass>
+                                <name>NETN_Spacecraft</name>
+                                <objectClass>
+                                    <name>CBRN_Spacecraft</name>
+                                    <sharing>PublishSubscribe</sharing>
+                                    <semantics>Extension of NETN_Spacecraft to provide CBRN modelling.</semantics>
+                                    <attribute>
+                                        <name>Contamination</name>
+                                        <dataType>ArrayOfAgentMassStruct</dataType>
+                                        <updateType>Conditional</updateType>
+                                        <updateCondition>On change</updateCondition>
+                                        <ownership>DivestAcquire</ownership>
+                                        <sharing>PublishSubscribe</sharing>
+                                        <transportation>HLAbestEffort</transportation>
+                                        <order>Receive</order>
+                                        <semantics>CBRN hazardous agent inside vehicle due to embedded units.</semantics>
+                                    </attribute>
+                                </objectClass>
+                            </objectClass>
+                        </objectClass>
+                        <objectClass>
+                            <name>SubmersibleVessel</name>
+                            <objectClass>
+                                <name>NETN_SubmersibleVessel</name>
+                                <objectClass>
+                                    <name>CBRN_SubmersibleVessel</name>
+                                    <sharing>PublishSubscribe</sharing>
+                                    <semantics>Extension of NETN_SubmersibleVehicle to provide CBRN modelling.</semantics>
+                                    <attribute>
+                                        <name>Contamination</name>
+                                        <dataType>ArrayOfAgentMassStruct</dataType>
+                                        <updateType>Conditional</updateType>
+                                        <updateCondition>On change</updateCondition>
+                                        <ownership>DivestAcquire</ownership>
+                                        <sharing>PublishSubscribe</sharing>
+                                        <transportation>HLAbestEffort</transportation>
+                                        <order>Receive</order>
+                                        <semantics>CBRN hazardous agent inside vehicle due to embedded units.</semantics>
+                                    </attribute>
+                                </objectClass>
+                            </objectClass>
+                        </objectClass>
+                        <objectClass>
+                            <name>SurfaceVessel</name>
+                            <objectClass>
+                                <name>NETN_SurfaceVessel</name>
+                                <objectClass>
+                                    <name>CBRN_SurfaceVessel</name>
+                                    <sharing>PublishSubscribe</sharing>
+                                    <semantics>Extension of NETN_SurfaceVessel to provide CBRN modelling.</semantics>
+                                    <attribute>
+                                        <name>Contamination</name>
+                                        <dataType>ArrayOfAgentMassStruct</dataType>
+                                        <updateType>Conditional</updateType>
+                                        <updateCondition>On change</updateCondition>
+                                        <ownership>DivestAcquire</ownership>
+                                        <sharing>PublishSubscribe</sharing>
+                                        <transportation>HLAbestEffort</transportation>
+                                        <order>Receive</order>
+                                        <semantics>CBRN hazardous agent inside vehicle due to embedded units.</semantics>
+                                    </attribute>
+                                </objectClass>
+                            </objectClass>
+                        </objectClass>
+                    </objectClass>
+                    <objectClass>
+                        <name>Sensor</name>
+                        <objectClass>
+                            <name>CBRN_Detector</name>
+                            <sharing>PublishSubscribe</sharing>
+                            <semantics>Represents a CBRN detector. This object is used to pass information to a CBRN federate, which will model the detector internally and publish a CBRN_DetectorAlarm.</semantics>
+                            <attribute>
+                                <name>UniqueID</name>
+                                <dataType>UuidArrayOfHLAbyte16</dataType>
+                                <updateType>Static</updateType>
+                                <updateCondition>N/A</updateCondition>
+                                <ownership>DivestAcquire</ownership>
+                                <sharing>PublishSubscribe</sharing>
+                                <transportation>HLAbestEffort</transportation>
+                                <order>Receive</order>
+                                <semantics>Unique representation of the detector’s ID.</semantics>
+                            </attribute>
+                            <attribute>
+                                <name>ProcessingTime</name>
+                                <dataType>TimeSecondInteger32</dataType>
+                                <updateType>Static</updateType>
+                                <updateCondition>N/A</updateCondition>
+                                <ownership>DivestAcquire</ownership>
+                                <sharing>PublishSubscribe</sharing>
+                                <transportation>HLAbestEffort</transportation>
+                                <order>Receive</order>
+                                <semantics>Duration (in seconds) between the detector being exposed to a concentration of agent above its threshold and the detector raising an alarm.</semantics>
+                            </attribute>
+                            <attribute>
+                                <name>AveragingTime</name>
+                                <dataType>TimeSecondInteger32</dataType>
+                                <updateType>Static</updateType>
+                                <updateCondition>N/A</updateCondition>
+                                <ownership>DivestAcquire</ownership>
+                                <sharing>PublishSubscribe</sharing>
+                                <transportation>HLAbestEffort</transportation>
+                                <order>Receive</order>
+                                <semantics>Duration (in seconds) over which the detector will collect samples.</semantics>
+                            </attribute>
+                            <attribute>
+                                <name>DetectableAgents</name>
+                                <dataType>ArrayOfAgentConcentrationStruct</dataType>
+                                <updateType>Static</updateType>
+                                <updateCondition>N/A</updateCondition>
+                                <ownership>DivestAcquire</ownership>
+                                <sharing>PublishSubscribe</sharing>
+                                <transportation>HLAbestEffort</transportation>
+                                <order>Receive</order>
+                                <semantics>Array of detectable agents and their thresholds.</semantics>
+                            </attribute>
+                            <attribute>
+                                <name>Alarm</name>
+                                <dataType>CBRNAlarmStruct</dataType>
+                                <updateType>Conditional</updateType>
+                                <updateCondition>On change</updateCondition>
+                                <ownership>DivestAcquire</ownership>
+                                <sharing>PublishSubscribe</sharing>
+                                <transportation>HLAbestEffort</transportation>
+                                <order>Receive</order>
+                                <semantics>Data representing the alarm of this detector. Defaults to no alarm if the attribute is not set.</semantics>
+                            </attribute>
+                        </objectClass>
+                        <objectClass>
+                            <name>CBRN_Sensor</name>
+                            <sharing>PublishSubscribe</sharing>
+                            <semantics>Represents a CBRN sensor. This object is used to pass information to a CBRN federate, which will return sensor readings by publishing CBRN_SensorUpdate interactions.</semantics>
+                            <attribute>
+                                <name>UniqueID</name>
+                                <dataType>UuidArrayOfHLAbyte16</dataType>
+                                <updateType>Static</updateType>
+                                <updateCondition>N/A</updateCondition>
+                                <ownership>DivestAcquire</ownership>
+                                <sharing>PublishSubscribe</sharing>
+                                <transportation>HLAbestEffort</transportation>
+                                <order>Receive</order>
+                                <semantics>Unique representation of the sensor’s ID.</semantics>
+                            </attribute>
+                            <attribute>
+                                <name>UpdateFrequency</name>
+                                <dataType>TimeSecondInteger32</dataType>
+                                <updateType>Static</updateType>
+                                <updateCondition>N/A</updateCondition>
+                                <ownership>DivestAcquire</ownership>
+                                <sharing>PublishSubscribe</sharing>
+                                <transportation>HLAbestEffort</transportation>
+                                <order>Receive</order>
+                                <semantics>Duration (in seconds) that this sensor would like between updated readings.</semantics>
+                            </attribute>
+                            <attribute>
+                                <name>AveragingTime</name>
+                                <dataType>TimeSecondInteger32</dataType>
+                                <updateType>Static</updateType>
+                                <updateCondition>N/A</updateCondition>
+                                <ownership>DivestAcquire</ownership>
+                                <sharing>PublishSubscribe</sharing>
+                                <transportation>HLAbestEffort</transportation>
+                                <order>Receive</order>
+                                <semantics>Duration (in seconds) over which the sensor will collect samples.</semantics>
+                            </attribute>
+                            <attribute>
+                                <name>DetectableAgents</name>
+                                <dataType>ArrayOfAgentTypeEnum</dataType>
+                                <updateType>Static</updateType>
+                                <updateCondition>N/A</updateCondition>
+                                <ownership>DivestAcquire</ownership>
+                                <sharing>PublishSubscribe</sharing>
+                                <transportation>HLAbestEffort</transportation>
+                                <order>Receive</order>
+                                <semantics>Array of agents that this sensor wishes to detect.</semantics>
+                            </attribute>
+                            <attribute>
+                                <name>SensorReadings</name>
+                                <dataType>ArrayOfCBRNSensorReadingStruct</dataType>
+                                <updateType>Conditional</updateType>
+                                <updateCondition>On change</updateCondition>
+                                <ownership>DivestAcquire</ownership>
+                                <sharing>PublishSubscribe</sharing>
+                                <transportation>HLAbestEffort</transportation>
+                                <order>Receive</order>
+                                <semantics>Latest sensor readings. Defaults to no readings if this attribute is not set.</semantics>
+                            </attribute>
+                        </objectClass>
+                    </objectClass>
+                </objectClass>
+            </objectClass>
+        </objectClass>
+    </objects>
+    <interactions>
+        <interactionClass>
+            <name>HLAinteractionRoot</name>
+            <interactionClass>
+                <name>CBRN_Casualty</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAreliable</transportation>
+                <order>Receive</order>
+                <semantics>Represents a CBRN casualty caused by exposure. This is for use with federates that cannot support the TriageLevel attribute in CBRN_Human.</semantics>
+                <parameter>
+                    <name>UniqueID</name>
+                    <dataType>UuidArrayOfHLAbyte16</dataType>
+                    <semantics>Unique representation of the entity’s ID.</semantics>
+                </parameter>
+                <parameter>
+                    <name>TriageLevel</name>
+                    <dataType>CBRNDamageEnum8</dataType>
+                    <semantics>Triage level of this entity.</semantics>
+                </parameter>
+                <parameter>
+                    <name>Exposures</name>
+                    <dataType>ArrayOfCBRNExposureStruct</dataType>
+                    <semantics>Array of agents to which this unit has been exposed.</semantics>
+                </parameter>
+            </interactionClass>
+            <interactionClass>
+                <name>CBRN_PlatformUpdate</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAreliable</transportation>
+                <order>Receive</order>
+                <semantics>Represents an update to the contaminating mass inside a vehicle due to embedded entities.</semantics>
+                <parameter>
+                    <name>PlatformID</name>
+                    <dataType>UuidArrayOfHLAbyte16</dataType>
+                    <semantics>The unique ID of the platform.</semantics>
+                </parameter>
+                <parameter>
+                    <name>Contamination</name>
+                    <dataType>ArrayOfAgentMassStruct</dataType>
+                    <semantics>New state of CBRN hazardous agent inside vehicle due to embedded units.</semantics>
+                </parameter>
+            </interactionClass>
+            <interactionClass>
+                <name>CBRN_Release</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAreliable</transportation>
+                <order>Receive</order>
+                <semantics>Communicates information associated with the release of hazardous agent.</semantics>
+                <parameter>
+                    <name>UniqueID</name>
+                    <dataType>UuidArrayOfHLAbyte16</dataType>
+                    <semantics>Unique representation of the release’s ID.</semantics>
+                </parameter>
+                <parameter>
+                    <name>Agent</name>
+                    <dataType>AgentTypeEnum16</dataType>
+                    <semantics>The type of released CBRN hazardous agent.</semantics>
+                </parameter>
+                <parameter>
+                    <name>Location</name>
+                    <dataType>WorldLocationStruct</dataType>
+                    <semantics>Initial location of the release in the geocentric location system.</semantics>
+                </parameter>
+                <parameter>
+                    <name>Mass</name>
+                    <dataType>MassKilogramFloat32</dataType>
+                    <semantics>Total released agent mass in kg.</semantics>
+                </parameter>
+                <parameter>
+                    <name>Duration</name>
+                    <dataType>TimeSecondInteger32</dataType>
+                    <semantics>Duration in seconds over which the release takes place.</semantics>
+                </parameter>
+                <parameter>
+                    <name>ReleaseSize</name>
+                    <dataType>ReleaseSizeStruct</dataType>
+                    <semantics>The initial size of the release including initial Gaussian sigmas of the released puff and mean &amp; variance of released particles.</semantics>
+                </parameter>
+                <parameter>
+                    <name>ReleaseDynamics</name>
+                    <dataType>ReleaseDynamicsStruct</dataType>
+                    <semantics>Temperature differance and density ratio of released material relative to the atmosphere.</semantics>
+                </parameter>
+                <parameter>
+                    <name>ReleaseVelocity</name>
+                    <dataType>VelocityVectorStruct</dataType>
+                    <semantics>Velocity of the source term.</semantics>
+                </parameter>
+            </interactionClass>
+            <interactionClass>
+                <name>CBRN_FacilityUpdate</name>
+                <sharing>Neither</sharing>
+                <transportation>HLAreliable</transportation>
+                <order>Receive</order>
+                <semantics>Represents an order for the specified entities to enter or leave the CBRN facility.</semantics>
+                <parameter>
+                    <name>FacilityID</name>
+                    <dataType>UuidArrayOfHLAbyte16</dataType>
+                    <semantics>The unique ID of the CBRN facility.</semantics>
+                </parameter>
+                <parameter>
+                    <name>EmbeddedUnitList</name>
+                    <dataType>ArrayOfUuid</dataType>
+                    <semantics>List of unique IDs of the entities who will enter or exit the CBRN facility.</semantics>
+                </parameter>
+                <parameter>
+                    <name>IsEntry</name>
+                    <dataType>HLAboolean</dataType>
+                    <semantics>Determines whether the entities are entering (IsEntry = true) or exiting (IsEntry = false) the CBRN facility.</semantics>
+                </parameter>
+                <interactionClass>
+                    <name>COLPROUpdate</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>Represents an order for the specified entities to enter or leave the COLPRO.</semantics>
+                </interactionClass>
+                <interactionClass>
+                    <name>DecontaminationStationUpdate</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>Represents an order for the specified entities to enter or leave the decontamination station.</semantics>
+                </interactionClass>
+            </interactionClass>
+            <interactionClass>
+                <name>IPECommand</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAreliable</transportation>
+                <order>Receive</order>
+                <semantics>Represents an order for the specified entities to don protective equipment.</semantics>
+                <parameter>
+                    <name>UnitList</name>
+                    <dataType>ArrayOfUuid</dataType>
+                    <semantics>List of unique IDs of the entities who will don IPE.</semantics>
+                </parameter>
+                <parameter>
+                    <name>IPEType</name>
+                    <dataType>IPETypeEnum8</dataType>
+                    <semantics>Type of IPE that the entities will don.</semantics>
+                </parameter>
+            </interactionClass>
+            <interactionClass>
+                <name>CBRN_TreatmentCommand</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAreliable</transportation>
+                <order>Receive</order>
+                <semantics>Represents an order for the specified entities to receive the list of treatments.</semantics>
+                <parameter>
+                    <name>UnitList</name>
+                    <dataType>ArrayOfUuid</dataType>
+                    <semantics>List of unique IDs of the entities who will receive the treatment.</semantics>
+                </parameter>
+                <parameter>
+                    <name>Treatments</name>
+                    <dataType>TreatmentStruct</dataType>
+                    <semantics>Type of treatment to be applied to the entities.</semantics>
+                </parameter>
+            </interactionClass>
+            <interactionClass>
+                <name>CBRN_DetectorAlarm</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAreliable</transportation>
+                <order>Receive</order>
+                <semantics>Represents the alarm trigger of a previously registered CBRN detector.</semantics>
+                <parameter>
+                    <name>DetectorID</name>
+                    <dataType>UuidArrayOfHLAbyte16</dataType>
+                    <semantics>Unique representation of the detector’s ID.</semantics>
+                </parameter>
+                <parameter>
+                    <name>Alarm</name>
+                    <dataType>CBRNAlarmStruct</dataType>
+                    <semantics>Details of the alarm.</semantics>
+                </parameter>
+            </interactionClass>
+            <interactionClass>
+                <name>CBRN_SensorUpdate</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAreliable</transportation>
+                <order>Receive</order>
+                <semantics>Sends information about the current state of a previously registered CBRN sensor.</semantics>
+                <parameter>
+                    <name>Time</name>
+                    <dataType>EpochTimeSecInt64</dataType>
+                    <semantics>Time of this sensor update</semantics>
+                </parameter>
+                <parameter>
+                    <name>SensorID</name>
+                    <dataType>UuidArrayOfHLAbyte16</dataType>
+                    <semantics>Unique representation of the sensor’s ID.</semantics>
+                </parameter>
+                <parameter>
+                    <name>Readings</name>
+                    <dataType>ArrayOfAgentConcentrationStruct</dataType>
+                    <semantics>Readings for this sensor</semantics>
+                </parameter>
+            </interactionClass>
+        </interactionClass>
+    </interactions>
+    <dataTypes>
+        <simpleDataTypes>
+            <simpleData>
+                <name>DensityRatioFloat32</name>
+                <representation>HLAfloat32BE</representation>
+                <units>NA</units>
+                <resolution>NA</resolution>
+                <accuracy>perfect</accuracy>
+                <semantics>Ratio of density of two materials in range [0, 1].</semantics>
+            </simpleData>
+            <simpleData>
+                <name>DosageKgSecondPerMeterCubedFloat32</name>
+                <representation>HLAfloat32BE</representation>
+                <units>Kg Second Per Meter Cubed</units>
+                <resolution>NA</resolution>
+                <accuracy>perfect</accuracy>
+                <semantics>Dosage in SI units.</semantics>
+            </simpleData>
+            <simpleData>
+                <name>ExposureFloat32</name>
+                <representation>HLAfloat32BE</representation>
+                <units>NA</units>
+                <resolution>NA</resolution>
+                <accuracy>perfect</accuracy>
+                <semantics>Data type for exposure.</semantics>
+            </simpleData>
+            <simpleData>
+                <name>MeanMetersFloat32</name>
+                <representation>HLAfloat32BE</representation>
+                <units>meters</units>
+                <resolution>NA</resolution>
+                <accuracy>perfect</accuracy>
+                <semantics>Mean of a Gaussian distribution, based on SI unit meter, unit symbol m.</semantics>
+            </simpleData>
+            <simpleData>
+                <name>QuantityUInt32</name>
+                <representation>RPRunsignedInteger32BE</representation>
+                <units>NA</units>
+                <resolution>NA</resolution>
+                <accuracy>perfect</accuracy>
+                <semantics>Quantity in range [0, 2^32-1]</semantics>
+            </simpleData>
+            <simpleData>
+                <name>VarianceMetersSquaredFloat32</name>
+                <representation>HLAfloat32BE</representation>
+                <units>meters squared</units>
+                <resolution>NA</resolution>
+                <accuracy>perfect</accuracy>
+                <semantics>Variance of a Gaussian distribution, based on SI unit meter squared, unit symbol m2.</semantics>
+            </simpleData>
+        </simpleDataTypes>
+        <enumeratedDataTypes>
+            <enumeratedData>
+                <name>AgentClassEnum8</name>
+                <representation>HLAoctet</representation>
+                <semantics>Class of Agent for an ATP-45 Hazard Area.</semantics>
+                <enumerator>
+                    <name>Chemical</name>
+                    <value>0</value>
+                </enumerator>
+                <enumerator>
+                    <name>Biological</name>
+                    <value>1</value>
+                </enumerator>
+                <enumerator>
+                    <name>Radiological</name>
+                    <value>2</value>
+                </enumerator>
+                <enumerator>
+                    <name>Nuclear</name>
+                    <value>3</value>
+                </enumerator>
+            </enumeratedData>
+            <enumeratedData>
+                <name>AgentTypeEnum16</name>
+                <representation>HLAinteger16BE</representation>
+                <semantics>Type of CBRN hazardous agent.</semantics>
+                <enumerator>
+                    <name>Chemical</name>
+                    <value>1000</value>
+                </enumerator>
+                <enumerator>
+                    <name>Choking</name>
+                    <value>1100</value>
+                </enumerator>
+                <enumerator>
+                    <name>CG</name>
+                    <value>1102</value>
+                </enumerator>
+                <enumerator>
+                    <name>Persistent_Nerve</name>
+                    <value>1200</value>
+                </enumerator>
+                <enumerator>
+                    <name>GA</name>
+                    <value>1201</value>
+                </enumerator>
+                <enumerator>
+                    <name>GB</name>
+                    <value>1202</value>
+                </enumerator>
+                <enumerator>
+                    <name>GD</name>
+                    <value>1203</value>
+                </enumerator>
+                <enumerator>
+                    <name>GF</name>
+                    <value>1204</value>
+                </enumerator>
+                <enumerator>
+                    <name>VX</name>
+                    <value>1205</value>
+                </enumerator>
+                <enumerator>
+                    <name>Non_Persistent_Nerve</name>
+                    <value>1300</value>
+                </enumerator>
+                <enumerator>
+                    <name>Vesicant</name>
+                    <value>1400</value>
+                </enumerator>
+                <enumerator>
+                    <name>HD</name>
+                    <value>1401</value>
+                </enumerator>
+                <enumerator>
+                    <name>Blood_Agent</name>
+                    <value>1500</value>
+                </enumerator>
+                <enumerator>
+                    <name>AC</name>
+                    <value>1501</value>
+                </enumerator>
+                <enumerator>
+                    <name>CK</name>
+                    <value>1502</value>
+                </enumerator>
+                <enumerator>
+                    <name>Riot_Control</name>
+                    <value>1700</value>
+                </enumerator>
+                <enumerator>
+                    <name>Toxic_Industrial_Chemical</name>
+                    <value>1800</value>
+                </enumerator>
+                <enumerator>
+                    <name>TIC1</name>
+                    <value>1801</value>
+                </enumerator>
+                <enumerator>
+                    <name>TIC2</name>
+                    <value>1802</value>
+                </enumerator>
+                <enumerator>
+                    <name>Biological</name>
+                    <value>2000</value>
+                </enumerator>
+                <enumerator>
+                    <name>Bacterial</name>
+                    <value>2100</value>
+                </enumerator>
+                <enumerator>
+                    <name>Anthrax</name>
+                    <value>2101</value>
+                </enumerator>
+                <enumerator>
+                    <name>Plague</name>
+                    <value>2102</value>
+                </enumerator>
+                <enumerator>
+                    <name>Toxin</name>
+                    <value>2200</value>
+                </enumerator>
+                <enumerator>
+                    <name>Virus</name>
+                    <value>2300</value>
+                </enumerator>
+                <enumerator>
+                    <name>Radiological</name>
+                    <value>3000</value>
+                </enumerator>
+                <enumerator>
+                    <name>Alpha</name>
+                    <value>3100</value>
+                </enumerator>
+                <enumerator>
+                    <name>Beta</name>
+                    <value>3200</value>
+                </enumerator>
+                <enumerator>
+                    <name>Gamma</name>
+                    <value>3300</value>
+                </enumerator>
+                <enumerator>
+                    <name>Delta</name>
+                    <value>3400</value>
+                </enumerator>
+                <enumerator>
+                    <name>Nuclear</name>
+                    <value>4000</value>
+                </enumerator>
+            </enumeratedData>
+            <enumeratedData>
+                <name>ATP45HazardAreaTypeEnum8</name>
+                <representation>HLAoctet</representation>
+                <semantics>Type of ATP-45 Hazard Area (simple or detailed).</semantics>
+                <enumerator>
+                    <name>Simple</name>
+                    <value>0</value>
+                </enumerator>
+                <enumerator>
+                    <name>Detailed</name>
+                    <value>1</value>
+                </enumerator>
+            </enumeratedData>
+            <enumeratedData>
+                <name>CBRNDamageEnum8</name>
+                <representation>HLAoctet</representation>
+                <semantics>Level of damage due to CBRN exposure.</semantics>
+                <enumerator>
+                    <name>Uninjured</name>
+                    <value>0</value>
+                </enumerator>
+                <enumerator>
+                    <name>T3</name>
+                    <value>1</value>
+                </enumerator>
+                <enumerator>
+                    <name>T2</name>
+                    <value>2</value>
+                </enumerator>
+                <enumerator>
+                    <name>T1</name>
+                    <value>3</value>
+                </enumerator>
+                <enumerator>
+                    <name>T4</name>
+                    <value>4</value>
+                </enumerator>
+                <enumerator>
+                    <name>Dead</name>
+                    <value>5</value>
+                </enumerator>
+            </enumeratedData>
+            <enumeratedData>
+                <name>ExposureTypeEnum8</name>
+                <representation>HLAoctet</representation>
+                <semantics>Type of exposure represented in a contour group.</semantics>
+                <enumerator>
+                    <name>Exposure</name>
+                    <value>0</value>
+                </enumerator>
+                <enumerator>
+                    <name>Incapacitation</name>
+                    <value>1</value>
+                </enumerator>
+                <enumerator>
+                    <name>Lethal</name>
+                    <value>2</value>
+                </enumerator>
+            </enumeratedData>
+            <enumeratedData>
+                <name>HazardTypeEnum8</name>
+                <representation>HLAoctet</representation>
+                <semantics>Type of dispersion output represented in a contour group.</semantics>
+                <enumerator>
+                    <name>Concentration</name>
+                    <value>0</value>
+                </enumerator>
+                <enumerator>
+                    <name>Deposition</name>
+                    <value>1</value>
+                </enumerator>
+                <enumerator>
+                    <name>Dosage</name>
+                    <value>2</value>
+                </enumerator>
+                <enumerator>
+                    <name>RadiologicalDose</name>
+                    <value>3</value>
+                </enumerator>
+                <enumerator>
+                    <name>RadiologicalDoseRate</name>
+                    <value>4</value>
+                </enumerator>
+            </enumeratedData>
+            <enumeratedData>
+                <name>IPETypeEnum8</name>
+                <representation>HLAoctet</representation>
+                <semantics>Types of Individual Protective Equipment.</semantics>
+                <enumerator>
+                    <name>None</name>
+                    <value>0</value>
+                </enumerator>
+                <enumerator>
+                    <name>One</name>
+                    <value>1</value>
+                </enumerator>
+                <enumerator>
+                    <name>OneR</name>
+                    <value>2</value>
+                </enumerator>
+                <enumerator>
+                    <name>Two</name>
+                    <value>3</value>
+                </enumerator>
+                <enumerator>
+                    <name>TwoR</name>
+                    <value>4</value>
+                </enumerator>
+                <enumerator>
+                    <name>Three</name>
+                    <value>5</value>
+                </enumerator>
+                <enumerator>
+                    <name>ThreeR</name>
+                    <value>6</value>
+                </enumerator>
+                <enumerator>
+                    <name>Four</name>
+                    <value>7</value>
+                </enumerator>
+                <enumerator>
+                    <name>FourR</name>
+                    <value>8</value>
+                </enumerator>
+            </enumeratedData>
+        </enumeratedDataTypes>
+        <arrayDataTypes>
+            <arrayData>
+                <name>ArrayOfAgentConcentrationStruct</name>
+                <dataType>AgentConcentrationStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>HLAvariableArray</encoding>
+                <semantics>Array of agents and their concentrations.</semantics>
+            </arrayData>
+            <arrayData>
+                <name>GeocentricPolygon</name>
+                <dataType>WorldLocationStruct</dataType>
+                <cardinality>[3..2147483647]</cardinality>
+                <encoding>HLAvariableArray</encoding>
+                <semantics>A polygon defined as a closed polygonal chain of geocentric world locations where the last location is connected to the first.</semantics>
+            </arrayData>
+            <arrayData>
+                <name>ArrayOfAgentMassStruct</name>
+                <dataType>AgentMassStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>HLAvariableArray</encoding>
+                <semantics>Array of agents and their masses.</semantics>
+            </arrayData>
+            <arrayData>
+                <name>ArrayOfAgentTypeEnum</name>
+                <dataType>AgentTypeEnum16</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>HLAvariableArray</encoding>
+                <semantics>Array of agents.</semantics>
+            </arrayData>
+            <arrayData>
+                <name>ArrayOfCBRNExposureStruct</name>
+                <dataType>CBRNExposureStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>HLAvariableArray</encoding>
+                <semantics>Array of agents and their dosages.</semantics>
+            </arrayData>
+            <arrayData>
+                <name>ArrayOfCBRNSensorReadingStruct</name>
+                <dataType>CBRNSensorReadingStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>HLAvariableArray</encoding>
+                <semantics>Array of sensor readings.</semantics>
+            </arrayData>
+            <arrayData>
+                <name>ArrayOfProbabilityHazardContourStruct</name>
+                <dataType>ProbabilityHazardContourStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>HLAvariableArray</encoding>
+                <semantics>Array of Probability Hazard Contours.</semantics>
+            </arrayData>
+            <arrayData>
+                <name>ArrayOfProtectionEffectivenessStruct</name>
+                <dataType>ProtectionEffectivenessStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>HLAvariableArray</encoding>
+                <semantics>Array of the protection’s effectiveness.</semantics>
+            </arrayData>
+            <arrayData>
+                <name>ArrayOfRawDataHazardContourStruct</name>
+                <dataType>RawDataHazardContourStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>HLAvariableArray</encoding>
+                <semantics>Array of Raw Data Hazard Contours.</semantics>
+            </arrayData>
+            <arrayData>
+                <name>ArrayOfSigmas6</name>
+                <dataType>LengthMeterFloat32</dataType>
+                <cardinality>6</cardinality>
+                <encoding>HLAfixedArray</encoding>
+                <semantics>Size of the initial Gaussian puff sigma values.</semantics>
+            </arrayData>
+            <arrayData>
+                <name>ArrayOfTreatmentStruct</name>
+                <dataType>TreatmentStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>HLAvariableArray</encoding>
+                <semantics>Array of TreatmentStruct types.</semantics>
+            </arrayData>
+        </arrayDataTypes>
+        <fixedRecordDataTypes>
+            <fixedRecordData>
+                <name>AgentConcentrationStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Concentration value associated with a specific agent.</semantics>
+                <field>
+                    <name>MeanConcentration</name>
+                    <dataType>MassConcentrationFloat32</dataType>
+                    <semantics>Concentration in kg m-3.</semantics>
+                </field>
+                <field>
+                    <name>Agent</name>
+                    <dataType>AgentTypeEnum16</dataType>
+                    <semantics>Enumeration representation of the agent.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>AgentMassStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Mass of contaminant inside a vehicle brought in by an embedded unit.</semantics>
+                <field>
+                    <name>ContaminatedMass</name>
+                    <dataType>MassKilogramFloat32</dataType>
+                    <semantics>Mass in kg of contaminant.</semantics>
+                </field>
+                <field>
+                    <name>Agent</name>
+                    <dataType>AgentTypeEnum16</dataType>
+                    <semantics>Enumeration representation of the agent.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>CBRNAlarmStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Properties of a CBRN alarm.</semantics>
+                <field>
+                    <name>Time</name>
+                    <dataType>EpochTimeSecInt64</dataType>
+                    <semantics>Simulation time of this detector alarm.</semantics>
+                </field>
+                <field>
+                    <name>Location</name>
+                    <dataType>WorldLocationStruct</dataType>
+                    <semantics>Location of the detector alarm.</semantics>
+                </field>
+                <field>
+                    <name>Agent</name>
+                    <dataType>AgentTypeEnum16</dataType>
+                    <semantics>Agent that the detector believes to have triggered this alarm.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>CBRNExposureStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Dosage exposure value associated with a specific agent.</semantics>
+                <field>
+                    <name>Exposure</name>
+                    <dataType>DosageKgSecondPerMeterCubedFloat32</dataType>
+                    <semantics>Dosage value (in kg.s.m-3) which has caused this casualty. Defaults to 0.0.</semantics>
+                </field>
+                <field>
+                    <name>Agent</name>
+                    <dataType>AgentTypeEnum16</dataType>
+                    <semantics>Enumeration representation of the agent.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>CBRNSensorReadingStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Timed CBRN sensor reading.</semantics>
+                <field>
+                    <name>Time</name>
+                    <dataType>EpochTimeSecInt64</dataType>
+                    <semantics>Simulation time of this sensor reading.</semantics>
+                </field>
+                <field>
+                    <name>Reading</name>
+                    <dataType>AgentConcentrationStruct</dataType>
+                    <semantics>Agent and concentration value in this reading.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>ProbabilityHazardContourStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Represents the footprint covered by a CBRN hazard. This object covers the agent-specific effects which would be the output from a casualty model.</semantics>
+                <field>
+                    <name>PercentProbabilityLevel</name>
+                    <dataType>PercentFloat32</dataType>
+                    <semantics>Percentage of entities within this contour being affected to the define exposure level.</semantics>
+                </field>
+                <field>
+                    <name>Locations</name>
+                    <dataType>GeocentricPolygon</dataType>
+                    <semantics>Array of locations that define the probability contour.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>ProtectionEffectivenessStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Protection effectiveness associated with a specific agent.</semantics>
+                <field>
+                    <name>Effectiveness</name>
+                    <dataType>PercentFloat32</dataType>
+                    <semantics>Percentage by which this protection reduces effects.</semantics>
+                </field>
+                <field>
+                    <name>Agent</name>
+                    <dataType>AgentTypeEnum16</dataType>
+                    <semantics>Enumeration representation of the agent.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>RawDataHazardContourStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Contour locations bounding a given exposure value.</semantics>
+                <field>
+                    <name>ExposureLevel</name>
+                    <dataType>ExposureFloat32</dataType>
+                    <semantics>Quantity of exposure, measured in SI units.</semantics>
+                </field>
+                <field>
+                    <name>Locations</name>
+                    <dataType>GeocentricPolygon</dataType>
+                    <semantics>Array of locations that define the hazard contour.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>ReleaseDistributionStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Mean and variance of the distribution of the particles or droplets in a release.</semantics>
+                <field>
+                    <name>Mean</name>
+                    <dataType>MeanMetersFloat32</dataType>
+                    <semantics>Mean size of the released material in meters.</semantics>
+                </field>
+                <field>
+                    <name>Variance</name>
+                    <dataType>VarianceMetersSquaredFloat32</dataType>
+                    <semantics>Variance of the distribution of released particulates/droplets.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>ReleaseDynamicsStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Defines the dynamic properties of a release.</semantics>
+                <field>
+                    <name>DensityRatio</name>
+                    <dataType>DensityRatioFloat32</dataType>
+                    <semantics>Ratio of material density relative to the atmosphere.</semantics>
+                </field>
+                <field>
+                    <name>TemperatureDifference</name>
+                    <dataType>TemperatureDegreeCelsiusFloat32</dataType>
+                    <semantics>Difference in temperature between the released material and the atmosphere in Celsius.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>ReleaseSizeStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Defines the properties of the initial size of a release.</semantics>
+                <field>
+                    <name>SigmaArray</name>
+                    <dataType>ArrayOfSigmas6</dataType>
+                    <semantics>Initial Gaussian sigmas of the released puff.</semantics>
+                </field>
+                <field>
+                    <name>ReleaseDistribution</name>
+                    <dataType>ReleaseDistributionStruct</dataType>
+                    <semantics>Details regarding the size of the released particles/droplets for non-gaseous materials.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>TreatmentStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Defines the properties for a CBRN treatment.</semantics>
+                <field>
+                    <name>UniqueID</name>
+                    <dataType>UuidArrayOfHLAbyte16</dataType>
+                    <semantics>The ID of this treatment.</semantics>
+                </field>
+                <field>
+                    <name>Effectiveness</name>
+                    <dataType>PercentFloat32</dataType>
+                    <semantics>Percentage by which this treatment reduces effects.</semantics>
+                </field>
+                <field>
+                    <name>Duration</name>
+                    <dataType>TimeSecondInteger32</dataType>
+                    <semantics>Duration in seconds for which this treatment will remain effective.</semantics>
+                </field>
+                <field>
+                    <name>TreatmentWindow</name>
+                    <dataType>TimeSecondInteger32</dataType>
+                    <semantics>The time window in seconds between exposure and treatment for which this treatment is effective.</semantics>
+                </field>
+                <field>
+                    <name>TreatableAgents</name>
+                    <dataType>ArrayOfAgentTypeEnum</dataType>
+                    <semantics>Array of agents that can be treated using this treatment.</semantics>
+                </field>
+            </fixedRecordData>
+        </fixedRecordDataTypes>
+        <variantRecordDataTypes/>
+    </dataTypes>
+    <notes/>
+</objectModel>

@@ -1,0 +1,9 @@
+{
+  "classes": {
+    "timer.Timer": {
+      "checkedProperties": [
+        "program"
+      ]
+    }
+  }
+}

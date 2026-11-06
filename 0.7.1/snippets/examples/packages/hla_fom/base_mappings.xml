@@ -1,0 +1,137 @@
+<senMapping>
+
+    <class name="BaseEntity.PhysicalEntity.Munition">
+        <event hlaInteraction="MunitionDetonation" pack="true">
+            <ignore parameter="EventIdentifier"/>
+            <ignore parameter="MunitionObjectIdentifier"/>
+        </event>
+        <property name="launcherFlashPresent" writable="true"/>
+    </class>
+
+    <class name="BaseEntity.PhysicalEntity">
+        <event hlaInteraction="Collision">
+            <ignore parameter="EventIdentifier"/>
+            <ignore parameter="IssuingObjectIdentifier"/>
+        </event>
+
+        <event hlaInteraction="CollisionElastic">
+            <ignore parameter="EventIdentifier"/>
+            <ignore parameter="IssuingObjectIdentifier"/>
+        </event>
+
+        <event hlaInteraction="WeaponFire">
+            <ignore parameter="EventIdentifier"/>
+        </event>
+    </class>
+
+    <class name="EnvironmentObject.ArealObject.MinefieldObject">
+        <method hlaInteraction="EnvironmentObjectTransaction.ArealObjectTransaction.MinefieldObjectTransaction">
+            <ignore parameter="ObjectIdentifier"/>
+            <ignore parameter="ReferencedObjectIdentifier"/>
+            <ignore parameter="ObjectType"/>
+            <ignore parameter="RequestingIdentifier"/>
+            <ignore parameter="ReceivingIdentifier"/>
+        </method>
+    </class>
+
+    <class name="EnvironmentObject.LinearObject.BreachableLinearObject">
+        <method hlaInteraction="EnvironmentObjectTransaction.LinearObjectTransaction.BreachableLinearObjectTransaction">
+            <ignore parameter="ObjectIdentifier"/>
+            <ignore parameter="ReferencedObjectIdentifier"/>
+            <ignore parameter="ObjectType"/>
+            <ignore parameter="RequestingIdentifier"/>
+            <ignore parameter="ReceivingIdentifier"/>
+        </method>
+    </class>
+
+    <class name="EnvironmentObject.LinearObject.BreachObject">
+        <method hlaInteraction="EnvironmentObjectTransaction.LinearObjectTransaction.BreachObjectTransaction">
+            <ignore parameter="ObjectIdentifier"/>
+            <ignore parameter="ReferencedObjectIdentifier"/>
+            <ignore parameter="ObjectType"/>
+            <ignore parameter="RequestingIdentifier"/>
+            <ignore parameter="ReceivingIdentifier"/>
+        </method>
+    </class>
+
+    <class name="EnvironmentObject.LinearObject.ExhaustSmokeObject">
+        <method hlaInteraction="EnvironmentObjectTransaction.LinearObjectTransaction.ExhaustSmokeObjectTransaction">
+            <ignore parameter="ObjectIdentifier"/>
+            <ignore parameter="ReferencedObjectIdentifier"/>
+            <ignore parameter="ObjectType"/>
+            <ignore parameter="RequestingIdentifier"/>
+            <ignore parameter="ReceivingIdentifier"/>
+        </method>
+    </class>
+
+    <class name="EnvironmentObject.LinearObject.MinefieldLaneMarkerObject">
+        <method hlaInteraction="EnvironmentObjectTransaction.LinearObjectTransaction.MinefieldLaneMarkerObjectTransaction">
+            <ignore parameter="ObjectIdentifier"/>
+            <ignore parameter="ReferencedObjectIdentifier"/>
+            <ignore parameter="ObjectType"/>
+            <ignore parameter="RequestingIdentifier"/>
+            <ignore parameter="ReceivingIdentifier"/>
+        </method>
+    </class>
+
+    <class name="EnvironmentObject.PointObject.BreachablePointObject">
+        <method hlaInteraction="EnvironmentObjectTransaction.PointObjectTransaction.BreachablePointObjectTransaction">
+            <ignore parameter="ObjectIdentifier"/>
+            <ignore parameter="ReferencedObjectIdentifier"/>
+            <ignore parameter="ObjectType"/>
+            <ignore parameter="RequestingIdentifier"/>
+            <ignore parameter="ReceivingIdentifier"/>
+        </method>
+    </class>
+
+    <class name="EnvironmentObject.PointObject.BurstPointObject">
+        <method hlaInteraction="EnvironmentObjectTransaction.PointObjectTransaction.BurstPointObjectTransaction">
+            <ignore parameter="ObjectIdentifier"/>
+            <ignore parameter="ReferencedObjectIdentifier"/>
+            <ignore parameter="ObjectType"/>
+            <ignore parameter="RequestingIdentifier"/>
+            <ignore parameter="ReceivingIdentifier"/>
+        </method>
+    </class>
+
+    <class name="EnvironmentObject.PointObject.CraterObject">
+        <method hlaInteraction="EnvironmentObjectTransaction.PointObjectTransaction.CraterObjectTransaction">
+            <ignore parameter="ObjectIdentifier"/>
+            <ignore parameter="ReferencedObjectIdentifier"/>
+            <ignore parameter="ObjectType"/>
+            <ignore parameter="RequestingIdentifier"/>
+            <ignore parameter="ReceivingIdentifier"/>
+        </method>
+    </class>
+
+    <class name="EnvironmentObject.PointObject.OtherPointObject">
+        <method hlaInteraction="EnvironmentObjectTransaction.PointObjectTransaction.OtherPointObjectTransaction">
+            <ignore parameter="ObjectIdentifier"/>
+            <ignore parameter="ReferencedObjectIdentifier"/>
+            <ignore parameter="ObjectType"/>
+            <ignore parameter="RequestingIdentifier"/>
+            <ignore parameter="ReceivingIdentifier"/>
+        </method>
+    </class>
+
+    <class name="EnvironmentObject.PointObject.RibbonBridgeObject">
+        <method hlaInteraction="EnvironmentObjectTransaction.PointObjectTransaction.RibbonBridgeObjectTransaction">
+            <ignore parameter="ObjectIdentifier"/>
+            <ignore parameter="ReferencedObjectIdentifier"/>
+            <ignore parameter="ObjectType"/>
+            <ignore parameter="RequestingIdentifier"/>
+            <ignore parameter="ReceivingIdentifier"/>
+        </method>
+    </class>
+
+    <class name="EnvironmentObject.PointObject.StructureObject">
+        <method hlaInteraction="EnvironmentObjectTransaction.PointObjectTransaction.StructureObjectTransaction">
+            <ignore parameter="ObjectIdentifier"/>
+            <ignore parameter="ReferencedObjectIdentifier"/>
+            <ignore parameter="ObjectType"/>
+            <ignore parameter="RequestingIdentifier"/>
+            <ignore parameter="ReceivingIdentifier"/>
+        </method>
+    </class>
+
+</senMapping>

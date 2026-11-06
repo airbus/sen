@@ -1,0 +1,14 @@
+load:
+  - name: term
+    group: 2
+    open: [local.lifecycle]
+
+build:
+  - name: lifecycleComponent
+    freqHz: 2
+    group: 3
+    imports: [lifecycle]
+    objects:
+      - class: lifecycle.PhaseRecorderImpl
+        name: phases
+        bus: local.lifecycle

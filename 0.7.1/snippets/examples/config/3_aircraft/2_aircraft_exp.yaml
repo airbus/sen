@@ -1,0 +1,4 @@
+# $schema: ../base/schema.json
+include:
+  - 1_aircraft.yaml
+  - ../base/explorer_exp.yaml

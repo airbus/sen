@@ -1,0 +1,4 @@
+# $schema: ../base/schema.json
+include:
+  - ../base/explorer_exp.yaml
+  - 1_inheritance.yaml

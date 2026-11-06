@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Adds a field to a fixed record the RPR FOM declares. Contributed fields are appended after
+     the record's own, which is the order the record is serialized in. -->
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <dataTypes>
+        <fixedRecordDataTypes>
+            <fixedRecordData>
+                <name>UniformGeomRecStruct</name>
+                <field>
+                    <name>SiteSampleCount</name>
+                    <dataType>Integer32</dataType>
+                    <semantics>How many samples this site took of the geometry.</semantics>
+                </field>
+            </fixedRecordData>
+        </fixedRecordDataTypes>
+    </dataTypes>
+</objectModel>

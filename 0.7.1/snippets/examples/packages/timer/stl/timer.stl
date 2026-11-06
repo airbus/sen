@@ -1,0 +1,18 @@
+package timer;
+
+enum RunningState: u8 { off, on }
+
+class Timer
+{
+  // Timer state (on/off).
+  var state : RunningState [writable];
+
+  // Can be set only if the timer is off.
+  var program : Duration [writable];
+
+  // Remaining time.
+  var countdown : Duration;
+
+  // Emitted when the countdown transitions to 0.
+  event timeout();
+}

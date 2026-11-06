@@ -1,0 +1,15 @@
+<map id="sen::kernel::KernelApi" name="sen::kernel::KernelApi">
+<area shape="rect" id="Node000001" title="User&#45;facing kernel functions." alt="" coords="389,5,595,465"/>
+<area shape="rect" id="Node000002" href="$classsen_1_1kernel_1_1_init_api.html" title="What can be done when initializing a component." alt="" coords="5,603,128,689"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="379,311,258,402,197,457,142,515,111,559,87,604,82,602,106,557,138,512,194,453,255,398,376,307"/>
+<area shape="rect" id="Node000003" href="$classsen_1_1kernel_1_1_load_api.html" title="What can be done when loading a component." alt="" coords="152,603,285,689"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="383,392,300,515,245,604,240,601,295,512,378,389"/>
+<area shape="rect" id="Node000004" href="$classsen_1_1kernel_1_1_preload_api.html" title="What can be done when preloading a component." alt="" coords="310,563,479,729"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="437,479,417,564,412,563,432,478"/>
+<area shape="rect" id="Node000005" href="$classsen_1_1kernel_1_1_registration_api.html" title="API for objects when registered." alt="" coords="503,603,678,689"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="553,478,583,603,578,604,548,479"/>
+<area shape="rect" id="Node000006" href="$classsen_1_1kernel_1_1_run_api.html" title="What can be done while a component is running." alt="" coords="702,513,831,779"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="606,385,693,512,704,530,700,532,688,515,601,388"/>
+<area shape="rect" id="Node000007" href="$classsen_1_1kernel_1_1_unload_api.html" title="What can be done when unloading a component." alt="" coords="856,603,1003,689"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="608,310,728,401,789,455,846,512,881,557,909,602,905,605,877,560,842,515,785,458,724,405,605,314"/>
+</map>

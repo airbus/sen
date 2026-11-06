@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<objectModel xsi:schemaLocation="http://standards.ieee.org/IEEE1516-2010 http://standards.ieee.org/downloads/1516/1516.2-2010/IEEE1516-DIF-2010.xsd" xmlns="http://standards.ieee.org/IEEE1516-2010" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelIdentification>
+        <name>Transfer of Modelling Responsibility FOM Module</name>
+        <type>FOM</type>
+        <version>2.0</version>
+        <modificationDate>2020-09-02</modificationDate>
+        <securityClassification>Not Classified</securityClassification>
+        <purpose>Protocol for Transfer of Modelling Responsilbility</purpose>
+        <applicationDomain>Training</applicationDomain>
+        <description>Transfer of Modelling Responsibility FOM Module</description>
+        <useLimitation>NA</useLimitation>
+        <useHistory>v1.1.3 - Released version part of NETN-FOM v2.0 in AMSP-04 Ed A.</useHistory>
+        <useHistory>v2.0.0 - Released version part of NETN-FOM v3.0 in AMSP-04 Ed B.</useHistory>
+        <poc>
+            <pocType>Release authority</pocType>
+            <pocName>NATO Modelling and Simulation Group</pocName>
+            <pocOrg>NATO Science and Technology Organization</pocOrg>
+            <pocEmail>msg@cso.nato.int</pocEmail>
+        </poc>
+        <poc>
+            <pocType>Primary author</pocType>
+            <pocName>MSG-163 Evolution of NATO Standards for Federated Simulation</pocName>
+            <pocOrg>NATO Modelling and Simulation Group</pocOrg>
+            <pocEmail>msg@cso.nato.int</pocEmail>
+        </poc>
+        <poc>
+            <pocType>Primary author</pocType>
+            <pocName>MSG-134 NATO Distributed Simulation Architecture &amp; Design, Compliance Testing and Certification</pocName>
+            <pocOrg>NATO Modelling and Simulation Group</pocOrg>
+            <pocEmail>msg@cso.nato.int</pocEmail>
+        </poc>
+        <poc>
+            <pocType>Primary author</pocType>
+            <pocName>MSG-106 Enhanced CAX Architecture, Desing and Methodology</pocName>
+            <pocOrg>NATO Modelling and Simulation Group</pocOrg>
+            <pocEmail>msg@cso.nato.int</pocEmail>
+        </poc>
+        <reference>
+            <type>Dependency</type>
+            <identification>NETN-BASE</identification>
+        </reference>
+        <other>
+Copyright © 2020 by NATO/OTAN. All rights reserved.
+This work is licensed under a Creative Commons Attribution-NoDerivatives 4.0 International License.
+
+Above license gives you the right to use and redistribute the NETN FOM Module (XML file and Documentation) in its entirety without modification. You are also allowed to develop your own new FOM Modules (in separate XML files and separate documentation) that build-on/extends the NETN module by reference. You are NOT allowed to modify the NETN FOM Module or its documentation without prior permission by the NATO Modelling and Simulation Group.</other>
+        <glyph type="png" height="48" width="48" alt="">iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAhGVYSWZNTQAqAAAACAAFARIAAwAAAAEAAQAAARoABQAAAAEAAABKARsABQAAAAEAAABSASgAAwAAAAEAAgAAh2kABAAAAAEAAABaAAAAAAAAAEgAAAABAAAASAAAAAEAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAMKADAAQAAAABAAAAMAAAAAAoDQEPAAAACXBIWXMAAAsTAAALEwEAmpwYAAABWWlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS40LjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyI+CiAgICAgICAgIDx0aWZmOk9yaWVudGF0aW9uPjE8L3RpZmY6T3JpZW50YXRpb24+CiAgICAgIDwvcmRmOkRlc2NyaXB0aW9uPgogICA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgpMwidZAAASo0lEQVRoBaWad6xcRZaHb/ft3P1ssAGTc44iGjDJ2ICANWFG5IHFHhOEyCJp+QPQ7h+M0AqtkdCSQeSw2CSB7XGSBgEirhBBLDmDwcbP73UO+31F36e28TIrzZPat26dqlOnzvmdUHUd9Xq9VBRFqSeeeCL25/uSJUsyPm+88cY0v4z0fl96kJ7MSeiO/3t0x8hrcM3B+euiD/IcpNsf33TTTQpavOiii1pz5syJX3rppeLFF19c/+6770pDQ0MRtNasWbOGLr/88noqlcree++9hSuvvLKxfPnyyscff9y99tprO1999VVF+h577JGbN29e7tJLLw30arXaYVxv2223DfS999670Gg0MhdeeGFTnm+//Xbr/fff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</glyph>
+    </modelIdentification>
+    <interactions>
+        <interactionClass>
+            <name>HLAinteractionRoot</name>
+            <interactionClass>
+                <name>TMR_Interaction</name>
+                <sharing>Neither</sharing>
+                <transportation>HLAreliable</transportation>
+                <order>Receive</order>
+                <semantics>The `TMR_Interaction` interaction class is the base for all Transfer of Modelling Responsibility interactions. It provides a single parameter used in all TMR interactions to uniquely identify TMR transactions between participating federates.</semantics>
+                <parameter>
+                    <name>EventId</name>
+                    <dataType>TransactionId</dataType>
+                    <semantics>Required. The `EventId` is a unique reference to a specific execution of a TMR pattern. It consists of two values, a Counter and a Federate Handle. The value of this parameter is also encoded and used as the User Supplied Tag in the HLA Ownership services to allow a correlation between the TMR interactions and HLA Ownership services. The `EventId` is generated by a trigger federate or, if no trigger federate is used, directly by the requesting federate. The value of this parameter should match all related TMR pattern interactions belonging to the same Transfer of Modelling Responsibilities event.</semantics>
+                </parameter>
+                <interactionClass>
+                    <name>InitiateTransfer</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>An `InitiateTransfer` interaction is sent by a **Trigger Federate** to initiate a TMR request. Parameters include information on the participating federates, which object instances and what attributes are included in the transfer.  The **Trigger Federate** shall generate a unique `EventId` to be used in all subsequent TMR interactions related to the event.</semantics>
+                    <parameter>
+                        <name>RequestFederate</name>
+                        <dataType>FederateName</dataType>
+                        <semantics>Required. A name specifying the federate requesting the transfer.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>ResponseFederate</name>
+                        <dataType>FederateName</dataType>
+                        <semantics>Required unless TransferType is AquireWithoutNegotiation: A Federate Name specifying the federate that is the responding federate.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>Instances</name>
+                        <dataType>ArrayOfUuid</dataType>
+                        <semantics>Required. References (UUID) to NETN Platform, Lifeform or Aggregate instances included in the transfer.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>Attributes</name>
+                        <dataType>AttributeNamesType</dataType>
+                        <semantics>Required. The common set of attributes for all referenced instances to be included in the transfer. Reference to attributes is by attribute name.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>TransferType</name>
+                        <dataType>TransferEnumType</dataType>
+                        <semantics>Required. An enumerated value that indicates the direction of the transfer of the ownership and whether there shall be any negotiation: `Acquire` = Requesting Federate acquires instance attribute ownership from the Responding Federate (current owner), `Divest` = Requesting Federate (current owner) releases instance attribute ownership to Responding Federate and `AcquireWithoutNegotiating` = Requesting Federate acquires unowned instance attributes.</semantics>
+                    </parameter>
+                </interactionClass>
+                <interactionClass>
+                    <name>RequestTransfer</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>A `RequestTransfer` interaction is sent by the requesting federate to the responding federate. If the request is the result of a `InitiateTransfer` interaction, the parameters from that interaction shall be copied and used in the request including `EventId`. If the request is not triggered the **Request Federate** shall generate a unique `EventId` to be used in all subsequent TMR interactions related to the event.</semantics>
+                    <parameter>
+                        <name>ResponseFederate</name>
+                        <dataType>FederateName</dataType>
+                        <semantics>Required unless TransferType is AquireWithoutNegotiation: A Federate Name specifying the federate that is the responding federate.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>Instances</name>
+                        <dataType>ArrayOfUuid</dataType>
+                        <semantics>Required. References (UUID) to NETN Platform, Lifeform or Aggregate instances  included in the transfer.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>Attributes</name>
+                        <dataType>AttributeNamesType</dataType>
+                        <semantics>Required. The common set of attributes for all referenced instances to be included in the transfer. Reference to attributes is by attribute name.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>TransferType</name>
+                        <dataType>TransferEnumType</dataType>
+                        <semantics>Required. An enumerated value that indicates the direction of the transfer of the ownership and whether there shall be any negotiation: `Acquire` = Requesting Federate acquires instance attribute ownership from the Responding Federate (current owner), `Divest` = Requesting Federate (current owner) releases instance attribute ownership to Responding Federate and `AcquireWithoutNegotiating` = Requesting Federate acquires unowned instance attributes.</semantics>
+                    </parameter>
+                </interactionClass>
+                <interactionClass>
+                    <name>OfferTransfer</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>An `OfferTransfer` interaction is sent by a **Response Federate** as a reply to a `RequestTransfer` to indicate if a transfer can be accomplished or not. 
+ 
+**Special Case**: 
+When the transfer type is Divesting, the delivery order of the interaction `OfferTransfer` and the HLA ownership callback service `requestAttributeOwnershipRelease` at the receiving federate is not determined. Due to this, receiving a `requestAttributeOwnershipRelease` callback should be treated in the same way as receiving a `OfferTransfer` with a positive offer. The user-supplied tag in the callback contains the `EventId` which identifies a specific transfer process.</semantics>
+                    <parameter>
+                        <name>IsOffering</name>
+                        <dataType>HLAboolean</dataType>
+                        <semantics>Required. True if and only if for all instances all attributes in the request are offered. False if for any instance any attribute in the request is not offered.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>Reason</name>
+                        <dataType>NoOfferReasonEnumType</dataType>
+                        <semantics>Optional. An enumerated value that shall specify the reason for a negative offer.</semantics>
+                    </parameter>
+                </interactionClass>
+                <interactionClass>
+                    <name>CancelRequest</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>A `CancelRequest` interaction can be sent by the **Request Federate** to cancel a request.</semantics>
+                    <parameter>
+                        <name>Reason</name>
+                        <dataType>CancellationReasonEnum32</dataType>
+                        <semantics>Optional. An enumerated value that describes the reason for the cancellation: `Other` = When a Requesting Federate for some reason except time out decides not to complete a transfer. `TimeOut` = When a model's time limit for receiving a TMR offer has passed.</semantics>
+                    </parameter>
+                </interactionClass>
+                <interactionClass>
+                    <name>TransferResult</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>A `TransferResult` interaction is sent by the **Request Federate** to indicate successful or unsuccessful completion of the transfer.</semantics>
+                    <parameter>
+                        <name>IsCompleted</name>
+                        <dataType>HLAboolean</dataType>
+                        <semantics>Required. A Boolean value indicating the result of the transfer. TRUE = Transfer Completed Successfully.</semantics>
+                    </parameter>
+                </interactionClass>
+            </interactionClass>
+        </interactionClass>
+    </interactions>
+    <tags>
+        <updateReflectTag>
+            <dataType>NA</dataType>
+            <semantics>NA</semantics>
+        </updateReflectTag>
+        <sendReceiveTag>
+            <dataType>NA</dataType>
+            <semantics>NA</semantics>
+        </sendReceiveTag>
+        <deleteRemoveTag>
+            <dataType>NA</dataType>
+            <semantics>NA</semantics>
+        </deleteRemoveTag>
+        <divestitureRequestTag>
+            <dataType>TransactionId</dataType>
+            <semantics>NA</semantics>
+        </divestitureRequestTag>
+        <divestitureCompletionTag>
+            <dataType>NA</dataType>
+            <semantics>NA</semantics>
+        </divestitureCompletionTag>
+        <acquisitionRequestTag>
+            <dataType>TransactionId</dataType>
+            <semantics>NA</semantics>
+        </acquisitionRequestTag>
+        <requestUpdateTag>
+            <dataType>NA</dataType>
+            <semantics>NA</semantics>
+        </requestUpdateTag>
+    </tags>
+    <dataTypes>
+        <simpleDataTypes/>
+        <enumeratedDataTypes>
+            <enumeratedData>
+                <name>TransferEnumType</name>
+                <representation>HLAinteger32BE</representation>
+                <semantics>Transfer type</semantics>
+                <enumerator>
+                    <name>Other</name>
+                    <value>0</value>
+                </enumerator>
+                <enumerator>
+                    <name>Acquire</name>
+                    <value>1</value>
+                </enumerator>
+                <enumerator>
+                    <name>Divest</name>
+                    <value>2</value>
+                </enumerator>
+                <enumerator>
+                    <name>AcquireWithoutNegotiating</name>
+                    <value>3</value>
+                </enumerator>
+            </enumeratedData>
+            <enumeratedData>
+                <name>NoOfferReasonEnumType</name>
+                <representation>HLAinteger32BE</representation>
+                <semantics>Describes the reason why not accepting a TMR request</semantics>
+                <enumerator>
+                    <name>Other</name>
+                    <value>0</value>
+                </enumerator>
+                <enumerator>
+                    <name>CapabilityDoesNotMatch</name>
+                    <value>1</value>
+                </enumerator>
+                <enumerator>
+                    <name>AttributeSetTooRestricted</name>
+                    <value>2</value>
+                </enumerator>
+                <enumerator>
+                    <name>AttributeSetTooExtensive</name>
+                    <value>3</value>
+                </enumerator>
+                <enumerator>
+                    <name>FederateTooBusy</name>
+                    <value>4</value>
+                </enumerator>
+                <enumerator>
+                    <name>AttributeSetNotCompatibleWithPublication</name>
+                    <value>5</value>
+                </enumerator>
+                <enumerator>
+                    <name>OwnershipStateNotCompatibleWithRequest</name>
+                    <value>6</value>
+                </enumerator>
+                <enumerator>
+                    <name>EntityNotKnown</name>
+                    <value>7</value>
+                </enumerator>
+            </enumeratedData>
+        </enumeratedDataTypes>
+        <arrayDataTypes>
+            <arrayData>
+                <name>AttributeNamesType</name>
+                <dataType>HLAunicodeString</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>HLAvariableArray</encoding>
+                <semantics>Array of attribute names.</semantics>
+            </arrayData>
+        </arrayDataTypes>
+        <fixedRecordDataTypes/>
+        <variantRecordDataTypes/>
+    </dataTypes>
+    <notes/>
+</objectModel>

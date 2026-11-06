@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<objectModel xsi:schemaLocation="http://standards.ieee.org/IEEE1516-2010 http://standards.ieee.org/downloads/1516/1516.2-2010/IEEE1516-DIF-2010.xsd" xmlns="http://standards.ieee.org/IEEE1516-2010" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelIdentification>
+        <name>SISO-STD-001.1-2015 - Real-time Platform Reference Underwater Acoustics FOM Module</name>
+        <type>FOM</type>
+        <version>2.0</version>
+        <modificationDate>2015-08-10</modificationDate>
+        <securityClassification>Unclassified</securityClassification>
+        <purpose>The RPR FOM supports interoperability for real-time, platform oriented defense simulation.</purpose>
+        <applicationDomain>All domains</applicationDomain>
+        <description>Definitions of the objects and interactions required to express acoustic signatures of surface and subsurface vessels for passive sonar sensors. Includes sounds produced as byproducts of propulsion and other ship board systems and activities as well as sounds produced by acoustic transducers for active sonar sensing and depth measurement.</description>
+        <useLimitation></useLimitation>
+        <poc>
+            <pocType>Primary author</pocType>
+            <pocName>RPR FOM Product Development Group</pocName>
+            <pocOrg>SISO - Simulation Interoperability Standards Organization</pocOrg>
+            <pocTelephone>+1 (407) 882-1348</pocTelephone>
+            <pocEmail>siso-help@sisostds.org</pocEmail>
+        </poc>
+        <reference>
+            <type>Dependency</type>
+            <identification>Real-time Platform Reference Base FOM Module</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>Standard for Guidance, Rationale, and Interoperability Modalities for the Real-time Platform Reference Federation Object Model (RPR FOM)
+SISO-STD-001-2015
+10 August 2015</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>IEEE Standard for Distributed Interactive Simulation - Application Protocols
+IEEE Std 1278.1-1995
+September 21, 1995</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>IEEE Standard for Distributed Interactive Simulation - Application Protocols
+IEEE Std 1278.1a-1998
+19 March 1998</identification>
+        </reference>
+        <other>Copyright © 2015 by the Simulation Interoperability Standards Organization, Inc.
+P.O. Box 781238
+Orlando, FL 32878-1238, USA
+All rights reserved.
+
+Schema and API: SISO hereby grants a general, royalty-free license to copy, distribute, display, and make derivative works from this material, for all purposes, provided that any use of the material contains the following attribution: “Reprinted with permission from SISO Inc.” Should a reader require additional information, contact the SISO Inc. Board of Directors.
+
+Documentation: SISO hereby grants a general, royalty-free license to copy, distribute, display, and make derivative works from this material, for noncommercial purposes, provided that any use of the material contains the following attribution: “Reprinted with permission from SISO Inc.” The material may not be used for a commercial purpose without express written permission from the SISO Inc. Board of Directors.
+
+SISO Inc. Board of Directors
+P.O. Box 781238
+Orlando, FL 32878-1238, USA
+</other>
+        <glyph type="png" height="64" width="64" alt="">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</glyph>
+    </modelIdentification>
+    <objects>
+        <objectClass>
+            <name>HLAobjectRoot</name>
+            <objectClass>
+                <name>EmbeddedSystem</name>
+                <objectClass>
+                    <name>UnderwaterAcousticsEmission</name>
+                    <sharing>Neither</sharing>
+                    <semantics>The underwater acoustic classes used to communicate underwater acoustic active, intentional emissions and Passive Signature or Unintentional Emissions information. These emissions are used during undersea warfare scenarios to detect, classify, and track hostile forces when electronic warfare mechanisms are unavailable.</semantics>
+                    <attribute>
+                        <name>EventIdentifier</name>
+                        <dataType>EventIdentifierStruct</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The generating federate uses the Event Identifier to associate related events. The event number begins at one at the beginning of the exercise and is incremented by one for each event.</semantics>
+                    </attribute>
+                    <objectClass>
+                        <name>ActiveSonar</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <semantics>Describes the state of an active sonar system.</semantics>
+                        <attribute>
+                            <name>AcousticName</name>
+                            <dataType>ActiveSonarEnum16</dataType>
+                            <updateType>Static</updateType>
+                            <updateCondition>NA</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Defines the type of sonar being represented.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>FunctionCode</name>
+                            <dataType>ActiveSonarFunctionCodeEnum8</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Declares the current primary use of the sonar. It may be used by simulatons to infer intent.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>AcousticsIdentifier</name>
+                            <dataType>Octet</dataType>
+                            <updateType>Static</updateType>
+                            <updateCondition>NA</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Unique identifier for the sonar on an entity, Starts with 1</semantics>
+                        </attribute>
+                    </objectClass>
+                    <objectClass>
+                        <name>PropulsionNoise</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <semantics>Describes the steady state component of unintended passive emissions that are normally associated with the power plant</semantics>
+                        <attribute>
+                            <name>HullMaskerOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Whether the hull masker silencing system is on.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>PassiveParameterIndex</name>
+                            <dataType>UnsignedInteger16</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Database index to look up the entities acoustic signature</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>PropulsionPlantConfiguration</name>
+                            <dataType>PropulsionPlantEnum8</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>The operating mode of the propulsion plant</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>ShaftRateData</name>
+                            <dataType>ShaftDataStructLengthlessArray1Plus</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Information about each of the propulsion shafts associated with the entity. Shafts are ordered from port to starboard, when looking from the stern to the bow.</semantics>
+                        </attribute>
+                    </objectClass>
+                    <objectClass>
+                        <name>AdditionalPassiveActivities</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <semantics>Describes the steady state components of non-propulsion passive emissions such as those held in the Additional Narrowband Database (ANDB).</semantics>
+                        <attribute>
+                            <name>ActivityCode</name>
+                            <dataType>UnsignedInteger16</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Database index used to indicate the passive signature of the entity</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>ActivityParameter</name>
+                            <dataType>Integer16</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>The current state of this activity.</semantics>
+                        </attribute>
+                        <attribute>
+                            <name>IsSilent</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Used to silence an additional passive activity without destroying this object.</semantics>
+                        </attribute>
+                    </objectClass>
+                </objectClass>
+            </objectClass>
+            <objectClass>
+                <name>ActiveSonarBeam</name>
+                <sharing>PublishSubscribe</sharing>
+                <semantics>A sector of concentrated acoustic energy from an active sonar device.</semantics>
+                <attribute>
+                    <name>ActiveEmissionParameterIndex</name>
+                    <dataType>Integer16</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>An index into the database of active (intentional) underwater acoustics emissions.</semantics>
+                </attribute>
+                <attribute>
+                    <name>ActiveSonarIdentifier</name>
+                    <dataType>RTIobjectId</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>NA</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>The RTI ID of the ActiveSonar emitting this beam</semantics>
+                </attribute>
+                <attribute>
+                    <name>AzimuthBeamwidth</name>
+                    <dataType>AngleRadianFloat32</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>The horizontal width of the main beam (as opposed to any side lobes) measured from beam center to the 3 dB down point. Omni directional beams shall have a beam width of 0 radians.</semantics>
+                </attribute>
+                <attribute>
+                    <name>AzimuthCenter</name>
+                    <dataType>AngleRadianFloat32</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>The center azimuthal bearing of the main beam (as opposed to side lobes) in relation to the own ship heading, clockwise positive. Omnidirection beams shall have an azimuthal center of 0 radians.</semantics>
+                </attribute>
+                <attribute>
+                    <name>BeamIdentifier</name>
+                    <dataType>Octet</dataType>
+                    <updateType>Static</updateType>
+                    <updateCondition>NA</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>The identification of the active sonar beam, which must be unique on the active sonar system.</semantics>
+                </attribute>
+                <attribute>
+                    <name>ElevationBeamwidth</name>
+                    <dataType>AngleRadianFloat32</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Vertical angle from beam center to 3db down point. O is omnidirectional</semantics>
+                </attribute>
+                <attribute>
+                    <name>ElevationCenter</name>
+                    <dataType>AngleRadianFloat32</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>The angle of axis of the beam center to the horizontal plane. Positive upward.</semantics>
+                </attribute>
+                <attribute>
+                    <name>EventIdentifier</name>
+                    <dataType>EventIdentifierStruct</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>Used to associate changes to the beam with its ActiveSonar.</semantics>
+                </attribute>
+                <attribute>
+                    <name>ScanPattern</name>
+                    <dataType>ActiveSonarScanPatternEnum16</dataType>
+                    <updateType>Conditional</updateType>
+                    <updateCondition>On change</updateCondition>
+                    <ownership>DivestAcquire</ownership>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>The pattern that describes the angular movement of the sonar beam during its sweep.</semantics>
+                </attribute>
+            </objectClass>
+        </objectClass>
+    </objects>
+    <interactions>
+        <interactionClass>
+            <name>HLAinteractionRoot</name>
+            <interactionClass>
+                <name>AcousticTransient</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>Specifies the occurrence of a transient acoustic event such as torpedo tube floodings, hatch slams, and wrench drops.</semantics>
+                <parameter>
+                    <name>ActivityCode</name>
+                    <dataType>UnsignedInteger16</dataType>
+                    <semantics>Index into a data base of transient acoustic events</semantics>
+                </parameter>
+                <parameter>
+                    <name>ActivityParameter</name>
+                    <dataType>Integer16</dataType>
+                    <semantics>The current state of the activity specified by the activity code</semantics>
+                </parameter>
+                <parameter>
+                    <name>HostObjectIdentifier</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>The Object Instance ID of the object emitting the sound</semantics>
+                </parameter>
+                <parameter>
+                    <name>RelativePosition</name>
+                    <dataType>RelativePositionStruct</dataType>
+                    <semantics>The location of the sound relative to the hosts coordinate system</semantics>
+                </parameter>
+            </interactionClass>
+        </interactionClass>
+    </interactions>
+    <dataTypes>
+        <simpleDataTypes>
+            <simpleData>
+                <name>SpeedChangeRateRPMPerSecondInteger16</name>
+                <representation>HLAinteger16BE</representation>
+                <units>RPM/s</units>
+                <resolution>1</resolution>
+                <accuracy>perfect</accuracy>
+                <semantics>Angular acceleration</semantics>
+            </simpleData>
+        </simpleDataTypes>
+        <arrayDataTypes>
+            <arrayData>
+                <name>ShaftDataStructLengthlessArray1Plus</name>
+                <dataType>ShaftDataStruct</dataType>
+                <cardinality>[1..2147483647]</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>Array of propulsion shaft states, one per shaft</semantics>
+            </arrayData>
+        </arrayDataTypes>
+        <fixedRecordDataTypes>
+            <fixedRecordData>
+                <name>ShaftDataStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Rotation state of a ship's propulsion shaft</semantics>
+                <field>
+                    <name>CurrentShaftRate</name>
+                    <dataType>RevolutionsPerMinuteInteger16</dataType>
+                    <semantics>The current shaft speed. A positive shaft speed indicates that the shaft is rotating in a clockwise direction (when viewed from the stern to bow), and a negative shaft speed indicates an anti-clockwise direction.</semantics>
+                </field>
+                <field>
+                    <name>OrderedShaftRate</name>
+                    <dataType>RevolutionsPerMinuteInteger16</dataType>
+                    <semantics>The ordered shaft speed. If the ordered shaft speed is different from the current shaft speed then the shaft will accelerate or decelerate at the shaft rate of change. A positive shaft speed indicates that the shaft is rotating in a clockwise direction (when viewed from the stern to bow), and a negative shaft speed indicates an anti-clockwise direction.</semantics>
+                </field>
+                <field>
+                    <name>ShaftRateOfChange</name>
+                    <dataType>SpeedChangeRateRPMPerSecondInteger16</dataType>
+                    <semantics>The absolute value of the shaft's rotational acceleration. The shaft will change its rotational speed at this rate if the current shaft speed differs from the ordered shaft rate.</semantics>
+                </field>
+            </fixedRecordData>
+        </fixedRecordDataTypes>
+    </dataTypes>
+</objectModel>

@@ -1,0 +1,20 @@
+package fibonacci;
+
+// Example class that does some work. In this case, we
+// illustrate it by computing the fibonacci sequence.
+class Worker
+{
+  // Returns the Fibonacci number of the element "n" of the Fibonacci sequence.
+  //
+  // @param n index of the Fibonacci sequence.
+  fn computeFibonacci(n: u32) -> u64;
+}
+
+
+// A special kind of worker that forwards the
+// incoming work to other workers.
+class Manager : extends Worker
+{
+  // Where to look for the workers.
+  var workersBus : string [static];
+}

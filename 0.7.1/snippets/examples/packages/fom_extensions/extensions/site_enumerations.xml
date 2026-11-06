@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Adds an enumerator to an enumeration the RPR FOM declares. The value has to fit the
+     enumeration's own representation, and must not collide with an enumerator already there. -->
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <dataTypes>
+        <enumeratedDataTypes>
+            <enumeratedData>
+                <name>DesignatorCodeEnum16</name>
+                <enumerator>
+                    <name>SiteLocalCode</name>
+                    <value>60000</value>
+                </enumerator>
+            </enumeratedData>
+        </enumeratedDataTypes>
+    </dataTypes>
+</objectModel>
