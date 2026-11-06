@@ -687,7 +687,21 @@ function StreamView({ client }: { client: Client | null }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", fontSize: "var(--fs-lg)" }}>
-      {headerSlot && createPortal(toolbar, headerSlot)}
+      {headerSlot ? (
+        createPortal(toolbar, headerSlot)
+      ) : (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            padding: "6px 12px",
+            borderBottom: "1px solid var(--border-default)",
+            background: "var(--surface-header)",
+          }}
+        >
+          {toolbar}
+        </div>
+      )}
       {visible.length > 0 && (
         <div
           style={{
