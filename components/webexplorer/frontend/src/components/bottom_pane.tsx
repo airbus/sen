@@ -64,7 +64,7 @@ export function BottomPane({
   // Fall back to the first tab if the persisted key no longer matches.
   const activeTab = tabs.find((t) => t.key === activeTabKey) ?? tabs[0]!;
 
-  const effectiveHeight = folded ? HEADER_HEIGHT : height;
+  const effectiveHeight = folded ? "auto" : height;
 
   const onTabClick = (key: string) => {
     if (folded) onToggleFolded();
@@ -76,6 +76,7 @@ export function BottomPane({
       ref={containerRef}
       style={{
         height: effectiveHeight,
+        minHeight: folded ? HEADER_HEIGHT : undefined,
         display: "flex",
         flexDirection: "column",
         borderTop: "1px solid var(--border-glass)",
@@ -225,10 +226,11 @@ function Header({
       style={{
         position: "relative",
         display: "flex",
-        alignItems: "stretch",
+        flexWrap: "wrap",
+        alignItems: "center",
         gap: 4,
-        padding: "0 6px",
-        height: HEADER_HEIGHT,
+        padding: "4px 6px",
+        minHeight: HEADER_HEIGHT,
         background: "var(--surface-header)",
         borderBottom: folded ? "none" : "1px solid var(--border-subtle)",
         cursor: folded ? "pointer" : "row-resize",
@@ -258,9 +260,9 @@ function Header({
         onPointerDown={(e) => e.stopPropagation()}
         style={{
           display: "inline-flex",
-          alignItems: "stretch",
+          flexWrap: "wrap",
+          alignItems: "center",
           gap: 4,
-          alignSelf: "stretch",
         }}
       >
         {tabs.map((t) => (
@@ -275,10 +277,13 @@ function Header({
       <span
         style={{
           marginLeft: "auto",
-          display: "inline-flex",
+          display: "flex",
+          flexWrap: "wrap",
           alignItems: "center",
+          justifyContent: "flex-end",
           gap: 10,
           color: "var(--fg-muted)",
+          minWidth: 0,
         }}
       >
         {/* Pointer events stopped so child controls (slider scrub) don't trip fold/resize. */}
@@ -289,7 +294,7 @@ function Header({
             onPointerDown={(e) => e.stopPropagation()}
             onPointerMove={(e) => e.stopPropagation()}
             onPointerUp={(e) => e.stopPropagation()}
-            style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
+            style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "flex-start", gap: 8, minWidth: 0 }}
           />
         )}
       </span>

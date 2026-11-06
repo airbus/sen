@@ -9,6 +9,7 @@ import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import type { Client } from "@sen/client";
+import { makeStore, useSelector } from "@sen/client/react";
 
 import type { PropertyKey } from "../core/watch_keys.js";
 import type { PlotBoardPanel } from "../state/plot_board.js";
@@ -71,6 +72,57 @@ const DEFAULT_WINDOW_SECONDS = 30;
 const MIN_WINDOW_SECONDS = 1;
 const WINDOW_KEY = "webex.plotWindowSeconds";
 
+interface PlotsViewState {
+  windowSeconds: number;
+  sharedRange: AnchoredRange | null;
+  paused: boolean;
+  columnCount: number;
+}
+
+const plotsViewStore = makeStore<PlotsViewState>({
+  windowSeconds: (() => {
+    try {
+      const raw = localStorage.getItem(WINDOW_KEY);
+      if (raw) {
+        const n = parseInt(raw, 10);
+        if (Number.isFinite(n) && n >= MIN_WINDOW_SECONDS && n <= RETENTION_BOUNDS.max) {
+          return n;
+        }
+      }
+    } catch {}
+    return DEFAULT_WINDOW_SECONDS;
+  })(),
+  sharedRange: null,
+  paused: false,
+  columnCount: (() => {
+    try {
+      const raw = localStorage.getItem(COLUMN_COUNT_KEY);
+      const n = raw ? parseInt(raw, 10) : NaN;
+      if (Number.isFinite(n) && (COLUMN_COUNT_OPTIONS as readonly number[]).includes(n)) {
+        return n;
+      }
+    } catch {}
+    return DEFAULT_COLUMN_COUNT;
+  })(),
+});
+
+const plotsViewActions = Object.freeze({
+  setWindowSeconds: (v: number) => {
+    plotsViewStore.setState((s) => ({ ...s, windowSeconds: v }));
+    try { localStorage.setItem(WINDOW_KEY, String(v)); } catch {}
+  },
+  setSharedRange: (v: AnchoredRange | null | ((prev: AnchoredRange | null) => AnchoredRange | null)) => {
+    plotsViewStore.setState((s) => ({ ...s, sharedRange: typeof v === "function" ? v(s.sharedRange) : v }));
+  },
+  setPaused: (v: boolean | ((prev: boolean) => boolean)) => {
+    plotsViewStore.setState((s) => ({ ...s, paused: typeof v === "function" ? v(s.paused) : v }));
+  },
+  setColumnCount: (v: number) => {
+    plotsViewStore.setState((s) => ({ ...s, columnCount: v }));
+    try { localStorage.setItem(COLUMN_COUNT_KEY, String(v)); } catch {}
+  },
+});
+
 export function PlotsView({
   client,
   panels,
@@ -80,19 +132,7 @@ export function PlotsView({
 }: PlotsViewProps) {
   // Effective window clamps at use time so it can't exceed what the store retains.
   const maxWindowSeconds = useSampleRetentionSeconds();
-  const [windowSeconds, setWindowSeconds] = useState<number>(() => {
-    try {
-      const raw = localStorage.getItem(WINDOW_KEY);
-      if (raw) {
-        const n = parseInt(raw, 10);
-        if (Number.isFinite(n) && n >= MIN_WINDOW_SECONDS && n <= RETENTION_BOUNDS.max) {
-          return n;
-        }
-      }
-    } catch {
-    }
-    return DEFAULT_WINDOW_SECONDS;
-  });
+  const windowSeconds = useSelector(plotsViewStore, (s) => s.windowSeconds);
   useEffect(() => {
     try {
       localStorage.setItem(WINDOW_KEY, String(windowSeconds));
@@ -102,8 +142,8 @@ export function PlotsView({
   const effectiveWindowSeconds = Math.min(windowSeconds, maxWindowSeconds);
   // sharedRange null = default window; non-null slides forward each tick unless paused.
   // paused = explicit Live/Pause toggle; zoom gestures don't auto-pause.
-  const [sharedRange, setSharedRange] = useState<AnchoredRange | null>(null);
-  const [paused, setPaused] = useState(false);
+  const sharedRange = useSelector(plotsViewStore, (s) => s.sharedRange);
+  const paused = useSelector(plotsViewStore, (s) => s.paused);
   const boardRef = useRef<HTMLDivElement | null>(null);
   // Multiple reset listeners because `dragend` is unreliable when the source unmounts.
   const [chipDragActive, setChipDragActive] = useState(false);
@@ -124,16 +164,16 @@ export function PlotsView({
     };
   }, []);
   const setUserRange = useCallback((range: XRange) => {
-    setSharedRange({ range, anchorAt: Date.now() });
+    plotsViewActions.setSharedRange({ range, anchorAt: Date.now() });
   }, []);
   const resetZoom = useCallback(() => {
-    setSharedRange(null);
-    setPaused(false);
+    plotsViewActions.setSharedRange(null);
+    plotsViewActions.setPaused(false);
   }, []);
   /** Re-anchor zoomed range to "now" so it doesn't jump forward by the pause duration. */
   const resumeLive = useCallback(() => {
-    setPaused(false);
-    setSharedRange((prev) => {
+    plotsViewActions.setPaused(false);
+    plotsViewActions.setSharedRange((prev) => {
       if (!prev) return prev;
       const width = prev.range.max - prev.range.min;
       const now = Date.now() / 1000;
@@ -141,9 +181,9 @@ export function PlotsView({
     });
   }, []);
   const togglePaused = useCallback(() => {
-    setPaused((wasPaused) => {
+    plotsViewActions.setPaused((wasPaused) => {
       if (wasPaused) {
-        setSharedRange((prev) => {
+        plotsViewActions.setSharedRange((prev) => {
           if (!prev) return prev;
           const width = prev.range.max - prev.range.min;
           const now = Date.now() / 1000;
@@ -154,23 +194,7 @@ export function PlotsView({
     });
   }, []);
 
-  const [columnCount, setColumnCount] = useState<number>(() => {
-    try {
-      const raw = localStorage.getItem(COLUMN_COUNT_KEY);
-      const n = raw ? parseInt(raw, 10) : NaN;
-      if (Number.isFinite(n) && (COLUMN_COUNT_OPTIONS as readonly number[]).includes(n)) {
-        return n;
-      }
-    } catch {
-    }
-    return DEFAULT_COLUMN_COUNT;
-  });
-  useEffect(() => {
-    try {
-      localStorage.setItem(COLUMN_COUNT_KEY, String(columnCount));
-    } catch {
-    }
-  }, [columnCount]);
+  const columnCount = useSelector(plotsViewStore, (s) => s.columnCount);
 
   // Versioned `{version, panels}` envelope; mismatched versions get dropped on load.
   // Widths in columns (clamped to columnCount at render); heights in CELL_HEIGHT_PX rows.
@@ -245,11 +269,14 @@ export function PlotsView({
   const toolbar = (
     <span
       style={{
-        display: "inline-flex",
+        display: "flex",
+        flexWrap: "wrap",
+        justifyContent: "flex-start",
         alignItems: "center",
-        gap: 10,
+        gap: 8,
         fontSize: "var(--fs-md)",
         color: "var(--fg-muted)",
+        width: "100%",
       }}
     >
       <WindowControl
@@ -257,7 +284,7 @@ export function PlotsView({
         min={MIN_WINDOW_SECONDS}
         max={maxWindowSeconds}
         disabled={panels.length === 0 || zoomed}
-        onChange={setWindowSeconds}
+        onChange={plotsViewActions.setWindowSeconds}
       />
       {/* Kept rendered (disabled) so the toolbar layout doesn't shift on reset.
           Highlighted while zoomed so the user knows where to go to get back to live. */}
@@ -270,17 +297,15 @@ export function PlotsView({
         icon={<ResetIcon />}
         size={20}
       />
-      <ToolbarDivider />
       <LiveToggleButton
         on={!paused}
         disabled={panels.length === 0}
         onToggle={togglePaused}
         highlighted={zoomed && paused}
       />
-      <ToolbarDivider />
       <ColumnCountPicker
         value={columnCount}
-        onChange={setColumnCount}
+        onChange={plotsViewActions.setColumnCount}
         disabled={panels.length === 0}
       />
       <ClearAllPanelsButton disabled={panels.length === 0} onClick={watchActions.clearAllPanels} />
@@ -299,6 +324,7 @@ export function PlotsView({
             justifyContent: "flex-end",
             padding: "6px 12px",
             borderBottom: "1px solid var(--border-default)",
+            flex: "none",
           }}
         >
           {toolbar}
@@ -357,7 +383,7 @@ export function PlotsView({
                     paused={paused}
                     onUserSetRange={setUserRange}
                     onUserGoLive={resumeLive}
-                    onUserStartZoom={() => setPaused(true)}
+                    onUserStartZoom={() => plotsViewActions.setPaused(true)}
                     onDropSeries={(sourceKey, leafPath) =>
                       onMoveSeriesToPanel(panel.id, sourceKey, leafPath)
                     }
@@ -396,7 +422,7 @@ function ColumnCountPicker({
     <span
       title="Number of columns in the plot grid"
       style={{
-        display: "inline-flex",
+        display: "flex",
         alignItems: "center",
         gap: 6,
         opacity: disabled ? 0.5 : 1,
@@ -472,21 +498,6 @@ function NewPanelDropZone({
   );
 }
 
-
-function ToolbarDivider() {
-  return (
-    <span
-      aria-hidden
-      style={{
-        width: 1,
-        height: 16,
-        background: "var(--border-default)",
-        flex: "none",
-      }}
-    />
-  );
-}
-
 function ClearAllPanelsButton({
   disabled,
   onClick,
@@ -553,46 +564,51 @@ function WindowControl({
   return (
     <span
       style={{
-        display: "inline-flex",
+        display: "flex",
+        flexWrap: "wrap",
         alignItems: "center",
-        gap: 10,
+        gap: 6,
         opacity: disabled ? 0.5 : 1,
       }}
       title={disabled ? "Time range is locked while a zoom is active" : "Live view time range"}
     >
-      <span style={{ fontSize: "var(--fs-sm)", color: "var(--fg-subtle)" }}>range</span>
-      <SegmentedControl<string>
-        ariaLabel="Time range preset"
-        value={presets.includes(value as (typeof RANGE_PRESETS_SECONDS)[number]) ? String(value) : ""}
-        onChange={(v) => onChange(parseInt(v, 10))}
-        options={presets.map((p) => ({ value: String(p), label: formatSeconds(p) }))}
-        preserveCase
-      />
-      <input
-        type="range"
-        className="webex-range-slider"
-        min={0}
-        max={1000}
-        step={1}
-        value={Math.round(ratio * 1000)}
-        disabled={disabled}
-        onChange={(e) => {
-          const r = parseInt(e.currentTarget.value, 10) / 1000;
-          onChange(logSliderToSeconds(r, min, max));
-        }}
-        style={{ ["--fill" as never]: fillPct }}
-      />
-      <span
-        style={{
-          fontFamily: "var(--font-mono)",
-          fontSize: "var(--fs-sm)",
-          color: "var(--fg-base)",
-          minWidth: 56,
-          textAlign: "right",
-          fontVariantNumeric: "tabular-nums",
-        }}
-      >
-        {formatSeconds(value)}
+      <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <span style={{ fontSize: "var(--fs-sm)", color: "var(--fg-subtle)" }}>range</span>
+        <SegmentedControl<string>
+          ariaLabel="Time range preset"
+          value={presets.includes(value as (typeof RANGE_PRESETS_SECONDS)[number]) ? String(value) : ""}
+          onChange={(v) => onChange(parseInt(v, 10))}
+          options={presets.map((p) => ({ value: String(p), label: formatSeconds(p) }))}
+          preserveCase
+        />
+      </span>
+      <span style={{ display: "flex", alignItems: "center", gap: 6, flex: "0 1 auto" }}>
+        <input
+          type="range"
+          className="webex-range-slider"
+          min={0}
+          max={1000}
+          step={1}
+          value={Math.round(ratio * 1000)}
+          disabled={disabled}
+          onChange={(e) => {
+            const r = parseInt(e.currentTarget.value, 10) / 1000;
+            onChange(logSliderToSeconds(r, min, max));
+          }}
+          style={{ flex: 1, minWidth: 60, ["--fill" as never]: fillPct }}
+        />
+        <span
+          style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: "var(--fs-sm)",
+            color: "var(--fg-base)",
+            minWidth: 42,
+            textAlign: "left",
+            fontVariantNumeric: "tabular-nums",
+          }}
+        >
+          {formatSeconds(value)}
+        </span>
       </span>
     </span>
   );

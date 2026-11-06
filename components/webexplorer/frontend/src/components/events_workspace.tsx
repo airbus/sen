@@ -11,7 +11,7 @@ import { createPortal } from "react-dom";
 import { Virtuoso, type VirtuosoHandle } from "react-virtuoso";
 
 import type { Client, InterestHandle, ObjectHandle } from "@sen/client";
-import { useObjects } from "@sen/client/react";
+import { useObjects, makeStore, useSelector } from "@sen/client/react";
 
 import { useClassEvents } from "../state/class_members.js";
 import { useAllEvents, type EventDelivery } from "../state/event_store.js";
@@ -534,28 +534,53 @@ function SidebarItem({
   );
 }
 
+interface StreamViewState {
+  filterInput: string;
+  filter: string;
+  live: boolean;
+  clearedBeforeSeq: number;
+  pausedSnapshot: readonly EventDelivery[] | null;
+}
+
+const streamViewStore = makeStore<StreamViewState>({
+  filterInput: "",
+  filter: "",
+  live: true,
+  clearedBeforeSeq: 0,
+  pausedSnapshot: null,
+});
+
+const streamViewActions = Object.freeze({
+  setFilterInput: (v: string) => streamViewStore.setState((s) => ({ ...s, filterInput: v })),
+  setFilter: (v: string) => streamViewStore.setState((s) => ({ ...s, filter: v })),
+  setLive: (v: boolean | ((prev: boolean) => boolean), currentEvents?: readonly EventDelivery[]) =>
+    streamViewStore.setState((s) => {
+      const nextLive = typeof v === "function" ? v(s.live) : v;
+      if (nextLive === s.live) return s;
+      return {
+        ...s,
+        live: nextLive,
+        pausedSnapshot: nextLive ? null : (currentEvents ? currentEvents.slice() : s.pausedSnapshot),
+      };
+    }),
+  setClearedBeforeSeq: (v: number) => streamViewStore.setState((s) => ({ ...s, clearedBeforeSeq: v })),
+});
+
 function StreamView({ client }: { client: Client | null }) {
   // Cell wrapper; the inner `.events` array is stable, so memo deps point at the wrapper.
   const liveLog = useAllEvents();
   // 100ms debounce so search-as-you-type doesn't re-filter a 5000-entry log per keystroke.
-  const [filterInput, setFilterInput] = useState("");
-  const [filter, setFilter] = useState("");
+  const filterInput = useSelector(streamViewStore, (s) => s.filterInput);
+  const filter = useSelector(streamViewStore, (s) => s.filter);
   useEffect(() => {
     if (filterInput === filter) return;
-    const id = setTimeout(() => setFilter(filterInput), 100);
+    const id = setTimeout(() => streamViewActions.setFilter(filterInput), 100);
     return () => clearTimeout(id);
   }, [filterInput, filter]);
 
-  const [live, setLive] = useState(true);
-  // View-only clear; global store untouched.
-  const [clearedBeforeSeq, setClearedBeforeSeq] = useState(0);
-
-  // Snapshot when paused so appends don't shift content under the user.
-  const pausedSnapshotRef = useRef<readonly EventDelivery[] | null>(null);
-  if (!live && pausedSnapshotRef.current === null) {
-    pausedSnapshotRef.current = liveLog.events.slice();
-  }
-  if (live && pausedSnapshotRef.current !== null) pausedSnapshotRef.current = null;
+  const live = useSelector(streamViewStore, (s) => s.live);
+  const clearedBeforeSeq = useSelector(streamViewStore, (s) => s.clearedBeforeSeq);
+  const pausedSnapshot = useSelector(streamViewStore, (s) => s.pausedSnapshot);
 
   // Tail-only filter cache; survives front-trims via seq tracking.
   const filterCacheRef = useRef<{
@@ -567,8 +592,7 @@ function StreamView({ client }: { client: Client | null }) {
   } | null>(null);
 
   const visible = useMemo<readonly EventDelivery[]>(() => {
-    const events =
-      !live && pausedSnapshotRef.current !== null ? pausedSnapshotRef.current : liveLog.events;
+    const events = !live && pausedSnapshot !== null ? pausedSnapshot : liveLog.events;
     if (!filter.trim()) {
       filterCacheRef.current = null;
       if (clearedBeforeSeq === 0) return events;
@@ -622,7 +646,7 @@ function StreamView({ client }: { client: Client | null }) {
       events.length > 0 ? events[events.length - 1]!.seq : cache?.lastSeenSeq ?? 0;
     filterCacheRef.current = { filter, events, clearedBeforeSeq, lastSeenSeq, result };
     return result;
-  }, [liveLog, live, filter, clearedBeforeSeq]);
+  }, [liveLog, live, filter, clearedBeforeSeq, pausedSnapshot]);
 
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   // Suppresses the spurious atBottomStateChange(false) between append and tail-scroll.
@@ -640,29 +664,34 @@ function StreamView({ client }: { client: Client | null }) {
 
   const handleClear = (): void => {
     const lastSeq = liveLog.events.length > 0 ? liveLog.events[liveLog.events.length - 1]!.seq : 0;
-    setClearedBeforeSeq(lastSeq);
+    streamViewActions.setClearedBeforeSeq(lastSeq);
   };
   const handleToggleLive = (): void => {
-    setLive((prev) => !prev);
+    streamViewActions.setLive((prev) => !prev, liveLog.events);
   };
 
   const headerSlot = useContext(BottomPaneHeaderSlot);
   const toolbar = (
     <span
       style={{
-        display: "inline-flex",
+        display: "flex",
+        flexWrap: "wrap",
         alignItems: "center",
+        justifyContent: "flex-start",
         gap: 8,
         fontSize: "var(--fs-md)",
         color: "var(--fg-muted)",
+        width: "100%",
       }}
     >
-      <FilterInput
-        value={filterInput}
-        onChange={setFilterInput}
-        placeholder="Filter events..."
-        ariaLabel="filter events"
-      />
+      <span style={{ flex: "1 1 120px", minWidth: 120, display: "flex" }}>
+        <FilterInput
+          value={filterInput}
+          onChange={streamViewActions.setFilterInput}
+          placeholder="Filter events..."
+          ariaLabel="filter events"
+        />
+      </span>
       <DangerPillButton
         onClick={handleClear}
         title="Clear the visible event log (other surfaces keep their copy)"
@@ -697,6 +726,7 @@ function StreamView({ client }: { client: Client | null }) {
             padding: "6px 12px",
             borderBottom: "1px solid var(--border-default)",
             background: "var(--surface-header)",
+            flex: "none",
           }}
         >
           {toolbar}
@@ -749,7 +779,7 @@ function StreamView({ client }: { client: Client | null }) {
             increaseViewportBy={200}
             atBottomStateChange={(atBottom) => {
               if (!atBottom && live && Date.now() >= scrollGuardUntilRef.current) {
-                setLive(false);
+                streamViewActions.setLive(false, liveLog.events);
               }
             }}
           />
