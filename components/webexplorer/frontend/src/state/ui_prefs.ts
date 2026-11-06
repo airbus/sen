@@ -199,8 +199,25 @@ function toggleNavFolded(): void {
   }, 240);
 }
 
+function setNavFolded(updater: boolean | ((prev: boolean) => boolean)): void {
+  let willChange = false;
+  navPaneStore.setState((prev) => {
+    const folded = typeof updater === "function" ? updater(prev.folded) : updater;
+    if (folded === prev.folded) return prev;
+    willChange = true;
+    return { folded, animating: true };
+  });
+  if (!willChange) return;
+  if (navAnimatingTimeout !== null) clearTimeout(navAnimatingTimeout);
+  navAnimatingTimeout = setTimeout(() => {
+    navAnimatingTimeout = null;
+    navPaneStore.setState((prev) => (prev.animating ? { ...prev, animating: false } : prev));
+  }, 240);
+}
+
 export const navPaneActions = Object.freeze({
   toggle: toggleNavFolded,
+  setFolded: setNavFolded,
 });
 
 export function useNavFolded(): boolean {

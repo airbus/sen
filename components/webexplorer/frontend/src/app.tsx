@@ -14,6 +14,7 @@ import { AppShell } from "./components/app_shell.js";
 import { BottomPane, type BottomPaneTab } from "./components/bottom_pane.js";
 import { CenterPane } from "./components/center_pane.js";
 import { ConnectionStatusBanner } from "./components/connection_status_banner.js";
+import type { Selection } from "./state/selection.js";
 import { NavSwitcher, ObjectExplorerPopout } from "./components/object_explorer_hosts.js";
 import { EventsWorkspace } from "./components/events_workspace.js";
 import { PlotsView } from "./components/plots_view.js";
@@ -131,11 +132,36 @@ export function App() {
     prevStateRef.current = state;
   }, [state, error]);
 
+  const navWasFoldedRef = useRef(false);
+
+  const onOpenInPaneExplorer = useCallback(
+    (sel: Selection) => {
+      navWasFoldedRef.current = navFolded;
+      if (navFolded) {
+        navPaneActions.setFolded(false);
+      }
+      explorerHostsActions.openInPaneExplorer(sel);
+    },
+    [navFolded],
+  );
+
+  const onExplorerBack = useCallback(() => {
+    explorerHostsActions.closeInPaneExplorer();
+    if (navWasFoldedRef.current) {
+      navPaneActions.setFolded(true);
+      navWasFoldedRef.current = false;
+    }
+  }, []);
+
   const onExplorerPopOut = useCallback(() => {
     if (inPaneExplorer) {
       const sel = inPaneExplorer;
       explorerHostsActions.closeInPaneExplorer();
       explorerHostsActions.toggleExplorer(sel);
+      if (navWasFoldedRef.current) {
+        navPaneActions.setFolded(true);
+        navWasFoldedRef.current = false;
+      }
     }
   }, [inPaneExplorer]);
 
@@ -190,7 +216,7 @@ export function App() {
             <NavSwitcher
               showExplorer={!!inPaneExplorer}
               explorerSelection={inPaneExplorer}
-              onExplorerBack={explorerHostsActions.closeInPaneExplorer}
+              onExplorerBack={onExplorerBack}
               onExplorerPopOut={onExplorerPopOut}
               client={client}
               pinnedObjects={pinnedObjects}
@@ -285,7 +311,7 @@ export function App() {
         <div style={{ flex: 1, minHeight: 0, overflow: "hidden", padding: "var(--pane-gutter-top) var(--pane-gutter-side) 0 0" }}>
           <CenterPane
             client={client}
-            onOpenInPaneExplorer={explorerHostsActions.openInPaneExplorer}
+            onOpenInPaneExplorer={onOpenInPaneExplorer}
             banner={
               error && error !== dismissedError ? (
                 <ErrorBanner
