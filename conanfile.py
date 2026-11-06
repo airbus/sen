@@ -16,6 +16,7 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualRunEnv
 from conan.tools.files import copy
 from conan.tools.scm.git import Git
+from conan.tools.system import PyEnv
 from conan.tools.system.package_manager import Apt, Dnf, Yum, Zypper
 
 COMPONENTS = tuple(sorted(p.parent.name for p in (Path(__file__).parent / "components").glob("*/CMakeLists.txt")))
@@ -57,6 +58,7 @@ class SenConan(ConanFile):
         "with_docs": [True, False],
         "with_optimized_debug": [True, False],
         "with_release_symbols": [True, False],
+        "with_python_version": ["ANY"],
         "sanitizer": ["none", "address", "thread"],
     }
     default_options = {
@@ -68,6 +70,7 @@ class SenConan(ConanFile):
         "with_docs": False,
         "with_optimized_debug": False,
         "with_release_symbols": False,
+        "with_python_version": "3.13.17",  # newest python past its bugfix stage at the time of release date
         "sanitizer": "none",
     }
 
@@ -287,6 +290,10 @@ class SenConan(ConanFile):
 
     def generate(self):
         """Generate the cmake dependency and toolchain files."""
+        pyenv = PyEnv(self, py_version=str(self.options.with_python_version))
+        pyenv.install(["docker==7.2.0", "testcontainers==4.15.0"])  # needed by the tests
+        pyenv.generate()
+
         deps = CMakeDeps(self)
         deps.generate()
 
@@ -296,6 +303,12 @@ class SenConan(ConanFile):
         VirtualRunEnv(self).generate(scope="build")
 
         tc = CMakeToolchain(self)
+        # Override the python version driving conan with the one defined in the options
+        python_path = pyenv.env_exe.replace("\\", "/")
+        tc.cache_variables["Python3_EXECUTABLE"] = python_path
+        tc.cache_variables["Python_EXECUTABLE"] = python_path
+        tc.cache_variables["Python3_FIND_VIRTUALENV"] = "STANDARD"
+        tc.cache_variables["Python_FIND_VIRTUALENV"] = "STANDARD"
         # set_version read this from the recipe folder, which has the repository; the build runs in
         # the cache, which does not. Unsplit, so the binaries keep an rc marker or a commit suffix.
         tc.cache_variables["SEN_FORCE_VERSION"] = self.version
