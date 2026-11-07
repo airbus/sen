@@ -49,8 +49,7 @@ ARG PYTEST_VERSION=9.1.1
 ARG PRECOMMIT_VERSION=4.5.1
 ARG PLANTUML_VERSION=1.2026.7
 ARG TYPST_VERSION=0.15.1
-# Both must equal the versions conanfile.py tool-requires, and nothing checks that
-# they do. The header says why the image carries them at all.
+ARG PYTHON_VERSION=3.13.17
 ARG CMAKE_VERSION=3.31.10
 ARG NINJA_VERSION=1.13.2
 # matus-chochlik/ctcache, pinned to the commit tag 1.2.0 carries. It is not on PyPI.
@@ -127,9 +126,28 @@ RUN printf '%s\n' \
         fonts-liberation \
         # tar -xJ, for the typst release below. Not in the base image.
         xz-utils \
+        # Requirements to build Python from sources
+        zlib1g-dev \
+        libssl-dev \
+        libffi-dev \
+        libsqlite3-dev \
+        build-essential \
     && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 100 \
     && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 100 \
     && rm -rf /var/lib/apt/lists/*
+
+# Download the specific Python version and build it from source
+RUN curl -fsSL --retry 3 --retry-delay 2 --retry-all-errors \
+        -o /tmp/python.tgz \
+        "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz" \
+    && tar -xzf /tmp/python.tgz -C /tmp \
+    && rm -f /tmp/python.tgz
+WORKDIR /tmp/Python-${PYTHON_VERSION}
+RUN ./configure --prefix=/usr/local --enable-shared --with-ensurepip=install \
+    && make -j"$(nproc)" && make install \
+    && ldconfig
+WORKDIR /
+RUN rm -fr /tmp/Python-${PYTHON_VERSION}
 
 # plantuml renders the diagram the handbook embeds. Ubuntu's package is from 2020 and
 # pulls a full JDK, 218 packages against 40 for a headless JRE and the jar. CMake finds it
@@ -194,7 +212,7 @@ RUN install -m 0755 -d /etc/apt/keyrings \
 # library, and the flask it declares belongs to the server half.
 ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="/opt/venv/bin:${PATH}"
-RUN python3 -m venv "$VIRTUAL_ENV" \
+RUN /usr/local/bin/python3 -m venv "$VIRTUAL_ENV" \
     && pip3 install --no-cache-dir \
         cmake==${CMAKE_VERSION} \
         conan==${CONAN_VERSION} \
