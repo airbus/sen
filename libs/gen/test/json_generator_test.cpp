@@ -8,6 +8,7 @@
 #include "sen/gen/json.h"
 
 // sen
+#include "sen/core/base/uuid.h"
 #include "sen/core/lang/stl_resolver.h"
 
 // test support
@@ -17,6 +18,8 @@
 #include <gtest/gtest.h>
 
 // std
+#include <filesystem>
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -66,6 +69,36 @@ TEST(JsonGenerator, combineSchemasIsIdempotent)
   const std::string second = generator.combineSchemas(inputs, "test");
 
   EXPECT_EQ(first, second);
+}
+
+/// @test
+/// combineSchemas removes the temporary directory it writes the kernel schema into, so that name
+/// has to differ per process. A shared one means each generator deletes the files the others are
+/// still reading.
+TEST(JsonGenerator, combineSchemasLeavesAnUnrelatedTempDirectoryAlone)
+{
+  // A default-constructed Uuid is nil, so this path is the same in every process. The file below
+  // takes the place of one that another process is reading.
+  const auto shared = std::filesystem::temp_directory_path() / sen::Uuid().toString();
+  const auto sentinel = shared / "another_process_is_reading_this.stl";
+
+  std::filesystem::create_directories(shared);
+  {
+    std::ofstream stream(sentinel);
+    stream << "struct Placeholder {}\n";
+  }
+  ASSERT_TRUE(std::filesystem::exists(sentinel)) << shared;
+
+  sen::gen::JsonGenerator generator;
+  const std::string schema = generator.combineSchemas({}, "test");
+
+  const bool survived = std::filesystem::exists(sentinel);
+  std::error_code ec;
+  std::filesystem::remove_all(shared, ec);
+
+  // Without this the test would also pass if combineSchemas had done nothing at all.
+  ASSERT_FALSE(schema.empty());
+  EXPECT_TRUE(survived) << "combineSchemas removed " << shared << ", which it did not create";
 }
 
 /// The text of the schema's `"required"` array, so membership can be asked rather than guessed at
