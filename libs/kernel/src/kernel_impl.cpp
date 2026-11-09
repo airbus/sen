@@ -151,8 +151,7 @@ void KernelImpl::requestStop(int exitCode)
 
   if (blockMode_ != KernelBlockMode::doNotBlock)
   {
-    // The thread blocked in run() stops the kernel, and the step this was asked in is the last: a clock call made
-    // between now and then does nothing. In doNotBlock the embedder may go on stepping until it stops the kernel.
+    // The step this was asked in is the last. In doNotBlock the embedder may go on stepping.
     closeSteps();
     return;
   }
@@ -273,9 +272,7 @@ void KernelImpl::doStop()
 
   setCrashPhase("stopping");
 
-  // A component can ask for the stop from inside a virtual-time step, and the clock driving that step still has calls
-  // to make. Stopping the components under such a call left it waiting for an answer from a component already gone,
-  // and the process never exited. So the step ends first, flushed, and no clock call reaches a component after it.
+  // Before the components stop: a clock call still in flight would be left waiting for one of them.
   finishStepInFlight();
 
   // Before the components unload, not after: a worker holds a tracer owned by a trace component, and
@@ -309,8 +306,7 @@ void KernelImpl::finishStepInFlight()
     flushOwed = std::exchange(flushOwed_, false);
   }
 
-  // The gate is closed and no call is under way, so this thread is the only one tasking the runners, and every
-  // runner is still there to answer.
+  // Safe from this thread: the gate is closed, no call is under way, and the runners are still up.
   if (flushOwed)
   {
     commitTheStep();

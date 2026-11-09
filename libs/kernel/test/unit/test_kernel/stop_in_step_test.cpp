@@ -36,9 +36,8 @@
 #include <tuple>
 #include <utility>
 
-// A component asks the kernel to stop from inside a virtual-time step, while the clock that drives the step still has
-// calls to make. The kernel used to stop the components under those calls: the step's flush then waited for an
-// answer from a component already gone, and the process never exited.
+// A component asks the kernel to stop from inside a virtual-time step, while the clock that drives
+// the step still has calls to make.
 
 namespace
 {
@@ -48,8 +47,7 @@ constexpr auto clockBus = "local.kernel";
 constexpr auto stopStep = 3;
 constexpr auto exitCode = 7;
 
-/// How long the slow component holds the step for the stop to reach the first one. The kernel no longer stops a
-/// component under a step, so with the fix it holds it for all of this.
+/// How long the slow component holds the step for the stop to reach the first one.
 constexpr auto holdTheStep = std::chrono::seconds(2);
 
 /// Well below the suite's ctest timeout, so that a hang is reported here rather than killed there.
@@ -121,10 +119,10 @@ private:
 };
 
 /// @test
-/// A stop asked from inside a step, with the step's flush still to come. The kernel stops components from the highest
-/// group down, so it reached the one that asked (group 4) while the slow one (group 3) still held the step, and the
-/// driver (group 2) then sent the flush to both. Now the kernel stops none of them under a step: the step it was asked
-/// in ends, flushed, and is the last; and the process exits with the code asked for.
+/// A stop asked from inside a step, with the step's flush still to come. Components stop from the
+/// highest group down, so the asker (group 4) goes while the slow one (group 3) still holds the step
+/// and the driver (group 2) has its flush to send. Requires that step to be the last any component
+/// took, to have been flushed, and the process to exit with the code asked for.
 TEST(AStopAskedInAStep, waitsForTheStepAndEndsIt)
 {
   std::atomic_bool stopAsked {false};
@@ -234,9 +232,8 @@ TEST(AStopAskedInAStep, waitsForTheStepAndEndsIt)
   waitFor([&]() { return ended.load(); }, enough);
   if (!ended)
   {
-    // The kernel's threads are stuck and cannot be joined, so this reports and ends the binary here. The counters
-    // say which hang it is. Steps at stopStep with the stop asked is the one this test is for; anything less means
-    // the run never reached the stop, and the hang is a different one that this message would otherwise hide.
+    // The threads cannot be joined, so this ends the binary here. The counters say which hang it is:
+    // steps at stopStep with the stop asked is this test's, less means the run never got there.
     std::fprintf(stderr,
                  "the kernel did not stop within %llds of a stop asked inside a step"
                  " (asker steps %d, slow steps %d, stop asked %d, flush sent %d)\n",

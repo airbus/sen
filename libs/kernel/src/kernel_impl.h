@@ -91,11 +91,10 @@ public:
   [[nodiscard]] static std::shared_ptr<spdlog::logger> getKernelLogger();
 
   /// Cycles all the runners with virtualized time.
-  /// This is: set time, drain inputs and cycle. Nothing, once the kernel has begun to stop: see stepCallUnderWay_.
+  /// This is: set time, drain inputs and cycle. Empty once the kernel is stopping.
   std::optional<Duration> advanceTimeDrainInputsAndUpdate(const Duration& delta);
 
-  /// Flushes all the runners with virtualized time. False, and nothing flushed, once the kernel has begun to stop:
-  /// the stop flushes the step itself.
+  /// Flushes all the runners with virtualized time. False once the kernel is stopping.
   bool flushVirtualTime();
 
   /// Cycles all the runners to get the delta time until the next execution.
@@ -151,16 +150,9 @@ private:
   /// From here on no clock call tasks a runner.
   void closeSteps();
 
-  /// Closes the steps, waits for the clock call under way, and flushes the step it left unflushed.
   void finishStepInFlight();
-
-  /// Whether a clock call may task the runners now; if so, it counts as under way until stepCallEnded.
   [[nodiscard]] bool stepCallBegins();
-
-  /// The call stepCallBegins let through has ended. It leaves a step to flush, or it was the flush.
   void stepCallEnded(bool leavesAFlush);
-
-  /// What flushVirtualTime does once it is let through: the runners commit, and what they sent goes out.
   void commitTheStep();
 
   /// One clock call through the step gate, for as long as it lives.
@@ -230,10 +222,8 @@ private:
   std::vector<Runner*> virtualTimeRunners_;
   std::vector<std::future<void>> virtualTimeRunnersFutures_;
 
-  // The step gate. A clock call (a step or a flush) tasks the runners and waits for each to answer; a runner stopped
-  // under it never answers, and the call waits forever. So the stop closes the gate, waits for the call under way, and
-  // flushes the step it left: the components stop only once no call is waiting for them. A kernel that blocks closes
-  // the gate as soon as the stop is asked, so that the step it was asked in is the last.
+  // The step gate. A clock call tasks the runners and waits for each to answer, so a runner stopped
+  // under one never answers and the call waits forever. The stop closes the gate first.
   std::mutex stepGateMutex_;
   std::condition_variable stepGateCondition_;
   std::size_t stepCallUnderWay_ = 0U;
