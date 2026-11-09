@@ -139,6 +139,8 @@ private:
   static constexpr uint32_t tcpHeaderSize = headerSize + busHeaderSize;
   static constexpr uint32_t tcpBulkBufferSize = 10U;
   static constexpr uint32_t udpBulkBufferSize = 10U;
+  /// How many UDP read errors in a row before this process stops reading them.
+  static constexpr size_t maxConsecutiveUdpReadErrors = 16;
 
   // these pools have some extra space in case serialization takes a bit more
   using BusHeaderPool = FixedMemoryBlockPool<FixedMemoryBlockPoolBase::minBlockSize<busHeaderSize>() + 4U>;
@@ -174,6 +176,8 @@ private:
   std::mutex runtimePortsMutex_;
   RuntimeFootprintPortId tcpSourcePortId_ = invalidRuntimeFootprintPortId;
   RuntimeFootprintPortId udpUnicastPortId_ = invalidRuntimeFootprintPortId;
+  /// UDP read errors since the last message arrived. One read outstanding at a time, so no atomic.
+  size_t consecutiveUdpReadErrors_ = 0;
 };
 
 }  // namespace sen::components::ether

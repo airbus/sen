@@ -148,6 +148,8 @@ private:
 private:
   static constexpr size_t headerSize = 4U + 4U;  // processId + payloadSize
   static constexpr size_t bulkBufferSize = 50;
+  /// How many UDP read errors in a row before the bus stops reading.
+  static constexpr size_t maxConsecutiveReadErrors = 16;
   using HeaderPool = FixedMemoryBlockPool<headerSize + 4U>;
   using OutMessage = SharedBufferSequence;
 
@@ -166,6 +168,8 @@ private:
   asio::io_context& io_;
   std::array<OutMessage, bulkBufferSize> bulkBuffer_ {};
   TransportCounters& counters_;
+  /// Read errors since the last message arrived. One read outstanding at a time, so no atomic.
+  size_t consecutiveReadErrors_ = 0;
 };
 
 }  // namespace sen::components::ether

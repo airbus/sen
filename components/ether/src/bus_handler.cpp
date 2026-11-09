@@ -326,13 +326,29 @@ void BusHandler::readMessage()
   {
     if (err)
     {
-      // log only if we get a strange error
-      if (err != asio::error::operation_aborted && err != asio::error::shut_down)
+      // What stop() produces: the teardown, with nothing left to read.
+      if (err == asio::error::operation_aborted || err == asio::error::shut_down || err == asio::error::bad_descriptor)
       {
-        us->logger_->error("transport error on UDP read from bus: {}", err.message());
+        return;
       }
+
+      us->logger_->error("transport error on UDP read from bus: {}", err.message());
+
+      // Any other error the bus outlives, so the read goes back on; bounded against one that never clears.
+      if (++us->consecutiveReadErrors_ > maxConsecutiveReadErrors)
+      {
+        us->logger_->error("bus {} stopped reading after {} consecutive UDP errors; the last was: {}",
+                           us->getName(),
+                           us->consecutiveReadErrors_,
+                           err.message());
+        return;
+      }
+
+      us->readMessage();
       return;
     }
+
+    us->consecutiveReadErrors_ = 0;
 
     uint32_t processId = 0;
     uint32_t payloadSize = 0;

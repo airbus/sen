@@ -706,12 +706,28 @@ void ProcessHandler::readUdpMessage()
   {
     if (err)
     {
-      if (err != asio::error::operation_aborted)
+      // What shutdownSockets() produces: the teardown, with nothing left to read.
+      if (err == asio::error::operation_aborted || err == asio::error::shut_down || err == asio::error::bad_descriptor)
       {
-        us->logger_->error("transport error on UDP read: {}", err.message());
+        return;
       }
+
+      us->logger_->error("transport error on UDP read: {}", err.message());
+
+      // Re-armed and bounded, for the reason given in BusHandler::readMessage.
+      if (++us->consecutiveUdpReadErrors_ > maxConsecutiveUdpReadErrors)
+      {
+        us->logger_->error("stopped reading UDP after {} consecutive errors; the last was: {}",
+                           us->consecutiveUdpReadErrors_,
+                           err.message());
+        return;
+      }
+
+      us->readUdpMessage();
       return;
     }
+
+    us->consecutiveUdpReadErrors_ = 0;
 
     if (bytesReceived != 0)
     {
