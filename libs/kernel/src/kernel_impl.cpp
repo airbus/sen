@@ -331,7 +331,8 @@ void KernelImpl::stepCallEnded(bool leavesAFlush)
     --stepCallUnderWay_;
     flushOwed_ = leavesAFlush;
   }
-  stepGateCondition_.notify_all();
+  // One waiter at most: finishStepInFlight, from the single thread that gets through doStop.
+  stepGateCondition_.notify_one();
 }
 
 void KernelImpl::configure()
