@@ -20,6 +20,7 @@ add_sen_unit_test_suite(
   test_kernel/test_kernel_test.cpp
   test_kernel/component_failure_test.cpp
   test_kernel/object_reentrancy_test.cpp
+  test_kernel/stop_in_step_test.cpp
   LINK_DEPS
   sen::core
   sen::kernel

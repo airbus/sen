@@ -86,6 +86,11 @@ int KernelImpl::run(KernelBlockMode blockMode)
   requestedExitCode_ = EXIT_SUCCESS;
   blockMode_ = blockMode;
   {
+    const std::scoped_lock gate(stepGateMutex_);
+    stepsClosed_ = false;
+    flushOwed_ = false;
+  }
+  {
     Lock lock(usageMutex_);
 
     configureCrashReporting();
@@ -146,6 +151,9 @@ void KernelImpl::requestStop(int exitCode)
 
   if (blockMode_ != KernelBlockMode::doNotBlock)
   {
+    // The thread blocked in run() stops the kernel, and the step this was asked in is the last: a clock call made
+    // between now and then does nothing. In doNotBlock the embedder may go on stepping until it stops the kernel.
+    closeSteps();
     return;
   }
 
@@ -265,6 +273,11 @@ void KernelImpl::doStop()
 
   setCrashPhase("stopping");
 
+  // A component can ask for the stop from inside a virtual-time step, and the clock driving that step still has calls
+  // to make. Stopping the components under such a call left it waiting for an answer from a component already gone,
+  // and the process never exited. So the step ends first, flushed, and no clock call reaches a component after it.
+  finishStepInFlight();
+
   // Before the components unload, not after: a worker holds a tracer owned by a trace component, and
   // inbound work run during an unload reaches a component that is going away. Kept out of the lock
   // below, because joining threads while holding a lifecycle mutex buys nothing.
@@ -278,6 +291,51 @@ void KernelImpl::doStop()
   isRunning_.store(false);
   isStopping_.store(false);
   stoppedCondition_.notify_all();
+}
+
+void KernelImpl::closeSteps()
+{
+  const std::scoped_lock gate(stepGateMutex_);
+  stepsClosed_ = true;
+}
+
+void KernelImpl::finishStepInFlight()
+{
+  bool flushOwed = false;
+  {
+    std::unique_lock gate(stepGateMutex_);
+    stepsClosed_ = true;
+    stepGateCondition_.wait(gate, [this]() { return stepCallUnderWay_ == 0U; });
+    flushOwed = std::exchange(flushOwed_, false);
+  }
+
+  // The gate is closed and no call is under way, so this thread is the only one tasking the runners, and every
+  // runner is still there to answer.
+  if (flushOwed)
+  {
+    commitTheStep();
+  }
+}
+
+bool KernelImpl::stepCallBegins()
+{
+  const std::scoped_lock gate(stepGateMutex_);
+  if (stepsClosed_)
+  {
+    return false;
+  }
+  ++stepCallUnderWay_;
+  return true;
+}
+
+void KernelImpl::stepCallEnded(bool leavesAFlush)
+{
+  {
+    const std::scoped_lock gate(stepGateMutex_);
+    --stepCallUnderWay_;
+    flushOwed_ = leavesAFlush;
+  }
+  stepGateCondition_.notify_all();
 }
 
 void KernelImpl::configure()

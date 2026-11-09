@@ -152,15 +152,26 @@ protected:
 
   [[nodiscard]] Duration processNoFlushImpl(Duration delta) override
   {
-    auto result = impl_->advanceTimeDrainInputsAndUpdate(delta);
+    // once the kernel has begun to stop, no step is taken and time stays where it is
+    const auto result = impl_->advanceTimeDrainInputsAndUpdate(delta);
+    if (!result.has_value())
+    {
+      return {};
+    }
+
     setNextTime(getTime() + delta);
-    return result;
+    return result.value();
   }
 
   [[nodiscard]] Duration flushOutputsImpl() override
   {
     commit(TimeStamp());
-    impl_->flushVirtualTime();
+
+    // a kernel that has begun to stop flushes its last step itself, and has no next one
+    if (!impl_->flushVirtualTime())
+    {
+      return {};
+    }
     return impl_->computeNextExecutionDeltaTime();
   }
 
