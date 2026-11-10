@@ -388,7 +388,9 @@ private:
 
   std::string getKernelSchema()
   {
-    auto basePath = std::filesystem::temp_directory_path() / sen::Uuid().toString();
+    // Not a default-constructed Uuid: that one is nil, so every process would share this directory,
+    // and the remove_all below would take another process's files with it.
+    auto basePath = std::filesystem::temp_directory_path() / sen::UuidRandomGenerator {}().toString();
     auto targetPath = basePath / "stl" / "sen" / "kernel";
 
     auto logPath = targetPath / "log.stl";
