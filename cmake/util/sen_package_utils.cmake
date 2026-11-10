@@ -302,14 +302,19 @@ function(add_sen_package)
       )
     endif()
 
-    # link all dependencies to the gen object library as public
+    # Supply the dependencies needed to compile the generated sources.
     sen_add_dependencies(
       ${_arg_TARGET}_gen
       PRIVATE
       ${_arg_DEPS}
       ${_arg_PRIVATE_DEPS}
     )
-    target_link_libraries(${_target_to_compile} PRIVATE ${_arg_TARGET}_gen)
+    # User sources include generated headers. Keep that ordering even when they compile in
+    # a separate object target; the final libraries consume each object collection directly.
+    add_dependencies(${_target_to_compile} ${_arg_TARGET}_gen)
+    if(NOT _arg_TEST_TARGET)
+      target_sources(${_target_to_compile} PRIVATE "$<TARGET_OBJECTS:${_arg_TARGET}_gen>")
+    endif()
     copy_target_properties(${_target_to_compile} ${_arg_TARGET}_gen)
 
     # The codegen target exports these unconditionally and copy_target_properties carries
@@ -388,15 +393,15 @@ function(add_sen_package)
     add_library(${_arg_TARGET} SHARED)
     sen_configure_target(${_arg_TARGET})
     if(TARGET ${_arg_TARGET}_gen)
-      target_link_libraries(${_arg_TARGET} PRIVATE ${_arg_TARGET}_gen)
+      target_sources(${_arg_TARGET} PRIVATE "$<TARGET_OBJECTS:${_arg_TARGET}_gen>")
     endif()
-    target_link_libraries(${_arg_TARGET} PRIVATE ${_arg_TARGET}_obj)
+    target_sources(${_arg_TARGET} PRIVATE "$<TARGET_OBJECTS:${_arg_TARGET}_obj>")
 
-    # Also here: the object library is linked PRIVATE above, so the kernel it links PUBLIC stays out
-    # of this target's interface, and copy_target_properties forwards includes but not libraries.
+    # Object files carry no usage requirements. Declare the final library's dependencies here
+    # so the internal object targets do not become part of its exported interface.
     target_link_libraries(${_arg_TARGET} PUBLIC sen::kernel)
 
-    # Same reason as above: the object library's spdlog is PRIVATE, so it does not reach here.
+    # The compiled objects can contain calls to spdlog too.
     if(TARGET spdlog::spdlog)
       target_link_libraries(${_arg_TARGET} PRIVATE spdlog::spdlog)
     endif()
@@ -430,13 +435,16 @@ function(add_sen_package)
     add_library(${_arg_TEST_TARGET} STATIC)
     sen_configure_target(${_arg_TEST_TARGET})
     if(TARGET ${_arg_TARGET}_gen)
-      target_link_libraries(${_arg_TEST_TARGET} PRIVATE ${_arg_TARGET}_gen)
+      target_sources(${_arg_TEST_TARGET} PRIVATE "$<TARGET_OBJECTS:${_arg_TARGET}_gen>")
     endif()
-    target_link_libraries(${_arg_TEST_TARGET} PRIVATE ${_arg_TARGET}_obj)
+    target_sources(${_arg_TEST_TARGET} PRIVATE "$<TARGET_OBJECTS:${_arg_TARGET}_obj>")
 
     # As above, and more visibly: this target is linked into a test binary, which then has to resolve
     # the kernel symbols the package's headers declare.
     target_link_libraries(${_arg_TEST_TARGET} PUBLIC sen::kernel)
+    if(TARGET spdlog::spdlog)
+      target_link_libraries(${_arg_TEST_TARGET} PRIVATE spdlog::spdlog)
+    endif()
     copy_target_properties(${_arg_TEST_TARGET} ${_arg_TARGET}_obj)
     target_link_libraries(${_arg_TEST_TARGET} PUBLIC ${_arg_DEPS})
     target_link_libraries(${_arg_TEST_TARGET} PRIVATE ${_arg_PRIVATE_DEPS})

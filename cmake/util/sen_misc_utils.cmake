@@ -588,9 +588,12 @@ function(copy_target_properties to_target from_target)
   copy_target_property(${to_target} ${from_target} SEN_GEN_DIR)
   copy_target_property(${to_target} ${from_target} SCHEMA)
   copy_target_property(${to_target} ${from_target} EXPORT_PROPERTIES)
-  target_include_directories(
-    ${to_target} PUBLIC $<TARGET_PROPERTY:${from_target},INTERFACE_INCLUDE_DIRECTORIES>
-  )
+  # Preserve BUILD_INTERFACE/INSTALL_INTERFACE expressions, without leaving an exported
+  # reference to the internal object target that supplied these include directories.
+  get_target_property(_include_dirs ${from_target} INTERFACE_INCLUDE_DIRECTORIES)
+  if(_include_dirs)
+    target_include_directories(${to_target} PUBLIC ${_include_dirs})
+  endif()
 endfunction()
 
 # Combines a set of packages or component schemas into one

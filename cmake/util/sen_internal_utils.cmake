@@ -261,35 +261,6 @@ macro(sen_internal_component_guard)
 endmacro()
 
 function(sen_internal_install target_name)
-  # install the gen object library (cmake requires it)
-  if(TARGET ${target_name}_gen)
-    get_target_property(_type ${target_name}_gen TYPE)
-    if(_type STREQUAL "OBJECT_LIBRARY")
-      install(
-        TARGETS ${target_name}_gen
-        EXPORT sen_targets
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-      )
-    endif()
-  endif()
-
-  # install the obj library (cmake requires it)
-  # TODO SEN-1354: Investigate why cmake requires to add the obj target to the installation export group
-  if(TARGET ${target_name}_obj)
-    get_target_property(_type ${target_name}_obj TYPE)
-    if(_type STREQUAL "OBJECT_LIBRARY")
-      install(
-        TARGETS ${target_name}_obj
-        EXPORT sen_targets
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-      )
-    endif()
-  endif()
-
   # Python has not searched PATH for an extension module's dependencies since 3.8, so on Windows the
   # module must sit beside the DLLs it links or a plain import fails.
   set(_library_destination ${CMAKE_INSTALL_LIBDIR})
