@@ -86,6 +86,11 @@ int KernelImpl::run(KernelBlockMode blockMode)
   requestedExitCode_ = EXIT_SUCCESS;
   blockMode_ = blockMode;
   {
+    const std::scoped_lock gate(stepGateMutex_);
+    stepsClosed_ = false;
+    flushOwed_ = false;
+  }
+  {
     Lock lock(usageMutex_);
 
     configureCrashReporting();
@@ -146,6 +151,8 @@ void KernelImpl::requestStop(int exitCode)
 
   if (blockMode_ != KernelBlockMode::doNotBlock)
   {
+    // The step this was asked in is the last. In doNotBlock the embedder may go on stepping.
+    closeSteps();
     return;
   }
 
@@ -265,6 +272,9 @@ void KernelImpl::doStop()
 
   setCrashPhase("stopping");
 
+  // Before the components stop: a clock call still in flight would be left waiting for one of them.
+  finishStepInFlight();
+
   // Before the components unload, not after: a worker holds a tracer owned by a trace component, and
   // inbound work run during an unload reaches a component that is going away. Kept out of the lock
   // below, because joining threads while holding a lifecycle mutex buys nothing.
@@ -278,6 +288,51 @@ void KernelImpl::doStop()
   isRunning_.store(false);
   isStopping_.store(false);
   stoppedCondition_.notify_all();
+}
+
+void KernelImpl::closeSteps()
+{
+  const std::scoped_lock gate(stepGateMutex_);
+  stepsClosed_ = true;
+}
+
+void KernelImpl::finishStepInFlight()
+{
+  bool flushOwed = false;
+  {
+    std::unique_lock gate(stepGateMutex_);
+    stepsClosed_ = true;
+    stepGateCondition_.wait(gate, [this]() { return stepCallUnderWay_ == 0U; });
+    flushOwed = std::exchange(flushOwed_, false);
+  }
+
+  // Safe from this thread: the gate is closed, no call is under way, and the runners are still up.
+  if (flushOwed)
+  {
+    commitTheStep();
+  }
+}
+
+bool KernelImpl::stepCallBegins()
+{
+  const std::scoped_lock gate(stepGateMutex_);
+  if (stepsClosed_)
+  {
+    return false;
+  }
+  ++stepCallUnderWay_;
+  return true;
+}
+
+void KernelImpl::stepCallEnded(bool leavesAFlush)
+{
+  {
+    const std::scoped_lock gate(stepGateMutex_);
+    --stepCallUnderWay_;
+    flushOwed_ = leavesAFlush;
+  }
+  // One waiter at most: finishStepInFlight, from the single thread that gets through doStop.
+  stepGateCondition_.notify_one();
 }
 
 void KernelImpl::configure()
