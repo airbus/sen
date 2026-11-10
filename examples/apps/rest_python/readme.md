@@ -1,17 +1,30 @@
-# Python client example for the Sen REST component
+# Python REST Client example
 
-This example demonstrate how to make requests to the REST component using Python.
+> **Prerequisites:** Familiarity with the [REST API Component](../../../../components/rest.md). Python 3 installed.
 
-## Prerequisites
+This example demonstrates how to interact with the Sen REST API using Python. Building a proper client in Python allows you to programmatically authenticate, create interests, discover objects, invoke methods, and easily handle real-time Server-Sent Events (SSE) push notifications.
 
-- venv
-- python3
+## The Python Client
 
-## How to run
+The example consists of a Python script `sen_client.py` that implements a `SenClient` class. This class uses the `requests` library for standard HTTP requests and `sseclient` for handling the persistent Server-Sent Events connection in a background thread.
 
-Create a **sen** configuration file (e.g. config.yaml) to load the REST component:
+=== "_sen_client.py_"
 
-```yaml
+    ```python
+    --8<-- "snippets/examples/apps/rest_python/sen_client.py"
+    ```
+
+=== "_requirements.txt_"
+
+    ```text
+    --8<-- "snippets/examples/apps/rest_python/requirements.txt"
+    ```
+
+## How to run it
+
+First, create a basic Sen configuration that loads the `rest` component on port `8080`.
+
+```yaml title="Configuration file"
 load:
   - name: rest
     group: 3
@@ -19,22 +32,30 @@ load:
     port: 8080
 ```
 
-Now start **sen** with your new configuration:
+Start the **sen** kernel with this configuration:
 
-```bash
+```shell
 sen run config.yaml
 ```
 
-Prepare the Python environment
+Now, open a new terminal window to prepare the Python environment and run the client:
 
-```bash
+```shell
+
+
 python3 -m venv .env
-source env/bin/activate
-pip install -r requirements
-```
-
-Now run the client example:
-
-```bash
+source .env/bin/activate
+pip install -r requirements.txt
 python sen_client.py
 ```
+
+## What happens under the hood
+
+When you execute `sen_client.py`, the script performs the following sequence of actions:
+
+1. **Authentication:** It connects to `/api/auth` with a client ID (`my-client-id`) and retrieves a JWT token. This token is automatically attached to the `Authorization` header for all subsequent requests.
+2. **SSE Connection:** It spawns a background thread that connects to `/api/sse`. This thread listens for push notifications (like `object_added` or `invoke` results) and prints them to the console in real-time.
+3. **Session Discovery:** It queries `/api/sessions` to list available Sen sessions.
+4. **Creating an Interest:** It creates an interest named `new_interest` with the query `SELECT * FROM local.kernel`. This tells the REST API to track all objects matching that SQL query.
+5. **Object Introspection:** It lists the objects matching the interest, then requests detailed information for a specific object (the `api` object), including its available methods, properties, and events.
+6. **Method Invocation:** Finally, it invokes the `getConfig` method on the `api` object and prints the asynchronous invocation result (which is also broadcasted via SSE).
