@@ -11,9 +11,9 @@
 <link href="../../config/9_hla_servers/readme.html" rel="prev"/>
 <link href="../../../fom.html" rel="next"/>
 <link href="../../../../assets/images/logo_simple.svg" rel="icon"/>
-<meta content="mkdocs-1.6.1, mkdocs-material-9.7.4" name="generator"/>
-<title>Rest Python - Sen</title>
-<link href="../../../../assets/stylesheets/main.484c7ddc.min.css" rel="stylesheet"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Python REST Client - Sen</title>
+<link href="../../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
 <link href="../../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
 <style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%203.75C0%202.784.784%202%201.75%202h12.5c.966%200%201.75.784%201.75%201.75v8.5A1.75%201.75%200%200%201%2014.25%2014H1.75A1.75%201.75%200%200%201%200%2012.25Zm1.75-.25a.25.25%200%200%200-.25.25v8.5c0%20.138.112.25.25.25h12.5a.25.25%200%200%200%20.25-.25v-8.5a.25.25%200%200%200-.25-.25ZM3.5%206.25a.75.75%200%200%201%20.75-.75h7a.75.75%200%200%201%200%201.5h-7a.75.75%200%200%201-.75-.75m.75%202.25h4a.75.75%200%200%201%200%201.5h-4a.75.75%200%200%201%200-1.5%22/%3E%3C/svg%3E');}</style>
 <script src="https://unpkg.com/iframe-worker/shim"></script>
@@ -26,7 +26,7 @@
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
 <label class="md-overlay" for="__drawer"></label>
 <div data-md-component="skip">
-<a class="md-skip" href="#python-client-example-for-the-sen-rest-component">
+<a class="md-skip" href="#python-rest-client-example">
           Skip to content
         </a>
 </div>
@@ -35,40 +35,10 @@
 <div data-md-color-scheme="default" data-md-component="outdated" hidden="">
 <aside class="md-banner md-banner--warning">
 <div class="md-banner__inner md-grid md-typeset">
-<script>
-    var currentScript = document.scripts[document.scripts.length - 1];
-    var banner = currentScript.closest(".md-banner");
-
-    if (banner) {
-        banner.style.display = "none";
-    }
-
-    var baseUrl = "../../../..";
-
-    var versionRoot = new URL(baseUrl + "/", window.location.href);
-    var versionsUrl = new URL("../versions.json", versionRoot);
-
-    fetch(versionsUrl.href)
-        .then(r => r.json())
-        .then(versions => {
-            var stable = versions.filter(v => v.version !== 'latest');
-
-            if (stable.length > 0) {
-                var latestStable = stable[0].version;
-                var currentPath = window.location.pathname;
-
-                if (!currentPath.includes('/latest/') && !currentPath.includes('/' + latestStable + '/')) {
-                    if (banner) {
-                        var rootUrl = new URL("..", versionRoot).pathname.replace(/\/$/, "");
-                        var newHtml = 'This is an older release. <a href="' + rootUrl + '/' + latestStable + '/"><strong>Go to the latest stable release</strong></a> or <a href="' + rootUrl + '/latest/"><strong>view the development version</strong></a>.';
-
-                        currentScript.insertAdjacentHTML('beforebegin', newHtml);
-                        banner.style.display = "block";
-                    }
-                }
-            }
-        }).catch(e => console.warn("Could not load versions.json: ", e));
-</script>
+<style>
+    .md-banner--warning { display: none; }
+</style>
+<div data-base-url="../../../.." id="version-warning-banner-text" style="width: 100%; text-align: left;"></div>
 </div>
 <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL("../../../.."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
 </aside>
@@ -91,7 +61,7 @@
 <div class="md-header__topic" data-md-component="header-topic">
 <span class="md-ellipsis">
             
-              Rest Python
+              Python REST Client
             
           </span>
 </div>
@@ -1233,7 +1203,7 @@
 <span class="md-ellipsis">
     
   
-    Rest Python
+    Python REST Client
   
 
     
@@ -1244,7 +1214,7 @@
 <span class="md-ellipsis">
     
   
-    Rest Python
+    Python REST Client
   
 
     
@@ -1257,19 +1227,28 @@
     </label>
 <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#prerequisites">
+<a class="md-nav__link" href="#the-python-client">
 <span class="md-ellipsis">
       
-        Prerequisites
+        The Python Client
       
     </span>
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#how-to-run">
+<a class="md-nav__link" href="#how-to-run-it">
 <span class="md-ellipsis">
       
-        How to run
+        How to run it
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-happens-under-the-hood">
+<span class="md-ellipsis">
+      
+        What happens under the hood
       
     </span>
 </a>
@@ -1361,38 +1340,314 @@
 </div>
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
-<div><h1 id="python-client-example-for-the-sen-rest-component">Python client example for the Sen REST component<a class="headerlink" href="#python-client-example-for-the-sen-rest-component" title="Permanent link">¶</a></h1>
-<p>This example demonstrate how to make requests to the REST component using Python.</p>
-<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">¶</a></h2>
-<ul>
-<li>venv</li>
-<li>python3</li>
-</ul>
-<h2 id="how-to-run">How to run<a class="headerlink" href="#how-to-run" title="Permanent link">¶</a></h2>
-<p>Create a <strong>sen</strong> configuration file (e.g. config.yaml) to load the REST component:</p>
-<div class="language-yaml highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nt">load</span><span class="p">:</span>
-</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rest</span>
-</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">    </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">    </span><span class="nt">address</span><span class="p">:</span><span class="w"> </span><span class="s">"0.0.0.0"</span>
-</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080</span>
+<div><h1 id="python-rest-client-example">Python REST Client example<a class="headerlink" href="#python-rest-client-example" title="Permanent link">¶</a></h1>
+<blockquote>
+<p><strong>Prerequisites:</strong> Familiarity with the <a href="../../../../components/rest.html">REST API Component</a>. Python 3 installed.</p>
+</blockquote>
+<p>This example demonstrates how to interact with the Sen REST API using Python. Building a proper client in Python allows you to programmatically authenticate, create interests, discover objects, invoke methods, and easily handle real-time Server-Sent Events (SSE) push notifications.</p>
+<h2 id="the-python-client">The Python Client<a class="headerlink" href="#the-python-client" title="Permanent link">¶</a></h2>
+<p>The example consists of a Python script <code>sen_client.py</code> that implements a <code>SenClient</code> class. This class uses the <code>requests</code> library for standard HTTP requests and <code>sseclient</code> for handling the persistent Server-Sent Events connection in a background thread.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="" id="__tabbed_1_1" name="__tabbed_1" type="radio"/><input id="__tabbed_1_2" name="__tabbed_1" type="radio"/><div class="tabbed-labels"><label for="__tabbed_1_1"><em>sen_client.py</em></label><label for="__tabbed_1_2"><em>requirements.txt</em></label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="c1"># === sen_client.py ====================================================================================================</span>
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="c1">#                                               Sen Infrastructure</span>
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="c1">#                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).</span>
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="c1">#                                    See the LICENSE.txt file for more information.</span>
+</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="c1">#                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.</span>
+</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="c1"># ======================================================================================================================</span>
+</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a>
+</span><span id="__span-0-8"><a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+</span><span id="__span-0-9"><a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+</span><span id="__span-0-10"><a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="kn">import</span><span class="w"> </span><span class="nn">sseclient</span>
+</span><span id="__span-0-11"><a href="#__codelineno-0-11" id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+</span><span id="__span-0-12"><a href="#__codelineno-0-12" id="__codelineno-0-12" name="__codelineno-0-12"></a>
+</span><span id="__span-0-13"><a href="#__codelineno-0-13" id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
+</span><span id="__span-0-14"><a href="#__codelineno-0-14" id="__codelineno-0-14" name="__codelineno-0-14"></a>
+</span><span id="__span-0-15"><a href="#__codelineno-0-15" id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="k">class</span><span class="w"> </span><span class="nc">SenClient</span><span class="p">:</span>
+</span><span id="__span-0-16"><a href="#__codelineno-0-16" id="__codelineno-0-16" name="__codelineno-0-16"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_url</span> <span class="o">=</span> <span class="s2">"http://localhost"</span><span class="p">):</span>
+</span><span id="__span-0-17"><a href="#__codelineno-0-17" id="__codelineno-0-17" name="__codelineno-0-17"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">base_url</span> <span class="o">=</span> <span class="n">base_url</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)</span>
+</span><span id="__span-0-18"><a href="#__codelineno-0-18" id="__codelineno-0-18" name="__codelineno-0-18"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+</span><span id="__span-0-19"><a href="#__codelineno-0-19" id="__codelineno-0-19" name="__codelineno-0-19"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">sse_event_types</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-0-20"><a href="#__codelineno-0-20" id="__codelineno-0-20" name="__codelineno-0-20"></a>            <span class="s2">"object_added"</span><span class="p">,</span>
+</span><span id="__span-0-21"><a href="#__codelineno-0-21" id="__codelineno-0-21" name="__codelineno-0-21"></a>            <span class="s2">"object_removed"</span><span class="p">,</span>
+</span><span id="__span-0-22"><a href="#__codelineno-0-22" id="__codelineno-0-22" name="__codelineno-0-22"></a>            <span class="s2">"invoke"</span><span class="p">,</span>
+</span><span id="__span-0-23"><a href="#__codelineno-0-23" id="__codelineno-0-23" name="__codelineno-0-23"></a>            <span class="s2">"event"</span><span class="p">,</span>
+</span><span id="__span-0-24"><a href="#__codelineno-0-24" id="__codelineno-0-24" name="__codelineno-0-24"></a>            <span class="s2">"property"</span><span class="p">,</span>
+</span><span id="__span-0-25"><a href="#__codelineno-0-25" id="__codelineno-0-25" name="__codelineno-0-25"></a>        <span class="p">]</span>
+</span><span id="__span-0-26"><a href="#__codelineno-0-26" id="__codelineno-0-26" name="__codelineno-0-26"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">token</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="__span-0-27"><a href="#__codelineno-0-27" id="__codelineno-0-27" name="__codelineno-0-27"></a>
+</span><span id="__span-0-28"><a href="#__codelineno-0-28" id="__codelineno-0-28" name="__codelineno-0-28"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_sse</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+</span><span id="__span-0-29"><a href="#__codelineno-0-29" id="__codelineno-0-29" name="__codelineno-0-29"></a>        <span class="n">header</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"Content-Type"</span><span class="p">:</span> <span class="s2">"application/json"</span><span class="p">,</span> <span class="p">}</span>
+</span><span id="__span-0-30"><a href="#__codelineno-0-30" id="__codelineno-0-30" name="__codelineno-0-30"></a>        <span class="k">if</span> <span class="n">is_sse</span><span class="p">:</span>
+</span><span id="__span-0-31"><a href="#__codelineno-0-31" id="__codelineno-0-31" name="__codelineno-0-31"></a>            <span class="n">header</span><span class="p">[</span><span class="s2">"Accept"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"text/event-stream"</span>
+</span><span id="__span-0-32"><a href="#__codelineno-0-32" id="__codelineno-0-32" name="__codelineno-0-32"></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="__span-0-33"><a href="#__codelineno-0-33" id="__codelineno-0-33" name="__codelineno-0-33"></a>            <span class="n">header</span><span class="p">[</span><span class="s2">"Accept"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"application/json"</span>
+</span><span id="__span-0-34"><a href="#__codelineno-0-34" id="__codelineno-0-34" name="__codelineno-0-34"></a>
+</span><span id="__span-0-35"><a href="#__codelineno-0-35" id="__codelineno-0-35" name="__codelineno-0-35"></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="p">:</span>
+</span><span id="__span-0-36"><a href="#__codelineno-0-36" id="__codelineno-0-36" name="__codelineno-0-36"></a>            <span class="n">header</span><span class="p">[</span><span class="s2">"Authorization"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"Bearer "</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">token</span>
+</span><span id="__span-0-37"><a href="#__codelineno-0-37" id="__codelineno-0-37" name="__codelineno-0-37"></a>        <span class="k">return</span> <span class="n">header</span>
+</span><span id="__span-0-38"><a href="#__codelineno-0-38" id="__codelineno-0-38" name="__codelineno-0-38"></a>
+</span><span id="__span-0-39"><a href="#__codelineno-0-39" id="__codelineno-0-39" name="__codelineno-0-39"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">href</span><span class="p">):</span>
+</span><span id="__span-0-40"><a href="#__codelineno-0-40" id="__codelineno-0-40" name="__codelineno-0-40"></a>        <span class="k">try</span><span class="p">:</span>
+</span><span id="__span-0-41"><a href="#__codelineno-0-41" id="__codelineno-0-41" name="__codelineno-0-41"></a>            <span class="n">url</span> <span class="o">=</span> <span class="n">href</span> <span class="k">if</span> <span class="n">href</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'http'</span><span class="p">)</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}{</span><span class="n">href</span><span class="si">}</span><span class="s2">"</span>
+</span><span id="__span-0-42"><a href="#__codelineno-0-42" id="__codelineno-0-42" name="__codelineno-0-42"></a>            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+</span><span id="__span-0-43"><a href="#__codelineno-0-43" id="__codelineno-0-43" name="__codelineno-0-43"></a>                <span class="n">url</span><span class="p">,</span>
+</span><span id="__span-0-44"><a href="#__codelineno-0-44" id="__codelineno-0-44" name="__codelineno-0-44"></a>                <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_headers</span><span class="p">()</span>
+</span><span id="__span-0-45"><a href="#__codelineno-0-45" id="__codelineno-0-45" name="__codelineno-0-45"></a>            <span class="p">)</span>
+</span><span id="__span-0-46"><a href="#__codelineno-0-46" id="__codelineno-0-46" name="__codelineno-0-46"></a>            <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+</span><span id="__span-0-47"><a href="#__codelineno-0-47" id="__codelineno-0-47" name="__codelineno-0-47"></a>            <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+</span><span id="__span-0-48"><a href="#__codelineno-0-48" id="__codelineno-0-48" name="__codelineno-0-48"></a>
+</span><span id="__span-0-49"><a href="#__codelineno-0-49" id="__codelineno-0-49" name="__codelineno-0-49"></a>        <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+</span><span id="__span-0-50"><a href="#__codelineno-0-50" id="__codelineno-0-50" name="__codelineno-0-50"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error GET: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-0-51"><a href="#__codelineno-0-51" id="__codelineno-0-51" name="__codelineno-0-51"></a>            <span class="k">raise</span>
+</span><span id="__span-0-52"><a href="#__codelineno-0-52" id="__codelineno-0-52" name="__codelineno-0-52"></a>
+</span><span id="__span-0-53"><a href="#__codelineno-0-53" id="__codelineno-0-53" name="__codelineno-0-53"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">href</span><span class="p">):</span>
+</span><span id="__span-0-54"><a href="#__codelineno-0-54" id="__codelineno-0-54" name="__codelineno-0-54"></a>        <span class="k">try</span><span class="p">:</span>
+</span><span id="__span-0-55"><a href="#__codelineno-0-55" id="__codelineno-0-55" name="__codelineno-0-55"></a>            <span class="n">url</span> <span class="o">=</span> <span class="n">href</span> <span class="k">if</span> <span class="n">href</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'http'</span><span class="p">)</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}{</span><span class="n">href</span><span class="si">}</span><span class="s2">"</span>
+</span><span id="__span-0-56"><a href="#__codelineno-0-56" id="__codelineno-0-56" name="__codelineno-0-56"></a>            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+</span><span id="__span-0-57"><a href="#__codelineno-0-57" id="__codelineno-0-57" name="__codelineno-0-57"></a>                <span class="n">url</span><span class="p">,</span>
+</span><span id="__span-0-58"><a href="#__codelineno-0-58" id="__codelineno-0-58" name="__codelineno-0-58"></a>                <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_headers</span><span class="p">()</span>
+</span><span id="__span-0-59"><a href="#__codelineno-0-59" id="__codelineno-0-59" name="__codelineno-0-59"></a>            <span class="p">)</span>
+</span><span id="__span-0-60"><a href="#__codelineno-0-60" id="__codelineno-0-60" name="__codelineno-0-60"></a>            <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+</span><span id="__span-0-61"><a href="#__codelineno-0-61" id="__codelineno-0-61" name="__codelineno-0-61"></a>            <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+</span><span id="__span-0-62"><a href="#__codelineno-0-62" id="__codelineno-0-62" name="__codelineno-0-62"></a>
+</span><span id="__span-0-63"><a href="#__codelineno-0-63" id="__codelineno-0-63" name="__codelineno-0-63"></a>        <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+</span><span id="__span-0-64"><a href="#__codelineno-0-64" id="__codelineno-0-64" name="__codelineno-0-64"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error POST: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-0-65"><a href="#__codelineno-0-65" id="__codelineno-0-65" name="__codelineno-0-65"></a>            <span class="k">raise</span>
+</span><span id="__span-0-66"><a href="#__codelineno-0-66" id="__codelineno-0-66" name="__codelineno-0-66"></a>
+</span><span id="__span-0-67"><a href="#__codelineno-0-67" id="__codelineno-0-67" name="__codelineno-0-67"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">post_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">href</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+</span><span id="__span-0-68"><a href="#__codelineno-0-68" id="__codelineno-0-68" name="__codelineno-0-68"></a>        <span class="k">try</span><span class="p">:</span>
+</span><span id="__span-0-69"><a href="#__codelineno-0-69" id="__codelineno-0-69" name="__codelineno-0-69"></a>            <span class="n">url</span> <span class="o">=</span> <span class="n">href</span> <span class="k">if</span> <span class="n">href</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'http'</span><span class="p">)</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}{</span><span class="n">href</span><span class="si">}</span><span class="s2">"</span>
+</span><span id="__span-0-70"><a href="#__codelineno-0-70" id="__codelineno-0-70" name="__codelineno-0-70"></a>            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+</span><span id="__span-0-71"><a href="#__codelineno-0-71" id="__codelineno-0-71" name="__codelineno-0-71"></a>                <span class="n">url</span><span class="p">,</span>
+</span><span id="__span-0-72"><a href="#__codelineno-0-72" id="__codelineno-0-72" name="__codelineno-0-72"></a>                <span class="n">headers</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_headers</span><span class="p">(),</span>
+</span><span id="__span-0-73"><a href="#__codelineno-0-73" id="__codelineno-0-73" name="__codelineno-0-73"></a>                <span class="n">json</span><span class="o">=</span><span class="n">body</span>
+</span><span id="__span-0-74"><a href="#__codelineno-0-74" id="__codelineno-0-74" name="__codelineno-0-74"></a>            <span class="p">)</span>
+</span><span id="__span-0-75"><a href="#__codelineno-0-75" id="__codelineno-0-75" name="__codelineno-0-75"></a>            <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+</span><span id="__span-0-76"><a href="#__codelineno-0-76" id="__codelineno-0-76" name="__codelineno-0-76"></a>            <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+</span><span id="__span-0-77"><a href="#__codelineno-0-77" id="__codelineno-0-77" name="__codelineno-0-77"></a>
+</span><span id="__span-0-78"><a href="#__codelineno-0-78" id="__codelineno-0-78" name="__codelineno-0-78"></a>        <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+</span><span id="__span-0-79"><a href="#__codelineno-0-79" id="__codelineno-0-79" name="__codelineno-0-79"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error POST JSON: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-0-80"><a href="#__codelineno-0-80" id="__codelineno-0-80" name="__codelineno-0-80"></a>            <span class="k">raise</span>
+</span><span id="__span-0-81"><a href="#__codelineno-0-81" id="__codelineno-0-81" name="__codelineno-0-81"></a>
+</span><span id="__span-0-82"><a href="#__codelineno-0-82" id="__codelineno-0-82" name="__codelineno-0-82"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">post_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">href</span><span class="p">,</span> <span class="n">args_str</span><span class="p">):</span>
+</span><span id="__span-0-83"><a href="#__codelineno-0-83" id="__codelineno-0-83" name="__codelineno-0-83"></a>        <span class="n">args_str</span> <span class="o">=</span> <span class="n">args_str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+</span><span id="__span-0-84"><a href="#__codelineno-0-84" id="__codelineno-0-84" name="__codelineno-0-84"></a>
+</span><span id="__span-0-85"><a href="#__codelineno-0-85" id="__codelineno-0-85" name="__codelineno-0-85"></a>        <span class="k">if</span> <span class="n">args_str</span><span class="p">:</span>
+</span><span id="__span-0-86"><a href="#__codelineno-0-86" id="__codelineno-0-86" name="__codelineno-0-86"></a>            <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-0-87"><a href="#__codelineno-0-87" id="__codelineno-0-87" name="__codelineno-0-87"></a>            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">args_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">','</span><span class="p">):</span>
+</span><span id="__span-0-88"><a href="#__codelineno-0-88" id="__codelineno-0-88" name="__codelineno-0-88"></a>                <span class="n">v</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+</span><span id="__span-0-89"><a href="#__codelineno-0-89" id="__codelineno-0-89" name="__codelineno-0-89"></a>                <span class="k">try</span><span class="p">:</span>
+</span><span id="__span-0-90"><a href="#__codelineno-0-90" id="__codelineno-0-90" name="__codelineno-0-90"></a>                    <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+</span><span id="__span-0-91"><a href="#__codelineno-0-91" id="__codelineno-0-91" name="__codelineno-0-91"></a>                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+</span><span id="__span-0-92"><a href="#__codelineno-0-92" id="__codelineno-0-92" name="__codelineno-0-92"></a>                    <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+</span><span id="__span-0-93"><a href="#__codelineno-0-93" id="__codelineno-0-93" name="__codelineno-0-93"></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="__span-0-94"><a href="#__codelineno-0-94" id="__codelineno-0-94" name="__codelineno-0-94"></a>            <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-0-95"><a href="#__codelineno-0-95" id="__codelineno-0-95" name="__codelineno-0-95"></a>
+</span><span id="__span-0-96"><a href="#__codelineno-0-96" id="__codelineno-0-96" name="__codelineno-0-96"></a>        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_json</span><span class="p">(</span><span class="n">href</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+</span><span id="__span-0-97"><a href="#__codelineno-0-97" id="__codelineno-0-97" name="__codelineno-0-97"></a>        <span class="k">return</span> <span class="n">data</span>
+</span><span id="__span-0-98"><a href="#__codelineno-0-98" id="__codelineno-0-98" name="__codelineno-0-98"></a>
+</span><span id="__span-0-99"><a href="#__codelineno-0-99" id="__codelineno-0-99" name="__codelineno-0-99"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">enable_notifications</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="__span-0-100"><a href="#__codelineno-0-100" id="__codelineno-0-100" name="__codelineno-0-100"></a>        <span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+</span><span id="__span-0-101"><a href="#__codelineno-0-101" id="__codelineno-0-101" name="__codelineno-0-101"></a>
+</span><span id="__span-0-102"><a href="#__codelineno-0-102" id="__codelineno-0-102" name="__codelineno-0-102"></a>        <span class="k">def</span><span class="w"> </span><span class="nf">listen_sse</span><span class="p">():</span>
+</span><span id="__span-0-103"><a href="#__codelineno-0-103" id="__codelineno-0-103" name="__codelineno-0-103"></a>            <span class="k">try</span><span class="p">:</span>
+</span><span id="__span-0-104"><a href="#__codelineno-0-104" id="__codelineno-0-104" name="__codelineno-0-104"></a>                <span class="n">notifications</span> <span class="o">=</span> <span class="n">sseclient</span><span class="o">.</span><span class="n">SSEClient</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/api/sse"</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_headers</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span>
+</span><span id="__span-0-105"><a href="#__codelineno-0-105" id="__codelineno-0-105" name="__codelineno-0-105"></a>                <span class="k">for</span> <span class="n">notification</span> <span class="ow">in</span> <span class="n">notifications</span><span class="p">:</span>
+</span><span id="__span-0-106"><a href="#__codelineno-0-106" id="__codelineno-0-106" name="__codelineno-0-106"></a>                    <span class="k">if</span> <span class="n">notification</span><span class="o">.</span><span class="n">event</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sse_event_types</span><span class="p">:</span>
+</span><span id="__span-0-107"><a href="#__codelineno-0-107" id="__codelineno-0-107" name="__codelineno-0-107"></a>                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Notification received =&gt; [</span><span class="si">{</span><span class="n">notification</span><span class="o">.</span><span class="n">event</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">notification</span><span class="o">.</span><span class="n">data</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-0-108"><a href="#__codelineno-0-108" id="__codelineno-0-108" name="__codelineno-0-108"></a>
+</span><span id="__span-0-109"><a href="#__codelineno-0-109" id="__codelineno-0-109" name="__codelineno-0-109"></a>            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+</span><span id="__span-0-110"><a href="#__codelineno-0-110" id="__codelineno-0-110" name="__codelineno-0-110"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"SSE Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">o"</span><span class="p">)</span>
+</span><span id="__span-0-111"><a href="#__codelineno-0-111" id="__codelineno-0-111" name="__codelineno-0-111"></a>
+</span><span id="__span-0-112"><a href="#__codelineno-0-112" id="__codelineno-0-112" name="__codelineno-0-112"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">sse_thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">listen_sse</span><span class="p">,</span> <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-0-113"><a href="#__codelineno-0-113" id="__codelineno-0-113" name="__codelineno-0-113"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">sse_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</span><span id="__span-0-114"><a href="#__codelineno-0-114" id="__codelineno-0-114" name="__codelineno-0-114"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"Notifications enabled"</span><span class="p">)</span>
+</span><span id="__span-0-115"><a href="#__codelineno-0-115" id="__codelineno-0-115" name="__codelineno-0-115"></a>
+</span><span id="__span-0-116"><a href="#__codelineno-0-116" id="__codelineno-0-116" name="__codelineno-0-116"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">disable_notifications</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="__span-0-117"><a href="#__codelineno-0-117" id="__codelineno-0-117" name="__codelineno-0-117"></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sse_thread</span><span class="p">:</span>
+</span><span id="__span-0-118"><a href="#__codelineno-0-118" id="__codelineno-0-118" name="__codelineno-0-118"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">sse_thread</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="__span-0-119"><a href="#__codelineno-0-119" id="__codelineno-0-119" name="__codelineno-0-119"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"SSE disabled"</span><span class="p">)</span>
+</span><span id="__span-0-120"><a href="#__codelineno-0-120" id="__codelineno-0-120" name="__codelineno-0-120"></a>
+</span><span id="__span-0-121"><a href="#__codelineno-0-121" id="__codelineno-0-121" name="__codelineno-0-121"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">signin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client_id</span><span class="p">):</span>
+</span><span id="__span-0-122"><a href="#__codelineno-0-122" id="__codelineno-0-122" name="__codelineno-0-122"></a>        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_json</span><span class="p">(</span><span class="s2">"/api/auth"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">client_id</span><span class="p">})</span>
+</span><span id="__span-0-123"><a href="#__codelineno-0-123" id="__codelineno-0-123" name="__codelineno-0-123"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"Signed in successfully"</span><span class="p">)</span>
+</span><span id="__span-0-124"><a href="#__codelineno-0-124" id="__codelineno-0-124" name="__codelineno-0-124"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">token</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"token"</span><span class="p">]</span>
+</span><span id="__span-0-125"><a href="#__codelineno-0-125" id="__codelineno-0-125" name="__codelineno-0-125"></a>        <span class="k">return</span> <span class="n">data</span>
+</span><span id="__span-0-126"><a href="#__codelineno-0-126" id="__codelineno-0-126" name="__codelineno-0-126"></a>
+</span><span id="__span-0-127"><a href="#__codelineno-0-127" id="__codelineno-0-127" name="__codelineno-0-127"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">start_client_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client_id</span><span class="p">):</span>
+</span><span id="__span-0-128"><a href="#__codelineno-0-128" id="__codelineno-0-128" name="__codelineno-0-128"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">client_id</span><span class="p">:</span>
+</span><span id="__span-0-129"><a href="#__codelineno-0-129" id="__codelineno-0-129" name="__codelineno-0-129"></a>            <span class="nb">print</span><span class="p">(</span><span class="s2">"Client ID is required"</span><span class="p">)</span>
+</span><span id="__span-0-130"><a href="#__codelineno-0-130" id="__codelineno-0-130" name="__codelineno-0-130"></a>            <span class="k">return</span>
+</span><span id="__span-0-131"><a href="#__codelineno-0-131" id="__codelineno-0-131" name="__codelineno-0-131"></a>
+</span><span id="__span-0-132"><a href="#__codelineno-0-132" id="__codelineno-0-132" name="__codelineno-0-132"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Starting session for client: </span><span class="si">{</span><span class="n">client_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-0-133"><a href="#__codelineno-0-133" id="__codelineno-0-133" name="__codelineno-0-133"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">signin</span><span class="p">(</span><span class="n">client_id</span><span class="p">)</span>
+</span><span id="__span-0-134"><a href="#__codelineno-0-134" id="__codelineno-0-134" name="__codelineno-0-134"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">get_sessions</span><span class="p">()</span>
+</span><span id="__span-0-135"><a href="#__codelineno-0-135" id="__codelineno-0-135" name="__codelineno-0-135"></a>
+</span><span id="__span-0-136"><a href="#__codelineno-0-136" id="__codelineno-0-136" name="__codelineno-0-136"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_sessions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="__span-0-137"><a href="#__codelineno-0-137" id="__codelineno-0-137" name="__codelineno-0-137"></a>        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/api/sessions"</span><span class="p">)</span>
+</span><span id="__span-0-138"><a href="#__codelineno-0-138" id="__codelineno-0-138" name="__codelineno-0-138"></a>        <span class="k">return</span> <span class="n">data</span>
+</span><span id="__span-0-139"><a href="#__codelineno-0-139" id="__codelineno-0-139" name="__codelineno-0-139"></a>
+</span><span id="__span-0-140"><a href="#__codelineno-0-140" id="__codelineno-0-140" name="__codelineno-0-140"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">print_sessions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sessions</span><span class="p">):</span>
+</span><span id="__span-0-141"><a href="#__codelineno-0-141" id="__codelineno-0-141" name="__codelineno-0-141"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">=== Sessions ==="</span><span class="p">)</span>
+</span><span id="__span-0-142"><a href="#__codelineno-0-142" id="__codelineno-0-142" name="__codelineno-0-142"></a>        <span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="n">sessions</span><span class="p">:</span>
+</span><span id="__span-0-143"><a href="#__codelineno-0-143" id="__codelineno-0-143" name="__codelineno-0-143"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"   </span><span class="si">{</span><span class="n">session</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-0-144"><a href="#__codelineno-0-144" id="__codelineno-0-144" name="__codelineno-0-144"></a>        <span class="nb">print</span><span class="p">()</span>
+</span><span id="__span-0-145"><a href="#__codelineno-0-145" id="__codelineno-0-145" name="__codelineno-0-145"></a>
+</span><span id="__span-0-146"><a href="#__codelineno-0-146" id="__codelineno-0-146" name="__codelineno-0-146"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">create_interest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+</span><span id="__span-0-147"><a href="#__codelineno-0-147" id="__codelineno-0-147" name="__codelineno-0-147"></a>        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_json</span><span class="p">(</span><span class="s2">"/api/interests"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s2">"query"</span><span class="p">:</span> <span class="n">query</span><span class="p">})</span>
+</span><span id="__span-0-148"><a href="#__codelineno-0-148" id="__codelineno-0-148" name="__codelineno-0-148"></a>        <span class="k">return</span> <span class="n">data</span>
+</span><span id="__span-0-149"><a href="#__codelineno-0-149" id="__codelineno-0-149" name="__codelineno-0-149"></a>
+</span><span id="__span-0-150"><a href="#__codelineno-0-150" id="__codelineno-0-150" name="__codelineno-0-150"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">reload_interests</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="__span-0-151"><a href="#__codelineno-0-151" id="__codelineno-0-151" name="__codelineno-0-151"></a>        <span class="n">interests</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/api/interests"</span><span class="p">)</span>
+</span><span id="__span-0-152"><a href="#__codelineno-0-152" id="__codelineno-0-152" name="__codelineno-0-152"></a>        <span class="k">return</span> <span class="n">interests</span>
+</span><span id="__span-0-153"><a href="#__codelineno-0-153" id="__codelineno-0-153" name="__codelineno-0-153"></a>
+</span><span id="__span-0-154"><a href="#__codelineno-0-154" id="__codelineno-0-154" name="__codelineno-0-154"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">print_interests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interests</span><span class="p">):</span>
+</span><span id="__span-0-155"><a href="#__codelineno-0-155" id="__codelineno-0-155" name="__codelineno-0-155"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">=== Interests ==="</span><span class="p">)</span>
+</span><span id="__span-0-156"><a href="#__codelineno-0-156" id="__codelineno-0-156" name="__codelineno-0-156"></a>        <span class="k">for</span> <span class="n">interest</span> <span class="ow">in</span> <span class="n">interests</span><span class="p">:</span>
+</span><span id="__span-0-157"><a href="#__codelineno-0-157" id="__codelineno-0-157" name="__codelineno-0-157"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"   </span><span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">interest</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-0-158"><a href="#__codelineno-0-158" id="__codelineno-0-158" name="__codelineno-0-158"></a>        <span class="nb">print</span><span class="p">()</span>
+</span><span id="__span-0-159"><a href="#__codelineno-0-159" id="__codelineno-0-159" name="__codelineno-0-159"></a>
+</span><span id="__span-0-160"><a href="#__codelineno-0-160" id="__codelineno-0-160" name="__codelineno-0-160"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interest_name</span><span class="p">):</span>
+</span><span id="__span-0-161"><a href="#__codelineno-0-161" id="__codelineno-0-161" name="__codelineno-0-161"></a>        <span class="n">objects</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"/api/interests/</span><span class="si">{</span><span class="n">interest_name</span><span class="si">}</span><span class="s2">/objects"</span><span class="p">)</span>
+</span><span id="__span-0-162"><a href="#__codelineno-0-162" id="__codelineno-0-162" name="__codelineno-0-162"></a>        <span class="k">return</span> <span class="n">objects</span>
+</span><span id="__span-0-163"><a href="#__codelineno-0-163" id="__codelineno-0-163" name="__codelineno-0-163"></a>
+</span><span id="__span-0-164"><a href="#__codelineno-0-164" id="__codelineno-0-164" name="__codelineno-0-164"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">print_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objects</span><span class="p">):</span>
+</span><span id="__span-0-165"><a href="#__codelineno-0-165" id="__codelineno-0-165" name="__codelineno-0-165"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">=== Objects ==="</span><span class="p">)</span>
+</span><span id="__span-0-166"><a href="#__codelineno-0-166" id="__codelineno-0-166" name="__codelineno-0-166"></a>        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">:</span>
+</span><span id="__span-0-167"><a href="#__codelineno-0-167" id="__codelineno-0-167" name="__codelineno-0-167"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"   </span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'name'</span><span class="p">)</span><span class="si">}</span><span class="s2"> [ </span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'localname'</span><span class="p">)</span><span class="si">}</span><span class="s2"> ]"</span><span class="p">)</span>
+</span><span id="__span-0-168"><a href="#__codelineno-0-168" id="__codelineno-0-168" name="__codelineno-0-168"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    Link: </span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'link'</span><span class="p">,</span><span class="w"> </span><span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'href'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-0-169"><a href="#__codelineno-0-169" id="__codelineno-0-169" name="__codelineno-0-169"></a>        <span class="nb">print</span><span class="p">()</span>
+</span><span id="__span-0-170"><a href="#__codelineno-0-170" id="__codelineno-0-170" name="__codelineno-0-170"></a>
+</span><span id="__span-0-171"><a href="#__codelineno-0-171" id="__codelineno-0-171" name="__codelineno-0-171"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interest_name</span><span class="p">,</span> <span class="n">object_name</span><span class="p">):</span>
+</span><span id="__span-0-172"><a href="#__codelineno-0-172" id="__codelineno-0-172" name="__codelineno-0-172"></a>        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"/api/interests/</span><span class="si">{</span><span class="n">interest_name</span><span class="si">}</span><span class="s2">/objects/</span><span class="si">{</span><span class="n">object_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-0-173"><a href="#__codelineno-0-173" id="__codelineno-0-173" name="__codelineno-0-173"></a>        <span class="k">return</span> <span class="n">data</span>
+</span><span id="__span-0-174"><a href="#__codelineno-0-174" id="__codelineno-0-174" name="__codelineno-0-174"></a>
+</span><span id="__span-0-175"><a href="#__codelineno-0-175" id="__codelineno-0-175" name="__codelineno-0-175"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">print_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+</span><span id="__span-0-176"><a href="#__codelineno-0-176" id="__codelineno-0-176" name="__codelineno-0-176"></a>        <span class="n">methods</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-0-177"><a href="#__codelineno-0-177" id="__codelineno-0-177" name="__codelineno-0-177"></a>        <span class="n">properties</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-0-178"><a href="#__codelineno-0-178" id="__codelineno-0-178" name="__codelineno-0-178"></a>        <span class="n">events</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-0-179"><a href="#__codelineno-0-179" id="__codelineno-0-179" name="__codelineno-0-179"></a>
+</span><span id="__span-0-180"><a href="#__codelineno-0-180" id="__codelineno-0-180" name="__codelineno-0-180"></a>        <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'links'</span><span class="p">,</span> <span class="p">[]):</span>
+</span><span id="__span-0-181"><a href="#__codelineno-0-181" id="__codelineno-0-181" name="__codelineno-0-181"></a>            <span class="n">rel</span> <span class="o">=</span> <span class="n">link</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'rel'</span><span class="p">)</span>
+</span><span id="__span-0-182"><a href="#__codelineno-0-182" id="__codelineno-0-182" name="__codelineno-0-182"></a>            <span class="n">href</span> <span class="o">=</span> <span class="n">link</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'href'</span><span class="p">)</span>
+</span><span id="__span-0-183"><a href="#__codelineno-0-183" id="__codelineno-0-183" name="__codelineno-0-183"></a>
+</span><span id="__span-0-184"><a href="#__codelineno-0-184" id="__codelineno-0-184" name="__codelineno-0-184"></a>            <span class="k">if</span> <span class="n">rel</span> <span class="o">==</span> <span class="s1">'method'</span><span class="p">:</span>
+</span><span id="__span-0-185"><a href="#__codelineno-0-185" id="__codelineno-0-185" name="__codelineno-0-185"></a>                <span class="n">methods</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">href</span><span class="p">)</span>
+</span><span id="__span-0-186"><a href="#__codelineno-0-186" id="__codelineno-0-186" name="__codelineno-0-186"></a>            <span class="k">elif</span> <span class="n">rel</span> <span class="o">==</span> <span class="s1">'def'</span><span class="p">:</span>
+</span><span id="__span-0-187"><a href="#__codelineno-0-187" id="__codelineno-0-187" name="__codelineno-0-187"></a>                <span class="n">methods</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">href</span><span class="si">}</span><span class="s2"> (definition)"</span><span class="p">)</span>
+</span><span id="__span-0-188"><a href="#__codelineno-0-188" id="__codelineno-0-188" name="__codelineno-0-188"></a>            <span class="k">elif</span> <span class="n">rel</span> <span class="o">==</span> <span class="s1">'property'</span><span class="p">:</span>
+</span><span id="__span-0-189"><a href="#__codelineno-0-189" id="__codelineno-0-189" name="__codelineno-0-189"></a>                <span class="n">properties</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">href</span><span class="p">)</span>
+</span><span id="__span-0-190"><a href="#__codelineno-0-190" id="__codelineno-0-190" name="__codelineno-0-190"></a>            <span class="k">elif</span> <span class="n">rel</span> <span class="o">==</span> <span class="s1">'property_subscribe'</span><span class="p">:</span>
+</span><span id="__span-0-191"><a href="#__codelineno-0-191" id="__codelineno-0-191" name="__codelineno-0-191"></a>                <span class="n">properties</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">href</span><span class="si">}</span><span class="s2"> (subscribe)"</span><span class="p">)</span>
+</span><span id="__span-0-192"><a href="#__codelineno-0-192" id="__codelineno-0-192" name="__codelineno-0-192"></a>            <span class="k">elif</span> <span class="n">rel</span> <span class="o">==</span> <span class="s1">'property_unsubscribe'</span><span class="p">:</span>
+</span><span id="__span-0-193"><a href="#__codelineno-0-193" id="__codelineno-0-193" name="__codelineno-0-193"></a>                <span class="n">properties</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">href</span><span class="si">}</span><span class="s2"> (unsubscribe)"</span><span class="p">)</span>
+</span><span id="__span-0-194"><a href="#__codelineno-0-194" id="__codelineno-0-194" name="__codelineno-0-194"></a>
+</span><span id="__span-0-195"><a href="#__codelineno-0-195" id="__codelineno-0-195" name="__codelineno-0-195"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">=== Object Details ==="</span><span class="p">)</span>
+</span><span id="__span-0-196"><a href="#__codelineno-0-196" id="__codelineno-0-196" name="__codelineno-0-196"></a>        <span class="k">if</span> <span class="n">methods</span><span class="p">:</span>
+</span><span id="__span-0-197"><a href="#__codelineno-0-197" id="__codelineno-0-197" name="__codelineno-0-197"></a>            <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Methods:"</span><span class="p">)</span>
+</span><span id="__span-0-198"><a href="#__codelineno-0-198" id="__codelineno-0-198" name="__codelineno-0-198"></a>            <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+</span><span id="__span-0-199"><a href="#__codelineno-0-199" id="__codelineno-0-199" name="__codelineno-0-199"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"   </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-0-200"><a href="#__codelineno-0-200" id="__codelineno-0-200" name="__codelineno-0-200"></a>
+</span><span id="__span-0-201"><a href="#__codelineno-0-201" id="__codelineno-0-201" name="__codelineno-0-201"></a>        <span class="k">if</span> <span class="n">properties</span><span class="p">:</span>
+</span><span id="__span-0-202"><a href="#__codelineno-0-202" id="__codelineno-0-202" name="__codelineno-0-202"></a>            <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Properties:"</span><span class="p">)</span>
+</span><span id="__span-0-203"><a href="#__codelineno-0-203" id="__codelineno-0-203" name="__codelineno-0-203"></a>            <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">:</span>
+</span><span id="__span-0-204"><a href="#__codelineno-0-204" id="__codelineno-0-204" name="__codelineno-0-204"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"   </span><span class="si">{</span><span class="n">prop</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-0-205"><a href="#__codelineno-0-205" id="__codelineno-0-205" name="__codelineno-0-205"></a>
+</span><span id="__span-0-206"><a href="#__codelineno-0-206" id="__codelineno-0-206" name="__codelineno-0-206"></a>        <span class="k">if</span> <span class="n">events</span><span class="p">:</span>
+</span><span id="__span-0-207"><a href="#__codelineno-0-207" id="__codelineno-0-207" name="__codelineno-0-207"></a>            <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Events:"</span><span class="p">)</span>
+</span><span id="__span-0-208"><a href="#__codelineno-0-208" id="__codelineno-0-208" name="__codelineno-0-208"></a>            <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+</span><span id="__span-0-209"><a href="#__codelineno-0-209" id="__codelineno-0-209" name="__codelineno-0-209"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"   </span><span class="si">{</span><span class="n">event</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-0-210"><a href="#__codelineno-0-210" id="__codelineno-0-210" name="__codelineno-0-210"></a>        <span class="nb">print</span><span class="p">()</span>
+</span><span id="__span-0-211"><a href="#__codelineno-0-211" id="__codelineno-0-211" name="__codelineno-0-211"></a>
+</span><span id="__span-0-212"><a href="#__codelineno-0-212" id="__codelineno-0-212" name="__codelineno-0-212"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_method_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interest_name</span><span class="p">,</span> <span class="n">object_name</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+</span><span id="__span-0-213"><a href="#__codelineno-0-213" id="__codelineno-0-213" name="__codelineno-0-213"></a>        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"/api/interests/</span><span class="si">{</span><span class="n">interest_name</span><span class="si">}</span><span class="s2">/objects/</span><span class="si">{</span><span class="n">object_name</span><span class="si">}</span><span class="s2">/methods/</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-0-214"><a href="#__codelineno-0-214" id="__codelineno-0-214" name="__codelineno-0-214"></a>        <span class="k">return</span> <span class="n">data</span>
+</span><span id="__span-0-215"><a href="#__codelineno-0-215" id="__codelineno-0-215" name="__codelineno-0-215"></a>
+</span><span id="__span-0-216"><a href="#__codelineno-0-216" id="__codelineno-0-216" name="__codelineno-0-216"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">print_method_def</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method_def</span><span class="p">):</span>
+</span><span id="__span-0-217"><a href="#__codelineno-0-217" id="__codelineno-0-217" name="__codelineno-0-217"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Method definition: </span><span class="si">{</span><span class="n">method_def</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-0-218"><a href="#__codelineno-0-218" id="__codelineno-0-218" name="__codelineno-0-218"></a>
+</span><span id="__span-0-219"><a href="#__codelineno-0-219" id="__codelineno-0-219" name="__codelineno-0-219"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">invoke_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interest_name</span><span class="p">,</span> <span class="n">object_name</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+</span><span id="__span-0-220"><a href="#__codelineno-0-220" id="__codelineno-0-220" name="__codelineno-0-220"></a>        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_args</span><span class="p">(</span><span class="sa">f</span><span class="s2">"/api/interests/</span><span class="si">{</span><span class="n">interest_name</span><span class="si">}</span><span class="s2">/objects/</span><span class="si">{</span><span class="n">object_name</span><span class="si">}</span><span class="s2">/methods/</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">/invoke"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+</span><span id="__span-0-221"><a href="#__codelineno-0-221" id="__codelineno-0-221" name="__codelineno-0-221"></a>        <span class="k">return</span> <span class="n">data</span>
+</span><span id="__span-0-222"><a href="#__codelineno-0-222" id="__codelineno-0-222" name="__codelineno-0-222"></a>
+</span><span id="__span-0-223"><a href="#__codelineno-0-223" id="__codelineno-0-223" name="__codelineno-0-223"></a>
+</span><span id="__span-0-224"><a href="#__codelineno-0-224" id="__codelineno-0-224" name="__codelineno-0-224"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+</span><span id="__span-0-225"><a href="#__codelineno-0-225" id="__codelineno-0-225" name="__codelineno-0-225"></a>    <span class="n">client</span> <span class="o">=</span> <span class="n">SenClient</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s2">"http://localhost:8080"</span><span class="p">)</span>
+</span><span id="__span-0-226"><a href="#__codelineno-0-226" id="__codelineno-0-226" name="__codelineno-0-226"></a>    <span class="n">client</span><span class="o">.</span><span class="n">start_client_session</span><span class="p">(</span><span class="s2">"my-client-id"</span><span class="p">)</span>
+</span><span id="__span-0-227"><a href="#__codelineno-0-227" id="__codelineno-0-227" name="__codelineno-0-227"></a>    <span class="n">client</span><span class="o">.</span><span class="n">enable_notifications</span><span class="p">()</span>
+</span><span id="__span-0-228"><a href="#__codelineno-0-228" id="__codelineno-0-228" name="__codelineno-0-228"></a>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="__span-0-229"><a href="#__codelineno-0-229" id="__codelineno-0-229" name="__codelineno-0-229"></a>
+</span><span id="__span-0-230"><a href="#__codelineno-0-230" id="__codelineno-0-230" name="__codelineno-0-230"></a>    <span class="n">sessions</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_sessions</span><span class="p">()</span>
+</span><span id="__span-0-231"><a href="#__codelineno-0-231" id="__codelineno-0-231" name="__codelineno-0-231"></a>    <span class="n">client</span><span class="o">.</span><span class="n">print_sessions</span><span class="p">(</span><span class="n">sessions</span><span class="p">)</span>
+</span><span id="__span-0-232"><a href="#__codelineno-0-232" id="__codelineno-0-232" name="__codelineno-0-232"></a>
+</span><span id="__span-0-233"><a href="#__codelineno-0-233" id="__codelineno-0-233" name="__codelineno-0-233"></a>    <span class="n">interest</span> <span class="o">=</span> <span class="s2">"new_interest"</span>
+</span><span id="__span-0-234"><a href="#__codelineno-0-234" id="__codelineno-0-234" name="__codelineno-0-234"></a>    <span class="n">query</span> <span class="o">=</span> <span class="s2">"SELECT * FROM local.kernel"</span>
+</span><span id="__span-0-235"><a href="#__codelineno-0-235" id="__codelineno-0-235" name="__codelineno-0-235"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"=== Creating interest '</span><span class="si">{</span><span class="n">interest</span><span class="si">}</span><span class="s2">' with query '</span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">' ===</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-0-236"><a href="#__codelineno-0-236" id="__codelineno-0-236" name="__codelineno-0-236"></a>    <span class="n">client</span><span class="o">.</span><span class="n">create_interest</span><span class="p">(</span><span class="n">interest</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+</span><span id="__span-0-237"><a href="#__codelineno-0-237" id="__codelineno-0-237" name="__codelineno-0-237"></a>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="__span-0-238"><a href="#__codelineno-0-238" id="__codelineno-0-238" name="__codelineno-0-238"></a>    <span class="n">client</span><span class="o">.</span><span class="n">reload_interests</span><span class="p">()</span>
+</span><span id="__span-0-239"><a href="#__codelineno-0-239" id="__codelineno-0-239" name="__codelineno-0-239"></a>    <span class="n">client</span><span class="o">.</span><span class="n">disable_notifications</span><span class="p">()</span>
+</span><span id="__span-0-240"><a href="#__codelineno-0-240" id="__codelineno-0-240" name="__codelineno-0-240"></a>
+</span><span id="__span-0-241"><a href="#__codelineno-0-241" id="__codelineno-0-241" name="__codelineno-0-241"></a>    <span class="n">objects</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_objects</span><span class="p">(</span><span class="n">interest</span><span class="p">)</span>
+</span><span id="__span-0-242"><a href="#__codelineno-0-242" id="__codelineno-0-242" name="__codelineno-0-242"></a>    <span class="n">client</span><span class="o">.</span><span class="n">print_objects</span><span class="p">(</span><span class="n">objects</span><span class="p">)</span>
+</span><span id="__span-0-243"><a href="#__codelineno-0-243" id="__codelineno-0-243" name="__codelineno-0-243"></a>
+</span><span id="__span-0-244"><a href="#__codelineno-0-244" id="__codelineno-0-244" name="__codelineno-0-244"></a>    <span class="nb">object</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_object</span><span class="p">(</span><span class="n">interest</span><span class="p">,</span> <span class="s2">"api"</span><span class="p">)</span>
+</span><span id="__span-0-245"><a href="#__codelineno-0-245" id="__codelineno-0-245" name="__codelineno-0-245"></a>    <span class="n">client</span><span class="o">.</span><span class="n">print_object</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
+</span><span id="__span-0-246"><a href="#__codelineno-0-246" id="__codelineno-0-246" name="__codelineno-0-246"></a>
+</span><span id="__span-0-247"><a href="#__codelineno-0-247" id="__codelineno-0-247" name="__codelineno-0-247"></a>    <span class="n">method_def</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_method_info</span><span class="p">(</span><span class="n">interest</span><span class="p">,</span> <span class="s2">"api"</span><span class="p">,</span> <span class="s2">"getConfig"</span><span class="p">)</span>
+</span><span id="__span-0-248"><a href="#__codelineno-0-248" id="__codelineno-0-248" name="__codelineno-0-248"></a>    <span class="n">client</span><span class="o">.</span><span class="n">print_method_def</span><span class="p">(</span><span class="n">method_def</span><span class="p">)</span>
+</span><span id="__span-0-249"><a href="#__codelineno-0-249" id="__codelineno-0-249" name="__codelineno-0-249"></a>
+</span><span id="__span-0-250"><a href="#__codelineno-0-250" id="__codelineno-0-250" name="__codelineno-0-250"></a>    <span class="n">invoke_ret</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">invoke_method</span><span class="p">(</span><span class="n">interest</span><span class="p">,</span> <span class="s2">"api"</span><span class="p">,</span> <span class="s2">"getConfig"</span><span class="p">)</span>
+</span><span id="__span-0-251"><a href="#__codelineno-0-251" id="__codelineno-0-251" name="__codelineno-0-251"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">invoke_ret</span><span class="p">)</span>
 </span></code></pre></div>
-<p>Now start <strong>sen</strong> with your new configuration:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a>sen<span class="w"> </span>run<span class="w"> </span>config.yaml
+</div>
+<div class="tabbed-block">
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a>certifi==2025.11.12
+</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a>charset-normalizer==3.4.4
+</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a>idna==3.11
+</span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a>requests==2.33.0
+</span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a>six==1.17.0
+</span><span id="__span-1-6"><a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a>sseclient==0.0.27
+</span><span id="__span-1-7"><a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a>urllib3==2.7.0
 </span></code></pre></div>
-<p>Prepare the Python environment</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.env
-</span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="nb">source</span><span class="w"> </span>env/bin/activate
-</span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements
+</div>
+</div>
+</div>
+<h2 id="how-to-run-it">How to run it<a class="headerlink" href="#how-to-run-it" title="Permanent link">¶</a></h2>
+<p>First, create a basic Sen configuration that loads the <code>rest</code> component on port <code>8080</code>.</p>
+<div class="language-yaml highlight"><span class="filename">Configuration file</span><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="nt">load</span><span class="p">:</span>
+</span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rest</span>
+</span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">    </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+</span><span id="__span-2-4"><a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="w">    </span><span class="nt">address</span><span class="p">:</span><span class="w"> </span><span class="s">"0.0.0.0"</span>
+</span><span id="__span-2-5"><a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080</span>
 </span></code></pre></div>
-<p>Now run the client example:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a>python<span class="w"> </span>sen_client.py
-</span></code></pre></div></div>
+<p>Start the <strong>sen</strong> kernel with this configuration:</p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a>sen<span class="w"> </span>run<span class="w"> </span>config.yaml
+</span></code></pre></div>
+<p>Now, open a new terminal window to prepare the Python environment and run the client:</p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.env
+</span><span id="__span-4-2"><a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="nb">source</span><span class="w"> </span>.env/bin/activate
+</span><span id="__span-4-3"><a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+</span><span id="__span-4-4"><a href="#__codelineno-4-4" id="__codelineno-4-4" name="__codelineno-4-4"></a>python<span class="w"> </span>sen_client.py
+</span></code></pre></div>
+<h2 id="what-happens-under-the-hood">What happens under the hood<a class="headerlink" href="#what-happens-under-the-hood" title="Permanent link">¶</a></h2>
+<p>When you execute <code>sen_client.py</code>, the script performs the following sequence of actions:</p>
+<ol>
+<li><strong>Authentication:</strong> It connects to <code>/api/auth</code> with a client ID (<code>my-client-id</code>) and retrieves a JWT token. This token is automatically attached to the <code>Authorization</code> header for all subsequent requests.</li>
+<li><strong>SSE Connection:</strong> It spawns a background thread that connects to <code>/api/sse</code>. This thread listens for push notifications (like <code>object_added</code> or <code>invoke</code> results) and prints them to the console in real-time.</li>
+<li><strong>Session Discovery:</strong> It queries <code>/api/sessions</code> to list available Sen sessions.</li>
+<li><strong>Creating an Interest:</strong> It creates an interest named <code>new_interest</code> with the query <code>SELECT * FROM local.kernel</code>. This tells the REST API to track all objects matching that SQL query.</li>
+<li><strong>Object Introspection:</strong> It lists the objects matching the interest, then requests detailed information for a specific object (the <code>api</code> object), including its available methods, properties, and events.</li>
+<li><strong>Method Invocation:</strong> Finally, it invokes the <code>getConfig</code> method on the <code>api</code> object and prints the asynchronous invocation result (which is also broadcasted via SSE).</li>
+</ol></div>
 <aside class="md-source-file">
 <span class="md-source-file__fact">
 <span class="md-icon" title="Last update">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
 </span>
-    April 17, 2026
+    November 10, 2026
   </span>
 </aside>
 </article>
@@ -1449,8 +1704,54 @@
 </div>
 <div class="md-progress" data-md-component="progress" role="progressbar"></div>
 <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.footer", "navigation.top", "navigation.instant", "navigation.instant.progress", "content.code.annotate", "content.code.copy", "content.tooltips", "toc.follow", "toc.integrate"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
-<script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+<script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
+<script>
+    (function() {
+        if (window.__senBannerInitialized) {
+            return;
+        }
+        window.__senBannerInitialized = true;
+
+        function updateVersionBanner() {
+            var bannerText = document.getElementById("version-warning-banner-text");
+            if (!bannerText) return;
+
+            var banner = bannerText.closest(".md-banner");
+
+            var baseUrl = bannerText.getAttribute("data-base-url");
+            var versionRoot = new URL(baseUrl + "/", window.location.href);
+            var versionsUrl = new URL("../versions.json", versionRoot);
+
+            fetch(versionsUrl.href)
+                .then(function(r) { return r.json(); })
+                .then(function(versions) {
+                    var stable = versions.filter(function(v) { return v.version !== 'latest'; });
+
+                    if (stable.length > 0) {
+                        var latestStable = stable[0].version;
+                        var currentPath = window.location.pathname;
+
+                        if (!currentPath.includes('/latest/') && !currentPath.includes('/' + latestStable + '/')) {
+                            if (banner) {
+                                var rootUrl = new URL("..", versionRoot).pathname.replace(/\/$/, "");
+                                bannerText.innerHTML = 'This is an older release. <a href="' + rootUrl + '/' + latestStable + '/"><strong>Go to the latest stable release</strong></a> or <a href="' + rootUrl + '/latest/"><strong>view the development version</strong></a>.';
+                                banner.style.display = "block";
+                            }
+                        }
+                    }
+                }).catch(function(e) { console.warn("Could not load versions.json: ", e); });
+        }
+
+        updateVersionBanner();
+
+        if (typeof document$ !== "undefined") {
+            document$.subscribe(function() {
+                updateVersionBanner();
+            });
+        }
+    })();
+</script>
 <script>document$.subscribe(() => {
             const dark_scheme_name = "slate"
             

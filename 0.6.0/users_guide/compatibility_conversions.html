@@ -11,9 +11,9 @@
 <link href="cmake.html" rel="prev"/>
 <link href="core_library.html" rel="next"/>
 <link href="../assets/images/logo_simple.svg" rel="icon"/>
-<meta content="mkdocs-1.6.1, mkdocs-material-9.7.4" name="generator"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
 <title>Run-Time Compatibility - Sen</title>
-<link href="../assets/stylesheets/main.484c7ddc.min.css" rel="stylesheet"/>
+<link href="../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
 <link href="../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
 <style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%203.75C0%202.784.784%202%201.75%202h12.5c.966%200%201.75.784%201.75%201.75v8.5A1.75%201.75%200%200%201%2014.25%2014H1.75A1.75%201.75%200%200%201%200%2012.25Zm1.75-.25a.25.25%200%200%200-.25.25v8.5c0%20.138.112.25.25.25h12.5a.25.25%200%200%200%20.25-.25v-8.5a.25.25%200%200%200-.25-.25ZM3.5%206.25a.75.75%200%200%201%20.75-.75h7a.75.75%200%200%201%200%201.5h-7a.75.75%200%200%201-.75-.75m.75%202.25h4a.75.75%200%200%201%200%201.5h-4a.75.75%200%200%201%200-1.5%22/%3E%3C/svg%3E');}</style>
 <script src="https://unpkg.com/iframe-worker/shim"></script>
@@ -35,40 +35,10 @@
 <div data-md-color-scheme="default" data-md-component="outdated" hidden="">
 <aside class="md-banner md-banner--warning">
 <div class="md-banner__inner md-grid md-typeset">
-<script>
-    var currentScript = document.scripts[document.scripts.length - 1];
-    var banner = currentScript.closest(".md-banner");
-
-    if (banner) {
-        banner.style.display = "none";
-    }
-
-    var baseUrl = "..";
-
-    var versionRoot = new URL(baseUrl + "/", window.location.href);
-    var versionsUrl = new URL("../versions.json", versionRoot);
-
-    fetch(versionsUrl.href)
-        .then(r => r.json())
-        .then(versions => {
-            var stable = versions.filter(v => v.version !== 'latest');
-
-            if (stable.length > 0) {
-                var latestStable = stable[0].version;
-                var currentPath = window.location.pathname;
-
-                if (!currentPath.includes('/latest/') && !currentPath.includes('/' + latestStable + '/')) {
-                    if (banner) {
-                        var rootUrl = new URL("..", versionRoot).pathname.replace(/\/$/, "");
-                        var newHtml = 'This is an older release. <a href="' + rootUrl + '/' + latestStable + '/"><strong>Go to the latest stable release</strong></a> or <a href="' + rootUrl + '/latest/"><strong>view the development version</strong></a>.';
-
-                        currentScript.insertAdjacentHTML('beforebegin', newHtml);
-                        banner.style.display = "block";
-                    }
-                }
-            }
-        }).catch(e => console.warn("Could not load versions.json: ", e));
-</script>
+<style>
+    .md-banner--warning { display: none; }
+</style>
+<div data-base-url=".." id="version-warning-banner-text" style="width: 100%; text-align: left;"></div>
 </div>
 <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL(".."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
 </aside>
@@ -1337,7 +1307,7 @@
 <span class="md-ellipsis">
     
   
-    Rest Python
+    Python REST Client
   
 
     
@@ -1698,8 +1668,54 @@ between class members does not care about the level of the hierarchy where the m
 </div>
 <div class="md-progress" data-md-component="progress" role="progressbar"></div>
 <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.footer", "navigation.top", "navigation.instant", "navigation.instant.progress", "content.code.annotate", "content.code.copy", "content.tooltips", "toc.follow", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
-<script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+<script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
+<script>
+    (function() {
+        if (window.__senBannerInitialized) {
+            return;
+        }
+        window.__senBannerInitialized = true;
+
+        function updateVersionBanner() {
+            var bannerText = document.getElementById("version-warning-banner-text");
+            if (!bannerText) return;
+
+            var banner = bannerText.closest(".md-banner");
+
+            var baseUrl = bannerText.getAttribute("data-base-url");
+            var versionRoot = new URL(baseUrl + "/", window.location.href);
+            var versionsUrl = new URL("../versions.json", versionRoot);
+
+            fetch(versionsUrl.href)
+                .then(function(r) { return r.json(); })
+                .then(function(versions) {
+                    var stable = versions.filter(function(v) { return v.version !== 'latest'; });
+
+                    if (stable.length > 0) {
+                        var latestStable = stable[0].version;
+                        var currentPath = window.location.pathname;
+
+                        if (!currentPath.includes('/latest/') && !currentPath.includes('/' + latestStable + '/')) {
+                            if (banner) {
+                                var rootUrl = new URL("..", versionRoot).pathname.replace(/\/$/, "");
+                                bannerText.innerHTML = 'This is an older release. <a href="' + rootUrl + '/' + latestStable + '/"><strong>Go to the latest stable release</strong></a> or <a href="' + rootUrl + '/latest/"><strong>view the development version</strong></a>.';
+                                banner.style.display = "block";
+                            }
+                        }
+                    }
+                }).catch(function(e) { console.warn("Could not load versions.json: ", e); });
+        }
+
+        updateVersionBanner();
+
+        if (typeof document$ !== "undefined") {
+            document$.subscribe(function() {
+                updateVersionBanner();
+            });
+        }
+    })();
+</script>
 <script>document$.subscribe(() => {
             const dark_scheme_name = "slate"
             
