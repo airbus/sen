@@ -36,7 +36,7 @@ function walkTypeTree(
     declaredType === "bool" ||
     declaredType === "string" ||
     declaredType === "TimeStamp" ||
-    declaredType === "Duration" ||
+    declaredType === "sen.TimeStamp" ||
     declaredType === "u8" || declaredType === "u16" || declaredType === "u32" || declaredType === "u64" ||
     declaredType === "i8" || declaredType === "i16" || declaredType === "i32" || declaredType === "i64" ||
     declaredType === "f32" || declaredType === "f64"
@@ -219,7 +219,7 @@ export function enumerateTopLevelPaths(client: Client | null, declaredType: stri
     declaredType === "bool" ||
     declaredType === "string" ||
     declaredType === "TimeStamp" ||
-    declaredType === "Duration" ||
+    declaredType === "sen.TimeStamp" ||
     declaredType === "u8" || declaredType === "u16" || declaredType === "u32" || declaredType === "u64" ||
     declaredType === "i8" || declaredType === "i16" || declaredType === "i32" || declaredType === "i64" ||
     declaredType === "f32" || declaredType === "f64"
