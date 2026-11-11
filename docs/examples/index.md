@@ -47,8 +47,8 @@ Included in the same examples directory, you can find a set of example applicati
 
 | Application | Description |
 | ----------- | ----------- |
-| [Web explorer](../snippets/examples/apps/web_explorer/readme.md) | Basic Sen explorer for the web browser |
-| [REST Python](../snippets/examples/apps/rest_python/readme.md) | Python client for the Sen REST component |
+| [JavaScript REST client](../snippets/examples/apps/rest_web_client/readme.md) | JavaScript web client for the Sen REST component |
+| [Python REST client](../snippets/examples/apps/rest_python_client/readme.md) | Python client for the Sen REST component |
 | [Recording inspector](../snippets/examples/config/6_recorder/readme.md#using-c-to-inspect-the-recordings) | Reads a recording with the C++ database API |
 
 ## Generated documentation

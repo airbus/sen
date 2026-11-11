@@ -277,6 +277,8 @@ nav:
       - Using Python: snippets/examples/config/10_python/readme.md
       - Request/response servers: snippets/examples/config/9_hla_servers/readme.md
       - JSON-RPC: snippets/examples/config/14_jsonrpc/readme.md
+      - JavaScript REST client: snippets/examples/apps/rest_web_client/readme.md
+      - Python REST client: snippets/examples/apps/rest_python_client/readme.md
       - HTML reference: examples/generated_reference.md
       - Typeset reference (PDF): examples/generated_document.md
       - UML generation: examples/generated_uml.md
