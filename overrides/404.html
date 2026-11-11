@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .md-sidebar {
+        display: none !important;
+    }
+    .md-content__inner {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    article.md-content__inner.md-typeset::before {
+        display: none !important;
+    }
+</style>
+
+<div class="md-content" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; box-sizing: border-box;">
+    <article class="md-content__inner md-typeset" style="width: 100%; text-align: center; float: none; padding: 0; margin: 0;">
+        <div style="display: flex; justify-content: center; width: 100%; margin-bottom: 20px;">
+            <img alt="Sen Logo" src="{{ config.site_url }}/assets/images/logo_simple.svg" style="height: 50vh; max-height: 100%; width: auto; margin: 0;" />
+        </div>
+        <h1 style="font-size: 2rem; text-align: center; width: 100%; border: none; padding: 0; margin-bottom: 20px">Page Not Found</h1>
+    </article>
+</div>
+{% endblock %}
