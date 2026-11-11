@@ -80,11 +80,9 @@ export function StructValue({
         marginLeft: 2,
         paddingLeft: 8,
         borderLeft: "1px solid var(--border-default)",
-        display: "grid",
-        // name | value | actions; fixed actions column so every row's icons align in x.
-        gridTemplateColumns: `auto minmax(0, 1fr) ${ACTIONS_COLUMN_WIDTH}px`,
-        rowGap: 2,
-        alignItems: "baseline",
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
       }}
     >
       {visibleFieldOrder.map((name) => {
@@ -100,17 +98,20 @@ export function StructValue({
           <ValueRow key={name} flashKey={composite ? undefined : v}>
             {composite ? (
               <>
-                <Tooltip content={fieldDescriptions[name]}>
-                  <span style={fieldNameStyle}>{name}</span>
-                </Tooltip>
-                <span aria-hidden />
+                <span style={{ display: "inline-flex", flex: "1 1 auto", minWidth: 0, gap: 6, alignItems: "center" }}>
+                  <Tooltip content={fieldDescriptions[name]}>
+                    <span style={fieldNameStyle}>{name}</span>
+                  </Tooltip>
+                </span>
                 {(renderLeafActions || fieldDescriptions[name]) && (
                   <span
                     style={{
                       display: "inline-flex",
                       alignItems: "center",
-                      justifySelf: "end",
+                      justifyContent: "flex-end",
+                      marginLeft: "auto",
                       gap: 4,
+                      width: ACTIONS_COLUMN_WIDTH,
                     }}
                   >
                     <HelpButton
@@ -120,8 +121,7 @@ export function StructValue({
                     {renderLeafActions && renderLeafActions(fieldPath, v, fieldType)}
                   </span>
                 )}
-                {/* Span all three so the nested actions column aligns with the outer. */}
-                <div style={{ gridColumn: "1 / -1", marginTop: 2 }}>
+                <div style={{ width: "100%", marginTop: 2 }}>
                   <ValueFilterContext.Provider value={subFilter}>
                     <ValueRenderer
                       client={client}
@@ -135,12 +135,14 @@ export function StructValue({
               </>
             ) : (
               <>
-                <Tooltip content={fieldDescriptions[name]}>
-                  <span style={fieldNameStyle}>{name}</span>
-                </Tooltip>
+                <span style={{ display: "inline-flex", flex: "0 1 auto", minWidth: 0 }}>
+                  <Tooltip content={fieldDescriptions[name]}>
+                    <span style={fieldNameStyle}>{name}</span>
+                  </Tooltip>
+                </span>
                 <span
                   className="value-cell"
-                  style={{ display: "inline-flex", minWidth: 0, alignItems: "center" }}
+                  style={{ display: "inline-flex", minWidth: 60, alignItems: "center", gap: 8, flex: "1 1 auto" }}
                 >
                   <span className="value-text">
                     <ValueRenderer
@@ -157,8 +159,10 @@ export function StructValue({
                     style={{
                       display: "inline-flex",
                       alignItems: "center",
-                      justifySelf: "end",
+                      justifyContent: "flex-end",
+                      marginLeft: "auto",
                       gap: 4,
+                      width: ACTIONS_COLUMN_WIDTH,
                     }}
                   >
                     <HelpButton
