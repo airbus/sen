@@ -119,7 +119,7 @@ private:
 ///
 /// @param[in] begin: of the range
 /// @param[in] end: of the range
-/// @param[in] m: that should be locked
+/// @param[in] mutex: that should be locked
 ///
 /// Example:
 /// @code{.cpp}
@@ -129,9 +129,9 @@ private:
 ///   } // lock release after the loop
 /// @endcode
 template <template <typename> typename LockType, typename IteratorType, typename MutexType>
-auto makeLockedRange(IteratorType begin, IteratorType end, MutexType& m)
+auto makeLockedRange(IteratorType begin, IteratorType end, MutexType& mutex)
 {
-  return LockedRangeAdapter<LockType, IteratorType, MutexType>(begin, end, m);
+  return LockedRangeAdapter<LockType, IteratorType, MutexType>(begin, end, mutex);
 }
 
 /// Create a LockedRangeAdapter for the given container and lock the given mutex.

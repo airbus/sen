@@ -99,17 +99,11 @@ CITE_BIB_FILES         =
 #--------------------------------------------------------------------------------
 
 QUIET                  = YES
-# Warnings are printed but do not fail the build yet: the tree still carries
-# documentation errors (unbalanced @cond in memory_block.h, unbalanced grouping
-# in groups.dox, template signatures doxygen cannot match in io/util.h, var.h
-# and native_object_impl.h), and doxygen 1.17 additionally misparses the free
-# function makeNonOwningTypeHandle as a member. Fix those, then set
-# WARN_AS_ERROR to FAIL_ON_WARNINGS.
 WARNINGS               = YES
 WARN_IF_UNDOCUMENTED   = NO
 WARN_IF_DOC_ERROR      = YES
 WARN_NO_PARAMDOC       = NO
-WARN_AS_ERROR          = NO
+WARN_AS_ERROR          = FAIL_ON_WARNINGS
 WARN_FORMAT            = "$file:$line: $text"
 WARN_LOGFILE           =
 

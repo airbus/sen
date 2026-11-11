@@ -31,6 +31,8 @@ public:
   /// \param paths directories of FOM modules, each directory giving its name to a package
   /// \param extensions files, or directories of them, that add members to types the modules
   ///        declare. An extension owns no type and generates no file of its own.
+  /// \param mappings configuration files or paths specifying type or element mapping rules
+  /// \param settings code generation or parser settings to apply during the process
   FomParser(const std::vector<std::filesystem::path>& paths,
             const std::vector<std::filesystem::path>& extensions,
             const std::vector<std::filesystem::path>& mappings,
