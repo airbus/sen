@@ -57,8 +57,10 @@ Sen writes documentation from your interface definitions, so it cannot drift fro
 two are not packages you can run, unlike everything above: they are what the generators produce,
 kept here because seeing one is quicker than reading about it.
 
-- [UML generation](generated_uml.md): class diagrams, here drawn from an HLA FOM
 - [HTML reference](generated_reference.md): a browsable interface reference, here for an HLA FOM
+- [Typeset reference (PDF)](generated_document.md): a printable interface reference compiled via Typst,
+here for an HLA FOM and Sen's own API
+- [UML generation](generated_uml.md): class diagrams, here drawn from an HLA FOM
 
 ## Reference material
 
