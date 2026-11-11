@@ -35,12 +35,12 @@ const builtInScalarTypes = new Set<string>([
   "u64",
   "f32",
   "f64",
-  // TimeStamp arrives as an RFC-3339 ns string; Duration as a decimal-string nanosecond count.
+  // TimeStamp arrives as an RFC-3339 ns string.
   "TimeStamp",
-  "Duration",
+  "sen.TimeStamp",
 ]);
 
-const stringBuiltIns = new Set(["string", "TimeStamp", "Duration"]);
+const stringBuiltIns = new Set(["string", "TimeStamp", "sen.TimeStamp"]);
 // `i64`/`u64` cross the wire as JSON decimal strings to preserve precision above
 // `Number.MAX_SAFE_INTEGER`; consumers see `bigint`. Smaller integers + floats stay `number`.
 const numberBuiltIns = new Set(["i8", "i16", "i32", "u8", "u16", "u32", "f32", "f64"]);
@@ -182,10 +182,18 @@ function parseEnum(spec: EnumTypeSpec, raw: unknown, qn: string, cache: TypeCach
 }
 
 function parseQuantity(spec: QuantityTypeSpec, raw: unknown, qn: string): Var {
-  if (typeof raw !== "number") {
-    throw new TransportError(`Var parser: quantity "${qn}" expected a number, got ${typeof raw}`);
+  let numeric: number;
+  if (typeof raw === "number") {
+    numeric = raw;
+  } else if (typeof raw === "string") {
+    numeric = Number(raw);
+    if (!Number.isFinite(numeric)) {
+      throw new TransportError(`Var parser: quantity "${qn}" expected a numeric string, got ${raw}`);
+    }
+  } else {
+    throw new TransportError(`Var parser: quantity "${qn}" expected a number or string, got ${typeof raw}`);
   }
-  return new Quantity(raw, spec.unit, spec.minValue, spec.maxValue);
+  return new Quantity(numeric, spec.unit, spec.minValue, spec.maxValue);
 }
 
 function parseSequence(spec: SequenceTypeSpec, raw: unknown, cache: TypeCache, qn: string): Var {
@@ -352,9 +360,14 @@ function encodeQuantity(spec: QuantityTypeSpec, value: unknown, qn: string): unk
     numeric = value.value;
   } else if (typeof value === "number") {
     numeric = value;
+  } else if (typeof value === "string") {
+    numeric = Number(value);
+    if (!Number.isFinite(numeric)) {
+      throw new TransportError(`Var encoder: quantity "${qn}" expected a numeric string, got ${value}`);
+    }
   } else {
     throw new TransportError(
-      `Var encoder: quantity "${qn}" expected a Quantity or number, got ${typeof value}`,
+      `Var encoder: quantity "${qn}" expected a Quantity, number, or string, got ${typeof value}`,
     );
   }
   if (spec.minValue !== null && numeric < spec.minValue) {
