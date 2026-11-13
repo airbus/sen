@@ -209,7 +209,7 @@ function(
     copy_target_property(${target_name} ${dep_target_name} SEN_IMPORT_DIRS)
   endif()
 
-  if(scope STREQUAL "PUBLIC")
+  if(scope STREQUAL "PUBLIC" OR scope STREQUAL "INTERFACE")
     # get exported types from dependencies
     get_target_property(_dep_exports_types ${dep_target_name} SEN_EXPORTS_TYPES)
     if(_dep_exports_types)
@@ -563,13 +563,13 @@ function(configure_exportable_packages)
     endif()
 
     configure_package_config_file(
-      ${file} ${CMAKE_CURRENT_BINARY_DIR}/${output_file_name}
+      ${file} ${CMAKE_CURRENT_BINARY_DIR}/cmake/${output_file_name}
       INSTALL_DESTINATION ${CMAKE_INSTALL_CMAKEDIR}
       NO_SET_AND_CHECK_MACRO NO_CHECK_REQUIRED_COMPONENTS_MACRO
     )
 
     # Install the config file to the target dir
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${output_file_name} DESTINATION ${CMAKE_INSTALL_CMAKEDIR})
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cmake/${output_file_name} DESTINATION ${CMAKE_INSTALL_CMAKEDIR})
   endforeach()
 
 endfunction()

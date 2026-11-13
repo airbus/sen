@@ -685,11 +685,15 @@ function(sen_generate_interface_package)
 
   set_property(TARGET ${_arg_TARGET} PROPERTY BASE_PATH ${_abs_base_path})
 
+  file(RELATIVE_PATH _rel_base_path "${CMAKE_SOURCE_DIR}" "${_abs_base_path}")
+
   # set the include path as extra options for the code generation
   set_property(
     TARGET ${_arg_TARGET}
     APPEND
-    PROPERTY SEN_IMPORT_DIRS -i ${_abs_base_path}
+    PROPERTY SEN_IMPORT_DIRS
+          "$<BUILD_INTERFACE>:-i;${_abs_base_path}"
+          "$<INSTALL_INTERFACE>:-i;$<INSTALL_PREFIX>/${_rel_base_path}"
   )
 
   if(_arg_STL_FILES)

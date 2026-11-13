@@ -613,3 +613,86 @@ endmacro()
 macro(add_sen_component)
   add_sen_package(${ARGV} IS_COMPONENT)
 endmacro()
+
+# TODO format and comment this function
+function(sen_install target_name)
+  # install the gen object library (cmake requires it)
+  if(TARGET ${target_name}_gen)
+    get_target_property(_type ${target_name}_gen TYPE)
+    if(_type STREQUAL "OBJECT_LIBRARY")
+      install(
+              TARGETS ${target_name}_gen
+              EXPORT ${CMAKE_PROJECT_NAME}_targets
+              RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+              LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+              ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+      )
+    endif()
+  endif()
+
+  # install the obj library (cmake requires it)
+  # TODO SEN-1354: Investigate why cmake requires to add the obj target to the installation export group
+  if(TARGET ${target_name}_obj)
+    get_target_property(_type ${target_name}_obj TYPE)
+    if(_type STREQUAL "OBJECT_LIBRARY")
+      install(
+              TARGETS ${target_name}_obj
+              EXPORT ${CMAKE_PROJECT_NAME}_targets
+              RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+              LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+              ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+      )
+    endif()
+  endif()
+
+  # Python has not searched PATH for an extension module's dependencies since 3.8, so on Windows the
+  # module must sit beside the DLLs it links or a plain import fails.
+  set(_library_destination ${CMAKE_INSTALL_LIBDIR})
+  if(WIN32)
+    get_target_property(_target_type ${target_name} TYPE)
+    if(_target_type STREQUAL "MODULE_LIBRARY")
+      set(_library_destination ${CMAKE_INSTALL_BINDIR})
+    endif()
+  endif()
+
+  # RUNTIME_DEPENDENCY_SET collects what these binaries actually link, so a third-party shared
+  # object is shipped because it is needed rather than because someone remembered it. install.cmake
+  # resolves the set once, after every target has been added to it -- on the platforms where it can
+  # resolve at all, which is why enrolling is conditional on the same thing.
+  set(_runtime_dependency_set RUNTIME_DEPENDENCY_SET sen_runtime_deps)
+  if(WIN32)
+    set(_runtime_dependency_set "")
+  endif()
+
+  install(
+          TARGETS ${target_name}
+          EXPORT ${CMAKE_PROJECT_NAME}_targets
+          ${_runtime_dependency_set}
+          RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+          LIBRARY DESTINATION ${_library_destination}
+          ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  )
+
+  # MSVC keeps debug information in a separate file and the binary records where it was at link
+  # time, which is a path on the build machine. What a debugger resolves on a user's machine is
+  # the .pdb sitting beside the binary, so it ships to the same place. Only the target kinds a
+  # linker produces one for; OPTIONAL because a configuration without debug information has none.
+  if(MSVC)
+    get_target_property(_kind ${target_name} TYPE)
+    if(_kind MATCHES "^(SHARED_LIBRARY|MODULE_LIBRARY|EXECUTABLE)$")
+      install(
+              FILES $<TARGET_PDB_FILE:${target_name}>
+              DESTINATION ${CMAKE_INSTALL_BINDIR}
+              OPTIONAL
+      )
+    endif()
+  endif()
+
+  # Sen cmake properties that we want available outside
+  set_property(
+    TARGET ${_arg_TARGET}
+    APPEND
+    PROPERTY EXPORT_PROPERTIES SEN_IMPORT_DIRS SEN_EXPORTS_TYPES
+  )
+
+endfunction()
