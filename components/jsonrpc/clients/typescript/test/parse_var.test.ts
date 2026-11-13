@@ -44,11 +44,13 @@ describe("parseVar -- built-in primitives", () => {
     expect(() => parseVar("i64", "not-a-number", new TypeCache())).toThrow(TransportError);
     expect(() => parseVar("u64", "1.5", new TypeCache())).toThrow(TransportError);
   });
-  it("TimeStamp and Duration pass through as strings", () => {
+  it("TimeStamp and sen.TimeStamp pass through as strings", () => {
     expect(parseVar("TimeStamp", "2026-05-24T12:00:00Z", new TypeCache())).toBe(
       "2026-05-24T12:00:00Z",
     );
-    expect(parseVar("Duration", "PT1.5S", new TypeCache())).toBe("PT1.5S");
+    expect(parseVar("sen.TimeStamp", "2026-05-24T12:00:00Z", new TypeCache())).toBe(
+      "2026-05-24T12:00:00Z",
+    );
   });
 });
 
@@ -118,8 +120,14 @@ describe("parseVar -- Quantity", () => {
     expect(q.maxValue).toBe(50000);
   });
 
-  it("throws if the wire value is not a number", () => {
-    expect(() => parseVar("demo.Altitude", "12345", cacheOf(altSpec))).toThrow(TransportError);
+  it("parses numeric strings (e.g. for i64/u64-based quantities)", () => {
+    const v = parseVar("demo.Altitude", "12345.6", cacheOf(altSpec));
+    expect((v as Quantity).value).toBe(12345.6);
+  });
+
+  it("throws if the wire value is not a number or numeric string", () => {
+    expect(() => parseVar("demo.Altitude", "not-a-number", cacheOf(altSpec))).toThrow(TransportError);
+    expect(() => parseVar("demo.Altitude", { value: 123 }, cacheOf(altSpec))).toThrow(TransportError);
   });
 });
 
