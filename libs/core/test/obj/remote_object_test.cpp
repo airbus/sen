@@ -26,6 +26,7 @@
 #include "sen/core/obj/detail/event_buffer.h"
 #include "sen/core/obj/detail/remote_object.h"
 #include "sen/core/obj/detail/work_queue.h"
+#include "sen/core/obj/object.h"
 
 // generated code
 #include "stl/example_class.stl.h"
@@ -34,11 +35,14 @@
 #include <gtest/gtest.h>
 
 // std
+#include <atomic>
+#include <chrono>
 #include <cstdint>
 #include <cstring>
 #include <memory>
 #include <optional>
 #include <string>
+#include <thread>
 #include <utility>
 #include <vector>
 
@@ -949,4 +953,37 @@ TEST(RemoteObject, SafelyDropsPendingCallsOnDestruction)
   std::ignore = queue.executeAll();
 
   EXPECT_FALSE(callbackInvoked);
+}
+
+/// @test
+/// Waits for the proxy's own lock before writing its properties out, so that a reader on another
+/// thread cannot walk them while the receiving thread is replacing them.
+/// @requirements(SEN-351)
+TEST(RemoteObject, WritingAllPropertiesWaitsForTheProxyLock)
+{
+  WorkQueue queue(50, false);
+  const auto obj = std::make_shared<TestRemoteObject>(createTestInfo(&queue));
+
+  std::atomic_bool written {false};
+
+  obj->lock();
+
+  std::thread reader(
+    [&]()
+    {
+      std::vector<uint8_t> payload;
+      sen::ResizableBufferWriter writer(payload);
+      sen::OutputStream out(writer);
+      sen::impl::writeAllPropertiesToStream(obj.get(), out);
+      written.store(true);
+    });
+
+  // It is waiting for the lock this thread holds, so it cannot have finished.
+  std::this_thread::sleep_for(std::chrono::milliseconds(200));
+  EXPECT_FALSE(written.load());
+
+  obj->unlock();
+  reader.join();
+
+  EXPECT_TRUE(written.load());
 }

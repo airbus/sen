@@ -62,6 +62,7 @@
 #include <functional>
 #include <iterator>
 #include <memory>
+#include <mutex>
 #include <optional>
 #include <stdexcept>
 #include <string>
@@ -1943,6 +1944,9 @@ std::shared_ptr<::sen::impl::RemoteObject> RemoteParticipant::startTrackingProxy
   {
     if (const auto otherProxy = remotes->front().lock())
     {
+      // The source is live and the session thread can be inside propertyUpdatesReceived on it.
+      // rcvObjectUpdate already takes these two in this order.
+      const std::lock_guard otherLock(*otherProxy);
       proxy->copyStateFrom(*otherProxy);
     }
     monitoredObjects_.stopMonitoring(proxy->getId(), session_->getTransport());

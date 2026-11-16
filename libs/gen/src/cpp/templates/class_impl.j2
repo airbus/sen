@@ -715,6 +715,29 @@ void {{localProxyName}}::drainInputsImpl(::sen::TimeStamp lastCommitTime)
 ## endif
 }
 
+void {{localProxyName}}::invokeAllPropertyCallbacks()
+{
+## if implementsProperties
+  const auto time = this->getLastCommitTime(); {% set propertyIndex=0 %}
+  const auto id = this->getId();
+  std::ignore = id;
+  std::ignore = time;
+## for iface in interfacesToImplement
+## for prop in iface.props
+## if prop.dynamic
+  ::sen::impl::unconditionalDispatch(propEvents_[{{propertyIndex}}U], {{prop.id}}U, id, time, {{prop.transportEnum}}, this);  {% set propertyIndex = propertyIndex + 1 %}
+## endif
+## endfor
+## endfor
+## endif
+## if inheritsFromLocalObject == false
+## if exists("nonInterfaceParent")
+
+  {{ nonInterfaceParent.qualLocalProxyName }}::invokeAllPropertyCallbacks();
+## endif
+## endif
+}
+
 ::sen::Var {{localProxyName}}::senImplGetPropertyImpl(::sen::MemberHash propertyId) const
 {
   switch(propertyId.get())
