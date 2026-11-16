@@ -65,6 +65,8 @@ class CallbackBase;
 struct CallbackData
 {
   std::recursive_mutex mutex;
+  /// Also the cancellation marker: null means cancelled. Not where a push goes when `caller` is
+  /// set; see CallbackLock::deliveryQueue().
   WorkQueue* queue = nullptr;
   std::optional<std::weak_ptr<Object>> caller;
 };
@@ -87,8 +89,12 @@ public:
   /// Invalidates further calls.
   void invalidate() const noexcept { data_->queue = nullptr; }
 
+  /// Where a push goes: the caller object's current queue if this callback was made from an
+  /// object, otherwise the queue it was given. Null once that object is gone.
+  [[nodiscard]] WorkQueue* deliveryQueue() const noexcept;
+
   /// Returns true if the caller's work queue matches the passed one.
-  [[nodiscard]] bool isSameQueue(const WorkQueue* queue) const noexcept { return queue == data_->queue; }
+  [[nodiscard]] bool isSameQueue(const WorkQueue* queue) const noexcept { return queue == deliveryQueue(); }
 
   /// Helper function for checking if the callback data is valid.
   [[nodiscard]] static bool isCallbackDataValid(const CallbackData& data) noexcept
