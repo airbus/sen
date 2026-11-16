@@ -39,6 +39,7 @@
 
 // std
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <cstdint>
 #include <functional>
@@ -82,7 +83,7 @@ void populateLocalEndpoints(EnpointList& endpoints, uint16_t port, const Configu
 // Acceptor
 //--------------------------------------------------------------------------------------------------------------
 
-class Acceptor final
+class Acceptor final: public std::enable_shared_from_this<Acceptor>
 {
   SEN_NOCOPY_NOMOVE(Acceptor)
 
@@ -104,35 +105,50 @@ public:
 
     getLogger()->debug("EtherTransport: accepting connections on {}", acceptor_.local_endpoint().port());
     acceptor_.listen();
-    doAccept();
   }
 
-  ~Acceptor() = default;
+  ~Acceptor() { stop(); }
 
 public:
   [[nodiscard]] asio::ip::tcp::endpoint getEndpoint() const { return acceptor_.local_endpoint(); }
 
+  void start() { doAccept(); }
+
+  void stop() noexcept
+  {
+    stopped_ = true;
+    asio::error_code error;
+    std::ignore = acceptor_.cancel(error);
+    std::ignore = acceptor_.close(error);
+  }
+
 private:
   void doAccept()
   {
+    if (stopped_)
+    {
+      return;
+    }
+
     acceptor_.async_accept(
-      [this](std::error_code ec, asio::ip::tcp::socket socket)
+      [self = shared_from_this()](std::error_code ec, asio::ip::tcp::socket socket)
       {
         if (!ec)
         {
-          transport_->processConnected(std::move(socket));
+          self->transport_->processConnected(std::move(socket));
         }
-        else
+        else if (!self->stopped_)
         {
           getLogger()->debug("EtherTransport: error accepting connection: {}", ec.message());
         }
-        doAccept();
+        self->doAccept();
       });
   }
 
 private:
   asio::ip::tcp::acceptor acceptor_;
   EtherTransport* transport_;
+  std::atomic<bool> stopped_ = false;
 };
 
 //--------------------------------------------------------------------------------------------------------------
@@ -162,6 +178,7 @@ EtherTransport::EtherTransport(const Configuration& config,
 
 EtherTransport::~EtherTransport()
 {
+  stop();
   runtimeFootprintState_->removeTransport(runtimeFootprintTransportId_);
   logger_->debug("transport: deleted");
 }
@@ -179,12 +196,15 @@ void EtherTransport::stop() noexcept
     Lock procLock(procMutex_);
 
     // signal the i/o to stop accepting new requests
-    if (io_)
+    std::shared_ptr<asio::io_context> io;
+    {
+      std::lock_guard ioLock(ioMutex_);
+      io = io_;
+    }
+    if (io)
     {
       logger_->debug("transport: stopping i/o");
-      {
-        io_->stop();  // stop all requests
-      }
+      io->stop();  // stop all requests
     }
   }
 
@@ -219,7 +239,11 @@ void EtherTransport::stop() noexcept
     }
 
     // do not accept incoming connections
-    acceptor_.reset();
+    if (acceptor_)
+    {
+      acceptor_->stop();
+      acceptor_.reset();
+    }
     removeRuntimePort(acceptorPortId_);
 
     // clear our state
@@ -232,12 +256,10 @@ void EtherTransport::stop() noexcept
   }
 
   {
-    std::scoped_lock timersLock(timersMutex_);
+    // Timer construction takes the same pair. It therefore either finishes before
+    // this teardown and is cleared here, or observes an empty io_ afterwards.
+    std::scoped_lock stateLock(timersMutex_, ioMutex_);
     timers_.clear();
-  }
-
-  {
-    std::lock_guard lock(ioMutex_);
     io_ = {};  // free all i/o resources
   }
 
@@ -259,11 +281,14 @@ kernel::TransportStats EtherTransport::fetchStats() const
 
 void EtherTransport::start(kernel::TransportListener* listener)
 {
+  std::shared_ptr<asio::io_context> io;
   {
     std::lock_guard lock(ioMutex_);
-    io_ = std::make_unique<asio::io_context>();
+    io_ = std::make_shared<asio::io_context>();
+    io = io_;
   }
-  acceptor_ = std::make_unique<Acceptor>(this, *io_);
+  acceptor_ = std::make_shared<Acceptor>(this, *io);
+  acceptor_->start();
   acceptorPortId_ = addRuntimePort(PortKind::tcpAcceptor, acceptor_->getEndpoint().port());
   listener_ = listener;
   discovery_->addListener(this);
@@ -281,20 +306,21 @@ void EtherTransport::start(kernel::TransportListener* listener)
   }
 
   discovery_->startBeaming(ownInfo_.sessionName, endpoints);
+  auto logger = logger_;
   executor_ = std::thread(
-    [this]()
+    [io = std::move(io), logger = std::move(logger)]()
     {
       try
       {
-        io_->run();
+        io->run();
       }
       catch (const asio::error_code& ec)
       {
-        logger_->error("transport: i/o thread error: {}", ec.message());
+        logger->error("transport: i/o thread error: {}", ec.message());
       }
       catch (...)
       {
-        logger_->error("transport: unknown i/o thread error");
+        logger->error("transport: unknown i/o thread error");
       }
     });
 }
@@ -318,7 +344,12 @@ void EtherTransport::removeRuntimePort(RuntimeFootprintPortId& portId)
 
 TimerId EtherTransport::startTimer(std::chrono::steady_clock::duration timeout, std::function<void()>&& timeoutCallback)
 {
-  std::scoped_lock timersLock(timersMutex_);
+  std::scoped_lock stateLock(timersMutex_, ioMutex_);
+
+  if (!io_)
+  {
+    return 0ULL;
+  }
 
   const auto id = nextTimerId_++;
 
@@ -329,7 +360,7 @@ TimerId EtherTransport::startTimer(std::chrono::steady_clock::duration timeout, 
 
   // handler to be executed when the timeout is reached
   data.timer.async_wait(
-    [this, id, &data](const asio::error_code& ec) mutable
+    [this, id](const asio::error_code& ec) mutable
     {
       std::function<void()> timeoutCb;
       {
@@ -342,8 +373,13 @@ TimerId EtherTransport::startTimer(std::chrono::steady_clock::duration timeout, 
           return;
         }
 
-        timeoutCb = std::move(data.timeoutCallback);
-        timers_.erase(id);
+        const auto itr = timers_.find(id);
+        if (itr == timers_.end())
+        {
+          return;
+        }
+        timeoutCb = std::move(itr->second.timeoutCallback);
+        timers_.erase(itr);
       }
 
       if (ec)
