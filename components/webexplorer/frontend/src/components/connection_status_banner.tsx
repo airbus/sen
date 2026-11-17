@@ -8,6 +8,7 @@
 import { useState } from "react";
 
 import type { ConnectionState } from "@sen/client";
+import { CloseIcon } from "../ui/icons.js";
 
 // Backend shutdown otherwise looks like a silent freeze; sample/event streams just stop.
 //
@@ -20,22 +21,39 @@ export function ConnectionStatusBanner({
   url,
   onRetry,
   droppedNotifications = 0,
+  successMsg,
+  onDismissSuccess,
+  errorMsg,
+  onDismissError,
 }: {
-  state: ConnectionState;
+  state: ConnectionState | string;
   url: string;
   onRetry: () => void;
   droppedNotifications?: number;
+  successMsg?: string | null;
+  onDismissSuccess?: () => void;
+  errorMsg?: string | null;
+  onDismissError?: () => void;
 }) {
   // Acknowledged count rather than a boolean: dismissing hides the drops seen so far, and a
   // later window raises the notice again instead of staying silent for the rest of the session.
   const [acknowledged, setAcknowledged] = useState(0);
 
+  if (errorMsg && onDismissError) {
+    return <ErrorNotice message={errorMsg} onDismiss={onDismissError} />;
+  }
+
   if (state === "open") {
     const unacknowledged = droppedNotifications - acknowledged;
-    if (unacknowledged <= 0) return null;
-    return (
-      <StaleDataNotice count={unacknowledged} onDismiss={() => setAcknowledged(droppedNotifications)} />
-    );
+    if (unacknowledged > 0) {
+      return (
+        <StaleDataNotice count={unacknowledged} onDismiss={() => setAcknowledged(droppedNotifications)} />
+      );
+    }
+    if (successMsg && onDismissSuccess) {
+      return <SuccessNotice message={successMsg} onDismiss={onDismissSuccess} />
+    }
+    return null;
   }
 
   const { tone, label } = describe(state);
@@ -95,6 +113,110 @@ export function ConnectionStatusBanner({
   );
 }
 
+function SuccessNotice({ message, onDismiss }: { message: string; onDismiss: () => void }) {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        padding: "5px 14px",
+        background: "rgba(20, 80, 40, 0.3)",
+        color: "var(--ok)",
+        borderBottom: "1px solid rgba(40, 160, 80, 0.3)",
+        fontFamily: "var(--font-ui)",
+        fontSize: "var(--fs-sm)",
+      }}
+    >
+      <span
+        aria-hidden
+        style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--ok)", flex: "none" }}
+      />
+      <span style={{ flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+        {message}
+      </span>
+      <button
+        type="button"
+        onClick={onDismiss}
+        title="Dismiss"
+        aria-label="dismiss success message"
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: 24,
+          height: 24,
+          border: "none",
+          borderRadius: "var(--radius-sm)",
+          background: "transparent",
+          color: "var(--ok)",
+          cursor: "pointer",
+          opacity: 0.8,
+          transition: "background 120ms ease, opacity 120ms ease",
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(40, 160, 80, 0.15)"; e.currentTarget.style.opacity = "1"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.opacity = "0.8"; }}
+      >
+        <CloseIcon />
+      </button>
+    </div>
+  );
+}
+
+function ErrorNotice({ message, onDismiss }: { message: string; onDismiss: () => void }) {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        padding: "5px 14px",
+        background: "rgba(80, 25, 25, 0.9)",
+        color: "#ffb3ad",
+        borderBottom: "1px solid var(--err)",
+        fontFamily: "var(--font-ui)",
+        fontSize: "var(--fs-sm)",
+      }}
+    >
+      <span
+        aria-hidden
+        style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--err)", flex: "none" }}
+      />
+      <span style={{ flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+        {message}
+      </span>
+      <button
+        type="button"
+        onClick={onDismiss}
+        title="Dismiss"
+        aria-label="dismiss error message"
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: 24,
+          height: 24,
+          border: "none",
+          borderRadius: "var(--radius-sm)",
+          background: "transparent",
+          color: "var(--err)",
+          cursor: "pointer",
+          opacity: 0.8,
+          transition: "background 120ms ease, opacity 120ms ease",
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255, 179, 173, 0.15)"; e.currentTarget.style.opacity = "1"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.opacity = "0.8"; }}
+      >
+        <CloseIcon />
+      </button>
+    </div>
+  );
+}
+
 function StaleDataNotice({ count, onDismiss }: { count: number; onDismiss: () => void }) {
   return (
     <div
@@ -127,24 +249,32 @@ function StaleDataNotice({ count, onDismiss }: { count: number; onDismiss: () =>
       <button
         type="button"
         onClick={onDismiss}
+        title="Dismiss"
+        aria-label="dismiss warning message"
         style={{
-          padding: "2px 10px",
-          border: "1px solid rgba(255, 180, 70, 0.5)",
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: 24,
+          height: 24,
+          border: "none",
           borderRadius: "var(--radius-sm)",
           background: "transparent",
           color: "#ffd590",
           cursor: "pointer",
-          fontFamily: "var(--font-ui)",
-          fontSize: "var(--fs-sm)",
+          opacity: 0.8,
+          transition: "background 120ms ease, opacity 120ms ease",
         }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255, 180, 70, 0.15)"; e.currentTarget.style.opacity = "1"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.opacity = "0.8"; }}
       >
-        Dismiss
+        <CloseIcon />
       </button>
     </div>
   );
 }
 
-function describe(state: ConnectionState): {
+function describe(state: ConnectionState | string): {
   tone: { bg: string; fg: string; fgSubtle: string; border: string; dot: string };
   label: string;
 } {
@@ -193,6 +323,17 @@ function describe(state: ConnectionState): {
           dot: "var(--ok)",
         },
         label: "",
+      };
+    default:
+      return {
+        tone: {
+          bg: "transparent",
+          fg: "var(--fg-base)",
+          fgSubtle: "var(--fg-subtle)",
+          border: "transparent",
+          dot: "var(--fg-muted)",
+        },
+        label: state,
       };
   }
 }
