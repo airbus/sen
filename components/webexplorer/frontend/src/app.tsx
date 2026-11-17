@@ -7,6 +7,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type * as React from "react";
+import type { Client } from "@sen/client";
 
 import { useConnectionState, useNotificationsDropped } from "@sen/client/react";
 
@@ -59,12 +60,13 @@ import {
   useNavFolded,
   useNavAnimating,
   navPaneActions,
+  recentUrlsActions,
 } from "./state/ui_prefs.js";
 import { useConnection } from "./state/use_connection.js";
 import { usePanels, usePlottedLeaves, useWatchSources, watchActions } from "./state/watch_plot.js";
 import { WatchTab } from "./components/watch_tab.js";
 
-function defaultUrl(): string {
+function baseDefaultUrl(): string {
   // Prod: same-origin (bundled SPA served by the JSON-RPC server hosting the WS).
   // Dev (Vite on :5173 etc.): point at the canonical local Sen port.
   // file:// and SSR fall through to the localhost default.
@@ -78,8 +80,19 @@ function defaultUrl(): string {
   return "ws://127.0.0.1:8080";
 }
 
+function defaultUrl(): string {
+  // Optional check for a ?ws= parameter in the URL for sharable links
+  if (typeof window !== "undefined") {
+    const params = new URLSearchParams(window.location.search);
+    const wsParam = params.get("ws");
+    if (wsParam) return wsParam;
+  }
+
+  return baseDefaultUrl();
+}
+
 export function App() {
-  const { client, url, error, handleConnect, handleDisconnect, retryConnect } =
+  const { client, url, error, isConnecting, handleConnect, handleDisconnect, retryConnect } =
     useConnection(defaultUrl);
 
   const watchSources = useWatchSources();
@@ -103,11 +116,6 @@ export function App() {
 
   const [dismissedError, setDismissedError] = useState<Error | null>(null);
 
-  // Clear dismissed error if the connection error resolves itself
-  useEffect(() => {
-    if (!error) setDismissedError(null);
-  }, [error]);
-
   // Auto-unfold on the 0 -> >=1 transition only; user folds stick. bottomFolded read
   // via ref so this effect runs only when panelCount changes.
   const panelCount = panels.length;
@@ -122,15 +130,99 @@ export function App() {
   }, [panelCount]);
 
   const state = useConnectionState(client);
+  const displayState = isConnecting ? "connecting" : state;
   const droppedNotifications = useNotificationsDropped(client);
 
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [dismissedConnectError, setDismissedConnectError] = useState<Error | null>(null);
+  const prevClientRef = useRef<Client | null>(null);
+  const isFirstConnectionRef = useRef(true);
+  const hadExplicitWsParamRef = useRef(typeof window !== "undefined" && new URLSearchParams(window.location.search).has("ws"));
+  const [connectedUrl, setConnectedUrl] = useState<string>(url);
+
+  useEffect(() => {
+    if (client && client !== prevClientRef.current) {
+      setConnectedUrl(url);
+      recentUrlsActions.add(url);
+
+      if (typeof window !== "undefined") {
+        const currentUrl = new URL(window.location.href);
+        const isBase = url === baseDefaultUrl();
+
+        if (isBase && currentUrl.searchParams.has("ws")) {
+          currentUrl.searchParams.delete("ws");
+          window.history.pushState({}, "", currentUrl.toString());
+        } else if (!isBase && currentUrl.searchParams.get("ws") !== url) {
+          currentUrl.searchParams.set("ws", url);
+          const newUrl = currentUrl.toString().replace(/%3A/g, ":").replace(/%2F/g, "/");
+          window.history.pushState({}, "", newUrl);
+        }
+      }
+
+      let t: ReturnType<typeof setTimeout> | undefined;
+      // Only show success toast if this isn't the very first connection attempt
+      // OR if the user explicitly provided a ?ws= param in the URL initially.
+      if (!isFirstConnectionRef.current || hadExplicitWsParamRef.current) {
+        setSuccessMsg(`Connected to ${url}`);
+        t = setTimeout(() => setSuccessMsg(null), 3000);
+      }
+      isFirstConnectionRef.current = false;
+      prevClientRef.current = client;
+      if (t) return () => clearTimeout(t);
+    } else if (client !== prevClientRef.current) {
+      prevClientRef.current = client;
+    }
+  }, [client, url]);
+
+  // Using the underlying 'state' here rather than 'displayState' guarantees that
+  // falling back after a failed connection attempt doesn't inadvertently trigger auto-dismissal
   const prevStateRef = useRef(state);
   useEffect(() => {
     if (prevStateRef.current !== "open" && state === "open" && error) {
       setDismissedError(error);
+      setDismissedConnectError(error);
     }
     prevStateRef.current = state;
   }, [state, error]);
+
+  const prevUrlRef = useRef(url);
+  useEffect(() => {
+    if (prevUrlRef.current !== url) {
+      prevUrlRef.current = url;
+      explorerHostsActions.closeInPaneExplorer();
+      openExplorers.forEach((_, key) => {
+        explorerHostsActions.closeExplorerByKey(key);
+      });
+    }
+  }, [url, openExplorers]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const onPopState = () => {
+      const nextUrl = defaultUrl();
+      if (nextUrl !== url) {
+        handleConnect(nextUrl);
+      }
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, [url, handleConnect]);
+
+  const isConnectionError = error !== null;
+
+  let connectErrorMsg: string | null = null;
+  if (isConnectionError && error && error !== dismissedConnectError) {
+    let msg = error.message;
+    if (msg.startsWith("initial connect failed")) {
+      msg = msg.substring("initial connect failed".length).trim();
+    } else if (msg.startsWith("connect failed")) {
+      msg = msg.substring("connect failed".length).trim();
+    } else if (msg.startsWith("initial ")) {
+      msg = msg.substring("initial ".length).trim();
+    }
+    msg = msg.charAt(0).toUpperCase() + msg.slice(1);
+    connectErrorMsg = msg ? `Connection failed: ${msg}` : "Connection failed";
+  }
 
   const navWasFoldedRef = useRef(false);
 
@@ -197,7 +289,13 @@ export function App() {
             alignItems: "center",
           }}
         >
-          <SidebarHeader folded={navFolded} />
+          <SidebarHeader
+            folded={navFolded}
+            connectedUrl={connectedUrl}
+            onChangeUrl={handleConnect}
+            connectionState={displayState}
+            showSuccessMsg={!!successMsg}
+          />
         </div>
         <div
           style={{
@@ -253,7 +351,7 @@ export function App() {
         </div>
       </div>
     ),
-    [inPaneExplorer, onExplorerPopOut, client, pinnedObjects, navFolded],
+    [inPaneExplorer, onExplorerPopOut, client, pinnedObjects, navFolded, connectedUrl, handleConnect, displayState, successMsg],
   );
   const bottomTabs = useMemo<readonly BottomPaneTab[]>(() => {
     const tabs: BottomPaneTab[] = [];
@@ -313,7 +411,7 @@ export function App() {
             client={client}
             onOpenInPaneExplorer={onOpenInPaneExplorer}
             banner={
-              error && error !== dismissedError ? (
+              error && !isConnectionError && error !== dismissedError ? (
                 <ErrorBanner
                   message={error.message}
                   onDismiss={() => setDismissedError(error)}
@@ -342,6 +440,7 @@ export function App() {
       client,
       error,
       dismissedError,
+      isConnectionError,
       bottomTabs,
       bottomTab,
       bottomFolded,
@@ -437,10 +536,14 @@ export function App() {
 
       <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
         <ConnectionStatusBanner
-          state={state}
+          state={displayState}
           url={url}
           onRetry={retryConnect}
           droppedNotifications={droppedNotifications}
+          successMsg={successMsg}
+          onDismissSuccess={() => setSuccessMsg(null)}
+          errorMsg={connectErrorMsg}
+          onDismissError={() => { if (error) setDismissedConnectError(error); }}
         />
         {/* Offline: dim data surfaces; banner stays full-color so Retry is visible. */}
         <div
@@ -449,7 +552,7 @@ export function App() {
             minHeight: 0,
             display: "flex",
             flexDirection: "column",
-            filter: state === "open" ? "none" : "grayscale(0.75) opacity(0.72)",
+            filter: displayState === "open" ? "none" : "grayscale(0.75) opacity(0.72)",
             transition: "filter 260ms ease",
           }}
         >
