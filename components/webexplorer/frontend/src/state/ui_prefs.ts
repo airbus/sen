@@ -195,23 +195,21 @@ function toggleNavFolded(): void {
   navPaneStore.setState((prev) => ({ folded: !prev.folded, animating: true }));
   navAnimatingTimeout = setTimeout(() => {
     navAnimatingTimeout = null;
-    navPaneStore.setState((prev) => (prev.animating ? { ...prev, animating: false } : prev));
+    navPaneStore.setState((prev) =>
+      prev.animating ? { ...prev, animating: false } : prev,
+    );
   }, 240);
 }
 
-function setNavFolded(updater: boolean | ((prev: boolean) => boolean)): void {
-  let willChange = false;
-  navPaneStore.setState((prev) => {
-    const folded = typeof updater === "function" ? updater(prev.folded) : updater;
-    if (folded === prev.folded) return prev;
-    willChange = true;
-    return { folded, animating: true };
-  });
-  if (!willChange) return;
+function setNavFolded(folded: boolean): void {
+  if (navPaneStore.getState().folded === folded) return;
   if (navAnimatingTimeout !== null) clearTimeout(navAnimatingTimeout);
+  navPaneStore.setState({ folded, animating: true });
   navAnimatingTimeout = setTimeout(() => {
     navAnimatingTimeout = null;
-    navPaneStore.setState((prev) => (prev.animating ? { ...prev, animating: false } : prev));
+    navPaneStore.setState((prev) =>
+      prev.animating ? { ...prev, animating: false } : prev,
+    );
   }, 240);
 }
 
@@ -468,6 +466,58 @@ export function useCockpitCardLayouts(): ReadonlyMap<string, CockpitCardLayout> 
   return useSelector(cockpitCardLayoutsStore, (s) => s.layouts);
 }
 
+const RECENT_URLS_KEY = "webex.recentUrls";
+
+function readRecentUrls(): string[] {
+  try {
+    const raw = localStorage.getItem(RECENT_URLS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      return parsed.filter((u) => typeof u === "string");
+    }
+    return [];
+  } catch {
+    return [];
+  }
+}
+
+const recentUrlsStore = makeStore<{ urls: string[] }>({ urls: readRecentUrls() });
+
+let lastPersistedRecentUrls = recentUrlsStore.getState().urls;
+recentUrlsStore.subscribe(() => {
+  const { urls } = recentUrlsStore.getState();
+  if (urls === lastPersistedRecentUrls) return;
+  lastPersistedRecentUrls = urls;
+  writeLocalStorage(RECENT_URLS_KEY, JSON.stringify(urls));
+});
+
+function addRecentUrl(url: string): void {
+  recentUrlsStore.setState((prev) => {
+    const next = prev.urls.filter((u) => u !== url);
+    next.unshift(url);
+    if (next.length > 10) next.pop();
+    return { urls: next };
+  });
+}
+
+function removeRecentUrl(url: string): void {
+  recentUrlsStore.setState((prev) => {
+    const next = prev.urls.filter((u) => u !== url);
+    if (next.length === prev.urls.length) return prev;
+    return { urls: next };
+  });
+}
+
+export const recentUrlsActions = Object.freeze({
+  add: addRecentUrl,
+  remove: removeRecentUrl,
+});
+
+export function useRecentUrls(): string[] {
+  return useSelector(recentUrlsStore, (s) => s.urls);
+}
+
 // HMR: dispose stores so iterations don't accumulate orphan persistence subscribers.
 if (import.meta.hot) {
   import.meta.hot.dispose(() => {
@@ -486,5 +536,6 @@ if (import.meta.hot) {
     pinnedObjectsStore.dispose();
     overviewDensityStore.dispose();
     cockpitCardLayoutsStore.dispose();
+    recentUrlsStore.dispose();
   });
 }

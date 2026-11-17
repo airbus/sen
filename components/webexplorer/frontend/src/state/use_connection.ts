@@ -20,6 +20,7 @@ export function useConnection(defaultUrl: () => string): {
   client: Client | null;
   url: string;
   error: Error | null;
+  isConnecting: boolean;
   handleConnect: (next: string) => void;
   handleDisconnect: () => void;
   retryConnect: () => void;
@@ -27,8 +28,10 @@ export function useConnection(defaultUrl: () => string): {
   const [url, setUrl] = useState(defaultUrl);
   const [client, setClient] = useState<Client | null>(null);
   const [error, setError] = useState<Error | null>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   const currentClientRef = useRef<Client | null>(null);
+  const connectedUrlRef = useRef<string>(url);
   const mountedRef = useRef(true);
   const connectGenRef = useRef(0);
   // Mirror so retryConnect stays identity-stable without depending on url state.
@@ -49,6 +52,7 @@ export function useConnection(defaultUrl: () => string): {
   const handleConnect = useCallback((next: string) => {
     setError(null);
     setUrl(next);
+    setIsConnecting(true);
     const gen = ++connectGenRef.current;
     void (async () => {
       try {
@@ -65,11 +69,16 @@ export function useConnection(defaultUrl: () => string): {
         }
         const prev = currentClientRef.current;
         currentClientRef.current = c;
+        connectedUrlRef.current = next; // Save successful connection url
         setClient(c);
+        setIsConnecting(false);
         if (prev && prev !== c) prev.close();
       } catch (err) {
         if (!mountedRef.current || gen !== connectGenRef.current) return;
         setError(err instanceof Error ? err : new Error(String(err)));
+        setIsConnecting(false);
+        // Revert URL to the previously active one on failure
+        setUrl(connectedUrlRef.current);
       }
     })();
   }, []);
@@ -77,6 +86,7 @@ export function useConnection(defaultUrl: () => string): {
   const handleDisconnect = useCallback(() => {
     // Bump first so an in-flight connect self-closes instead of re-installing a torn-down client.
     connectGenRef.current++;
+    setIsConnecting(false);
     const c = currentClientRef.current;
     if (c) {
       c.close();
@@ -100,5 +110,5 @@ export function useConnection(defaultUrl: () => string): {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return { client, url, error, handleConnect, handleDisconnect, retryConnect };
+  return { client, url, error, isConnecting, handleConnect, handleDisconnect, retryConnect };
 }
