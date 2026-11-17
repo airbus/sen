@@ -8,11 +8,13 @@
 #include "proxy_manager.h"
 
 #include "local_participant.h"
+#include "remote_participant.h"  // NOLINT(misc-include-cleaner)
 
 // sen
 #include "sen/core/base/class_helpers.h"
 #include "sen/core/base/compiler_macros.h"
 #include "sen/core/obj/detail/proxy_object.h"
+#include "sen/core/obj/detail/remote_object.h"
 #include "sen/core/obj/detail/work_queue.h"
 #include "sen/core/obj/interest.h"
 #include "sen/core/obj/object.h"
@@ -98,6 +100,13 @@ std::shared_ptr<::sen::impl::ProxyObject> ProxyManager::getOrCreateProxy(const O
 {
   if (auto existing = owner_.lookUpProxyByObjectId(id))
   {
+    if (auto* remote = existing->asRemoteObject())
+    {
+      if (auto participant = remote->getParticipant().lock())
+      {
+        participant->finishObjectResolution(id);
+      }
+    }
     return existing;
   }
 
