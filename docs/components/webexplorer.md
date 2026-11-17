@@ -12,11 +12,15 @@ process is publishing.
 
 Loading `webexplorer` does not by itself open any port: the UI is delivered by the
 [`jsonrpc`](jsonrpc.md) component's static-file server, and the same WebSocket also carries
-the live data the page consumes. The browser only ever talks to one origin (the JSON-RPC
-endpoint), so deployment is "one Sen process, one URL".
+the live data the page consumes.
+By default, the browser connects to the origin that served the page. You can dynamically connect to other Sen kernels
+via the **Connection Settings** menu in the UI, or by passing a `?ws=...` URL parameter. This allows a single
+webexplorer host to inspect multiple remote processes.
 
 ## What you can do with it
 
+- **Connect to multiple kernels.** Switch backend URLs on the fly from the settings menu. Share direct links to specific
+  kernels using the `?ws=` URL parameter.
 - **Browse the live topology.** Sessions, buses, and the objects matched by each named
   query, refreshed as the process publishes them.
 - **Author named interests** against any bus and reuse them across sessions.
