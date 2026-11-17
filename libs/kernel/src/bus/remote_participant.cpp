@@ -301,6 +301,14 @@ void RemoteObjectFilter::remoteObjectsAdded(InterestId interestId, const ObjectA
 {
   if (const auto itr = providers_.find(interestId); itr != providers_.end())
   {
+    // Repeated additions are suppressed by the provider and never reach a proxy maker.
+    for (const auto& addition: additions)
+    {
+      if (const auto id = getObjectId(addition); itr->second->contains(id))
+      {
+        owner_->finishObjectResolution(id);
+      }
+    }
     itr->second->notifyObjectsAdded(additions);
   }
 }
@@ -843,6 +851,17 @@ void RemoteParticipant::rcvObjectUpdate(const ObjectUpdateMessage& message)
         elemPtr->propertyUpdatesReceived(message.buffer, message.time);
       }
     }
+  }
+}
+
+void RemoteParticipant::finishObjectResolution(ObjectId objectId)
+{
+  Lock lock(usageMutex_);
+  if (const auto it = trackedProxies_.find(objectId);
+      it != trackedProxies_.end() &&
+      std::any_of(it->second->begin(), it->second->end(), [](const auto& proxy) { return !proxy.expired(); }))
+  {
+    monitoredObjects_.stopMonitoring(objectId, session_->getTransport());
   }
 }
 

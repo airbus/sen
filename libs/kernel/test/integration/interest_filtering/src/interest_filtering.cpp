@@ -437,4 +437,92 @@ private:
 
 SEN_EXPORT_CLASS(DynamicSubscriptionListener)
 
+/// A second interest must not time out just because its discovery reuses the first interest's
+/// proxy. A timeout rejection would stop the publisher's updates to this entire remote process.
+class ReusedProxyUpdateListener final: public sen::test::ListenerImpl
+{
+public:
+  using ListenerImpl::ListenerImpl;
+
+  void registered(sen::kernel::RegistrationApi& api) override
+  {
+    ListenerImpl::registered(api);
+    bus_ = api.getSource("session.bus");
+
+    std::ignore = first_.onAdded(
+      [this](const auto& added)
+      {
+        object_ = *added.begin();
+        guard_ = object_->onHeartbeatChanged({this, [this]() { ++heartbeatCallbacks_; }});
+      });
+    std::ignore = second_.onAdded(
+      [this](const auto& added)
+      {
+        SEN_ASSERT(*added.begin() == object_);
+        secondDiscovered_ = true;
+      });
+
+    bus_->addSubscriber(
+      sen::Interest::make("SELECT interest_filtering.TestObject FROM session.bus", api.getTypes()), &first_, true);
+  }
+
+  void update(sen::kernel::RunApi& runApi) override
+  {
+    ListenerImpl::update(runApi);
+
+    if (getState() != sen::test::ConnectionState::step1)
+    {
+      return;
+    }
+
+    if (!secondSubscribed_ && heartbeatCallbacks_ >= 3U)
+    {
+      secondSubscribed_ = true;
+      bus_->addSubscriber(
+        sen::Interest::make("SELECT interest_filtering.TestObject FROM session.bus WHERE floatProp < 10.0",
+                            getApi()->getTypes()),
+        &second_,
+        true);
+    }
+
+    if (secondDiscovered_ && !secondDiscoveryTime_)
+    {
+      secondDiscoveryTime_ = runApi.getTime();
+    }
+
+    // The remote resolution timer is five seconds. Compare two windows after its deadline
+    // so early updates cannot make the test pass after the publisher rejects the object.
+    if (secondDiscoveryTime_ && !postTimeoutCallbacks_ &&
+        runApi.getTime() - *secondDiscoveryTime_ > sen::Duration {6E9})
+    {
+      postTimeoutCallbacks_ = heartbeatCallbacks_;
+      postTimeoutTime_ = runApi.getTime();
+    }
+    if (postTimeoutTime_ && runApi.getTime() - *postTimeoutTime_ > oneSecond)
+    {
+      SEN_ASSERT(heartbeatCallbacks_ > *postTimeoutCallbacks_);
+      postTimeoutTime_.reset();
+      sen::test::ListenerImpl::check1();
+    }
+  }
+
+protected:
+  void check1() override {}  // wait for the update assertion before advancing the test handshake
+
+private:
+  std::shared_ptr<sen::ObjectSource> bus_;
+  sen::ObjectList<TestObjectInterface> first_;
+  sen::ObjectList<TestObjectInterface> second_;
+  TestObjectInterface* object_ = nullptr;
+  sen::ConnectionGuard guard_;
+  uint32_t heartbeatCallbacks_ = 0U;
+  bool secondSubscribed_ = false;
+  bool secondDiscovered_ = false;
+  std::optional<sen::TimeStamp> secondDiscoveryTime_;
+  std::optional<sen::TimeStamp> postTimeoutTime_;
+  std::optional<uint32_t> postTimeoutCallbacks_;
+};
+
+SEN_EXPORT_CLASS(ReusedProxyUpdateListener)
+
 }  // namespace interest_filtering
