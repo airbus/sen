@@ -831,7 +831,7 @@ std::vector<Completion> Completer::completeListenArg(std::string_view prefix) co
 
 const std::vector<Completion>& Completer::getMethodCompletions(ConstTypeHandle<ClassType> classType) const
 {
-  auto it = classMethodCache_.find(classType);
+  auto it = classMethodCache_.find(classType.type());
   if (it != classMethodCache_.end())
   {
     return it->second;
@@ -911,7 +911,7 @@ const std::vector<Completion>& Completer::getMethodCompletions(ConstTypeHandle<C
 
   std::sort(completions.begin(), completions.end(), [](const auto& a, const auto& b) { return a.text < b.text; });
 
-  auto [inserted, _] = classMethodCache_.emplace(classType, std::move(completions));
+  auto [inserted, _] = classMethodCache_.emplace(classType.type(), std::move(completions));
   return inserted->second;
 }
 

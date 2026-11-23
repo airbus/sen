@@ -200,7 +200,7 @@ private:
   std::unordered_map<std::string, std::size_t> childCounts_;
 
   // ClassType -> method completions (lazy, never invalidated; class metadata is stable)
-  mutable std::unordered_map<ConstTypeHandle<ClassType>, std::vector<Completion>> classMethodCache_;
+  mutable std::unordered_map<const ClassType*, std::vector<Completion>> classMethodCache_;
   const CustomTypeRegistry* types_ = nullptr;
 
   // Cached scope depth for labeling path segments
