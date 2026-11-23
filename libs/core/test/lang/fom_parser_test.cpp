@@ -14,9 +14,11 @@
 #include "sen/core/meta/event.h"
 #include "sen/core/meta/method.h"
 #include "sen/core/meta/property.h"
+#include "sen/core/meta/quantity_type.h"
 #include "sen/core/meta/sequence_type.h"
 #include "sen/core/meta/struct_type.h"
 #include "sen/core/meta/type.h"
+#include "sen/core/meta/unit.h"
 #include "sen/core/meta/variant_type.h"
 
 // google test
@@ -383,6 +385,63 @@ TEST_F(AFomParser, addsAllocatedFederateToTheRprActiveSonarBeam)
   EXPECT_TRUE(std::none_of(rprUa->importedSets.begin(),
                            rprUa->importedSets.end(),
                            [](const auto* imported) { return imported->fileName == "netn-base.xml"; }));
+}
+
+/// @test
+/// A unit text that a published FOM spells its own way still resolves to the Sen unit it names, and
+/// a unit Sen does not have leaves the type a plain number.
+TEST_F(AFomParser, resolvesTheUnitSpellingsTheExampleFomsUse)
+{
+  context = sen::lang::parseFomDocuments(
+    {exampleFomData() / "rpr", exampleFomData() / "netn"}, {}, {}, sen::lang::TypeSettings {});
+
+  struct Expectation
+  {
+    std::string_view qualifiedName;
+    std::string_view abbreviation;
+  };
+
+  const std::vector<Expectation> quantities {
+    {"netn.LatLongDegreesFloat64", "deg"},
+    {"netn.DirectionDegreesFloat32", "deg"},
+    {"netn.DegreesPerSecondFloat32", "deg_per_s"},
+    {"netn.AltitudeMeterFloat64", "m"},
+    {"netn.DraughtMeterFloat32", "m"},
+    {"netn.MeanMetersFloat32", "m"},
+    {"netn.RangeFloat32", "m"},
+    {"netn.VarianceMetersSquaredFloat32", "m_sq"},
+    {"netn.TimeSecInt32", "s"},
+    {"netn.EpochTimeSecInt64", "s"},
+    {"rpr.ClockTimeHourInteger32", "hour"},
+    {"netn.MassDensityFloat32", "kg_per_m3"},
+    {"netn.MassConcentrationFloat32", "kg_per_m3"},
+    {"netn.AtmosphericPressureFloat32", "hPa"},
+  };
+
+  for (const auto& expected: quantities)
+  {
+    auto handle = find(expected.qualifiedName);
+    EXPECT_TRUE(handle.has_value()) << expected.qualifiedName;
+    if (!handle.has_value())
+    {
+      continue;
+    }
+
+    auto asQuantity = sen::dynamicTypeHandleCast<const sen::QuantityType>(handle.value());
+    EXPECT_TRUE(asQuantity) << expected.qualifiedName;
+    if (!asQuantity)
+    {
+      continue;
+    }
+
+    EXPECT_EQ(asQuantity.value().type()->getUnit(sen::Unit::ensurePresent).getAbbreviation(), expected.abbreviation)
+      << expected.qualifiedName;
+  }
+
+  // NETN declares a percentage and Sen has no unit for it, so it stays an alias of its representation.
+  auto percent = find("netn.PercentFloat64");
+  ASSERT_TRUE(percent.has_value());
+  EXPECT_FALSE(sen::dynamicTypeHandleCast<const sen::QuantityType>(percent.value()));
 }
 
 /// @test
