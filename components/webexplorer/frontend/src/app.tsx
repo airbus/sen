@@ -7,6 +7,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type * as React from "react";
+import type { Client, ConnectionState } from "@sen/client";
 
 import { useConnectionState, useNotificationsDropped } from "@sen/client/react";
 
@@ -25,7 +26,7 @@ import { SelectionCollectors } from "./components/selection_collectors.js";
 import { SidebarHeader } from "./components/sidebar_header.js";
 import { InterestOwner } from "./state/interest_owner.js";
 import { Workspace } from "./components/workspace.js";
-import { EventStoreProvider } from "./state/event_store.js";
+import { clearAllEvents, EventStoreProvider } from "./state/event_store.js";
 import {
   explorerHostsActions,
   useInPaneExplorer,
@@ -41,7 +42,7 @@ import {
   useWatchPopout,
 } from "./state/popouts.js";
 import "./state/color_scheme.js";
-import { SampleStoreProvider } from "./state/sample_store.js";
+import { clearAllSamples, SampleStoreProvider } from "./state/sample_store.js";
 import { PopoutErrorBoundary } from "./ui/popout.js";
 import { EventWatchCollectors } from "./components/event_watch_collectors.js";
 import { WatchCollectors } from "./components/watch_collectors.js";
@@ -59,12 +60,13 @@ import {
   useNavFolded,
   useNavAnimating,
   navPaneActions,
+  recentUrlsActions,
 } from "./state/ui_prefs.js";
-import { useConnection } from "./state/use_connection.js";
+import { normalizeWsUrl, useConnection } from "./state/use_connection.js";
 import { usePanels, usePlottedLeaves, useWatchSources, watchActions } from "./state/watch_plot.js";
 import { WatchTab } from "./components/watch_tab.js";
 
-function defaultUrl(): string {
+function baseDefaultUrl(): string {
   // Prod: same-origin (bundled SPA served by the JSON-RPC server hosting the WS).
   // Dev (Vite on :5173 etc.): point at the canonical local Sen port.
   // file:// and SSR fall through to the localhost default.
@@ -78,9 +80,30 @@ function defaultUrl(): string {
   return "ws://127.0.0.1:8080";
 }
 
+function defaultUrl(): string {
+  if (typeof window !== "undefined") {
+    const params = new URLSearchParams(window.location.search);
+    const wsParam = params.get("ws");
+    if (wsParam) {
+      const normalized = normalizeWsUrl(wsParam);
+      if (normalized) return normalized;
+    }
+  }
+  return baseDefaultUrl();
+}
+
 export function App() {
-  const { client, url, error, handleConnect, handleDisconnect, retryConnect } =
-    useConnection(defaultUrl);
+  const {
+    client,
+    url,
+    failedUrl,
+    error,
+    connectError,
+    isConnecting,
+    handleConnect,
+    cancelConnect,
+    retryConnect,
+  } = useConnection(defaultUrl);
 
   const watchSources = useWatchSources();
   const panels = usePanels();
@@ -102,11 +125,16 @@ export function App() {
   const watchPopout = useWatchPopout();
 
   const [dismissedError, setDismissedError] = useState<Error | null>(null);
+  const [dismissedConnectError, setDismissedConnectError] = useState<Error | null>(null);
 
-  // Clear dismissed error if the connection error resolves itself
+  // Clear dismissed error if the error resolves itself
   useEffect(() => {
     if (!error) setDismissedError(null);
   }, [error]);
+
+  useEffect(() => {
+    if (!connectError) setDismissedConnectError(null);
+  }, [connectError]);
 
   // Auto-unfold on the 0 -> >=1 transition only; user folds stick. bottomFolded read
   // via ref so this effect runs only when panelCount changes.
@@ -122,15 +150,111 @@ export function App() {
   }, [panelCount]);
 
   const state = useConnectionState(client);
+  const displayState: ConnectionState = isConnecting ? "connecting" : client === null ? "closed" : state;
   const droppedNotifications = useNotificationsDropped(client);
+
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const prevClientRef = useRef<Client | null>(null);
+  const openExplorersRef = useRef(openExplorers);
+  openExplorersRef.current = openExplorers;
+  const isFirstConnectionRef = useRef(true);
+  const hadExplicitWsParamRef = useRef(
+    typeof window !== "undefined" && new URLSearchParams(window.location.search).has("ws"),
+  );
+  const [connectedUrl, setConnectedUrl] = useState<string>("");
+
+  useEffect(() => {
+    if (client && client !== prevClientRef.current) {
+      const wasFirst = isFirstConnectionRef.current;
+      if (prevClientRef.current !== null) {
+        clearAllSamples();
+        clearAllEvents();
+        explorerHostsActions.closeInPaneExplorer();
+        openExplorersRef.current.forEach((_, key) => {
+          explorerHostsActions.closeExplorerByKey(key);
+        });
+      }
+
+      setConnectedUrl(url);
+      recentUrlsActions.add(url);
+
+      if (typeof window !== "undefined") {
+        const currentUrl = new URL(window.location.href);
+        const isBase = url === baseDefaultUrl();
+
+        if (isBase && currentUrl.searchParams.has("ws")) {
+          currentUrl.searchParams.delete("ws");
+          if (wasFirst) {
+            window.history.replaceState({}, "", currentUrl.toString());
+          } else {
+            window.history.pushState({}, "", currentUrl.toString());
+          }
+        } else if (!isBase && normalizeWsUrl(currentUrl.searchParams.get("ws") ?? "") !== url) {
+          currentUrl.searchParams.set("ws", url);
+          const newUrl = currentUrl.toString().replace(/%3A/g, ":").replace(/%2F/g, "/");
+          if (wasFirst) {
+            window.history.replaceState({}, "", newUrl);
+          } else {
+            window.history.pushState({}, "", newUrl);
+          }
+        }
+      }
+
+      let t: ReturnType<typeof setTimeout> | undefined;
+      if (!wasFirst || hadExplicitWsParamRef.current) {
+        setSuccessMsg(`Connected to ${url}`);
+        t = setTimeout(() => setSuccessMsg(null), 3000);
+      }
+      isFirstConnectionRef.current = false;
+      prevClientRef.current = client;
+      if (t) return () => clearTimeout(t);
+    } else if (client !== prevClientRef.current) {
+      if (client === null) {
+        setConnectedUrl("");
+      }
+      prevClientRef.current = client;
+    }
+  }, [client, url]);
 
   const prevStateRef = useRef(state);
   useEffect(() => {
-    if (prevStateRef.current !== "open" && state === "open" && error) {
-      setDismissedError(error);
+    if (prevStateRef.current !== "open" && state === "open") {
+      if (error) setDismissedError(error);
+      if (connectError) setDismissedConnectError(connectError);
+    } else if (prevStateRef.current === "open" && state !== "open" && connectError) {
+      setDismissedConnectError(connectError);
     }
     prevStateRef.current = state;
-  }, [state, error]);
+  }, [state, error, connectError]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const onPopState = () => {
+      const nextUrl = defaultUrl();
+      if (nextUrl !== connectedUrl || client === null) {
+        handleConnect(nextUrl);
+      }
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, [connectedUrl, client, handleConnect]);
+
+  let connectErrorMsg: string | null = null;
+  if (connectError && connectError !== dismissedConnectError) {
+    let msg = connectError.message;
+    if (msg.startsWith("initial connect failed")) {
+      msg = msg.substring("initial connect failed".length).trim();
+    } else if (msg.startsWith("connect failed")) {
+      msg = msg.substring("connect failed".length).trim();
+    } else if (msg.startsWith("initial ")) {
+      msg = msg.substring("initial ".length).trim();
+    }
+    msg = msg.charAt(0).toUpperCase() + msg.slice(1);
+    connectErrorMsg = msg ? `Connection failed: ${msg}` : "Connection failed";
+  }
+
+  const activeUrl = displayState === "open" ? connectedUrl : "";
+  const placeholderUrl = connectedUrl || url;
 
   const navWasFoldedRef = useRef(false);
 
@@ -197,7 +321,13 @@ export function App() {
             alignItems: "center",
           }}
         >
-          <SidebarHeader folded={navFolded} />
+          <SidebarHeader
+            folded={navFolded}
+            activeUrl={activeUrl}
+            placeholderUrl={placeholderUrl}
+            isConnecting={isConnecting}
+            onChangeUrl={handleConnect}
+          />
         </div>
         <div
           style={{
@@ -253,7 +383,18 @@ export function App() {
         </div>
       </div>
     ),
-    [inPaneExplorer, onExplorerPopOut, client, pinnedObjects, navFolded],
+    [
+      inPaneExplorer,
+      onExplorerBack,
+      onExplorerPopOut,
+      client,
+      pinnedObjects,
+      navFolded,
+      activeUrl,
+      placeholderUrl,
+      isConnecting,
+      handleConnect,
+    ],
   );
   const bottomTabs = useMemo<readonly BottomPaneTab[]>(() => {
     const tabs: BottomPaneTab[] = [];
@@ -340,6 +481,7 @@ export function App() {
     ),
     [
       client,
+      onOpenInPaneExplorer,
       error,
       dismissedError,
       bottomTabs,
@@ -437,10 +579,22 @@ export function App() {
 
       <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
         <ConnectionStatusBanner
-          state={state}
+          state={displayState}
           url={url}
-          onRetry={retryConnect}
+          onRetry={connectErrorMsg && failedUrl ? () => handleConnect(failedUrl) : retryConnect}
+          onCancel={isConnecting ? cancelConnect : undefined}
           droppedNotifications={droppedNotifications}
+          successMsg={successMsg}
+          onDismissSuccess={() => setSuccessMsg(null)}
+          errorMsg={connectErrorMsg}
+          failedUrl={failedUrl}
+          onDismissError={
+            displayState === "closed"
+              ? undefined
+              : () => {
+                if (connectError) setDismissedConnectError(connectError);
+              }
+          }
         />
         {/* Offline: dim data surfaces; banner stays full-color so Retry is visible. */}
         <div
@@ -449,7 +603,7 @@ export function App() {
             minHeight: 0,
             display: "flex",
             flexDirection: "column",
-            filter: state === "open" ? "none" : "grayscale(0.75) opacity(0.72)",
+            filter: displayState === "open" ? "none" : "grayscale(0.75) opacity(0.72)",
             transition: "filter 260ms ease",
           }}
         >
