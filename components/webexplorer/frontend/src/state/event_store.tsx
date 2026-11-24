@@ -212,6 +212,17 @@ function appendEvent(objectKey: string, event: EventDelivery): void {
   allEventsCell.invalidate();
 }
 
+export function clearAllEvents(): void {
+  for (const key of eventsByObjectBacking.keys()) {
+    eventsByObjectStore.dropKey(key);
+  }
+  eventsByObjectBacking.clear();
+  if (allEventsBacking.length > 0) {
+    allEventsBacking.length = 0;
+    allEventsCell.invalidate();
+  }
+}
+
 function trimOnce(): void {
   const cutoff = Date.now() - retentionSecondsRef * 1000;
   let globalTouched = false;

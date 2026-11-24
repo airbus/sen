@@ -468,6 +468,58 @@ export function useCockpitCardLayouts(): ReadonlyMap<string, CockpitCardLayout> 
   return useSelector(cockpitCardLayoutsStore, (s) => s.layouts);
 }
 
+const RECENT_URLS_KEY = "webex.recentUrls";
+
+function readRecentUrls(): string[] {
+  try {
+    const raw = localStorage.getItem(RECENT_URLS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      return parsed.filter((u) => typeof u === "string");
+    }
+    return [];
+  } catch {
+    return [];
+  }
+}
+
+const recentUrlsStore = makeStore<{ urls: string[] }>({ urls: readRecentUrls() });
+
+let lastPersistedRecentUrls = recentUrlsStore.getState().urls;
+recentUrlsStore.subscribe(() => {
+  const { urls } = recentUrlsStore.getState();
+  if (urls === lastPersistedRecentUrls) return;
+  lastPersistedRecentUrls = urls;
+  writeLocalStorage(RECENT_URLS_KEY, JSON.stringify(urls));
+});
+
+function addRecentUrl(url: string): void {
+  recentUrlsStore.setState((prev) => {
+    const next = prev.urls.filter((u) => u !== url);
+    next.unshift(url);
+    if (next.length > 10) next.pop();
+    return { urls: next };
+  });
+}
+
+function removeRecentUrl(url: string): void {
+  recentUrlsStore.setState((prev) => {
+    const next = prev.urls.filter((u) => u !== url);
+    if (next.length === prev.urls.length) return prev;
+    return { urls: next };
+  });
+}
+
+export const recentUrlsActions = Object.freeze({
+  add: addRecentUrl,
+  remove: removeRecentUrl,
+});
+
+export function useRecentUrls(): string[] {
+  return useSelector(recentUrlsStore, (s) => s.urls);
+}
+
 // HMR: dispose stores so iterations don't accumulate orphan persistence subscribers.
 if (import.meta.hot) {
   import.meta.hot.dispose(() => {
@@ -486,5 +538,6 @@ if (import.meta.hot) {
     pinnedObjectsStore.dispose();
     overviewDensityStore.dispose();
     cockpitCardLayoutsStore.dispose();
+    recentUrlsStore.dispose();
   });
 }

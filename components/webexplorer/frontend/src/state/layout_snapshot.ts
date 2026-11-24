@@ -11,12 +11,14 @@
 
 const KEY_PREFIX = "webex.";
 
-// `webex.layouts` is excluded so layouts don't contain each other; retention values
+// `webex.layouts` is excluded so layouts don't contain each other; retention values and recent kernel URLs
 // stay with the user across layout switches.
 const EXCLUDE = new Set([
   "webex.layouts",
+  "webex.settings",
   "webex.sampleRetentionSeconds",
   "webex.eventRetentionSeconds",
+  "webex.recentUrls",
 ]);
 
 export type LayoutSnapshot = Readonly<Record<string, string>>;

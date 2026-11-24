@@ -92,6 +92,15 @@ export function markDeadProperty(sourceKey: PropertyKey, at: number): void {
   }
 }
 
+export function clearAllSamples(): void {
+  for (const perSource of samplesBacking.values()) {
+    for (const buf of perSource.values()) {
+      sampleStore.dropKey(buf.plotKey);
+    }
+  }
+  samplesBacking.clear();
+}
+
 function trimOnce(): void {
   const now = Date.now();
   const cutoff = now - retentionSeconds * 1000;
