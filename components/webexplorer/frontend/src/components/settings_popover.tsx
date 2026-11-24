@@ -5,22 +5,60 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-import { applySnapshot, captureSnapshot, type LayoutSnapshot } from "../state/layout_snapshot.js";
+import { applySnapshot, type LayoutSnapshot } from "../state/layout_snapshot.js";
 import { layoutsActions, useLayouts, type NamedLayout } from "../state/layouts_store.js";
 import { RETENTION_BOUNDS, settingsActions, useSettings } from "../state/settings.js";
+import { recentUrlsActions, useRecentUrls } from "../state/ui_prefs.js";
+import { normalizeWsUrl } from "../state/use_connection.js";
 import { HoverIconButton } from "../ui/buttons.js";
 import { GearIcon } from "../ui/icons.js";
 
-export function SettingsPopover() {
+export function SettingsPopover({
+  activeUrl,
+  placeholderUrl,
+  isConnecting = false,
+  onChangeUrl,
+}: {
+  activeUrl: string;
+  placeholderUrl?: string | undefined;
+  isConnecting?: boolean | undefined;
+  onChangeUrl: (next: string) => void;
+}) {
   const settings = useSettings();
   const update = settingsActions.update;
   const [open, setOpen] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const [draftUrl, setDraftUrl] = useState("");
   const anchorRef = useRef<HTMLSpanElement | null>(null);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingTargetRef = useRef<string | null>(null);
   // Viewport coords so the portal escapes any clipping ancestor's `overflow: hidden`.
   const [coords, setCoords] = useState<{ top: number; right: number } | null>(null);
+  const recentUrls = useRecentUrls();
+
+  const cancelCloseTimer = useCallback(() => {
+    if (closeTimerRef.current !== null) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  }, []);
+
+  const closeSmoothly = useCallback(() => {
+    cancelCloseTimer();
+    pendingTargetRef.current = null;
+    setClosing(true);
+    closeTimerRef.current = setTimeout(() => {
+      closeTimerRef.current = null;
+      setOpen(false);
+      setClosing(false);
+    }, 150);
+  }, [cancelCloseTimer]);
+
+  useEffect(() => cancelCloseTimer, [cancelCloseTimer]);
+
   const recompute = () => {
     const r = anchorRef.current?.getBoundingClientRect();
     if (!r) return;
@@ -38,16 +76,32 @@ export function SettingsPopover() {
   }, [open]);
 
   useEffect(() => {
+    if (open) {
+      pendingTargetRef.current = null;
+      setDraftUrl("");
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (!open || pendingTargetRef.current === null) return;
+    if (activeUrl === pendingTargetRef.current) {
+      pendingTargetRef.current = null;
+      closeSmoothly();
+      setDraftUrl("");
+    }
+  }, [activeUrl, open, closeSmoothly]);
+
+  useEffect(() => {
     if (!open) return;
     const onDocClick = (e: MouseEvent) => {
       const target = e.target as Node | null;
       if (target && anchorRef.current?.contains(target)) return;
       const popoverEl = document.getElementById("webex-settings-popover");
       if (target && popoverEl?.contains(target)) return;
-      setOpen(false);
+      closeSmoothly();
     };
     const onEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") closeSmoothly();
     };
     document.addEventListener("mousedown", onDocClick);
     document.addEventListener("keydown", onEsc);
@@ -55,12 +109,30 @@ export function SettingsPopover() {
       document.removeEventListener("mousedown", onDocClick);
       document.removeEventListener("keydown", onEsc);
     };
-  }, [open]);
+  }, [open, closeSmoothly]);
+
+  const toggleOpen = () => {
+    if (open && !closing) {
+      closeSmoothly();
+    } else {
+      cancelCloseTimer();
+      setClosing(false);
+      setOpen(true);
+    }
+  };
+
+  const normalizedDraft = normalizeWsUrl(draftUrl);
+  const canConnectDraft = !isConnecting && normalizedDraft !== "" && normalizedDraft !== activeUrl;
+
+  const submitUrl = (target: string) => {
+    pendingTargetRef.current = target;
+    onChangeUrl(target);
+  };
 
   return (
     <span ref={anchorRef} style={{ display: "inline-flex" }}>
       <HoverIconButton
-        onClick={() => setOpen((v) => !v)}
+        onClick={toggleOpen}
         ariaLabel={open ? "close settings" : "open settings"}
         tooltip="Settings"
         icon={<GearIcon />}
@@ -87,6 +159,10 @@ export function SettingsPopover() {
             display: "flex",
             flexDirection: "column",
             gap: 10,
+            opacity: closing ? 0 : 1,
+            transform: closing ? "scale(0.98)" : "scale(1)",
+            transition: "opacity 150ms ease, transform 150ms ease",
+            transformOrigin: "top right",
           }}
         >
           <div
@@ -95,6 +171,106 @@ export function SettingsPopover() {
               textTransform: "uppercase",
               letterSpacing: "0.05em",
               color: "var(--fg-subtle)",
+            }}
+          >
+            Connection
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <span style={{ color: "var(--fg-base)", fontSize: "var(--fs-sm)" }}>
+              Backend Connection URL
+            </span>
+            <div style={{ display: "flex", gap: 4 }}>
+              <input
+                type="text"
+                value={draftUrl}
+                placeholder={placeholderUrl || activeUrl || "ws://host:port"}
+                onChange={(e) => {
+                  pendingTargetRef.current = null;
+                  setDraftUrl(e.target.value);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && canConnectDraft) {
+                    submitUrl(normalizedDraft);
+                  }
+                }}
+                style={{
+                  flex: 1,
+                  background: "var(--bg-input)",
+                  border: "1px solid var(--border-default)",
+                  borderRadius: "var(--radius-sm)",
+                  padding: "2px 6px",
+                  color: "var(--fg-base)",
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "var(--fs-sm)",
+                  outline: "none",
+                  minWidth: 0,
+                }}
+              />
+              <LayoutBtn
+                label="connect"
+                disabled={!canConnectDraft}
+                onClick={() => {
+                  if (canConnectDraft) {
+                    submitUrl(normalizedDraft);
+                  }
+                }}
+              />
+            </div>
+            {recentUrls.length > 0 && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 2, marginTop: 4, maxHeight: 120, overflowY: "auto" }}>
+                {recentUrls.map((rUrl) => {
+                  const isCurrent = activeUrl !== "" && rUrl === activeUrl;
+                  return (
+                    <div
+                      key={rUrl}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4,
+                        padding: "2px 4px",
+                        borderRadius: "var(--radius-sm)",
+                      }}
+                    >
+                      <span
+                        style={{
+                          flex: 1,
+                          minWidth: 0,
+                          fontSize: "var(--fs-md)",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          cursor: isCurrent || isConnecting ? "default" : "pointer",
+                          color: isCurrent ? "var(--ok)" : "var(--fg-base)",
+                        }}
+                        onClick={() => {
+                          if (!isCurrent && !isConnecting) {
+                            submitUrl(rUrl);
+                          }
+                        }}
+                        title={rUrl}
+                      >
+                        {rUrl}
+                      </span>
+                      <LayoutBtn
+                        label="✕"
+                        tone="danger"
+                        title="Remove URL"
+                        onClick={() => recentUrlsActions.remove(rUrl)}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+          <div
+            style={{
+              fontSize: "var(--fs-xs)",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              color: "var(--fg-subtle)",
+              borderTop: "1px solid var(--border-default)",
+              paddingTop: 8,
             }}
           >
             Retention
@@ -292,17 +468,20 @@ function LayoutBtn({
   onClick,
   tone,
   title,
+  disabled,
 }: {
   label: string;
   onClick: () => void;
-  tone?: "danger";
-  title?: string;
+  tone?: "danger" | undefined;
+  title?: string | undefined;
+  disabled?: boolean | undefined;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       title={title ?? label}
+      disabled={disabled}
       style={{
         padding: "1px 6px",
         fontSize: "var(--fs-xs)",
@@ -311,7 +490,8 @@ function LayoutBtn({
         color: tone === "danger" ? "var(--err)" : "var(--fg-subtle)",
         border: "1px solid var(--border-default)",
         borderRadius: "var(--radius-sm)",
-        cursor: "pointer",
+        cursor: disabled ? "not-allowed" : "pointer",
+        opacity: disabled ? 0.5 : 1,
       }}
     >
       {label}

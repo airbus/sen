@@ -9,7 +9,19 @@ import logoUrl from "../assets/logo_simple.svg";
 import { colorSchemeActions, useColorScheme } from "../state/color_scheme.js";
 import { SettingsPopover } from "./settings_popover.js";
 
-export function SidebarHeader({ folded = false }: { folded?: boolean }) {
+export function SidebarHeader({
+  folded = false,
+  activeUrl,
+  placeholderUrl,
+  isConnecting = false,
+  onChangeUrl,
+}: {
+  folded?: boolean | undefined;
+  activeUrl?: string | undefined;
+  placeholderUrl?: string | undefined;
+  isConnecting?: boolean | undefined;
+  onChangeUrl?: ((next: string) => void) | undefined;
+}) {
   return (
     <header
       style={{
@@ -49,7 +61,12 @@ export function SidebarHeader({ folded = false }: { folded?: boolean }) {
             }}
           >
             <ColorSchemeToggle />
-            <SettingsPopover />
+            <SettingsPopover
+              activeUrl={activeUrl ?? ""}
+              placeholderUrl={placeholderUrl}
+              isConnecting={isConnecting}
+              onChangeUrl={onChangeUrl ?? (() => {})}
+            />
           </span>
         </>
       )}
