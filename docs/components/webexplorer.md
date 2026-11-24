@@ -12,11 +12,15 @@ process is publishing.
 
 Loading `webexplorer` does not by itself open any port: the UI is delivered by the
 [`jsonrpc`](jsonrpc.md) component's static-file server, and the same WebSocket also carries
-the live data the page consumes. The browser only ever talks to one origin (the JSON-RPC
-endpoint), so deployment is "one Sen process, one URL".
+the live data the page consumes.
+By default, the browser connects to the origin that served the page. You can dynamically connect to other Sen kernels
+via the **Connection Settings** menu in the UI, or by passing a `?ws=...` URL parameter. This allows a single
+webexplorer host to inspect multiple remote processes.
 
 ## What you can do with it
 
+- **Connect to multiple kernels.** Switch backend URLs on the fly from the settings menu. Share direct links to specific
+  kernels using the `?ws=` URL parameter.
 - **Browse the live topology.** Sessions, buses, and the objects matched by each named
   query, refreshed as the process publishes them.
 - **Author named interests** against any bus and reuse them across sessions.
@@ -123,6 +127,7 @@ repo, alongside per-side READMEs at `components/webexplorer/{frontend,backend}/R
 ## Offline behavior
 
 The web explorer is a single self-contained `index.html` baked into the component (no runtime
-CDN fetch, no telemetry). The only network connection the page makes is to the WebSocket on its
-origin. When that connection drops, the UI dims and shows a Retry affordance; live state
+CDN fetch, no telemetry). By default, the page connects only to the WebSocket on its origin,
+unless a different kernel URL is selected via **Connection Settings** or the `?ws=` URL
+parameter. When that connection drops, the UI dims and shows a Retry affordance; live state
 (plots, event tail, watches) is preserved on reconnect.

@@ -96,7 +96,9 @@ features cut across all three.
   different document; everything else is shared.
 - **One WebSocket per browser session.** Declared interests, subscriptions, and the type
   cache are connection-scoped. Re-using one connection avoids the kernel paying for the
-  same subscription twice when the user pops a workspace out.
+  same subscription twice when the user pops a workspace out. Switching target kernels
+  (via the Settings popover or the `?ws=` query parameter) tears down the previous Client,
+  clears transient sample/event buffers, and opens a single fresh connection to the new endpoint.
 - **Transport auto-reconnects; interests re-declare automatically.** The app relies on
   `@sen/client`'s `autoReestablish` default -- no explicit `onReconnect` wiring, deliberately:
   a second manual `reestablishAll()` would race the built-in one. Without re-establishment

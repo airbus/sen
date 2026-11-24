@@ -34,7 +34,9 @@ npm run dev
 
 Open `http://localhost:5173`. The app auto-connects to the WebSocket; there is no manual
 connection bar. In dev (`import.meta.env.DEV`) the URL defaults to `ws://127.0.0.1:8080`;
-in production the page trusts its own origin.
+in production the page trusts its own origin. You can switch to another running Sen kernel
+at any time from the Settings popover in the sidebar header, or by passing
+`?ws=ws://host:port` in the page URL.
 
 ## Build the production bundle
 
