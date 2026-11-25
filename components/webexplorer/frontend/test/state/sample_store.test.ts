@@ -13,6 +13,7 @@ import {
   __reportDeliveryForTests,
   __resetSampleStoreForTests,
   __trimOnceForTests,
+  clearAllSamples,
   markDeadLeaf,
   markDeadProperty,
   setSampleRetentionSeconds,
@@ -96,10 +97,24 @@ describe("sample_store", () => {
     });
   });
 
+  describe("clearAllSamples", () => {
+    it("evicts every source and leaf buffer on kernel switch", () => {
+      __reportDeliveryForTests(SOURCE, [["x", 10, null], ["y", 20, null]], 100, null);
+      __reportDeliveryForTests("i\0obj2\0speed", [["", 99, "m/s"]], 100, null);
+      expect(__getLeafCountForTests()).toBe(3);
+
+      clearAllSamples();
+
+      expect(__getLeafCountForTests()).toBe(0);
+      expect(__getSampleViewForTests(SOURCE, "x").size).toBe(0);
+      expect(__getSampleViewForTests("i\0obj2\0speed", "").size).toBe(0);
+    });
+  });
+
   describe("gap sentinels", () => {
     it("markDeadLeaf appends a gap sentinel at the given timestamp", () => {
       __reportDeliveryForTests(SOURCE, [["", 42, null]], 100, null);
-      markDeadLeaf(SOURCE as PropertyKey, "", 200);
+      markDeadLeaf(SOURCE as PropertyKey, "", 200, null);
       const view = __getSampleViewForTests(SOURCE, "");
       expect(view.size).toBe(2);
       expect(view.vGap![0]).toBe(0);
@@ -109,16 +124,16 @@ describe("sample_store", () => {
     });
 
     it("markDeadLeaf is a no-op on an empty buffer (no value to gap from)", () => {
-      markDeadLeaf(SOURCE as PropertyKey, "missing", 200);
+      markDeadLeaf(SOURCE as PropertyKey, "missing", 200, null);
       const view = __getSampleViewForTests(SOURCE, "missing");
       expect(view.size).toBe(0);
     });
 
     it("markDeadLeaf is idempotent - successive calls collapse to a single sentinel", () => {
       __reportDeliveryForTests(SOURCE, [["", 1, null]], 100, null);
-      markDeadLeaf(SOURCE as PropertyKey, "", 200);
-      markDeadLeaf(SOURCE as PropertyKey, "", 250);
-      markDeadLeaf(SOURCE as PropertyKey, "", 300);
+      markDeadLeaf(SOURCE as PropertyKey, "", 200, null);
+      markDeadLeaf(SOURCE as PropertyKey, "", 250, null);
+      markDeadLeaf(SOURCE as PropertyKey, "", 300, null);
       const view = __getSampleViewForTests(SOURCE, "");
       expect(view.size).toBe(2); // one real + one sentinel; further markDead's no-op
       expect(view.at[1]).toBe(200); // first sentinel's timestamp wins
@@ -126,9 +141,9 @@ describe("sample_store", () => {
 
     it("accepts new samples after a sentinel and appends another sentinel when the leaf dies again", () => {
       __reportDeliveryForTests(SOURCE, [["", 1, null]], 100, null);
-      markDeadLeaf(SOURCE as PropertyKey, "", 200);
+      markDeadLeaf(SOURCE as PropertyKey, "", 200, null);
       __reportDeliveryForTests(SOURCE, [["", 3, null]], 300, null);
-      markDeadLeaf(SOURCE as PropertyKey, "", 400);
+      markDeadLeaf(SOURCE as PropertyKey, "", 400, null);
       const view = __getSampleViewForTests(SOURCE, "");
       expect(view.size).toBe(4);
       expect(view.vGap![0]).toBe(0); // real
@@ -151,8 +166,8 @@ describe("sample_store", () => {
     it("marks gaps on boolean and string series with the gap flag rather than the value", () => {
       __reportDeliveryForTests(SOURCE, [["b", true, null]], 100, null);
       __reportDeliveryForTests(SOURCE, [["s", "ok", null]], 100, null);
-      markDeadLeaf(SOURCE as PropertyKey, "b", 200);
-      markDeadLeaf(SOURCE as PropertyKey, "s", 200);
+      markDeadLeaf(SOURCE as PropertyKey, "b", 200, null);
+      markDeadLeaf(SOURCE as PropertyKey, "s", 200, null);
       const bView = __getSampleViewForTests(SOURCE, "b");
       const sView = __getSampleViewForTests(SOURCE, "s");
       expect(bView.vGap![1]).toBe(1);

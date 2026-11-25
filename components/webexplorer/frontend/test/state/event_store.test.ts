@@ -13,6 +13,7 @@ import {
   __getObjectEventsForTests,
   __resetEventStoreForTests,
   __trimOnceForTests,
+  clearAllEvents,
   setEventRetentionSeconds,
   type EventDelivery,
 } from "../../src/state/event_store.js";
@@ -20,12 +21,16 @@ import {
 function delivery(over: Partial<EventDelivery> = {}): EventDelivery {
   const seq = over.seq ?? 1;
   const interestName = over.interestName ?? "i";
+  const sessionName = over.sessionName ?? "local";
+  const busName = over.busName ?? "bus";
   const objectName = over.objectName ?? "obj";
   const className = over.className ?? "demo.Aircraft";
   const eventName = over.eventName ?? "madeSound";
   return {
     seq,
     interestName,
+    sessionName,
+    busName,
     objectName,
     className,
     eventName,
@@ -61,6 +66,21 @@ describe("event_store", () => {
       __appendEventForTests(delivery({ seq: 3, eventName: "c" }));
       const seqs = __getAllEventsForTests().map((e) => e.seq);
       expect(seqs).toEqual([1, 2, 3]);
+    });
+  });
+
+  describe("clearAllEvents", () => {
+    it("clears both the global log and per-object buffers on kernel switch", () => {
+      __appendEventForTests(delivery({ seq: 1, objectName: "a" }));
+      __appendEventForTests(delivery({ seq: 2, objectName: "b" }));
+      expect(__getAllEventsForTests()).toHaveLength(2);
+      expect(__getObjectEventsForTests("i", "a")).toHaveLength(1);
+
+      clearAllEvents();
+
+      expect(__getAllEventsForTests()).toHaveLength(0);
+      expect(__getObjectEventsForTests("i", "a")).toHaveLength(0);
+      expect(__getObjectEventsForTests("i", "b")).toHaveLength(0);
     });
   });
 
