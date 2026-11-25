@@ -312,6 +312,10 @@ public:  // special members
     SEN_ASSERT(kernelImpl_);
     populateUnits();
     populateConfig();
+    RuntimePacing pacing {};
+    pacing.sleepFactor = SleepFactor {kernelImpl_->getSleepFactor()};
+    pacing.timeCompression = TimeCompression {kernelImpl_->getTimeCompression()};
+    setNextRuntimePacing(pacing);
   }
 
   ~KernelApiImpl() override = default;
@@ -332,6 +336,22 @@ protected:  // methods implementation
   [[nodiscard]] NetworkFootprint getRuntimeNetworkFootprintImpl() const final
   {
     return kernelImpl_->getRuntimeNetworkFootprint();
+  }
+
+  void setSleepFactorImpl(SleepFactor factor) final
+  {
+    kernelImpl_->setSleepFactor(factor.get());
+    auto pacing = getNextRuntimePacing();
+    pacing.sleepFactor = factor;
+    setNextRuntimePacing(pacing);
+  }
+
+  void setTimeCompressionImpl(TimeCompression compression) final
+  {
+    kernelImpl_->setTimeCompression(compression.get());
+    auto pacing = getNextRuntimePacing();
+    pacing.timeCompression = compression;
+    setNextRuntimePacing(pacing);
   }
 
 private:

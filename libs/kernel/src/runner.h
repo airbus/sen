@@ -174,7 +174,7 @@ public:
   FuncResult execLoop(Duration cycleTime, std::function<void()>&& workFunction = {}, bool logOverruns = true);
 
   /// Advances the virtual time a given delta (only meaningful when in virtual time mode).
-  std::future<void> advanceVirtualTime(const Duration& delta);
+  std::future<void> advanceVirtualTime(const Duration& delta, double timeCompression);
 
   /// Commits all the objects when in virtual time mode.
   std::future<void> commitVirtualTime();
@@ -424,13 +424,15 @@ private:
   void stepCursorsPast(const NativeObjectPtrList& list, const NativeObjectPtrList::iterator& node);
   std::uint64_t registrationSerial_ {0U};
   Guarded<TimeStamp> time_;
+  TimeStamp virtualScheduleTime_;
   TimeStamp startTime_;
   RunApi runApi_;
   RegistrationApi registrationApi_;
   SessionsDiscoverer sessionsDiscoverer_;
   std::promise<void> barrierForWorker_;
   std::promise<void> barrierForCaller_;
-  TimeStamp targetVirtualTime_;
+  Duration virtualTimeDelta_;
+  double virtualTimeCompression_ = 1.0;
   WorkerCommand workerCommand_ = WorkerCommand::commandTimeAdvance;
   Duration nextExecutionDeltaTime_;
   static constexpr int64_t noDuration = -1;
@@ -673,14 +675,15 @@ inline void Runner::exec(std::function<void()>& workFunction, CycleCpuTime& cycl
   commit();
 }
 
-inline std::future<void> Runner::advanceVirtualTime(const Duration& delta)
+inline std::future<void> Runner::advanceVirtualTime(const Duration& delta, double timeCompression)
 {
   barrierForCaller_ = {};
   auto future = barrierForCaller_.get_future();  // the future where the caller will wait
 
   // command and unblock the worker
   {
-    targetVirtualTime_ = time_ + delta;
+    virtualTimeDelta_ = delta;
+    virtualTimeCompression_ = timeCompression;
     workerCommand_ = WorkerCommand::commandTimeAdvance;
     barrierForWorker_.set_value();
   }

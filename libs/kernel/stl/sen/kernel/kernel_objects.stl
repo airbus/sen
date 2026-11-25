@@ -110,11 +110,24 @@ struct ErrorReport
   errorData   : ErrorData     // information related to the error
 }
 
+quantity<f64> SleepFactor [min: 0.0, max: 1.0];
+quantity<f64> TimeCompression [min: 0.0, max: 1.0];
+
+// Pacing controls that can change while the kernel is running.
+struct RuntimePacing
+{
+  sleepFactor     : SleepFactor,     // fraction of the remaining wait, used only in real time mode
+  timeCompression : TimeCompression  // divisor for the time advanced by a cycle; lower values advance time faster
+}
+
 // Represents the kernel
 class KernelApi
 {
   // kernel build information
   var buildInfo : BuildInfo [static];
+
+  // current runtime pacing controls, which default to 1
+  var runtimePacing : RuntimePacing;
 
   // requests the kernel to shut down
   fn shutdown();
@@ -130,6 +143,14 @@ class KernelApi
 
   // actual network addresses and ports currently used by this process
   fn getRuntimeNetworkFootprint() -> NetworkFootprint [const];
+
+  // scales waits requested after the change, from 0 (no sleep) to 1 (normal sleep)
+  // only available in real time mode
+  fn setSleepFactor(factor : SleepFactor);
+
+  // compresses future component time advances without changing when updates are due
+  // accepts finite values greater than 0 and up to 1 in real and virtual time modes
+  fn setTimeCompression(compression : TimeCompression);
 }
 
 // --8<-- [start:clocks]

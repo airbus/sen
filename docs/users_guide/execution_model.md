@@ -179,9 +179,6 @@ therefore vary in length, and a component's `freqHz` still decides how often it 
 [Controlling the clock](../howto_guides/controlling_clock.md) has the configuration and a worked
 run.
 
-Fixed-rate cycles are what Sen schedules today, and other scheduling modes will follow as they are
-needed.
-
 Sen is not a simulation framework. What it gives you is objects other processes can see, a cycle
 that runs them and a clock you can drive. That is what a simulation framework would be built on, and
 Sen stops there. Solvers, scenario handling, model libraries and scheduling
@@ -207,6 +204,26 @@ Because the step comes from the clock instead of from `freqHz`, the same code is
 cycle is skipped and when the component is stepped. It is not the same run, though. Stepping gives
 the same sequence of steps every time, while under `realTime` a skipped cycle merges two steps into
 one, so a component with a saturation, a rate limit or a discrete event can land somewhere else.
+
+### Changing the pace at runtime
+
+The kernel publishes a `KernelApi` object named `api` on its bus, which defaults to
+`local.kernel`. Read its `runtimePacing` property for the active settings. Each factor starts at
+`1.0`, and changes apply as runners advance to their next cycles.
+
+- `setSleepFactor(factor)` accepts values from `0.0` through `1.0` in `realTime` mode. It
+  multiplies the remaining wait after the runner commits its outputs. At `0.0` the runner can
+  start its next update immediately. In other modes, `runtimePacing.sleepFactor` is `1.0` and
+  calls to the setter return an error.
+- `setTimeCompression(compression)` accepts finite values greater than `0.0` and up to `1.0` in
+  `realTime`, `virtualTime`, and `virtualTimeRunning`. It divides future advances of
+  `RunApi::getTime()`. With a `timeCompression` of `0.1` and a `sleepFactor` of `1.0`, a 10 Hz
+  component still runs about once every 100 ms in real time and sees one second of logical time
+  per regular cycle. In virtual modes, the clock controller uses unscaled durations to schedule
+  component updates, and `isRealTimeOnly()` components keep their wall-clock time.
+
+You can set both factors on the same running kernel. A shorter sleep changes how often the
+component runs. `timeCompression` changes how much logical time passes between its updates.
 
 ## When a component runs out of time
 

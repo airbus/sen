@@ -67,6 +67,12 @@ public:
   /// The configuration that was passed during construction.
   [[nodiscard]] const KernelConfig& getConfig() const noexcept { return config_; }
 
+  [[nodiscard]] bool supportsSleepFactor() const noexcept;
+  [[nodiscard]] double getSleepFactor() const noexcept { return sleepFactor_.load(std::memory_order_relaxed); }
+  [[nodiscard]] double getTimeCompression() const noexcept { return timeCompression_.load(std::memory_order_relaxed); }
+  void setSleepFactor(double factor);
+  void setTimeCompression(double compression);
+
   /// The path to the configuration file that was passed during construction.
   [[nodiscard]] std::filesystem::path getConfigFilePath() const noexcept { return config_.getConfigFilePath(); }
 
@@ -171,6 +177,8 @@ private:
 private:
   bool configured_ {false};
   KernelConfig config_;
+  std::atomic<double> sleepFactor_ {1.0};
+  std::atomic<double> timeCompression_ {1.0};
   KernelBlockMode blockMode_ = KernelBlockMode::doBlock;
   std::shared_ptr<kernel::OperatingSystem> os_;
   Kernel& subject_;
@@ -212,10 +220,11 @@ inline Duration KernelImpl::advanceTimeDrainInputsAndUpdate(const Duration& delt
 {
   // task the components
   auto beforeExecution = std::chrono::high_resolution_clock::now();
+  const auto timeCompression = getTimeCompression();
 
   for (auto* runner: virtualTimeRunners_)
   {
-    virtualTimeRunnersFutures_.emplace_back(runner->advanceVirtualTime(delta));
+    virtualTimeRunnersFutures_.emplace_back(runner->advanceVirtualTime(delta, timeCompression));
   }
 
   // wait for all
