@@ -347,4 +347,13 @@ TEST(StaticFileRoutes, registerSamePrefixAfterUnregisterServesNewBundle)
   EXPECT_EQ(resp.body, newBody);
 }
 
+/// @test
+/// `port` property publishes the port the WebSocketServer actually bound to.
+TEST(StaticFileRoutes, boundServerPort)
+{
+  StaticFileFixture f;
+  EXPECT_NE(f.port(), invalidStaticFileServerPort);
+  EXPECT_EQ(f.staticFileServer().getPort(), f.port());
+}
+
 }  // namespace sen::components::jsonrpc::test

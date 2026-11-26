@@ -274,4 +274,12 @@ TEST(StaticFileServer, nextRegisteredBundlesReflectsRegistration)
   EXPECT_TRUE(server->getNextRegisteredBundles().empty());
 }
 
+/// @test
+/// The `port` property is `invalidStaticFileServerPort` when constructed without a WebSocketServer
+TEST(StaticFileServer, portIsInvalidWithoutRouter)
+{
+  auto server = std::make_shared<StaticFileServer>(serverName, nullptr);
+  EXPECT_EQ(server->getPort(), invalidStaticFileServerPort);
+}
+
 }  // namespace sen::components::jsonrpc::test
