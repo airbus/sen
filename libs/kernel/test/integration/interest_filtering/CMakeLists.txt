@@ -48,6 +48,21 @@ add_sen_integration_test(
   REQ_DEPS interest_filtering py ether kernel FLAKY USE_TESTCONTAINERS
 )
 
+# The second overlapping interest reuses a proxy, but its resolution timer must still be
+# cancelled. Otherwise the timeout rejection disables subsequent updates to the first interest.
+add_sen_integration_test(
+  interest_filtering_reused_proxy_updates
+  DESCRIPTION
+  "Keeps remote property updates flowing after a second interest reuses a proxy."
+  COMMAND
+  ${Python_EXECUTABLE}
+  ${_script}
+  ${_working_dir}
+  ${CMAKE_CURRENT_SOURCE_DIR}/config/reused_proxy_updates_1.yaml
+  ${CMAKE_CURRENT_SOURCE_DIR}/config/reused_proxy_updates_2.yaml
+  REQ_DEPS interest_filtering py ether kernel FLAKY USE_TESTCONTAINERS
+)
+
 # Checks the consistency of dynamically created and removed subscriptions across multiple processes
 add_sen_integration_test(
   interest_filtering_dynamic_subscriptions

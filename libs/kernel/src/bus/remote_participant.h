@@ -75,6 +75,10 @@ public:
 
 public:
   [[nodiscard]] const Interest& getInterest() const noexcept { return *interest_; }
+  [[nodiscard]] bool contains(ObjectId id) const noexcept
+  {
+    return currentAdditions_.find(id) != currentAdditions_.end();
+  }
 
 public:  // implements ObjectProvider
   void notifyObjectsAdded(const ObjectAdditionList& additions) override;
@@ -221,6 +225,8 @@ public:
   void sendEventsUnicast(BestEffortBufferList&& events, ObjectOwnerId owner);
   void sendEventsMulticast(BestEffortBufferList&& events, ObjectOwnerId owner);
   void sendEventsConfirmed(MemBlockPtr events, ObjectOwnerId owner);
+  /// Completes resolution when a previously created proxy satisfies another interest.
+  void finishObjectResolution(ObjectId objectId);
 
 public:  // implements Participant
   [[nodiscard]] ObjectOwnerId getId() const noexcept override { return ownerAddress_.id; }
