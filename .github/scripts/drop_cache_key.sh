@@ -14,6 +14,8 @@
 # since they build the same dependencies, so they race: one may delete an entry
 # before the other reaches it, and either may save a new one meanwhile. What must
 # not happen is an entry this run set out to delete surviving.
+# The cache index is eventually consistent, so the confirmation now waits and retries before failing.
+
 set -euo pipefail
 
 key="${1:?usage: drop_cache_key.sh <key>}"
@@ -61,22 +63,48 @@ printf '%s\n' "$doomed" | while read -r id name; do
     fi
 done
 
-if ! after=$(list_entries 2>&1); then
-    echo "cannot re-list caches to confirm the deletes landed" >&2
-    exit 1
-fi
+# A successful delete may still leave the cache visible in GET requests for a short period.
+max_attempts=3
+attempt=1
 
-survivors=""
-while read -r id _; do
-    [ -z "$id" ] && continue
-    # Matched without a pipe: grep -q leaves on the first match and printf then dies
-    # on the closed pipe, which pipefail would make this condition's answer.
-    if grep -qE "^${id} " <<<"$after"; then
-        survivors="$survivors $id"
+while [ "$attempt" -le "$max_attempts" ]; do
+    if ! after=$(list_entries 2>&1); then
+        survivors="list_failed"
+        error_output="$after"
+    else
+        survivors=""
+        while read -r id _; do
+            [ -z "$id" ] && continue
+            # Matched without a pipe: grep -q leaves on the first match and printf then dies
+            # on the closed pipe, which pipefail would make this condition's answer.
+            if grep -qE "^${id} " <<<"$after"; then
+                survivors="$survivors $id"
+            fi
+        done <<< "$doomed"
+
+        if [ -z "$survivors" ]; then
+            break
+        fi
     fi
-done <<< "$doomed"
+
+    if [ "$attempt" -lt "$max_attempts" ]; then
+        if [ "$survivors" = "list_failed" ]; then
+            echo "cannot re-list caches (attempt $attempt), retrying in 3s..."
+        else
+            echo "cache index still shows deleted entries (attempt $attempt), retrying in 3s..."
+        fi
+        sleep 3
+    fi
+    attempt=$((attempt + 1))
+done
 
 if [ -n "$survivors" ]; then
+    if [ "$survivors" = "list_failed" ]; then
+        echo "cannot re-list caches to confirm the deletes landed:" >&2
+        echo "$error_output" | sed 's/^/  /' >&2
+        echo "the job needs 'actions: write'." >&2
+        exit 1
+    fi
     echo "entries this run set out to delete are still present:$survivors" >&2
     exit 1
 fi
