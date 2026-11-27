@@ -41,6 +41,9 @@ sequence<RegisteredBundleInfo> RegisteredBundleInfoList;
 // JsonRpcServer instances. The component publishes exactly one instance.
 class StaticFileServer
 {
+  // TCP port the server is bound to (0 when no server is attached).
+  var port : u16 [static];
+
   // Currently-registered bundles. Externally read-only; the component mutates this whenever a
   // bundle is registered or unregistered. Subscribe to receive notifications on every change.
   var registeredBundles : RegisteredBundleInfoList [confirmed];

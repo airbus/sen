@@ -173,7 +173,8 @@ void writeNotFound(uWS::HttpResponse<false>* res)
 //--------------------------------------------------------------------------------------------------------------
 
 StaticFileServer::StaticFileServer(std::string name, WebSocketServer* httpRouter)
-  : StaticFileServerBase(std::move(name)), httpRouter_(httpRouter)
+  : StaticFileServerBase(std::move(name), httpRouter != nullptr ? httpRouter->getPort() : invalidStaticFileServerPort)
+  , httpRouter_(httpRouter)
 {
 }
 

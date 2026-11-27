@@ -27,6 +27,8 @@
 namespace sen::components::jsonrpc
 {
 
+constexpr u16 invalidStaticFileServerPort = 0;
+
 /// Server-wide registry of static-file bundles. Owned by `StaticFileServer`; exposed separately
 /// so the upcoming uWS HTTP routes (Stage 4) can hold a `shared_ptr<const BundleRegistry>` and
 /// look bundles up from the uWS thread without going through the kernel object.
