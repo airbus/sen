@@ -14,10 +14,12 @@
 #include "sen/core/io/output_stream.h"
 #include "sen/core/meta/type.h"
 #include "sen/core/obj/connection_guard.h"
+#include "sen/core/obj/detail/proxy_object.h"
 
 // std
 #include <algorithm>
 #include <cctype>
+#include <mutex>
 #include <string>
 #include <string_view>
 
@@ -71,6 +73,15 @@ namespace impl
 
 void writeAllPropertiesToStream(const Object* instance, OutputStream& out)
 {
+  // A proxy's state is written under its own lock by the thread that receives the updates, so a
+  // reader on any other thread takes that lock too.
+  if (const ProxyObject* proxy = instance->asProxyObject(); proxy != nullptr)
+  {
+    const std::lock_guard lock(*proxy);
+    instance->senImplWriteAllPropertiesToStream(out);
+    return;
+  }
+
   instance->senImplWriteAllPropertiesToStream(out);
 }
 

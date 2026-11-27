@@ -52,7 +52,7 @@ public:  // implements Object
   [[nodiscard]] TimeStamp getLastCommitTime() const noexcept final;
   [[nodiscard]] ConnectionGuard onEventUntyped(const Event* ev, EventCallback<VarList>&& callback) final;
   [[nodiscard]] ConnectionGuard onPropertyChangedUntyped(const Property* prop, EventCallback<VarList>&& callback) final;
-  void invokeAllPropertyCallbacks() final;
+  void invokeAllPropertyCallbacks() override;
 
   // NOLINTNEXTLINE
   void invokeUntyped(const Method* method, const VarList& args, MethodCallback<Var>&& onDone = {}) final;

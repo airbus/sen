@@ -250,6 +250,65 @@ TEST(TestKernel, oneComponent)
 }
 
 /// @test
+/// Delivers a property-change callback that was subscribed before the object was added to a bus.
+/// @requirements(SEN-363)
+TEST(TestKernel, aCallbackSubscribedBeforeTheAddStillArrives)
+{
+  int32_t propCount = 0;
+
+  auto object = std::make_shared<MyClassImpl>("myObject", sen::VarMap {});
+
+  // Subscribed before any kernel exists, so the object still holds the shared default queue.
+  auto guard = object->onPropChanged({object.get(), [&]() { ++propCount; }});
+
+  sen::kernel::TestComponent component;
+
+  std::shared_ptr<sen::ObjectSource> source;
+  component.onInit(
+    [&](sen::kernel::InitApi&& api) -> sen::kernel::PassResult
+    {
+      source = api.getSource("local.test");
+      source->add(object);
+      return sen::kernel::done();
+    });
+
+  bool emitProp = false;
+  component.onRun(
+    [&](auto& api)
+    {
+      return api.execLoop(std::chrono::seconds(1),
+                          [&]()
+                          {
+                            if (emitProp)
+                            {
+                              object->setNextProp(object->getProp() + 1);
+                            }
+                          });
+    });
+
+  sen::kernel::TestKernel kernel(&component);
+
+  // iteration 0: registered, nothing written yet
+  kernel.step();
+  EXPECT_EQ(0, object->getProp());
+  EXPECT_EQ(0, propCount);
+
+  // iteration 1: the property changes, and the callback is one step behind
+  emitProp = true;
+  kernel.step();
+  EXPECT_EQ(1, object->getProp());
+  EXPECT_EQ(0, propCount);
+
+  // iteration 2: the callback arrives
+  emitProp = false;
+  kernel.step();
+  EXPECT_EQ(1, object->getProp());
+  EXPECT_EQ(1, propCount);
+
+  source.reset();
+}
+
+/// @test
 /// Refuses a second object whose name an object on the same bus already holds, the add returning false.
 /// @requirements(SEN-580)
 TEST(TestKernel, repeatedNames)
