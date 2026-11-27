@@ -216,20 +216,25 @@ seen to use, not a standard anybody publishes.
 | HLA Unit                              | Sen Unit     |
 | ------------------------------------- | ------------ |
 | "meter per second squared (m/(s^2))"  | `m_per_s_sq` |
-| "degree (deg)"                        | `deg`        |
+| "degree (deg)", "Degree"              | `deg`        |
 | "radian (rad)"                        | `rad`        |
 | "radian per second (rad/s)"           | `rad_per_s`  |
-| "meter (m)"                           | `m`          |
+| "meter (m)", "Meter", "meters"        | `m`          |
 | "hertz (Hz)", "interrogations/second" | `Hz`         |
 | "kilogram (kg)"                       | `kg`         |
 | "revolutions per minute (RPM)", "RPM" | `rpm`        |
 | "degree Celsius (C)"                  | `degC`       |
 | "microsecond"                         | `us`         |
 | "millisecond (ms)"                    | `ms`         |
-| "second (s)"                          | `s`          |
+| "second (s)", "Second"                | `s`          |
 | "meter per second (m/s)"              | `m_per_s`    |
 | "micron"                              | `um`         |
 | "decimeter per second (dm/s)"         | `dm_per_s`   |
+| "meters squared"                      | `m_sq`       |
+| "Degrees/second"                      | `deg_per_s`  |
+| "hour"                                | `hour`       |
+| "kg/m3"                               | `kg_per_m3`  |
+| "hPa"                                 | `hPa`        |
 
 ## Class mapping
 

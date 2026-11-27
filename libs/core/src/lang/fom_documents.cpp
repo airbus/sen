@@ -318,7 +318,16 @@ FomDocuments::FomDocuments(const std::vector<std::filesystem::path>& paths,
             {"meter per second (m/s)", "m_per_s"},
             {"micron", "um"},
             {"RPM", "rpm"},
-            {"decimeter per second (dm/s)", "dm_per_s"}})
+            {"decimeter per second (dm/s)", "dm_per_s"},
+            {"Degree", "deg"},
+            {"Degrees/second", "deg_per_s"},
+            {"Meter", "m"},
+            {"meters", "m"},
+            {"meters squared", "m_sq"},
+            {"Second", "s"},
+            {"hour", "hour"},
+            {"kg/m3", "kg_per_m3"},
+            {"hPa", "hPa"}})
 {
   for (const auto& mapping: mappings)
   {
