@@ -12,8 +12,8 @@ build:
         name: myAircraft
         bus: my.tutorial
         speed:
-          north: 250
-          east: 0
+          north: 0
+          east: 250
           down: 0
         entityType: &theType
           entityKind: 1

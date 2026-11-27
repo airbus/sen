@@ -5,7 +5,7 @@ extrapolate the entity's position from the speed it was given, the second to wri
 the RPR `Spatial` attribute. This is the whole of it:
 
 ```c++ title="examples/packages/aircrafts/src/dummy_aircraft_impl.cpp"
---8<-- "examples/packages/aircrafts/src/dummy_aircraft_impl.cpp:dead_reckoning"
+--8<-- "examples/packages/aircrafts/src/dummy_aircraft_impl.cpp"
 ```
 
 `SettableDeadReckoner<T>` is constructed with `*this`, so it writes into the object's own spatial
@@ -13,10 +13,11 @@ properties, and with a `DrThreshold` saying how far the extrapolation may drift 
 the `Spatial` is written. The example passes zeros there, so it writes on every cycle.
 
 `DeadReckonerBase` is not bound to an object: you give it a situation and ask for one back. That is
-why the example seeds it on the first cycle with a world location and the commanded velocity, and
-feeds it again whenever `speed` changes. Extrapolating an entity you own is not what these classes
-are for, since they exist to fill the gaps between updates from somewhere else, but it makes for a
-compact example.
+why the example seeds it on the first cycle with a world location and the commanded velocity. The
+aircraft advances a separate geodetic position using its commanded local NED velocity and corrects
+the dead reckoner every 10 simulated seconds, or when `speed` changes. Between corrections the
+dead reckoner extrapolates in ECEF. The default aircraft flies east at 250 m/s, following a line of
+latitude around the Earth. The corrections keep the extrapolation close to that path.
 
 A second, larger example lives in the **Sen Sim Tools** repository, which is a separate project and
 not part of this distribution. It adds a Dead Reckoning Viewer package that finds FOM objects on a
