@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<objectModel xsi:schemaLocation="http://standards.ieee.org/IEEE1516-2010 http://standards.ieee.org/downloads/1516/1516.2-2010/IEEE1516-DIF-2010.xsd" xmlns="http://standards.ieee.org/IEEE1516-2010" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelIdentification>
+        <name>SISO-STD-001.1-2015 - Real-time Platform Reference Switches FOM Module</name>
+        <type>FOM</type>
+        <version>2.0</version>
+        <modificationDate>2015-08-10</modificationDate>
+        <securityClassification>Unclassified</securityClassification>
+        <purpose>The RPR FOM supports interoperability for real-time, platform oriented defense simulation.</purpose>
+        <applicationDomain>All domains</applicationDomain>
+        <description>This module contains the switches, required by the HLA standard to be part of a complete FOM.</description>
+        <useLimitation></useLimitation>
+        <poc>
+            <pocType>Primary author</pocType>
+            <pocName>RPR FOM Product Development Group</pocName>
+            <pocOrg>SISO - Simulation Interoperability Standards Organization</pocOrg>
+            <pocTelephone>+1 (407) 882-1348</pocTelephone>
+            <pocEmail>siso-help@sisostds.org</pocEmail>
+        </poc>
+        <reference>
+            <type>Dependency</type>
+            <identification>MIM</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>Standard for Guidance, Rationale, and Interoperability Modalities for the Real-time Platform Reference Federation Object Model (RPR FOM)
+SISO-STD-001-2015
+10 August 2015</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>IEEE Standard for Distributed Interactive Simulation - Application Protocols
+IEEE Std 1278.1-1995
+September 21, 1995</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>IEEE Standard for Distributed Interactive Simulation - Application Protocols
+IEEE Std 1278.1a-1998
+19 March 1998</identification>
+        </reference>
+        <other>Copyright © 2015 by the Simulation Interoperability Standards Organization, Inc.
+P.O. Box 781238
+Orlando, FL 32878-1238, USA
+All rights reserved.
+
+Schema and API: SISO hereby grants a general, royalty-free license to copy, distribute, display, and make derivative works from this material, for all purposes, provided that any use of the material contains the following attribution: “Reprinted with permission from SISO Inc.” Should a reader require additional information, contact the SISO Inc. Board of Directors.
+
+Documentation: SISO hereby grants a general, royalty-free license to copy, distribute, display, and make derivative works from this material, for noncommercial purposes, provided that any use of the material contains the following attribution: “Reprinted with permission from SISO Inc.” The material may not be used for a commercial purpose without express written permission from the SISO Inc. Board of Directors.
+
+SISO Inc. Board of Directors
+P.O. Box 781238
+Orlando, FL 32878-1238, USA
+</other>
+        <glyph type="png" height="64" width="64" alt="">iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAABVZJREFUeNrsWksvc10ULq26fwMkCIqIKirqm2DgkqAY6ECEgUSExsxfEE0kEmrATEQ6MNEBFZGoWxgSjdSlLpEgEdcg4k5d3ufrSZqmn7NPTy/7fZvXSpxs3bu7+zlnr7WeZ+0TIJFIBAJBQECAwN/s6+sLV9H7+/vJyYnAPy0hISEwKChI4LeGxQcK/Nx+APwA8NBErgza2toyGAyrq6v39/c0bmpgYHJyslKprKmpCQ8P5xiNoV9E0+v1CoWC/q0NCwtTq9XHx8eEtWHxAfg7Ojpim6Wzs1Oj0VBYrlwuLykpiYmJQfvq6mpxcXF7exttmUw2OTmZnp7+7bdSUlJIT2B0dJROLO/t7X1+fnb86cfHx56eHiZH5efn41+2J8AKwGw2S6VSCgD6+vrY7qBWq2XGDA4O8gbQ0dFBYfXwLnAZNgBWqzU3NxfDysvL2QCwhtG1tTUKAEpLS4VCIWuIFInKysrQYPyBXx7AtqMAICIigjwgMjIS16enJ94AkpKSKADY29sjD7BYLLjGx8fzBlBRUSEWi30NwGg07uzssPWia2ZmBo2ioiLeiez29raxsZHCQygsLDw9Pf3/AqBS0MXEWZAA3lEIhiyYlpZGAUNmZubw8PDBwcGtzdAYGhpCCmN6u7q6CJmYg0rgISKP0OEO2LERNrNv3eDg4O7ubo+oBBMBdDrd+Pj45ubmy8vLt9rUQ0n9+fmJST4+Pph/EVjhtYiw4EIFBQWEL4JKcAOwrxJUFAAYKe34OX4eAdvpc172+vrq+C8YKJhcaGgo5xcBQOTib+Ae/2OzH0HzOwQNeWth72ILeTKJk2uFhIR4GYDJZJqYmAAhubu7c/JXUDEwYWwtt30ALnR+fo55GFfG/CABqampkAe1tbWcXIMjjIIRtbe306kdQUmG2MxR5UDZkMMoCQACKFQphaUjZyFz7e/vM4kMDQgARo0gHEGRuQPg7e0NepIOlQBrIFCJuLg4NmVMAjA7OxsdHe3r1cN5dnd32W4wqChDp6GueAsaPLjr62tfA6isrMzIyGDrzcrKqq6uRmN6epp3HuBk6l4xwurtPA/Xw8PDPzSRPTw8kAcgcLuZiTnvjVcMURIZgK0XXQsLC2ggLfAGoFKpKDjx+vp6f38/W+/AwMDGxgYajCfwS2TUwiiypFardSpsIQXZC1vkMEqi05i0vr5+amqKAoycnBwIgKioKLRvbm6WlpYgP9AGqdbr9Wz5lKO0yGgAUAkoo9/i4gqFYm5uzlNFxhS5oMh8SuZwtQuPxMREiURSXFxcV1cHKuEFQfOvzfyYTpOVmoer57viv1iRwQHYNvq7zTxfDZ4n5hGLxdD1roh6lwDAR3U63djYmNlstpcPAm3m6AmeVCWcnAozx8bGQpG1traSyyrcisypsIW74vq98dxcKWy5WlpsaWlBcrm4uIBiwhXt5uZmOjDcLC3ai7tCoZDthAefE44nvMg1TCYTbwAjIyNMjbKtrY3wENVqNYWHwLYGEoCmpiaB7ZBnZWWFAAC9nucBV8rXvCUlHIApCpAr7FKplPsw3WM7OzvjnciYZSEqk0UT2J7VavU1AELcYwWQl5cnsNXWEXAIU8/PzxNO4Lxl2dnZvPOA/aBbJpNdXl5+OwafM6Lb1+bOQbfjqwZIh8Dj1AuOTefwhvyqASmANDQ0IBNrNJrl5WVgqKqqksvlCPzgzxaLxWg0gmVQqDoioJNUgSuv2zDn/ZTNxddtuEM4ZDE2usFgQDqk9sITFJlSqVSpVJwx2qUclGOzP1MP/Lz09wPgrwdAgcn4zrB4cGHRf/Ut/3z9Hov/JcAAoOtCtVEJU98AAAAASUVORK5CYII=</glyph>
+    </modelIdentification>
+    <switches>
+        <autoProvide isEnabled="false"/>
+        <conveyRegionDesignatorSets isEnabled="false"/>
+        <conveyProducingFederate isEnabled="false"/>
+        <attributeScopeAdvisory isEnabled="false"/>
+        <attributeRelevanceAdvisory isEnabled="false"/>
+        <objectClassRelevanceAdvisory isEnabled="false"/>
+        <interactionRelevanceAdvisory isEnabled="false"/>
+        <serviceReporting isEnabled="false"/>
+        <exceptionReporting isEnabled="false"/>
+        <delaySubscriptionEvaluation isEnabled="false"/>
+        <automaticResignAction resignAction="CancelThenDeleteThenDivest"/>
+    </switches>
+</objectModel>

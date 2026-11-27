@@ -1,0 +1,901 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<objectModel xsi:schemaLocation="http://standards.ieee.org/IEEE1516-2010 http://standards.ieee.org/downloads/1516/1516.2-2010/IEEE1516-DIF-2010.xsd" xmlns="http://standards.ieee.org/IEEE1516-2010" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelIdentification>
+        <name>SISO-STD-001.1-2015 - Real-time Platform Reference Communication FOM Module</name>
+        <type>FOM</type>
+        <version>2.0</version>
+        <modificationDate>2023-06-15</modificationDate>
+        <securityClassification>Unclassified</securityClassification>
+        <purpose>The RPR FOM supports interoperability for real-time, platform oriented defense simulation.</purpose>
+        <applicationDomain>All domains</applicationDomain>
+        <description>The Communication module is used to simulate radio transmitters and receivers as well as the radio signals that are transmitted between them.</description>
+        <useLimitation></useLimitation>
+        <useHistory>Updated for integration of the SISO-STD-002 Link 16 FOM module.</useHistory>
+        <useHistory>Updated for integration of the SISO-STD-005 Link 11/11B FOM module.</useHistory>
+        <poc>
+            <pocType>Primary author</pocType>
+            <pocName>RPR FOM Product Development Group</pocName>
+            <pocOrg>SISO - Simulation Interoperability Standards Organization</pocOrg>
+            <pocTelephone>+1 (407) 882-1348</pocTelephone>
+            <pocEmail>siso-help@sisostds.org</pocEmail>
+        </poc>
+        <reference>
+            <type>Dependency</type>
+            <identification>Real-time Platform Reference Base FOM Module</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>Standard for Guidance, Rationale, and Interoperability Modalities for the Real-time Platform Reference Federation Object Model (RPR FOM)
+SISO-STD-001-2015
+10 August 2015</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>IEEE Standard for Distributed Interactive Simulation - Application Protocols
+IEEE Std 1278.1-1995
+September 21, 1995</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>IEEE Standard for Distributed Interactive Simulation - Application Protocols
+IEEE Std 1278.1a-1998
+19 March 1998</identification>
+        </reference>
+        <other>Copyright © 2015 by the Simulation Interoperability Standards Organization, Inc.
+P.O. Box 781238
+Orlando, FL 32878-1238, USA
+All rights reserved.
+
+Schema and API: SISO hereby grants a general, royalty-free license to copy, distribute, display, and make derivative works from this material, for all purposes, provided that any use of the material contains the following attribution: “Reprinted with permission from SISO Inc.” Should a reader require additional information, contact the SISO Inc. Board of Directors.
+
+Documentation: SISO hereby grants a general, royalty-free license to copy, distribute, display, and make derivative works from this material, for noncommercial purposes, provided that any use of the material contains the following attribution: “Reprinted with permission from SISO Inc.” The material may not be used for a commercial purpose without express written permission from the SISO Inc. Board of Directors.
+
+SISO Inc. Board of Directors
+P.O. Box 781238
+Orlando, FL 32878-1238, USA
+</other>
+        <glyph type="png" height="64" width="64" alt="">iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA0JJREFUeNrsWs9LakEUvoqaXC0ftBCKVGzVQndtpIXboL/CvyBoU7SoVakQtDDctWmpUAtDcCUu3LhzoatACaUWgf02kux799AwEO/Ru/c23vuabzEcZ86c5rtz5syZmRyhUEhRFIfDodgN4/EYpWs0GvV6PcWemJ+fd7rdbsW2wOCdis0hCUgCkoAQpNNpbDW/PuD3+8Ph8O3trXHLLjEEhsMhSn7ELpdLutB/QUCQC62urqqq6vV66efb25vH42E/J0mg0+lUKpV+v//3rEvVQOkXSiyAYDB4dXWFpWyUAUyM9SKbzU5PT+v+0+gLC2MD+M1fHwHksPv7+6Z4F+zAmmgCxWIR4dwUArBTKBR0E9AZhU5PTweDgSkEYOfs7Ez0IubPQAsLC8fHx8vLy1/v3mg0UqnU5eXlZ2uCFnEymWQWcrmcDgtHR0fMAqyJdiEe8XhcR69YLCZ3YpMI0PYkppecAUnAigScTqewXt9C4P7+Xkevh4cHqxA4OTkR1utbDjTIZPb29hKJxNe71Ot1ZFNWIfD8/Ly9vS2jkCTwowl0u92BBggzMzOo2dzcHHwAMmpQz6tZ61pldnbW5/PRfRu9VqmqGggEqBWyor1i8WrWmgEaFglEYGpqirWSjHpezVozsLW1RbdUQw0QyuUywiu1VqtVauLVTFsExo+UxjHhI+VkYY4LIc4w3zg8PESZ1MBcCIDC+vo6U0un0xZyIb6JLrwymQyrgUwXWLyatVzo8fGRCTS4l5cX1koy6nk1a7nQzc3NaDRStDcYIvD09MTeYyATAV7NWgT4qyE632Al5PN5fgZQr+8GSQSBz1+UbQj8OjHxw5tMgGUNwN3dHcaKaMM2Y8wAyGAnpjTpT5wnmUo0m82uBgj05IGI2f0AZEV7zuDVZDL3w5M5+qgM5+fnNCYE+NfXVwjtdptyOJJRop5X47vzbAXtxLu7uyZGkp2dHdFvZBcXFysrK6aMHnZgTTQBoNVqLS4uGhx9NBqFHSPPrPqjwdLSUq1WOzg4KJVK19fX/9o9GAyura1tbGzMzc0Z+QQOkOh0OjY9DEQiEXmtIglIApLAhAlQ6mJTYPBIbF3YCmz67/cY/LsAAwDZ5apgYzKxCgAAAABJRU5ErkJggg==</glyph>
+    </modelIdentification>
+    <objects>
+        <objectClass>
+            <name>HLAobjectRoot</name>
+            <objectClass>
+                <name>EmbeddedSystem</name>
+                <objectClass>
+                    <name>RadioTransmitter</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <semantics>A device that sends out information encoded in electromagnetic waves in the radio frequency range.</semantics>
+                    <attribute>
+                        <name>AntennaPatternData</name>
+                        <dataType>AntennaPatternVariantStructLengthlessArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The radiation pattern of the radio's antenna.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>CryptographicMode</name>
+                        <dataType>CryptographicModeEnum32</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The mode of the cryptographic system.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>CryptoSystem</name>
+                        <dataType>CryptographicSystemTypeEnum16</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The type of cryptographic equipment in use.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>EncryptionKeyIdentifier</name>
+                        <dataType>UnsignedInteger16</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The identification of the key used to encrypt the radio signals being transmitted. The transmitter and receiver should be considered to be using the same key if these numbers match.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>Frequency</name>
+                        <dataType>FrequencyHertzUnsignedInteger64</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The center frequency of the radio transmissions.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>FrequencyBandwidth</name>
+                        <dataType>FrequencyHertzFloat32</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The bandpass of the radio transmissions.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>RadioIndex</name>
+                        <dataType>UnsignedInteger16</dataType>
+                        <updateType>Static</updateType>
+                        <updateCondition>NA</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>A number that uniquely identifies this radio from others on the host.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>RadioInputSource</name>
+                        <dataType>RadioInputSourceEnum8</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Specifies which position or data port provided the input for the transmission.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>RadioSystemType</name>
+                        <dataType>RadioTypeStruct</dataType>
+                        <updateType>Static</updateType>
+                        <updateCondition>NA</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The type of radio transmitter.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>RFModulationSystemType</name>
+                        <dataType>RFModulationSystemTypeEnum16</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The radio system type associated with this transmitter.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>RFModulationType</name>
+                        <dataType>RFModulationTypeVariantStruct</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Classification of the modulation type.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>SpreadSpectrum</name>
+                        <dataType>SpreadSpectrumVariantStruct</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Describes the spread spectrum characteristics of the transmission, such as frequency hopping or other spread spectrum transmission modes.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>StreamTag</name>
+                        <dataType>UnsignedInteger64</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>A globally unique identifier for the associated audio stream</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>TimeHopInUse</name>
+                        <dataType>RPRboolean</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Whether the radio is using time hopping or not.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>TransmittedPower</name>
+                        <dataType>PowerRatioDecibelMilliwattFloat32</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The average transmitted power.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>TransmitterOperationalStatus</name>
+                        <dataType>TransmitterOperationalStatusEnum8</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The current operational state of the radio transmitter.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>WorldLocation</name>
+                        <dataType>WorldLocationStruct</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition notes="RPRnoteCommunication4">&gt; TRANS_POS_THRSH_DFLT</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The location of the antenna in the world coordinate system.</semantics>
+                    </attribute>
+                </objectClass>
+                <objectClass>
+                    <name>RadioReceiver</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <semantics>A device that converts incoming electromagnetic waves in the radio frequency range into information.</semantics>
+                    <attribute>
+                        <name>RadioIndex</name>
+                        <dataType>UnsignedInteger16</dataType>
+                        <updateType>Static</updateType>
+                        <updateCondition>NA</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>A number that uniquely identifies this radio receiver from other receivers on the host object.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>ReceivedPower</name>
+                        <dataType>PowerRatioDecibelMilliwattFloat32</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The radio frequency power received, after applying any propagation loss and antenna gain.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnoteCommunication2">
+                        <name>ReceivedTransmitterIdentifier</name>
+                        <dataType>RTIobjectId</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The object instance ID of the transmitter that generated the received radio signal.</semantics>
+                    </attribute>
+                    <attribute>
+                        <name>ReceiverOperationalStatus</name>
+                        <dataType>ReceiverOperationalStatusEnum16</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The operational state of the radio receiver.</semantics>
+                    </attribute>
+                </objectClass>
+            </objectClass>
+        </objectClass>
+    </objects>
+    <interactions>
+        <interactionClass>
+            <name>HLAinteractionRoot</name>
+            <interactionClass>
+                <name>RadioSignal</name>
+                <sharing>Neither</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>The wireless transmission and reception of audio or digital data by means of electromagnetic waves.</semantics>
+                <interactionClass>
+                    <name>EncodedAudioRadioSignal</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>A radio signal used to transmit voice/audio data encoded according to a standard encoding scheme.</semantics>
+                    <parameter>
+                        <name>AudioData</name>
+                        <dataType>AudioDataTypeStruct</dataType>
+                        <semantics>The data associated with the encoded audio radio signal</semantics>
+                    </parameter>
+                </interactionClass>
+                <interactionClass>
+                    <name>RawBinaryRadioSignal</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>A radio signal used to transmit raw binary data.</semantics>
+                    <parameter notes="RPRnoteCommunication2">
+                        <name>HostRadioIndex</name>
+                        <dataType>RTIobjectId</dataType>
+                        <semantics>The object instance ID of the radio transmitting this signal.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>DataRate</name>
+                        <dataType>BitRateBitPerSecondUnsignedInteger32</dataType>
+                        <semantics>The rate at which the data is being transmitted.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>SignalDataLength</name>
+                        <dataType>BitsUnsignedInteger16</dataType>
+                        <semantics>The length of the signal data.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>SignalData</name>
+                        <dataType>SignalDataLengthlessArray1Plus</dataType>
+                        <semantics>The signal data.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>TacticalDataLinkType</name>
+                        <dataType>TacticalDataLinkTypeEnum16</dataType>
+                        <semantics>The type of tactical data link used to transmitted this signal (if any).</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>TDLMessageCount</name>
+                        <dataType>UnsignedInteger16</dataType>
+                        <semantics>The number of tactical data link messages contained in this signal.</semantics>
+                    </parameter>
+                </interactionClass>
+                <interactionClass>
+                    <name>DatabaseIndexRadioSignal</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>A radio signal that represents transmission of a pre-determined message by using a pre-defined database index.</semantics>
+                    <parameter notes="RPRnoteCommunication2">
+                        <name>HostRadioIndex</name>
+                        <dataType>RTIobjectId</dataType>
+                        <semantics>The object instance ID of the radio transmitting this signal.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>DatabaseIndex</name>
+                        <dataType>UnsignedInteger32</dataType>
+                        <semantics>The index into the federation specific database of stored signals.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>Duration</name>
+                        <dataType>TimeMillisecondUnsignedInteger32</dataType>
+                        <semantics>The duration of the stored signal to be replayed.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>StartOffset</name>
+                        <dataType>TimeMillisecondUnsignedInteger32</dataType>
+                        <semantics>The offset, from the start of the stored signal, that the signal is replayed from.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>TacticalDataLinkType</name>
+                        <dataType>TacticalDataLinkTypeEnum16</dataType>
+                        <semantics>The type of tactical data link used to transmitted this signal (if any).</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>TDLMessageCount</name>
+                        <dataType>UnsignedInteger16</dataType>
+                        <semantics>The number of tactical data link messages contained in this signal.</semantics>
+                    </parameter>
+                </interactionClass>
+                <interactionClass>
+                    <name>ApplicationSpecificRadioSignal</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>A radio signal that can be used for an application specific encoding scheme.</semantics>
+                    <parameter notes="RPRnoteCommunication2">
+                        <name>HostRadioIndex</name>
+                        <dataType>RTIobjectId</dataType>
+                        <semantics>The object instance ID of the radio transmitting this signal.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>DataRate</name>
+                        <dataType>BitRateBitPerSecondUnsignedInteger32</dataType>
+                        <semantics>The rate at which the data is being transmitted.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>SignalDataLength</name>
+                        <dataType>BitsUnsignedInteger16</dataType>
+                        <semantics>The length of the signal data.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>SignalData</name>
+                        <dataType>SignalDataLengthlessArray1Plus</dataType>
+                        <semantics>The signal data.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>TacticalDataLinkType</name>
+                        <dataType>TacticalDataLinkTypeEnum16</dataType>
+                        <semantics>The type of tactical data link used to transmitted this signal (if any).</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>TDLMessageCount</name>
+                        <dataType>UnsignedInteger16</dataType>
+                        <semantics>The number of tactical data link messages contained in this signal.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>UserProtocolID</name>
+                        <dataType>UserProtocolEnum32</dataType>
+                        <semantics>The ID of the user protocol in use.</semantics>
+                    </parameter>
+                </interactionClass>
+            </interactionClass>
+        </interactionClass>
+    </interactions>
+    <dataTypes>
+        <simpleDataTypes>
+            <simpleData>
+                <name>BitRateBitPerSecondUnsignedInteger32</name>
+                <representation>RPRunsignedInteger32BE</representation>
+                <units>bit/second</units>
+                <resolution>1</resolution>
+                <accuracy>perfect</accuracy>
+                <semantics>Rate of transmission, in bits per second.</semantics>
+            </simpleData>
+            <simpleData>
+                <name>BitsUnsignedInteger16</name>
+                <representation>RPRunsignedInteger16BE</representation>
+                <units>bit</units>
+                <resolution>1</resolution>
+                <accuracy>perfect</accuracy>
+                <semantics>Transmission size, in number of bits.</semantics>
+            </simpleData>
+            <simpleData>
+                <name>FrequencyHertzUnsignedInteger64</name>
+                <representation>RPRunsignedInteger64BE</representation>
+                <units>hertz (Hz)</units>
+                <resolution>NA</resolution>
+                <accuracy>NA</accuracy>
+                <semantics>Frequency of a radio transmission, in hertz.</semantics>
+            </simpleData>
+            <simpleData>
+                <name>ParticipatingUnitSourceNumber</name>
+                <representation>RPRunsignedInteger8BE</representation>
+                <units>NA</units>
+                <resolution>NA</resolution>
+                <accuracy>NA</accuracy>
+                <semantics>PU number. Valid range [1,76] octal ([1,62] decimal).</semantics>
+            </simpleData>
+            <simpleData>
+                <name>TimeSecondUnsignedInteger16</name>
+                <representation>RPRunsignedInteger16BE</representation>
+                <units>second (s)</units>
+                <resolution>1</resolution>
+                <accuracy>perfect</accuracy>
+                <semantics>Time, based on SI base unit second, unit symbol s.</semantics>
+            </simpleData>
+        </simpleDataTypes>
+        <enumeratedDataTypes>
+            <enumeratedData>
+                <name>CryptographicModeEnum32</name>
+                <representation>RPRunsignedInteger32BE</representation>
+                <semantics>Represents the encryption mode of a cryptographic system.</semantics>
+                <enumerator>
+                    <name>BasebandEncryption</name>
+                    <value>0</value>
+                </enumerator>
+                <enumerator>
+                    <name>DiphaseEncryption</name>
+                    <value>1</value>
+                </enumerator>
+            </enumeratedData>
+        </enumeratedDataTypes>
+        <arrayDataTypes>
+            <arrayData>
+                <name>AntennaPatternVariantStructLengthlessArray</name>
+                <dataType>AntennaPatternVariantStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>Represents an antenna's radiation pattern, its orientation in space, and the polarization of the radiation.</semantics>
+            </arrayData>
+            <arrayData>
+                <name>CoefficientsLengthlessArray1Plus</name>
+                <dataType>Float32</dataType>
+                <cardinality>[1..2147483647]</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>Represents the power distribution from the antenna as the coefficients of a spherical harmonic expansion. The highest order of the expansion can be determined by the number of coefficients in the array.</semantics>
+            </arrayData>
+            <arrayData>
+                <name>SignalDataLengthlessArray1Plus</name>
+                <dataType>Octet</dataType>
+                <cardinality>[1..2147483647]</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>The audio or digital data conveyed in a radio transmission.</semantics>
+            </arrayData>
+        </arrayDataTypes>
+        <fixedRecordDataTypes>
+            <fixedRecordData>
+                <name>AudioDataTypeStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Specifies an encoded audio radio signal.</semantics>
+                <field>
+                    <name>StreamTag</name>
+                    <dataType>UnsignedInteger64</dataType>
+                    <semantics>Identifier for the audio stream. This must be globally unique.</semantics>
+                </field>
+                <field>
+                    <name>EncodingType</name>
+                    <dataType>EncodingTypeEnum32</dataType>
+                    <semantics>The type of encoding used for the audio data</semantics>
+                </field>
+                <field>
+                    <name>SampleRate</name>
+                    <dataType>BitRateBitPerSecondUnsignedInteger32</dataType>
+                    <semantics>The number of samples per second in the audio data.</semantics>
+                </field>
+                <field>
+                    <name>DataLength</name>
+                    <dataType>BitsUnsignedInteger16</dataType>
+                    <semantics>The length of the signal data.</semantics>
+                </field>
+                <field>
+                    <name>SampleCount</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>The number of samples in this transmission.</semantics>
+                </field>
+                <field>
+                    <name>Data</name>
+                    <dataType>SignalDataLengthlessArray1Plus</dataType>
+                    <semantics>The signal data.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>BeamAntennaStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Specifies the direction, pattern, and polarization of radiation from a radio transmitter's antenna.</semantics>
+                <field>
+                    <name>BeamOrientation</name>
+                    <dataType>OrientationStruct</dataType>
+                    <semantics>The rotation that transforms the reference coordinate system into the beam coordinate system.</semantics>
+                </field>
+                <field>
+                    <name>BeamAzimuthBeamwidth</name>
+                    <dataType>AngleRadianFloat32</dataType>
+                    <semantics>The full width of the beam to the -3 dB power density points in the x-y plane of the beam coordinate system.</semantics>
+                </field>
+                <field>
+                    <name>BeamElevationBeamwidth</name>
+                    <dataType>AngleRadianFloat32</dataType>
+                    <semantics>The full width of the beam to the -3 dB power density points in the x-z plane of the beam coordinate system.</semantics>
+                </field>
+                <field>
+                    <name>ReferenceSystem</name>
+                    <dataType>ReferenceSystemEnum8</dataType>
+                    <semantics>The reference coordinate system with respect to which beam direction is specified</semantics>
+                </field>
+                <field>
+                    <name>Ez</name>
+                    <dataType>Float32</dataType>
+                    <semantics>The magnitude of the Z-component (in beam coordinates) of the Electrical field at some arbitrary single point in the mainbeam and in the far field of the antenna.</semantics>
+                </field>
+                <field>
+                    <name>Ex</name>
+                    <dataType>Float32</dataType>
+                    <semantics>The magnitude of the X-component (in beam coordinates) of the Electrical field at some arbitrary single point in the mainbeam and in the far field of the antenna</semantics>
+                </field>
+                <field>
+                    <name>BeamPhaseAngle</name>
+                    <dataType>Float32</dataType>
+                    <semantics>The phase angle between Ez and Ex in radians.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>Link11BTransmitterStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Contains specific information about the Link 11B transmitter system.</semantics>
+                <field>
+                    <name>ReportingUnit</name>
+                    <dataType>ParticipatingUnitSourceNumber</dataType>
+                    <semantics>Reporting Unit (RU) number.</semantics>
+                </field>
+                <field>
+                    <name>FidelityLevel</name>
+                    <dataType>Link1111BFidelityLevelEnum8</dataType>
+                    <semantics>Fidelity level of the Link 11B simulation.</semantics>
+                </field>
+                <field>
+                    <name>LinkState</name>
+                    <dataType>Link11BLinkStateEnum8</dataType>
+                    <semantics>The state the Link 11B terminal is currently in.</semantics>
+                </field>
+                <field>
+                    <name>ModeOfOperation</name>
+                    <dataType>Link11BModeOfOperationEnum16</dataType>
+                    <semantics>Link 11B terminal operation mode.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>Link11TransmitterStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Contains specific information about the Link 11 transmitter system.</semantics>
+                <field>
+                    <name>ParticipatingUnit</name>
+                    <dataType>ParticipatingUnitSourceNumber</dataType>
+                    <semantics>Participating Unit (PU) number.</semantics>
+                </field>
+                <field>
+                    <name>FidelityLevel</name>
+                    <dataType>Link1111BFidelityLevelEnum8</dataType>
+                    <semantics>Fidelity Level of the Link 11 simulation.</semantics>
+                </field>
+                <field>
+                    <name>TerminalMode</name>
+                    <dataType>Link11TerminalModeEnum8</dataType>
+                    <semantics>Mode of the Link 11 terminal.</semantics>
+                </field>
+                <field>
+                    <name>ModeOfOperation</name>
+                    <dataType>Link11ModeOfOperationEnum16</dataType>
+                    <semantics>Link 11 terminal operation mode.</semantics>
+                </field>
+                <field>
+                    <name>NetCycleTime</name>
+                    <dataType>TimeSecondUnsignedInteger16</dataType>
+                    <semantics>The time in seconds required for the NCS to complete a polling sequence of all PUs. Not applicable to non-NCS PUs.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData notes="RPRnoteCommunication3">
+                <name>RadioTypeStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Specifies the type of a radio.</semantics>
+                <field>
+                    <name>EntityKind</name>
+                    <dataType>Octet</dataType>
+                    <semantics>The kind of the entity described in this struct.</semantics>
+                </field>
+                <field>
+                    <name>Domain</name>
+                    <dataType>Octet</dataType>
+                    <semantics>The domain in which the radio entity operates.</semantics>
+                </field>
+                <field>
+                    <name>CountryCode</name>
+                    <dataType>UnsignedInteger16</dataType>
+                    <semantics>The country to which the design of the radio entity is attributed.</semantics>
+                </field>
+                <field>
+                    <name>Category</name>
+                    <dataType>Octet</dataType>
+                    <semantics>The main category that describes the radio entity.</semantics>
+                </field>
+                <field>
+                    <name>NomenclatureVersion</name>
+                    <dataType>NomenclatureVersionEnum8</dataType>
+                    <semantics>The specific modification or individual unit type for a series and/or family of equipment.</semantics>
+                </field>
+                <field>
+                    <name>Nomenclature</name>
+                    <dataType>NomenclatureEnum16</dataType>
+                    <semantics>The nomenclature for a particular communications device.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>SINCGARSModulationStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Modulation parameters for SINCGARS radio system</semantics>
+                <field>
+                    <name>FHNetID</name>
+                    <dataType>Integer16</dataType>
+                    <semantics>Frequency hopping network identifier.</semantics>
+                </field>
+                <field>
+                    <name>HopSetID</name>
+                    <dataType>Integer16</dataType>
+                    <semantics>Identification for the set of frequencies used when creating a hopping pattern.</semantics>
+                </field>
+                <field>
+                    <name>LockoutSetID</name>
+                    <dataType>Integer16</dataType>
+                    <semantics>Identification for the set of frequencies that are excluded from the hopping pattern.</semantics>
+                </field>
+                <field>
+                    <name>TransmissionSecurityKey</name>
+                    <dataType>Integer16</dataType>
+                    <semantics>Identifies the transmission security key that is used when generating the hopping pattern.</semantics>
+                </field>
+                <field>
+                    <name>FHSynchronizationTimeOffset</name>
+                    <dataType>TimeSecondInteger32</dataType>
+                    <semantics>The offset to exercise time in seconds for the clock in the radio.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>SphericalHarmonicAntennaStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Specifies the direction and radiation pattern from a radio transmitter's antenna.</semantics>
+                <field>
+                    <name>Order</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>The highest order of the expansion in spherical harmonics, counting from zero.</semantics>
+                </field>
+                <field notes="RPRnoteCommunication5">
+                    <name>Coefficients</name>
+                    <dataType>CoefficientsLengthlessArray1Plus</dataType>
+                    <semantics>Represents the power distribution from the antenna as the coefficients of a spherical harmonic expansion to the order given in the Order field. The length of the array is N^2+2N+1 (N being the Order).</semantics>
+                </field>
+                <field>
+                    <name>ReferenceSystem</name>
+                    <dataType>ReferenceSystemEnum8</dataType>
+                    <semantics>This field shall specify the reference coordinate system with respect to which beam direction is specified.</semantics>
+                </field>
+                <field notes="RPRnoteCommunication1">
+                    <name>Padding</name>
+                    <dataType>OctetArray3</dataType>
+                    <semantics>Padding to 32 bits</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>JTIDSTransmitterStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Contains JTIDS specific information about the JTIDS transmitter system.</semantics>
+                <field>
+                    <name>TimeSlotAllocationLevel</name>
+                    <dataType>TimeSlotAllocationLevelEnum8</dataType>
+                    <semantics>TSA level of fidelity.</semantics>
+                </field>
+                <field>
+                    <name>TransmittingTerminalPrimaryMode</name>
+                    <dataType>JTIDSPrimaryModeEnum8</dataType>
+                    <semantics>The primary mode of a JTIDS system.</semantics>
+                </field>
+                <field>
+                    <name>TransmittingTerminalSecondaryMode</name>
+                    <dataType>JTIDSSecondaryModeEnum8</dataType>
+                    <semantics>The JTIDS secondary mode of operation.</semantics>
+                </field>
+                <field>
+                    <name>SynchronizationState</name>
+                    <dataType>JTIDSSynchronizationStateEnum8</dataType>
+                    <semantics>The state of synchronization that the JTIDS system has achieved.</semantics>
+                </field>
+                <field>
+                    <name>NetworkSynchronizationID</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>TSA Levels 0-2: may be set to 0 (wildcard) or the unique 32-bit value of a simulated net.
+TSA Levels 3 and 4: set to the unique 32-bit value of a simulated net.
+Only an NTR can generate a Network Synchronization ID; all other participants use the ID obtained from the NTR to which they are synchronized.</semantics>
+                </field>
+            </fixedRecordData>
+        </fixedRecordDataTypes>
+        <variantRecordDataTypes>
+            <variantRecordData>
+                <name>AntennaPatternVariantStruct</name>
+                <discriminant>AntennaPatternType</discriminant>
+                <dataType>AntennaPatternTypeEnum32</dataType>
+                <alternative>
+                    <enumerator>Beam</enumerator>
+                    <name>BeamAntenna</name>
+                    <dataType>BeamAntennaStruct</dataType>
+                    <semantics>Specifies the direction, pattern, and polarization of radiation from a radio transmitter's antenna, represented with respect to a beam coordinate system.</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>SphericalHarmonic</enumerator>
+                    <name>SphericalHarmonicAntenna</name>
+                    <dataType>SphericalHarmonicAntennaStruct</dataType>
+                    <semantics>Specifies the direction and radiation pattern from a radio transmitter's antenna, represented with respect to the world coordinate system or entity coordinate system.</semantics>
+                </alternative>
+                <encoding>HLAvariantRecord</encoding>
+                <semantics>Specifies the radiation pattern from the antenna, its orientation in space, and the polarization of the radiation.</semantics>
+            </variantRecordData>
+            <variantRecordData>
+                <name>RFModulationTypeVariantStruct</name>
+                <discriminant>MajorModulationType</discriminant>
+                <dataType>MajorRFModulationTypeEnum16</dataType>
+                <alternative>
+                    <enumerator>Amplitude</enumerator>
+                    <name>AmplitudeModulationType</name>
+                    <dataType>AmplitudeModulationTypeEnum16</dataType>
+                    <semantics>Detailed modulation type for the amplitude major modulation type.</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>AmplitudeAndAngle</enumerator>
+                    <name>AmplitudeAngleModulationType</name>
+                    <dataType>AmplitudeAngleModulationTypeEnum16</dataType>
+                    <semantics>Detailed modulation type for the amplitude and angle major modulation type.</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>Angle</enumerator>
+                    <name>AngleModulationType</name>
+                    <dataType>AngleModulationTypeEnum16</dataType>
+                    <semantics>Detailed modulation type for the angle major modulation type.</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>Combination</enumerator>
+                    <name>CombinationModulationType</name>
+                    <dataType>CombinationModulationTypeEnum16</dataType>
+                    <semantics>Detailed modulation type for the combination major modulation type.</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>Pulse</enumerator>
+                    <name>PulseModulationType</name>
+                    <dataType>PulseModulationTypeEnum16</dataType>
+                    <semantics>Detailed modulation type for the pulse major modulation type.</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>Unmodulated</enumerator>
+                    <name>UnmodulatedType</name>
+                    <dataType>UnmodulatedTypeEnum16</dataType>
+                    <semantics>Detailed modulation type for the unmodulated major modulation type.</semantics>
+                </alternative>
+                <encoding>HLAvariantRecord</encoding>
+                <semantics>Specifies the major modulation type as well as certain detailed information specific to the type.</semantics>
+            </variantRecordData>
+            <variantRecordData>
+                <name>SpreadSpectrumVariantStruct</name>
+                <discriminant>SpreadSpectrumType</discriminant>
+                <dataType>SpreadSpectrumEnum16</dataType>
+                <alternative>
+                    <enumerator>SINCGARSFrequencyHop</enumerator>
+                    <name>SINCGARSModulation</name>
+                    <dataType>SINCGARSModulationStruct</dataType>
+                    <semantics>Modulation parameters for SINCGARS radio system.</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>JTIDS_MIDS_SpectrumType</enumerator>
+                    <name>JTIDSTransmitterData</name>
+                    <dataType>JTIDSTransmitterStruct</dataType>
+                    <semantics>Modulation parameters for Link 16 radio system according to SISO-STD-002.</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>Link11_SpectrumType</enumerator>
+                    <name>Link11TransmitterData</name>
+                    <dataType>Link11TransmitterStruct</dataType>
+                    <semantics>Modulation parameters for Link 11 radio system according to SISO-STD-005.</semantics>
+                </alternative>
+                <alternative>
+                    <enumerator>Link11B_SpectrumType</enumerator>
+                    <name>Link11BTransmitterData</name>
+                    <dataType>Link11BTransmitterStruct</dataType>
+                    <semantics>Modulation parameters for Link 11B radio system according to SISO-STD-005.</semantics>
+                </alternative>
+                <encoding>HLAvariantRecord</encoding>
+                <semantics>Identifies the actual spread spectrum technique in use.</semantics>
+            </variantRecordData>
+        </variantRecordDataTypes>
+    </dataTypes>
+    <notes>
+        <note>
+            <label>RPRnoteCommunication1</label>
+            <semantics>All padding fields shall be set to the value 0.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteCommunication2</label>
+            <semantics>This must reference a valid Object instance.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteCommunication3</label>
+            <semantics>All the fields in the radio type struct are enumerations. The values for the individual fields (that do not use enumeration datatypes from within the RPR FOM) are to be derived from the federation agreements, which could refer to SISO-REF-010. The values used in this structure should comply with the requirements specified in section 5.2.16 of IEEE 1278.1-1995.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteCommunication4</label>
+            <semantics>This attribute is updated if the current value differs from the previously updated value by more than the value specified by the symbolic name (see section 5.1.4 of IEEE 1278.1-1995 for the actual values of the symbolic names)</semantics>
+        </note>
+        <note>
+            <label>RPRnoteCommunication5</label>
+            <semantics>RPRlengthlessArrayLength=Order*Order+2*Order+1</semantics>
+        </note>
+    </notes>
+</objectModel>

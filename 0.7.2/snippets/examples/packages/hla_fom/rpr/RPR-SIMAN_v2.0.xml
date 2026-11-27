@@ -1,0 +1,1156 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<objectModel xsi:schemaLocation="http://standards.ieee.org/IEEE1516-2010 http://standards.ieee.org/downloads/1516/1516.2-2010/IEEE1516-DIF-2010.xsd" xmlns="http://standards.ieee.org/IEEE1516-2010" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelIdentification>
+        <name>SISO-STD-001.1-2015 - Real-time Platform Reference Simulation Management FOM Module</name>
+        <type>FOM</type>
+        <version>2.0</version>
+        <modificationDate>2015-08-10</modificationDate>
+        <securityClassification>Unclassified</securityClassification>
+        <purpose>The RPR FOM supports interoperability for real-time, platform oriented defense simulation.</purpose>
+        <applicationDomain>All domains</applicationDomain>
+        <description>Simulation Management interactions.</description>
+        <useLimitation></useLimitation>
+        <poc>
+            <pocType>Primary author</pocType>
+            <pocName>RPR FOM Product Development Group</pocName>
+            <pocOrg>SISO - Simulation Interoperability Standards Organization</pocOrg>
+            <pocTelephone>+1 (407) 882-1348</pocTelephone>
+            <pocEmail>siso-help@sisostds.org</pocEmail>
+        </poc>
+        <reference>
+            <type>Dependency</type>
+            <identification>Real-time Platform Reference Base FOM Module</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>Standard for Guidance, Rationale, and Interoperability Modalities for the Real-time Platform Reference Federation Object Model (RPR FOM)
+SISO-STD-001-2015
+10 August 2015</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>IEEE Standard for Distributed Interactive Simulation - Application Protocols
+IEEE Std 1278.1-1995
+September 21, 1995</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>IEEE Standard for Distributed Interactive Simulation - Application Protocols
+IEEE Std 1278.1a-1998
+19 March 1998</identification>
+        </reference>
+        <other>Copyright © 2015 by the Simulation Interoperability Standards Organization, Inc.
+P.O. Box 781238
+Orlando, FL 32878-1238, USA
+All rights reserved.
+
+Schema and API: SISO hereby grants a general, royalty-free license to copy, distribute, display, and make derivative works from this material, for all purposes, provided that any use of the material contains the following attribution: “Reprinted with permission from SISO Inc.” Should a reader require additional information, contact the SISO Inc. Board of Directors.
+
+Documentation: SISO hereby grants a general, royalty-free license to copy, distribute, display, and make derivative works from this material, for noncommercial purposes, provided that any use of the material contains the following attribution: “Reprinted with permission from SISO Inc.” The material may not be used for a commercial purpose without express written permission from the SISO Inc. Board of Directors.
+
+SISO Inc. Board of Directors
+P.O. Box 781238
+Orlando, FL 32878-1238, USA
+</other>
+        <glyph type="png" height="64" width="64" alt="">iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAixJREFUeNrsmk3LMVEYx2c4ZLykJBsipZTsbOQTkEhRSikpkWTDSr6DhSwslLWyk5ed7+ADyEJ27Cgv47669Tz3vXqcnjGHU9d/Mc1ipv6/ma7rnP/VEd1utyAIoigKvOl+v8OVXK/X7XYr8Cmn06nR6XQCtwLzGoFzIQACIAACIAACIAACKBB5+kQikdjv9+fzmb05k8lkNpsnk4kigH+/z8EfgKzTaDTa7TZjZ7PZrFAoEEKUAkDwkSTJarWydL9arVqtFoStpwBURSzLMuPPPxqN1us1x11Io6E19qEA9EMGXMh+qdfrjcdjjgGGw2Emk4nFYovFgksAWDXhOp/Po9EoMwy1aoAZhrpFzACDRRdSFYNdG1UJg/U68BdjOp0ej0deAw1gxOPxwWDAYjv9cun1+lQqValUwuEwZwAWiyWbzYL1UCjELtC8RA6HI5/Pl0olv9/POpEplNfrLRaLkK1cLtd7IuV/KxgMlsvlXC5ns9nemYnpdbvdHjdQndVqNZ1OG43G94d6ehkMhkgk0mw2k8mkVqv9lKkEvWq1ms/nCwQCnzVWoRd8eL4TGfeREgF+JEnSK2vgMaXp9/u73Y4NwHK5FP6chlAKIIri6XSq1+vdbpdpeyGEZjpEaP5mp9PRfoslALi/XC6wdVUKYLfbD4eDLMvsj4XAQv50qPwcYLPZYBdCAARAAARAAARAAARAAHUAYM/Nr3swD7mHeDweTo/fg/kvAQYAjDKkyk2dKG8AAAAASUVORK5CYII=</glyph>
+    </modelIdentification>
+    <interactions>
+        <interactionClass>
+            <name>HLAinteractionRoot</name>
+            <interactionClass notes="RPRnoteSIMAN12">
+                <name>Acknowledge</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>A Simulation Management (SIMAN) interaction designed to acknowledge receipt of a SIMAN PDU from a Simulation Manager federate and to inform the Simulation Manager federate whether the federate has implemented the request.</semantics>
+                <parameter>
+                    <name>OriginatingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application sending the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>ReceivingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application which is the intended recipient of the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>RequestIdentifier</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>This field matches this response with the specific StartResume, StopFreeze, CreateEntity or RemoveEntity interaction sent by the simulation manager.</semantics>
+                </parameter>
+                <parameter>
+                    <name>AcknowledgeFlag</name>
+                    <dataType>AcknowledgeFlagEnum16</dataType>
+                    <semantics>The type of interaction being acknowledged.</semantics>
+                </parameter>
+                <parameter>
+                    <name>ResponseFlag</name>
+                    <dataType>ResponseFlagEnum16</dataType>
+                    <semantics>The type of response made to the interaction by the recipient.</semantics>
+                </parameter>
+                <interactionClass notes="RPRnoteSIMAN5">
+                    <name>AcknowledgeR</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>A Simulation Management (SIMAN) interaction designed to acknowledge receipt of a SIMAN PDU, with a specified acknowledgement protocol, from a Simulation Manager federate and to inform the Simulation Manager federate whether the federate has implemented the request.</semantics>
+                </interactionClass>
+            </interactionClass>
+            <interactionClass notes="RPRnoteSIMAN16">
+                <name>ActionRequest</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>A Simulation Management (SIMAN) interaction sent from a Simulation Manager federate to one or more federates to request that they perform a specified action.</semantics>
+                <parameter>
+                    <name>OriginatingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application sending the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>ReceivingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application which is the intended recipient(s) of the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>RequestIdentifier</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>The Request ID is a monotonically increasing integer identifier inserted by the Simulation Manager into all Simulation management interactions. It is used as a unique identifier to identify the latest in a series of competing requests and identifying acknowledgements.</semantics>
+                </parameter>
+                <parameter>
+                    <name>ActionRequestCode</name>
+                    <dataType>ActionEnum32</dataType>
+                    <semantics>The action that the recipient(s) are requested to perform.</semantics>
+                </parameter>
+                <parameter>
+                    <name>FixedDatums</name>
+                    <dataType>FixedDatumStructLengthlessArray</dataType>
+                    <semantics>Optional additional data items (types and values)</semantics>
+                </parameter>
+                <parameter>
+                    <name>VariableDatumSet</name>
+                    <dataType>VariableDatumStructArray</dataType>
+                    <semantics>Optional additional data items (types and values). These data items are not of fixed length.</semantics>
+                </parameter>
+                <interactionClass notes="RPRnoteSIMAN2">
+                    <name>ActionRequestR</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>A Simulation Management (SIMAN) interaction sent from a Simulation Manager federate to one or more federates to request that they perform a specified action. The Simulation Manager federate specifies the acknowledgement protocol to be used.</semantics>
+                    <parameter notes="RPRnoteSIMAN1">
+                        <name>AcknowledgementProtocol</name>
+                        <dataType>AcknowledgementProtocolEnum8</dataType>
+                        <semantics>The acknowledgement protocol to be used for a transaction</semantics>
+                    </parameter>
+                </interactionClass>
+            </interactionClass>
+            <interactionClass notes="RPRnoteSIMAN16">
+                <name>ActionResponse</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>A Simulation Management (SIMAN) interaction designed to acknowledge receipt of an ActionResponse interaction from a Simulation Manager federate and to inform the Simulation Manager federate whether the federate has implemented the request.</semantics>
+                <parameter>
+                    <name>OriginatingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application sending the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>ReceivingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application which is the intended recipient of the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>RequestIdentifier</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>This field matches this response with the specific ActionRequest interaction sent by the simulation manager.</semantics>
+                </parameter>
+                <parameter>
+                    <name>RequestStatus</name>
+                    <dataType>RequestStatusEnum32</dataType>
+                    <semantics>The status of the request that the recipient has been asked to perform.</semantics>
+                </parameter>
+                <parameter>
+                    <name>FixedDatums</name>
+                    <dataType>FixedDatumStructLengthlessArray</dataType>
+                    <semantics>Additional, fixed length data items (types and values).</semantics>
+                </parameter>
+                <parameter>
+                    <name>VariableDatumSet</name>
+                    <dataType>VariableDatumStructArray</dataType>
+                    <semantics>Additional, non fixed length, data items (types and values).</semantics>
+                </parameter>
+                <interactionClass notes="RPRnoteSIMAN2">
+                    <name>ActionResponseR</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>A Simulation Management (SIMAN) interaction designed to acknowledge receipt of an ActionResponseR interaction from a Simulation Manager federate and to inform the Simulation Manager federate whether the federate has implemented the request.</semantics>
+                </interactionClass>
+            </interactionClass>
+            <interactionClass>
+                <name>Comment</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>A Simulation Management (SIMAN) interaction used to insert messages and information into a log stream and closely matches the structures used by the Data interaction class. This information is usually unsolicited in nature. The information contained within the Interaction should be used for commenting purposes only.</semantics>
+                <parameter>
+                    <name>OriginatingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application sending the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>ReceivingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application which is the intended recipient(s) of the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>VariableDatumSet</name>
+                    <dataType>VariableDatumStructArray</dataType>
+                    <semantics>The set of data items (types and values) associated with the interaction.</semantics>
+                </parameter>
+            </interactionClass>
+            <interactionClass notes="RPRnoteSIMAN12">
+                <name>CreateEntity</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>A Simulation Management (SIMAN) interaction, sent from a Simulation Manager to request that an application creates an entity. See DIS 4.5.5.4.1 and DIS 5.3.6 for details.</semantics>
+                <parameter>
+                    <name>OriginatingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application sending the interaction.</semantics>
+                </parameter>
+                <parameter notes="RPRnoteSIMAN13">
+                    <name>ReceivingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The FederateIdentifier field identifies the federate that is responsible for creating the entity (if possible). The complete parameter defines the entity ID of the new entity (see also note [18]).</semantics>
+                </parameter>
+                <parameter>
+                    <name>RequestIdentifier</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>The Request ID is a monotonically increasing integer identifier inserted by the Simulation Manager into all Simulation management interactions. It is used as a unique identifier to identify the latest in a series of competing requests and identifying acknowledgements.</semantics>
+                </parameter>
+                <interactionClass notes="RPRnoteSIMAN5">
+                    <name>CreateEntityR</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>A Simulation Management (SIMAN) interaction, sent from a Simulation Manager to request that an application creates an entity, using a specified acknowledgement service. See DIS 4.5.11.3.1 and DIS 5.3.12.1 for details.</semantics>
+                    <parameter>
+                        <name>AcknowledgementProtocol</name>
+                        <dataType>AcknowledgementProtocolEnum8</dataType>
+                        <semantics>The acknowledgement protocol to be used for a transaction</semantics>
+                    </parameter>
+                </interactionClass>
+            </interactionClass>
+            <interactionClass>
+                <name>Data</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>A Simulation Management (SIMAN) interaction designed to acknowledge either a) a DataQuery interaction (in which case the Data interaction contains the results of the query) or b) a SetData interaction (in which case the Data interaction contains the data that the federate was able to set).</semantics>
+                <parameter>
+                    <name>OriginatingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application sending the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>ReceivingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application which is the intended recipient of the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>RequestIdentifier</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>This field matches this response with the specific SetData or DataQuery interaction sent by the simulation manager.</semantics>
+                </parameter>
+                <parameter>
+                    <name>FixedDatums</name>
+                    <dataType>FixedDatumStructLengthlessArray</dataType>
+                    <semantics>The set of data items (types and values), of fixed length, that the recipient can return for this interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>VariableDatumSet</name>
+                    <dataType>VariableDatumStructArray</dataType>
+                    <semantics>The set of data items (types and values), of variable length, that the recipient can return for this interaction.</semantics>
+                </parameter>
+                <interactionClass>
+                    <name>DataR</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>A Simulation Management (SIMAN) interaction designed to acknowledge either a) a DataQueryR interaction (in which case the DataR interaction contains the results of the query) or b) a SetDataR interaction (in which case the DataR interaction contains the data that the federate was able to set).</semantics>
+                    <parameter>
+                        <name>AcknowledgementProtocol</name>
+                        <dataType>AcknowledgementProtocolEnum8</dataType>
+                        <semantics>The acknowledgement protocol to be used for a transaction</semantics>
+                    </parameter>
+                </interactionClass>
+            </interactionClass>
+            <interactionClass notes="RPRnoteSIMAN18">
+                <name>DataQuery</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>A Simulation Management (SIMAN) interaction, sent from a Simulation Manager federate to request that a federate supply the current values of specified data.</semantics>
+                <parameter>
+                    <name>OriginatingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application sending the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>ReceivingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application which is the intended recipient of the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>RequestIdentifier</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>The Request ID is a monotonically increasing integer identifier inserted by the Simulation Manager into all Simulation management interactions. It is used as a unique identifier to identify the latest in a series of competing requests and identifying acknowledgements.</semantics>
+                </parameter>
+                <parameter>
+                    <name>TimeInterval</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>The interval between regular updates of the requested data. If this field is zero then the recipient should only issue a single Data interaction in response to this interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>FixedDatumIdentifiers</name>
+                    <dataType>DatumIdentifierLengthlessArray</dataType>
+                    <semantics>The set of fixed length data items (types) that the recipient is requested to supply data for.</semantics>
+                </parameter>
+                <parameter>
+                    <name>VariableDatumIdentifiers</name>
+                    <dataType>DatumIdentifierLengthlessArray</dataType>
+                    <semantics>The set of variable length data items (types) that the recipient is requested to supply data for.</semantics>
+                </parameter>
+                <interactionClass notes="RPRnoteSIMAN6">
+                    <name>DataQueryR</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>A Simulation Management (SIMAN) interaction, sent from a Simulation Manager federate to request that a federate supply the current values of specified data. The Simulation Manager federate specifies the acknowledgement protocol to be used.</semantics>
+                    <parameter>
+                        <name>AcknowledgementProtocol</name>
+                        <dataType>AcknowledgementProtocolEnum8</dataType>
+                        <semantics>The acknowledgement protocol to be used for a transaction</semantics>
+                    </parameter>
+                </interactionClass>
+            </interactionClass>
+            <interactionClass>
+                <name>EventReport</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>A Simulation Management (SIMAN) interaction designed to allow a federate to alert a Simulation Manager federate that a particular event has occurred.</semantics>
+                <parameter>
+                    <name>OriginatingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application sending the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>ReceivingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application which is the intended recipient(s) of the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>EventType</name>
+                    <dataType>EventTypeEnum32</dataType>
+                    <semantics>The type of event being reported.</semantics>
+                </parameter>
+                <parameter>
+                    <name>FixedDatums</name>
+                    <dataType>FixedDatumStructLengthlessArray</dataType>
+                    <semantics>The set of fixed size data items (types and values) associated with this event.</semantics>
+                </parameter>
+                <parameter>
+                    <name>VariableDatumSet</name>
+                    <dataType>VariableDatumStructArray</dataType>
+                    <semantics>The set of variable size data items (types and values) associated with this event.</semantics>
+                </parameter>
+            </interactionClass>
+            <interactionClass notes="RPRnoteSIMAN12">
+                <name>RemoveEntity</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>A Simulation Management (SIMAN) interaction, sent from a Simulation Manager to request that a specified entity be removed from the simulation.</semantics>
+                <parameter>
+                    <name>OriginatingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application sending the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>ReceivingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application which is the intended recipient(s) of the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>RequestIdentifier</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>The Request ID is a monotonically increasing integer identifier inserted by the Simulation Manager into all Simulation management interactions. It is used as a unique identifier to identify the latest in a series of competing requests and identifying acknowledgements.</semantics>
+                </parameter>
+                <interactionClass notes="RPRnoteSIMAN5">
+                    <name>RemoveEntityR</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>A Simulation Management (SIMAN) interaction, sent from a Simulation Manager to request that a specified entity be removed from the simulation.</semantics>
+                    <parameter>
+                        <name>AcknowledgementProtocol</name>
+                        <dataType>AcknowledgementProtocolEnum8</dataType>
+                        <semantics>The acknowledgement protocol to be used for a transaction</semantics>
+                    </parameter>
+                </interactionClass>
+            </interactionClass>
+            <interactionClass notes="RPRnoteSIMAN19">
+                <name>SetData</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>A Simulation Management (SIMAN) interaction, sent from a Simulation Manager federate to request that a federate sets the values of specified data to specified values.</semantics>
+                <parameter>
+                    <name>OriginatingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application sending the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>ReceivingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application which is the intended recipient of the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>RequestIdentifier</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>The Request ID is a monotonically increasing integer identifier inserted by the Simulation Manager into all Simulation management interactions. It is used as a unique identifier to identify the latest in a series of competing requests and identifying acknowledgements.</semantics>
+                </parameter>
+                <parameter>
+                    <name>FixedDatums</name>
+                    <dataType>FixedDatumStructLengthlessArray</dataType>
+                    <semantics>The set of fixed length data items (types and values) that the recipient is requested to set.</semantics>
+                </parameter>
+                <parameter>
+                    <name>VariableDatumSet</name>
+                    <dataType>VariableDatumStructArray</dataType>
+                    <semantics>The set of variables length data items (types and values) that the recipient is requested to set.</semantics>
+                </parameter>
+                <interactionClass notes="RPRnoteSIMAN8">
+                    <name>SetDataR</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>A Simulation Management (SIMAN) interaction, sent from a Simulation Manager federate to request that a federate sets the values of specified data to specified values. The Simulation Manager federate specifies the acknowledgement protocol to be used.</semantics>
+                    <parameter>
+                        <name>AcknowledgementProtocol</name>
+                        <dataType>AcknowledgementProtocolEnum8</dataType>
+                        <semantics>The acknowledgement protocol to be used for a transaction</semantics>
+                    </parameter>
+                </interactionClass>
+            </interactionClass>
+            <interactionClass notes="RPRnoteSIMAN12">
+                <name>StartResume</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>A Simulation Management (SIMAN) interaction, sent from a Simulation Manager federate to either a) start simulating one or more entities or b) resume simulation of one or more entities after a pause.</semantics>
+                <parameter>
+                    <name>OriginatingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application sending the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>ReceivingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application which is the intended recipient(s) of the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>RealWorldTime</name>
+                    <dataType>ClockTimeStruct</dataType>
+                    <semantics>The real world time (GMT) that the entity or entities should start/resume at.</semantics>
+                </parameter>
+                <parameter>
+                    <name>RequestIdentifier</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>The Request ID is a monotonically increasing integer identifier inserted by the Simulation Manager into all Simulation management interactions. It is used as a unique identifier to identify the latest in a series of competing requests and identifying acknowledgements.</semantics>
+                </parameter>
+                <parameter>
+                    <name>SimulationTime</name>
+                    <dataType>ClockTimeStruct</dataType>
+                    <semantics>The simulation time that the entity or entities should use when they start/resume.</semantics>
+                </parameter>
+                <interactionClass notes="RPRnoteSIMAN5">
+                    <name>StartResumeR</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>A Simulation Management (SIMAN) interaction, sent from a Simulation Manager federate to either a) start simulating one or more entities or b) resume simulation of one or more entities after a pause. The Simulation Manager federate specifies the acknowledgement protocol to be used.</semantics>
+                    <parameter>
+                        <name>AcknowledgementProtocol</name>
+                        <dataType>AcknowledgementProtocolEnum8</dataType>
+                        <semantics>The acknowledgement protocol to be used for a transaction</semantics>
+                    </parameter>
+                </interactionClass>
+            </interactionClass>
+            <interactionClass notes="RPRnoteSIMAN12">
+                <name>StopFreeze</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>A Simulation Management (SIMAN) interaction, sent from a Simulation Manager federate to request that one or more entities either a) freeze (pause) their simulation or b) stop their simulation.</semantics>
+                <parameter>
+                    <name>OriginatingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application sending the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>ReceivingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application which is the intended recipient(s) of the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>RequestIdentifier</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>The Request ID is a monotonically increasing integer identifier inserted by the Simulation Manager into all Simulation management interactions. It is used as a unique identifier to identify the latest in a series of competing requests and identifying acknowledgements.</semantics>
+                </parameter>
+                <parameter>
+                    <name>RealWorldTime</name>
+                    <dataType>ClockTimeStruct</dataType>
+                    <semantics>The real world time (GMT) that the entity or entities should stop/freeze at.</semantics>
+                </parameter>
+                <parameter>
+                    <name>Reason</name>
+                    <dataType>StopFreezeReasonEnum8</dataType>
+                    <semantics>The reason for the stop or freeze.</semantics>
+                </parameter>
+                <parameter>
+                    <name>ReflectValues</name>
+                    <dataType>RPRboolean</dataType>
+                    <semantics>Whether the entity or entities being stopped/frozen should continue to reflect values when stopped/frozen.</semantics>
+                </parameter>
+                <parameter>
+                    <name>RunInternalSimulationClock</name>
+                    <dataType>RPRboolean</dataType>
+                    <semantics>Whether the entity or entities being stopped/frozen should continue to run their internal simulation clock when stopped/frozen.</semantics>
+                </parameter>
+                <parameter>
+                    <name>UpdateAttributes</name>
+                    <dataType>RPRboolean</dataType>
+                    <semantics>Whether the entity or entities being stopped/frozen should continue to update attributes when stopped/frozen.</semantics>
+                </parameter>
+                <interactionClass notes="RPRnoteSIMAN5">
+                    <name>StopFreezeR</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>A Simulation Management (SIMAN) interaction, sent from a Simulation Manager federate to request that one or more entities either a) pause their simulation or b) stop their simulation. The Simulation Manager federate specifies the acknowledgement protocol to be used.</semantics>
+                    <parameter>
+                        <name>AcknowledgementProtocol</name>
+                        <dataType>AcknowledgementProtocolEnum8</dataType>
+                        <semantics>The acknowledgement protocol to be used for a transaction</semantics>
+                    </parameter>
+                </interactionClass>
+            </interactionClass>
+            <interactionClass>
+                <name>RecordR</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAreliable</transportation>
+                <order>Receive</order>
+                <semantics>A Simulation Management (SIMAN) interaction designed to acknowledge receipt of a RecordQueryR or SetRecordR interaction from a Simulation Manager federate and to inform the Simulation Manager federate whether the federate has implemented the request.</semantics>
+                <parameter>
+                    <name>OriginatingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application sending the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>ReceivingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application which is the intended recipient of the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>RequestIdentifier</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>This field matches this response with the specific RecordQueryR or SetRecordR interaction sent by the simulation manager.</semantics>
+                </parameter>
+                <parameter>
+                    <name>EventType</name>
+                    <dataType>EventTypeEnum32</dataType>
+                    <semantics>The type of event that caused the RecordR interaction to be issued.</semantics>
+                </parameter>
+                <parameter>
+                    <name>AcknowledgementProtocol</name>
+                    <dataType>AcknowledgementProtocolEnum8</dataType>
+                    <semantics>The acknowledgement protocol to be used for the transaction</semantics>
+                </parameter>
+                <parameter>
+                    <name>ResponseSerialNumber</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>Used to identify the serial number of the RecordR interaction when more than one interaction is used to report record values.</semantics>
+                </parameter>
+                <parameter>
+                    <name>RecordSetData</name>
+                    <dataType>RecordSetStructArray1Plus</dataType>
+                    <semantics>The set of records containing the information requested</semantics>
+                </parameter>
+            </interactionClass>
+            <interactionClass notes="RPRnoteSIMAN21">
+                <name>RecordQueryR</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAreliable</transportation>
+                <order>Receive</order>
+                <semantics>A Simulation Management (SIMAN) interaction designed to allow a Simulation Manager federate to request data, in record format, from another federate.</semantics>
+                <parameter>
+                    <name>OriginatingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application sending the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>ReceivingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application which is the intended recipient(s) of the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>RequestIdentifier</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>The Request ID is a monotonically increasing integer identifier inserted by the Simulation Manager into all Simulation management interactions. It is used as a unique identifier to identify the latest in a series of competing requests and identifying acknowledgements.</semantics>
+                </parameter>
+                <parameter>
+                    <name>TimeInterval</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>The interval between regular updates of the requested data. If this field is zero then the recipient should only issue a single RecordR interaction in response to this interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>EventType</name>
+                    <dataType>EventTypeEnum32</dataType>
+                    <semantics>Specifies the type of event that the receiving entity or application should use to trigger the issue of a RecordR interaction in response to this query. If this is zero, then reporting shall be periodic based upon the value of the TimeInterval parameter.</semantics>
+                </parameter>
+                <parameter>
+                    <name>AcknowledgementProtocol</name>
+                    <dataType>AcknowledgementProtocolEnum8</dataType>
+                    <semantics>The acknowledgement protocol to be used for the transaction</semantics>
+                </parameter>
+                <parameter>
+                    <name>RecordIdentifiers</name>
+                    <dataType>DatumIdentifierLengthlessArray</dataType>
+                    <semantics>Identifies the records for which information is requested</semantics>
+                </parameter>
+            </interactionClass>
+            <interactionClass notes="RPRnoteSIMAN9">
+                <name>SetRecordR</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAreliable</transportation>
+                <order>Receive</order>
+                <semantics>A Simulation Management (SIMAN) interaction, sent from a Simulation Manager federate to request that a federate sets the values of specified data to specified values (provided in record format).</semantics>
+                <parameter>
+                    <name>OriginatingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application sending the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>ReceivingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application which is the intended recipient(s) of the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>RequestIdentifier</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>The Request ID is a monotonically increasing integer identifier inserted by the Simulation Manager into all Simulation management interactions. It is used as a unique identifier to identify the latest in a series of competing requests and identifying acknowledgements.</semantics>
+                </parameter>
+                <parameter>
+                    <name>AcknowledgementProtocol</name>
+                    <dataType>AcknowledgementProtocolEnum8</dataType>
+                    <semantics>The acknowledgement protocol to be used for a transaction</semantics>
+                </parameter>
+                <parameter>
+                    <name>RecordSetData</name>
+                    <dataType>RecordSetStructArray1Plus</dataType>
+                    <semantics>Specifies the information, in record format, to be set by the receiving entity.</semantics>
+                </parameter>
+            </interactionClass>
+            <interactionClass>
+                <name>TransferControl</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>A Simulation Management (SIMAN) interaction, sent to initiate the transfer of control of an entity.</semantics>
+                <parameter>
+                    <name>OriginatingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application sending the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>ReceivingEntity</name>
+                    <dataType>EntityIdentifierStruct</dataType>
+                    <semantics>The DIS entity ID of the entity or application which is the intended recipient(s) of the interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>RequestIdentifier</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>The Request ID is a monotonically increasing integer identifier inserted by the Simulation Manager into all Simulation management interactions. It is used as a unique identifier to identify the latest in a series of competing requests and identifying acknowledgements.</semantics>
+                </parameter>
+                <parameter>
+                    <name>TransferType</name>
+                    <dataType>TransferTypeEnum8</dataType>
+                    <semantics>The type of transfer to be performed.</semantics>
+                </parameter>
+                <parameter>
+                    <name>TransferEntity</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>The ID of the object to be transferred.</semantics>
+                </parameter>
+                <parameter>
+                    <name>RecordSetData</name>
+                    <dataType>RecordSetStructArray1Plus</dataType>
+                    <semantics>Specifies the information, in record format, to be set by the receiving entity.</semantics>
+                </parameter>
+            </interactionClass>
+            <interactionClass notes="RPRnoteSIMAN11">
+                <name>AttributeChangeRequest</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>A Simulation Management (SIMAN) interaction, sent from a Simulation Manager federate to ask that a specified attribute be set to a specified value.</semantics>
+                <parameter>
+                    <name>ObjectIdentifiers</name>
+                    <dataType>RTIobjectIdArray</dataType>
+                    <semantics>The list of objects that are the intended recipients of this interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>AttributeValueSet</name>
+                    <dataType>AttributeValuePairStructArray1Plus</dataType>
+                    <semantics>The set of attributes and their values, that the recipients are asked to update.</semantics>
+                </parameter>
+                <interactionClass notes="RPRnoteSIMAN4">
+                    <name>AttributeChangeRequestR</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>A Simulation Management (SIMAN) interaction, sent from a Simulation Manager federate to ask that a specified attribute be set to a specified value. The Simulation Manager federate specifies the acknowledgement protocol to be used.</semantics>
+                    <parameter notes="RPRnoteSIMAN1">
+                        <name>AcknowledgementProtocol</name>
+                        <dataType>AcknowledgementProtocolEnum8</dataType>
+                        <semantics>The acknowledgement protocol to be used for a transaction</semantics>
+                    </parameter>
+                </interactionClass>
+            </interactionClass>
+            <interactionClass notes="RPRnoteSIMAN11">
+                <name>AttributeChangeResult</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>A Simulation Management (SIMAN) interaction designed to acknowledge receipt of an AttributeChangeRequest interaction from a Simulation Manager federate, and to inform the Simulation Manager federate whether the attribute was set to the specified value or not.</semantics>
+                <parameter>
+                    <name>ObjectIdentifier</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>The ID of the object replying to the AttributeChangeRequest interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>AttributeChangeResult</name>
+                    <dataType>ResponseFlagEnum16</dataType>
+                    <semantics>Indicates ability to comply.</semantics>
+                </parameter>
+                <parameter>
+                    <name>AttributeValueSet</name>
+                    <dataType>AttributeValuePairStructArray1Plus</dataType>
+                    <semantics>The set of attributes and their values that the recipient has been able to update.</semantics>
+                </parameter>
+                <interactionClass notes="RPRnoteSIMAN4">
+                    <name>AttributeChangeResultR</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>A Simulation Management (SIMAN) interaction designed to acknowledge receipt of an AttributeChangeRequest interaction from a Simulation Manager federate, and to inform the Simulation Manager federate whether the attribute was set to the specified value or not. The Simulation Manager federate specifies the acknowledgement protocol to be used.</semantics>
+                    <parameter>
+                        <name>AcknowledgementProtocol</name>
+                        <dataType>AcknowledgementProtocolEnum8</dataType>
+                        <semantics>The acknowledgement protocol to be used for this transaction</semantics>
+                    </parameter>
+                </interactionClass>
+            </interactionClass>
+            <interactionClass notes="RPRnoteSIMAN15">
+                <name>CreateObjectRequest</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>A Simulation Management (SIMAN) interaction, sent from a Simulation Manager federate to another federate requesting that it create an object instance of a particular type.</semantics>
+                <parameter>
+                    <name>ObjectClass</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>The class of object to be created.</semantics>
+                </parameter>
+                <parameter>
+                    <name>AttributeValueSet</name>
+                    <dataType>AttributeValuePairStructArray1Plus</dataType>
+                    <semantics>The set of attributes, and associated values, to be used to initialize the object.</semantics>
+                </parameter>
+                <parameter>
+                    <name>RequestIdentifier</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>The Request ID is a monotonically increasing integer identifier inserted by the Simulation Manager into all Simulation management interactions. It is used as a unique identifier to identify the latest in a series of competing requests and identifying acknowledgements.</semantics>
+                </parameter>
+                <interactionClass notes="RPRnoteSIMAN10">
+                    <name>CreateObjectRequestR</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>A Simulation Management (SIMAN) interaction, sent from a Simulation Manager federate to another federate requesting that it create an object instance of a particular type. The Simulation Manager federate specifies the acknowledgement protocol to be used.</semantics>
+                    <parameter>
+                        <name>AcknowledgementProtocol</name>
+                        <dataType>AcknowledgementProtocolEnum8</dataType>
+                        <semantics>The acknowledgement protocol to be used for a transaction</semantics>
+                    </parameter>
+                </interactionClass>
+            </interactionClass>
+            <interactionClass notes="RPRnoteSIMAN15">
+                <name>CreateObjectResult</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>A Simulation Management (SIMAN) interaction designed to acknowledge receipt of a CreateObjectRequest from a Simulation Manager federate and to inform the Simulation Manager federate whether the object creation was successful or not.</semantics>
+                <parameter>
+                    <name>CreateObjectResult</name>
+                    <dataType>ResponseFlagEnum16</dataType>
+                    <semantics>Indicates ability to comply.</semantics>
+                </parameter>
+                <parameter>
+                    <name>RequestIdentifier</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>This field matches this response with the specific CreateObject interaction sent by the simulation manager.</semantics>
+                </parameter>
+                <interactionClass notes="RPRnoteSIMAN10">
+                    <name>CreateObjectResultR</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>A Simulation Management (SIMAN) interaction designed to acknowledge receipt of a CreateObjectRequest from a Simulation Manager federate and to inform the Simulation Manager federate whether the object creation was successful or not. The Simulation Manager federate specifies the acknowledgement protocol to be used.</semantics>
+                </interactionClass>
+            </interactionClass>
+            <interactionClass notes="RPRnoteSIMAN20">
+                <name>RemoveObjectRequest</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>A Simulation Management (SIMAN) interaction, sent from a Simulation Manager to request that one or more specified objects be removed from the simulation.</semantics>
+                <parameter>
+                    <name>ObjectIdentifiers</name>
+                    <dataType>RTIobjectIdArray</dataType>
+                    <semantics>The IDs of the objects to be removed.</semantics>
+                </parameter>
+                <parameter>
+                    <name>RequestIdentifier</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>The Request ID is a monotonically increasing integer identifier inserted by the Simulation Manager into all Simulation management interactions. It is used as a unique identifier to identify the latest in a series of competing requests and identifying acknowledgements.</semantics>
+                </parameter>
+                <interactionClass notes="RPRnoteSIMAN7">
+                    <name>RemoveObjectRequestR</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>A Simulation Management (SIMAN) interaction, sent from a Simulation Manager to request that one or more specified objects be removed from the simulation.</semantics>
+                    <parameter>
+                        <name>AcknowledgementProtocol</name>
+                        <dataType>AcknowledgementProtocolEnum8</dataType>
+                        <semantics>The acknowledgement protocol to be used for a transaction</semantics>
+                    </parameter>
+                </interactionClass>
+            </interactionClass>
+            <interactionClass notes="RPRnoteSIMAN20">
+                <name>RemoveObjectResult</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>A Simulation Management (SIMAN) interaction designed to acknowledge receipt of a RemoveObjectRequest interaction, and to inform the Simulation Manager federate whether the removal was successful or not.</semantics>
+                <parameter>
+                    <name>RemoveObjectResult</name>
+                    <dataType>ResponseFlagEnum16</dataType>
+                    <semantics>Indicates ability to comply.</semantics>
+                </parameter>
+                <parameter>
+                    <name>RequestIdentifier</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>This field matches this response with the specific RemoveObject interaction sent by the simulation manager.</semantics>
+                </parameter>
+                <interactionClass notes="RPRnoteSIMAN7">
+                    <name>RemoveObjectResultR</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>A Simulation Management (SIMAN) interaction designed to acknowledge receipt of a RemoveObjectRequestR interaction, and to inform the Simulation Manager federate whether the removal was successful or not.</semantics>
+                </interactionClass>
+            </interactionClass>
+            <interactionClass notes="RPRnoteSIMAN17">
+                <name>ActionRequestToObject</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>A Simulation Management (SIMAN) interaction sent from a Simulation Manager federate to one or more specific object instances to request that they perform a specified action.</semantics>
+                <parameter>
+                    <name>ObjectIdentifiers</name>
+                    <dataType>RTIobjectIdArray</dataType>
+                    <semantics>The list of objects that are the intended recipients of this interaction.</semantics>
+                </parameter>
+                <parameter>
+                    <name>ActionRequestCode</name>
+                    <dataType>ActionEnum32</dataType>
+                    <semantics>The action that the recipient(s) are intended to perform.</semantics>
+                </parameter>
+                <interactionClass notes="RPRnoteSIMAN3">
+                    <name>ActionRequestToObjectR</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>A Simulation Management (SIMAN) interaction sent from a Simulation Manager federate to one or more specific object instances to request that they perform a specified action. The Simulation Manager federate specifies the acknowledgement protocol to be used.</semantics>
+                    <parameter notes="RPRnoteSIMAN1">
+                        <name>AcknowledgementProtocol</name>
+                        <dataType>AcknowledgementProtocolEnum8</dataType>
+                        <semantics>The acknowledgement protocol to be used for this transaction</semantics>
+                    </parameter>
+                </interactionClass>
+            </interactionClass>
+            <interactionClass notes="RPRnoteSIMAN17">
+                <name>ActionResponseFromObject</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>A Simulation Management (SIMAN) interaction designed to acknowledge receipt of an ActionResponseToObject interaction from a Simulation Manager federate and to inform the Simulation Manager federate whether the object has implemented the request.</semantics>
+                <parameter>
+                    <name>ActionResult</name>
+                    <dataType>ActionResultEnum32</dataType>
+                    <semantics>The status of the request that the recipient has been asked to perform.</semantics>
+                </parameter>
+                <interactionClass notes="RPRnoteSIMAN3">
+                    <name>ActionResponseFromObjectR</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAreliable</transportation>
+                    <order>Receive</order>
+                    <semantics>A Simulation Management (SIMAN) interaction designed to acknowledge receipt of an ActionResponseToObjectR interaction from a Simulation Manager federate and to inform the Simulation Manager federate whether the object has implemented the request.</semantics>
+                </interactionClass>
+            </interactionClass>
+        </interactionClass>
+    </interactions>
+    <dataTypes>
+        <arrayDataTypes>
+            <arrayData>
+                <name>AttributeValuePairStructArray1Plus</name>
+                <dataType>AttributeValuePairStruct</dataType>
+                <cardinality>[1..2147483647]</cardinality>
+                <encoding>HLAvariableArray</encoding>
+                <semantics>Array of AttributeValuePairStruct.</semantics>
+            </arrayData>
+            <arrayData>
+                <name>DatumIdentifierLengthlessArray</name>
+                <dataType>DatumIdentifierEnum32</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>Array of DatumIdentifierEnum32.</semantics>
+            </arrayData>
+            <arrayData>
+                <name>FixedDatumStructLengthlessArray</name>
+                <dataType>FixedDatumStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>Array of FixedDatumStructs.</semantics>
+            </arrayData>
+            <arrayData>
+                <name>RecordSetStructArray1Plus</name>
+                <dataType>RecordSetStruct</dataType>
+                <cardinality>[1..2147483647]</cardinality>
+                <encoding>HLAvariableArray</encoding>
+                <semantics>Array of RecordSetStruct</semantics>
+            </arrayData>
+            <arrayData>
+                <name>RecordStructArray</name>
+                <dataType>RecordStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>HLAvariableArray</encoding>
+                <semantics>Array of RecordStruct</semantics>
+            </arrayData>
+            <arrayData>
+                <name>VariableDatumStructArray</name>
+                <dataType>VariableDatumStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>HLAvariableArray</encoding>
+                <semantics>Array of VariableDatumStruct</semantics>
+            </arrayData>
+        </arrayDataTypes>
+        <fixedRecordDataTypes>
+            <fixedRecordData>
+                <name>AttributeValuePairStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Pair of an AttributeHandle identifying an attribute and data for that attribute.</semantics>
+                <field>
+                    <name>AttributeHandle</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>AttributeHandle identifying attribute.</semantics>
+                </field>
+                <field>
+                    <name>NumberOfBytes-A-Value</name>
+                    <dataType>OctetArray</dataType>
+                    <semantics>Value for the specified attribute.</semantics>
+                </field>
+                <field notes="RPRnoteSIMAN23">
+                    <name>PaddingTo32</name>
+                    <dataType>OctetPadding32Array</dataType>
+                    <semantics>Brings the record length to a 32-bit boundary</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>FixedDatumStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Identifier and value for a fixed datum.</semantics>
+                <field>
+                    <name>FixedDatumIdentifier</name>
+                    <dataType>DatumIdentifierEnum32</dataType>
+                    <semantics>The identifier for this fixed datum.</semantics>
+                </field>
+                <field notes="RPRnoteSIMAN14">
+                    <name>FixedDatumValue</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>The value for this fixed datum.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData notes="RPRnoteSIMAN22">
+                <name>RecordSetStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>A set of records and record details.</semantics>
+                <field>
+                    <name>RecordSetIdentifier</name>
+                    <dataType>DatumIdentifierEnum32</dataType>
+                    <semantics>This field shall specify the data structure used to convey the parameter values of the record for each record.</semantics>
+                </field>
+                <field>
+                    <name>RecordSetSerialNumber</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>This field shall specify the serial number of the first record in the array.</semantics>
+                </field>
+                <field>
+                    <name>NumberOfRecords-A-RecordValues</name>
+                    <dataType>RecordStructArray</dataType>
+                    <semantics>This field contains the records of the format specified by the Record ID field.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>RecordStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Record data.</semantics>
+                <field>
+                    <name>NumberOfBits</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>Number of bits of data.</semantics>
+                </field>
+                <field>
+                    <name>NumberOfBytes-A-RecordData</name>
+                    <dataType>OctetArray</dataType>
+                    <semantics>Data.</semantics>
+                </field>
+                <field notes="RPRnoteSIMAN23">
+                    <name>PaddingTo32</name>
+                    <dataType>OctetPadding32Array</dataType>
+                    <semantics>Brings the record length to a 32-bit boundary</semantics>
+                </field>
+            </fixedRecordData>
+        </fixedRecordDataTypes>
+    </dataTypes>
+    <notes>
+        <note>
+            <label>RPRnoteSIMAN1</label>
+            <semantics>See DIS 4.5.11 for a description of the acknowledgement protocols (called reliability services in that document).</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSIMAN2</label>
+            <semantics>The ActionResponseR interaction should be sent in response to an ActionRequestR interaction by the receiving federate.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSIMAN3</label>
+            <semantics>The ActionResponseFromObjectR interaction should be sent in response to an ActionRequestToObjectR interaction by the receiving federate.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSIMAN4</label>
+            <semantics>The AttributeChangeResultR interaction should be sent in response to an AttributeChangeRequestR interaction by any object that is mentioned in the associated object list. The AttributeChangeResult parameter should indicate the success or failure of the object to implement the requested changes. If the object can implement the changes then the AttributeChangeResult parameter should be set to successful and the AttributeValueSet shall be empty. 
+ 
+If the object cannot immediately comply with the request, but is likely to be able to comply in the future then the AttributeChangeRequest parameter shall be set to pending and the AttributeValueSet shall be empty. When the object complies with the request (or fails to implement the request) then another AttributeChangeResultR interaction shall be sent informing the initiating federate of the result of the request. 
+ 
+If the object cannot comply with the request then the AttributeChangeResult parameter shall indicate the reason why the object cannot comply with the request, The AttributeValueSet shall contain the attributes which have been not been set and the current values of those attributes.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSIMAN5</label>
+            <semantics>The AcknowledgeR interaction is issued in response to the CreateEntityR, RemoveEntityR, StartResumeR, and StopFreezeR interactions.  See (DIS 4.4.11.3.5 Acknowledge-R PDU) and (DIS 5.3.12.5 Acknowledge-R PDU).</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSIMAN6</label>
+            <semantics>The DataR interaction should be sent in response to a DataQueryR interaction by the receiving federate.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSIMAN7</label>
+            <semantics>The standard acknowledgement protocol is identical to the requirements of SIMAN in DIS 1278.1-1995 (i.e. it acts identically to the parent interaction) - see DIS 4.5.5. The other acknowledgement protocols are described in DIS 4.5.11 (they are called reliability services in that document).</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSIMAN8</label>
+            <semantics>The DataR interaction should be sent in response to a SetDataR interaction by the receiving federate.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSIMAN9</label>
+            <semantics>The RecordR interaction should be sent in response to a SetRecordR interaction by the receiving federate.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSIMAN10</label>
+            <semantics>The CreateObjectResultR interaction should be sent in response to an CreateObjectRequestR interaction by the receiving federate.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSIMAN11</label>
+            <semantics>The AttributeChangeResult interaction should be sent in response to an AttributeChangeRequest interaction by any object that is mentioned in the associated object list.  The AttributeChangeResult parameter should indicate the success or failure of the object to implement the requested changes.  If the object can implement the changes then the AttributeChangeResult parameter should be set to successful and the AttributeValueSet shall be empty. 
+ 
+If the object cannot immediately comply with the request, but is likely to be able to comply in the future then the AttributeChangeRequest parameter shall be set to pending and the AttributeValueSet shall be empty.  When the object complies with the request (or fails to implement the request) then another AttributeChangeResult interaction shall be sent informing the initiating federate of the result of the request. 
+ 
+If the object cannot comply with the request then the AttributeChangeResult parameter shall indicate the reason why the object cannot comply with the request,  The AttributeValueSet shall contain the attributes which have been not been set and the current values of those attributes.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSIMAN12</label>
+            <semantics>The Acknowledge interaction is issued in response to the CreateEntity, RemoveEntity, StartResume, and StopFreeze interactions.  See (DIS 4.4.5.4.5 Acknowledge PDU) and (DIS 5.4.6.5 Acknowledge PDU)."</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSIMAN13</label>
+            <semantics>If the EntityNumber field is set to RQST_ASSIGN_ID (hex FFFE) then the receiving application should assign the entity number.  Entity identifications shall be in accordance with DIS 5.2.14.2.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSIMAN14</label>
+            <semantics>The units of the FixedDatumValue field is determined by the value of the FixedDatumIdentifier field. The units, etc., for each of the FixedDatumIdentifier enumeration values are to be derived from the federation agreements, which could refer to SISO-REF-010.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSIMAN15</label>
+            <semantics>The CreateObjectResult interaction should be sent in response to an CreateObjectRequest interaction by the receiving federate.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSIMAN16</label>
+            <semantics>The ActionResponse interaction should be sent in response to an ActionRequest interaction by the receiving federate.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSIMAN17</label>
+            <semantics>The ActionResponseFromObject interaction should be sent in response to an ActionRequestToObject interaction by the receiving federate.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSIMAN18</label>
+            <semantics>The Data interaction should be sent in response to a DataQuery interaction by the receiving federate.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSIMAN19</label>
+            <semantics>The Data interaction should be sent in response to a SetData interaction by the receiving federate.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSIMAN20</label>
+            <semantics>The RemoveObjectResult interaction should be sent in response to an RemoveObjectRequest interaction by the receiving federate.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSIMAN21</label>
+            <semantics>The RecordR interaction should be sent in response to a RecordQueryR interaction by the receiving federate.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSIMAN22</label>
+            <semantics>The type of the RecordStruct is determined by the value of the RecordSetIdentifier field. The types and associated units, etc., for each of the RecordSetIdentifier enumeration values The values for the individual fields are to be derived from the federation agreements, which could refer to SISO-REF-010.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteSIMAN23</label>
+            <semantics>All padding fields shall be set to the value 0</semantics>
+        </note>
+    </notes>
+</objectModel>

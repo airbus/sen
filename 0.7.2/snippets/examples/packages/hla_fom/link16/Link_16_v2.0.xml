@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<objectModel xsi:schemaLocation="http://standards.ieee.org/IEEE1516-2010 http://standards.ieee.org/downloads/1516/1516.2-2010/IEEE1516-DIF-2010.xsd" xmlns="http://standards.ieee.org/IEEE1516-2010" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelIdentification>
+        <name>SISO-STD-002 - Link 16 Simulation FOM module</name>
+        <type>FOM</type>
+        <version>2.0</version>
+        <modificationDate>2021-11-08</modificationDate>
+        <securityClassification>Unclassified</securityClassification>
+        <purpose>Defines the Link 16 model in an HLA federation</purpose>
+        <applicationDomain>C4ISR &amp; C2 platform simulations</applicationDomain>
+        <description>This module integrates the interaction classes of the SISO-STD-002 Standard for Link 16 Simulation into the RPR FOM 2.0.
+Note that the Enumerations module and the Communication module also have been updated.</description>
+        <useHistory>Updated for integration with the RPR FOM 2.0.</useHistory>
+        <poc>
+            <pocType>Primary author</pocType>
+            <pocName>TADIL TALES Product Development Group and Product Support Group</pocName>
+            <pocOrg>SISO - Simulation Interoperability Standards Organization</pocOrg>
+            <pocTelephone>+1 (407) 882-1348</pocTelephone>
+            <pocEmail>siso-help@sisostds.org</pocEmail>
+        </poc>
+        <reference>
+            <type>Text Document</type>
+            <identification>SISO-STD-002-2021
+Standard for Link 16 Simulation
+Version 2.0
+8 November 2021</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>SISO-STD-001-2015
+Standard for Guidance, Rationale, and Interoperability Modalities for the Real-time Platform Reference Federation Object Model
+Version 2.0
+10 August 2015</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>SISO-STD-001.1-2015
+Standard for Real-time Platform Reference Federation Object Model
+Version 2.0
+10 August 2015</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>SISO-REF-010-2020
+Reference for Enumerations for Simulation Interoperability
+Version 29
+19 May 2021</identification>
+        </reference>
+        <reference>
+            <type>Dependency</type>
+            <identification>Real-time Platform Reference Communication FOM Module</identification>
+        </reference>
+        <other>Copyright © 2021 by the Simulation Interoperability Standards Organization, Inc.
+7901 4th St. N, Suite 300-4043
+St. Petersburg, FL 33702, USA
+
+All rights reserved.
+
+Schema and API: SISO hereby grants a general, royalty-free license to copy, distribute, display, and make derivative works from this material, for all purposes, provided that any use of the material contains the following attribution: “Reprinted with permission from SISO Inc.” Should a reader require additional information, contact the SISO Inc. Board of Directors.
+
+Documentation: SISO hereby grants a general, royalty-free license to copy, distribute, display, and make derivative works from this material, for noncommercial purposes, provided that any use of the material contains the following attribution: “Reprinted with permission from SISO Inc.” The material may not be used for a commercial purpose without express written permission from the SISO Inc. Board of Directors.
+
+SISO Inc. Board of Directors
+7901 4th St. N, Suite 300-4043
+St. Petersburg, FL 33702, USA</other>
+    </modelIdentification>
+    <interactions>
+        <interactionClass>
+            <name>HLAinteractionRoot</name>
+            <interactionClass>
+                <name>RadioSignal</name>
+                <interactionClass>
+                    <name>RawBinaryRadioSignal</name>
+                    <interactionClass>
+                        <name>TDLBinaryRadioSignal</name>
+                        <sharing>Neither</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Parent class for all TDL radio signals.</semantics>
+                        <interactionClass>
+                            <name>Link16RadioSignal</name>
+                            <sharing>Subscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Link 16 radio signal common base class.</semantics>
+                            <parameter>
+                                <name>NPGNumber</name>
+                                <dataType>NetworkParticipationGroupNumber</dataType>
+                                <semantics>Network/Needline Participation Group (NPG) number. Not optional.</semantics>
+                            </parameter>
+                            <parameter>
+                                <name>NetNumber</name>
+                                <dataType>NetworkNumber</dataType>
+                                <semantics>Network Number. Not optional.</semantics>
+                            </parameter>
+                            <parameter>
+                                <name>TSEC_CVLL</name>
+                                <dataType>CryptoVariable</dataType>
+                                <semantics>Transmission Security Crypto Variable Logic Label. Optional for TSA Levels 0-2; default value: all bits set to one (no statement/wildcard).</semantics>
+                            </parameter>
+                            <parameter>
+                                <name>MSEC_CVLL</name>
+                                <dataType>CryptoVariable</dataType>
+                                <semantics>Message Security Crypto Variable Logic Label. Optional for TSA Levels 0-2; default value: all bits set to one (no statement/wildcard).</semantics>
+                            </parameter>
+                            <parameter>
+                                <name>SISOSTD002Version</name>
+                                <dataType>SISOSTD002VersionEnum8</dataType>
+                                <semantics>Indicates which SISO-STD-002 version was used, i.e., whether byte swapping has or has not been used in the Message Data field (0 = SISO-STD-002-2006, legacy byte swapping employed; 1 = SISO-STD-002-2021, new method, bit stream, no byte swapping employed). Not optional.</semantics>
+                            </parameter>
+                            <parameter>
+                                <name>Link16Version</name>
+                                <dataType>Link16VersionEnum8</dataType>
+                                <semantics>Indicates which version of MIL-STD-6016 or STANAG 5516 is being used. Optional; default value: NoStatement.</semantics>
+                            </parameter>
+                            <parameter>
+                                <name>TimeSlotID</name>
+                                <dataType>TimeSlotIdentifier</dataType>
+                                <semantics>Time slot identification. Optional for low-fidelity TSA Levels (0, 1); default value: all bits set to one (no statement/wildcard).</semantics>
+                            </parameter>
+                            <parameter>
+                                <name>PerceivedTransmitTime</name>
+                                <dataType>NTPTimestampStruct</dataType>
+                                <semantics>The time at which the radio signal is transmitted. Optional for low-fidelity synchronization (TSA Levels 0-3); default value: all bits set to one (no statement/wildcard).</semantics>
+                            </parameter>
+                            <interactionClass>
+                                <name>JTIDSMessageRadioSignal</name>
+                                <sharing>PublishSubscribe</sharing>
+                                <transportation>HLAbestEffort</transportation>
+                                <order>Receive</order>
+                                <semantics>Link 16 radio signal containing Fixed Word Format (FWF) TADIL-J messages.</semantics>
+                                <parameter>
+                                    <name>JTIDSHeader</name>
+                                    <dataType>JTIDSHeaderStruct</dataType>
+                                    <semantics>Link 16 Header Word. Not optional.</semantics>
+                                </parameter>
+                                <parameter>
+                                    <name>TADILJMessage</name>
+                                    <dataType>TADILJWordStructLengthlessArray1Plus</dataType>
+                                    <semantics>Link 16 message data words. Not optional.</semantics>
+                                </parameter>
+                            </interactionClass>
+                            <interactionClass>
+                                <name>RTTABRadioSignal</name>
+                                <sharing>PublishSubscribe</sharing>
+                                <transportation>HLAbestEffort</transportation>
+                                <order>Receive</order>
+                                <semantics>Link 16 radio signal containing an RTT/A or RTT/B message.</semantics>
+                                <parameter>
+                                    <name>RTTAB</name>
+                                    <dataType>RTTABStruct</dataType>
+                                    <semantics>JTIDS RTT A/B message word. Not optional.</semantics>
+                                </parameter>
+                            </interactionClass>
+                            <interactionClass>
+                                <name>RTTReplyRadioSignal</name>
+                                <sharing>PublishSubscribe</sharing>
+                                <transportation>HLAbestEffort</transportation>
+                                <order>Receive</order>
+                                <semantics>Link 16 radio signal containing an RTT Reply message.</semantics>
+                                <parameter>
+                                    <name>RTTReply</name>
+                                    <dataType>RTTReplyStruct</dataType>
+                                    <semantics>JTIDS RTT reply message word. Not optional.</semantics>
+                                </parameter>
+                            </interactionClass>
+                            <interactionClass>
+                                <name>JTIDSVoiceCVSDRadioSignal</name>
+                                <sharing>PublishSubscribe</sharing>
+                                <transportation>HLAbestEffort</transportation>
+                                <order>Receive</order>
+                                <semantics>Link 16 radio signal containing a voice message encoded using CVSD.</semantics>
+                                <parameter>
+                                    <name>DataLength</name>
+                                    <dataType>BitsUnsignedInteger16</dataType>
+                                    <semantics>The length of the encoded voice in the Data parameter, in bits. Not optional.</semantics>
+                                </parameter>
+                                <parameter>
+                                    <name>JTIDSHeader</name>
+                                    <dataType>JTIDSHeaderStruct</dataType>
+                                    <semantics>Link 16 Header Word. Not optional.</semantics>
+                                </parameter>
+                                <parameter>
+                                    <name>Data</name>
+                                    <dataType>OctetLengthlessArray29Plus</dataType>
+                                    <semantics>JTIDS CVSD encoded voice data. Not optional.</semantics>
+                                </parameter>
+                            </interactionClass>
+                            <interactionClass>
+                                <name>JTIDSVoiceLPC10RadioSignal</name>
+                                <sharing>PublishSubscribe</sharing>
+                                <transportation>HLAbestEffort</transportation>
+                                <order>Receive</order>
+                                <semantics>Link 16 radio signal containing a voice message encoded using LPC10.</semantics>
+                                <parameter>
+                                    <name>DataLength</name>
+                                    <dataType>BitsUnsignedInteger16</dataType>
+                                    <semantics>The length of the encoded voice in the Data parameter, in bits. Not optional.</semantics>
+                                </parameter>
+                                <parameter>
+                                    <name>JTIDSHeader</name>
+                                    <dataType>JTIDSHeaderStruct</dataType>
+                                    <semantics>Link 16 Header Word. Not optional.</semantics>
+                                </parameter>
+                                <parameter>
+                                    <name>Data</name>
+                                    <dataType>OctetLengthlessArray29Plus</dataType>
+                                    <semantics>JTIDS LPC10 encoded voice data. Not optional.</semantics>
+                                </parameter>
+                            </interactionClass>
+                            <interactionClass>
+                                <name>JTIDSVoiceLPC12RadioSignal</name>
+                                <sharing>PublishSubscribe</sharing>
+                                <transportation>HLAbestEffort</transportation>
+                                <order>Receive</order>
+                                <semantics>Link 16 radio signal containing a voice message encoded using LPC12.</semantics>
+                                <parameter>
+                                    <name>DataLength</name>
+                                    <dataType>BitsUnsignedInteger16</dataType>
+                                    <semantics>The length of the encoded voice in the Data parameter, in bits. Not optional.</semantics>
+                                </parameter>
+                                <parameter>
+                                    <name>JTIDSHeader</name>
+                                    <dataType>JTIDSHeaderStruct</dataType>
+                                    <semantics>Link 16 Header Word. Not optional.</semantics>
+                                </parameter>
+                                <parameter>
+                                    <name>Data</name>
+                                    <dataType>OctetLengthlessArray29Plus</dataType>
+                                    <semantics>JTIDS LPC12 encoded voice data. Not optional.</semantics>
+                                </parameter>
+                            </interactionClass>
+                            <interactionClass>
+                                <name>JTIDSLETRadioSignal</name>
+                                <sharing>PublishSubscribe</sharing>
+                                <transportation>HLAbestEffort</transportation>
+                                <order>Receive</order>
+                                <semantics>Link 16 radio signal containing Link 16 Enhanced Throughput (LET) encoded messages.</semantics>
+                                <parameter>
+                                    <name>LETHeader</name>
+                                    <dataType>LETHeaderStruct</dataType>
+                                    <semantics>LET Header Word. Not optional.</semantics>
+                                </parameter>
+                                <parameter>
+                                    <name>TADILJMessage</name>
+                                    <dataType>TADILJWordStructLengthlessArray1Plus</dataType>
+                                    <semantics>LET message data words. Not optional.</semantics>
+                                </parameter>
+                            </interactionClass>
+                            <interactionClass>
+                                <name>VMFRadioSignal</name>
+                                <sharing>PublishSubscribe</sharing>
+                                <transportation>HLAbestEffort</transportation>
+                                <order>Receive</order>
+                                <semantics>Link 16 radio signal containing Variable Message Format (VMF) messages.</semantics>
+                                <parameter>
+                                    <name>JTIDSHeader</name>
+                                    <dataType>JTIDSHeaderStruct</dataType>
+                                    <semantics>Link 16 Header Word. Not optional.</semantics>
+                                </parameter>
+                                <parameter>
+                                    <name>MessageData</name>
+                                    <dataType>TADILJWordStructLengthlessArray1Plus</dataType>
+                                    <semantics>Link 16 message data words with VMF information fields. Not optional.</semantics>
+                                </parameter>
+                            </interactionClass>
+                        </interactionClass>
+                    </interactionClass>
+                </interactionClass>
+            </interactionClass>
+        </interactionClass>
+    </interactions>
+    <dataTypes>
+        <simpleDataTypes>
+            <simpleData>
+                <name>CryptoVariable</name>
+                <representation>HLAoctet</representation>
+                <units>NA</units>
+                <resolution>NA</resolution>
+                <accuracy>NA</accuracy>
+                <semantics>An integer identification of the crypto variable used for JTIDS transmission and message encryption. This variable allows for simulated crypto netting. Valid range: [0,127] and all bits set to one indicating no statement/wildcard.</semantics>
+            </simpleData>
+            <simpleData>
+                <name>NetworkNumber</name>
+                <representation>HLAoctet</representation>
+                <units>NA</units>
+                <resolution>NA</resolution>
+                <accuracy>NA</accuracy>
+                <semantics>Used to create virtual sub-circuits within NPG for stacked nets or between NPGs for multi-net operations. Valid range: [0,127].</semantics>
+            </simpleData>
+            <simpleData>
+                <name>NetworkParticipationGroupNumber</name>
+                <representation>RPRunsignedInteger16BE</representation>
+                <units>NA</units>
+                <resolution>NA</resolution>
+                <accuracy>NA</accuracy>
+                <semantics>Used to segregate information within a JTIDS/MIDS network. Creates virtual networks of participants. Valid range: [0,511].</semantics>
+            </simpleData>
+            <simpleData>
+                <name>TimeSlotIdentifier</name>
+                <representation>RPRunsignedInteger32BE</representation>
+                <units>NA</units>
+                <resolution>NA</resolution>
+                <accuracy>NA</accuracy>
+                <semantics>Bits 0-16 indicate the Time Slot Number; valid arrange [0,98303]. Time Slot 0 represents time slot A-1, and Time Slot 98303 represents C-32767. When the Epoch is 112, the last valid time slot is 45151 (end of the day).
+Bits 17-23 are padding and set to 0.
+Bits 24-31 indicate the Epoch number; valid range [0,112]. An epoch is 12.8 minutes long, 112.5 epochs in a 24 hour day.
+All bits set to one (including the padding field) indicate a no statement/wildcard.</semantics>
+            </simpleData>
+        </simpleDataTypes>
+        <arrayDataTypes>
+            <arrayData>
+                <name>TADILJWordStructLengthlessArray1Plus</name>
+                <dataType>TADILJWordStruct</dataType>
+                <cardinality>[1..2147483647]</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>Array of at least 1 TADILJWordStruct, encoded without the number of array elements.</semantics>
+            </arrayData>
+            <arrayData>
+                <name>OctetArray6</name>
+                <dataType>Octet</dataType>
+                <cardinality>6</cardinality>
+                <encoding>HLAfixedArray</encoding>
+                <semantics>Array of 6 octets.</semantics>
+            </arrayData>
+            <arrayData>
+                <name>OctetArray10</name>
+                <dataType>Octet</dataType>
+                <cardinality>10</cardinality>
+                <encoding>HLAfixedArray</encoding>
+                <semantics>Array of 10 octets.</semantics>
+            </arrayData>
+            <arrayData>
+                <name>OctetLengthlessArray29Plus</name>
+                <dataType>Octet</dataType>
+                <cardinality>[29..2147483647]</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>Array of at least 29 octets, encoded without the number of array elements.</semantics>
+            </arrayData>
+        </arrayDataTypes>
+        <fixedRecordDataTypes>
+            <fixedRecordData>
+                <name>JTIDSHeaderStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Link 16 Header Word (35 bits) for common messages, JTIDS voice, and VMF. Padded to 48 bits.</semantics>
+                <field>
+                    <name>Data</name>
+                    <dataType>OctetArray6</dataType>
+                    <semantics>In total 48 bits, with the following fields:
+Bits 0-2: Time Slot Type.
+Bit 3: Relay Transmission Indicator.
+Bits 4-18: Source Track Number of Sender.
+Bits 19-34: Secure Data Unit Serial Number.
+Bits 35-47: Padding, set to 0.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>LETHeaderStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Link 16 Enhanced Throughput (LET) Header Word (40 bits). Padded to 48 bits.</semantics>
+                <field>
+                    <name>Data</name>
+                    <dataType>OctetArray6</dataType>
+                    <semantics>In total 48 bits, with the following fields:
+Bits 0-3: LET ID Symbol.
+Bit 4: Relay Transmission Indicator.
+Bits 5-8: LET Message Packing Type.
+Bits 9-23: Source Track Number of Sender.
+Bits 24-39: Secure Data Unit Serial Number.
+Bits 40-47: Padding, set to 0.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>NTPTimestampStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>64-bit timestamp format according to RFC 5905. All bits set to one in both fields indicate a no statement/wildcard.</semantics>
+                <field>
+                    <name>Seconds</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>Number of seconds since 0 h 1 January 1900 UTC.</semantics>
+                </field>
+                <field>
+                    <name>Fraction</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>Fraction of a second, in 1/(2^32) resolution (232 picoseconds).</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>RTTABStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>JTIDS RTT A/B word (35 bits). Padded to 48 bits.</semantics>
+                <field>
+                    <name>Data</name>
+                    <dataType>OctetArray6</dataType>
+                    <semantics>In total 48 bits, with the following fields:
+Bits 0-2: Time Slot Type.
+Bit 3: RTT Interrogation Type.
+Bits 4-18: variable content, see MIL-STD-6016 or STANAG 5516.
+Bits 19-34: Secure Data Unit Serial Number.
+Bits 35-47: Padding, set to 0.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>RTTReplyStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>JTIDS RTT Reply word (35 bits). Padded to 48 bits.</semantics>
+                <field>
+                    <name>Data</name>
+                    <dataType>OctetArray6</dataType>
+                    <semantics>In total 48 bits, with the following fields:
+Bits 0-18: Time of Arrival.
+Bits 19-34: Secure Data Unit Serial Number.
+Bits 35-47: Padding, set to 0.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>TADILJWordStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>TADIL-J word (75 bits) used for Fixed Word Format (FWF) messages and the Variable Message Format (VMF). Padded to 80 bits.</semantics>
+                <field>
+                    <name>Data</name>
+                    <dataType>OctetArray10</dataType>
+                    <semantics>In total 80 bits, with the following fields:
+Bits 0-1: Word Format.
+Bits 2-69: variable content, see MIL-STD-6016 or STANAG 5516 for FWF J-Words.
+Bits 70-74: Parity.
+Bits 75-79: Padding, set to 0.</semantics>
+                </field>
+            </fixedRecordData>
+        </fixedRecordDataTypes>
+    </dataTypes>
+</objectModel>

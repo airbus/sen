@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>SSE</title>
+    <style>
+    div {
+      display: block;
+    }
+    #args {
+      max-width: 32rem;
+      min-height: 3rem;
+    }
+    h1,h2,h3 {
+      padding: 0;
+      margin: 0;
+      margin-bottom: 1rem;
+    }
+    section {
+      display: flex; flex-direction: column; border: 1px solid gray; padding: 0.5rem; margin-bottom: 1rem;
+    }
+    .warning {
+      background-color: #ffaaaa;
+      padding: 1.2rem;
+    }
+    </style>
+  </head>
+  <body>
+    <input id="client-id" type="text" placeholder="Client ID" value="user1" style="margin-right: 0.5rem;">
+    <button onClick="senClient.startClientSession();">Start Session</button>
+    <input id="sse" type="checkbox" onchange="senClient.updateSSE()" checked>SSE</input>
+    <p class="warning">Open the dev console to see details.</p>
+    <div>
+      <section>
+        <h2>Interest</h2>
+        <input id="interest-name" style="max-width: 32rem; margin-bottom: 1rem;" placeholder="Interest name"></input>
+        <textarea id="interest-query" style="max-width: 32rem; margin-bottom: 1rem;"  placeholder="Interest query"></textarea>
+        <button style="max-width:32rem" onClick="senClient.createInterest();">Create Interest</button>
+      </section>
+      <section>
+        <h2>Available Interests</h2>
+        <div id="interests"><div>
+        <button style="max-width:32rem" onClick="senClient.reloadInterests();">Reload</button>
+      </section>
+    </div>
+    <section>
+      <h2>Sessions</h2>
+      <div id="sessions"></div>
+    </section>
+    <section>
+      <h2>Objects</h2>
+      <div id="objects" style="padding-bottom: 1rem"></div>
+      <h2>Object Methods</h2>
+      <div id="methods" style="padding-bottom: 1rem"></div>
+      <h2>Object Properties</h2>
+      <div id="properties" style="padding-bottom: 1rem"></div>
+      <h2>Object Events</h2>
+      <div id="events" style="padding-bottom: 1rem"></div>
+    </section>
+    <section>
+      <h2>Invoke Method Args</h2>
+      <textarea id="args"></textarea>
+    </section>
+  </body>
+  <script src="sen_client.js"></script>
+</html>

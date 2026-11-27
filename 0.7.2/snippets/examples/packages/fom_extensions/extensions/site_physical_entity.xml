@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Adds an attribute to an object class the RPR FOM declares. The class is named by nesting
+     down to it from HLAobjectRoot, which is the path a mappings file would use. -->
+<objectModel xmlns="http://standards.ieee.org/IEEE1516-2010">
+    <objects>
+        <objectClass>
+            <name>HLAobjectRoot</name>
+            <objectClass>
+                <name>BaseEntity</name>
+                <objectClass>
+                    <name>PhysicalEntity</name>
+                    <attribute>
+                        <name>SiteTrackNumber</name>
+                        <dataType>Integer32</dataType>
+                        <updateType>Conditional</updateType>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAreliable</transportation>
+                        <semantics>The track number this site assigns to the entity.</semantics>
+                    </attribute>
+                </objectClass>
+            </objectClass>
+        </objectClass>
+    </objects>
+</objectModel>

@@ -1,0 +1,1038 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<objectModel xsi:schemaLocation="http://standards.ieee.org/IEEE1516-2010 http://standards.ieee.org/downloads/1516/1516.2-2010/IEEE1516-DIF-2010.xsd" xmlns="http://standards.ieee.org/IEEE1516-2010" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelIdentification>
+        <name>SISO-STD-001.1-2015 - Real-time Platform Reference Physical FOM Module</name>
+        <type>FOM</type>
+        <version>2.0</version>
+        <modificationDate>2015-08-10</modificationDate>
+        <securityClassification>Unclassified</securityClassification>
+        <purpose>The RPR FOM supports interoperability for real-time, platform oriented defense simulation.</purpose>
+        <applicationDomain>All domains</applicationDomain>
+        <description>This module provides object class definitions for representing physical entities including aircraft, ground vehicles, ships, life forms, ammunition, etc. In addition it provides interaction classes to signal collisions between physical entities.</description>
+        <useLimitation></useLimitation>
+        <poc>
+            <pocType>Primary author</pocType>
+            <pocName>RPR FOM Product Development Group</pocName>
+            <pocOrg>SISO - Simulation Interoperability Standards Organization</pocOrg>
+            <pocTelephone>+1 (407) 882-1348</pocTelephone>
+            <pocEmail>siso-help@sisostds.org</pocEmail>
+        </poc>
+        <reference>
+            <type>Dependency</type>
+            <identification>Real-time Platform Reference Base FOM Module</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>Standard for Guidance, Rationale, and Interoperability Modalities for the Real-time Platform Reference Federation Object Model (RPR FOM)
+SISO-STD-001-2015
+10 August 2015</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>IEEE Standard for Distributed Interactive Simulation - Application Protocols
+IEEE Std 1278.1-1995
+September 21, 1995</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>IEEE Standard for Distributed Interactive Simulation - Application Protocols
+IEEE Std 1278.1a-1998
+19 March 1998</identification>
+        </reference>
+        <other>Copyright © 2015 by the Simulation Interoperability Standards Organization, Inc.
+P.O. Box 781238
+Orlando, FL 32878-1238, USA
+All rights reserved.
+
+Schema and API: SISO hereby grants a general, royalty-free license to copy, distribute, display, and make derivative works from this material, for all purposes, provided that any use of the material contains the following attribution: “Reprinted with permission from SISO Inc.” Should a reader require additional information, contact the SISO Inc. Board of Directors.
+
+Documentation: SISO hereby grants a general, royalty-free license to copy, distribute, display, and make derivative works from this material, for noncommercial purposes, provided that any use of the material contains the following attribution: “Reprinted with permission from SISO Inc.” The material may not be used for a commercial purpose without express written permission from the SISO Inc. Board of Directors.
+
+SISO Inc. Board of Directors
+P.O. Box 781238
+Orlando, FL 32878-1238, USA
+</other>
+        <glyph type="png" height="64" width="64" alt="">iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAABnJJREFUeNrsmktIVG0Yx0cdb6mZmqVmWeTdEE1BDBSSCOsjwmWCWxdtSiVCQSt0YYqISm0EL4i2UCgTLIh0kXRBCS1zoeb9FpVWKppWfr/mhcM0o9M5c0b9hm+exXDmPee8z/15/s87oz1y5IhGo7Gzs9NYG21sbPCp/fHjx/T0tMY66dChQ/aOjo4aqyWEt9dYOdkUsCnw9evXgoKC8PBwX19fSmJ/f7+i17W7K31vb29eXt6jR4/E17CwMFHWd0gBKrGaBvLq1ausrKwXL15IK6dOndq7d+/OhZBK6bOzs/Wlh+Lj460jB4T0z58/11/08vI6c+aM0q3MCaHBwcHXr19PTEx8/vx53759ERER0dHRNEVnZ2ezpYeioqKOHz+uWJqgoKAN2TQ8PJyZmRkQEKAfPPb29kh/9uzZpqamsbGxhYWFtbW1rXZ4+fIlgW4shoODQ1VV1YZCQngFHmhvb7969erQ0JBBDvz69WtaR52dnSEhIXFxcYTygQMHKIuo6uTkJFAXeo6Pj+fn5xvbHgoMDDx8+PD6+rpSaGOHEpjNxBPIh2R1dXXNzc3fv3+Xs6m7u7uLiwui8IlpJW2XlpZmZ2c3fQVVExISYmJiaAiRkZEnTpyQw+jo0aOmQgiDVVZWJicnY8XtTmsHHbm6upLKqKEqhDB5d3d3bW1tW1vbzMzMztSlnz9/8rmiI3FtThX6+PHj/fv36+vrUYBwtAos9IcCXV1dVBLSkdgV+eTm5ibyD/8CWigv2ycKgert7R0cHJyRkWFmEq/p6Nu3b5QagodYWl1dpSziU65HRkYmJydZ4euePXtYwd08TF5++vRJjBeQVqslX8Vdxj39KPfz8/Pw8OCWiGAeo3Xs378f/IPclC/6ib+/v5T3cpJYa2ADiBpCTTCGPTCGpVQThXpISTsbHR1FbtzF6+Ix2tytW7fevHkj7YB1CwsLaRf6OAp9YMdulgkh07DHwDB8ddMRpQMh5ufnKbIUyg8fPnAXH5JRBmmKnjQyTM7ziE6vUArd1HZiY0KmtLQ02hBiYWOQhauONg0DUguFEZoIJJyuXLlCXqnhrqwTb0okwPv37798+SIkxlFIyQUisqKPOOBHSuAHHx+fpKSk06dPp6Sk4AdLViEzKDExsa+vzzYT2xSwKWBTwKaATQGbArvTiQ0IZA44BaWavYOEwAU2AYCAtMHYO6EAcl+/fr2/v39ubk7CPwIgiSFBzlklg5RA2hIcTE1Nramp2fK0QiUa1acnT56IPYFrAjADORktPD09VZqmubl5u9CoPrW2tvKZkJBw7949Ox2J4wymtuLi4rq6OhS7cOECE480SABOHz58+NcjdV5nEtp8eLCUB4aHh728vNjw9u3bxndbWlq4df78eeNbqG06uoQhKisrN/WAxapQWVkZ0zPRIg5oRfQbnJqcPHnS4PxGHGmZHinZikm9urpaTN7bUkbfvXvX0NDABRUjNjZWY3TyThILb//BWyc3U6jQxDQRZo2NjaqqEGYQszwm4QKjigmLuoH5kYNnmDBv3ryJ9IuLi87OzrieWEd6spC7WJF8EGc2DHGsMIK2t7cbuGsrP9y9e/fSpUtM0srORnt6ejo6Orq6uiiOFJaVlRWGd/IJKZlol5eXkYlBXo4VVTUs7e/f5EtKSq5duyb3bBSqra0VM+6uE20Bd8XHx5MJcpOY8Oju7qY98TJqqDm9UU/iuOnt27dPnz6VmwOAAnG4y5skwHYHyV9zgFjFplNTUwoUkJ4W0oeGhqanp4uf4siNpqamwcFBywpqgoWoxYaBYCIHnj17FhgYyDPixy8qgPEzLFpQejksKioq9HPAlAKPHz8W3Rtgk5OTIxZv3Ljxj464ECvcsoj0MlmUlpbKVYB8x5u8k5SUJFYuX76sz5KvYh2/q48cmSzoM3IVgGgRwC9iievc3Fxjxixyq7y8XKUC7CCTheQWocDfG5lEUVFRAwMDBouRkZHgCHHX7B91wPrSJluxACyeO3eOPC4qKhJxoTH+fcA0iXPzrRbBm2bXWamwmGBx7NixBw8eoIDBv0EUKHDw4EEKq/GiuIiIiFCfxyZY0Ezxjyo0evHiRZmLZpM5LBQNNFuVCAuSIhaKR8o7d+74+vrSIDW6v8ZQ0SwOGZSyUFCF/oNEFbKdzNkU+N8rYC1/6tiUEJ5ZWfsbElnn3+8R/l8BBgBYyeAIZ9jsvgAAAABJRU5ErkJggg==</glyph>
+    </modelIdentification>
+    <objects>
+        <objectClass>
+            <name>HLAobjectRoot</name>
+            <objectClass>
+                <name>BaseEntity</name>
+                <objectClass>
+                    <name>PhysicalEntity</name>
+                    <sharing>Subscribe</sharing>
+                    <semantics>A base class of all discrete platform scenario domain participants.</semantics>
+                    <attribute notes="RPRnotePhysical2">
+                        <name>AcousticSignatureIndex</name>
+                        <dataType>Integer16</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Index used to obtain the acoustics (sound through air) signature state of the entity.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnotePhysical9">
+                        <name>AlternateEntityType</name>
+                        <dataType>EntityTypeStruct</dataType>
+                        <updateType>Static</updateType>
+                        <updateCondition>NA</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The category of entity to be used when viewed by entities on the 'opposite' side.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnotePhysical1">
+                        <name>ArticulatedParametersArray</name>
+                        <dataType>ArticulatedParameterStructLengthlessArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Identification of the visible parts, and their states, of the entity which are capable of independent motion.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnotePhysical7">
+                        <name>CamouflageType</name>
+                        <dataType>CamouflageEnum32</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The type of camouflage in use (if any).</semantics>
+                    </attribute>
+                    <attribute notes="RPRnotePhysical6">
+                        <name>DamageState</name>
+                        <dataType>DamageStatusEnum32</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The state of damage of the entity.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnotePhysical3">
+                        <name>EngineSmokeOn</name>
+                        <dataType>RPRboolean</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Whether the entity's engine is generating smoke or not.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnotePhysical3">
+                        <name>FirePowerDisabled</name>
+                        <dataType>RPRboolean</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Whether the entity's main weapon system has been disabled or not.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnotePhysical3">
+                        <name>FlamesPresent</name>
+                        <dataType>RPRboolean</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Whether the entity is on fire (with visible flames) or not.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnotePhysical4">
+                        <name>ForceIdentifier</name>
+                        <dataType>ForceIdentifierEnum8</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The identification of the force that the entity belongs to.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnotePhysical3">
+                        <name>HasAmmunitionSupplyCap</name>
+                        <dataType>RPRboolean</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Whether the entity has the capability to supply other entities with ammunition.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnotePhysical3">
+                        <name>HasFuelSupplyCap</name>
+                        <dataType>RPRboolean</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Whether the entity has the capability to supply other entities with fuel or not.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnotePhysical3">
+                        <name>HasRecoveryCap</name>
+                        <dataType>RPRboolean</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Whether the entity has the capability to recover other entities or not.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnotePhysical3">
+                        <name>HasRepairCap</name>
+                        <dataType>RPRboolean</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Whether the entity has the capability to repair other entities or not.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnotePhysical3">
+                        <name>Immobilized</name>
+                        <dataType>RPRboolean</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Whether the entity is immobilized or not.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnotePhysical2">
+                        <name>InfraredSignatureIndex</name>
+                        <dataType>Integer16</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Index used to obtain the infra-red signature state of the entity.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnotePhysical3">
+                        <name>IsConcealed</name>
+                        <dataType>RPRboolean</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Whether the entity is concealed or not.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnotePhysical2">
+                        <name>LiveEntityMeasuredSpeed</name>
+                        <dataType>VelocityDecimeterPerSecondInteger16</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The entity's own measurement of speed (e.g. air speed for aircraft).</semantics>
+                    </attribute>
+                    <attribute notes="RPRnotePhysical1">
+                        <name>Marking</name>
+                        <dataType>MarkingStruct</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>A unique marking or combination of characters used to distinguish the entity from other entities.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnotePhysical3">
+                        <name>PowerPlantOn</name>
+                        <dataType>RPRboolean</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Whether the entity's power plant is on or not.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnotePhysical1">
+                        <name>PropulsionSystemsData</name>
+                        <dataType>PropulsionSystemDataStructLengthlessArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The basic operating data of the propulsion systems aboard the entity.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnotePhysical2">
+                        <name>RadarCrossSectionSignatureIndex</name>
+                        <dataType>Integer16</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Index used to obtain the radar cross section signature state of the entity.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnotePhysical3">
+                        <name>SmokePlumePresent</name>
+                        <dataType>RPRboolean</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Whether the entity is generating smoke or not (intentional or unintentional).</semantics>
+                    </attribute>
+                    <attribute notes="RPRnotePhysical3">
+                        <name>TentDeployed</name>
+                        <dataType>RPRboolean</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>Whether the entity has deployed tent or not.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnotePhysical3">
+                        <name>TrailingEffectsCode</name>
+                        <dataType>TrailingEffectsCodeEnum32</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The type and size of any trail that the entity is making.</semantics>
+                    </attribute>
+                    <attribute notes="RPRnotePhysical1">
+                        <name>VectoringNozzleSystemData</name>
+                        <dataType>VectoringNozzleSystemDataStructLengthlessArray</dataType>
+                        <updateType>Conditional</updateType>
+                        <updateCondition>On change</updateCondition>
+                        <ownership>DivestAcquire</ownership>
+                        <sharing>PublishSubscribe</sharing>
+                        <transportation>HLAbestEffort</transportation>
+                        <order>Receive</order>
+                        <semantics>The basic operational data for the vectoring nozzle systems aboard the entity.</semantics>
+                    </attribute>
+                    <objectClass>
+                        <name>Platform</name>
+                        <sharing>Subscribe</sharing>
+                        <semantics>A physical object under the control of armed forces upon which sensor, communication, or weapon systems may be mounted.</semantics>
+                        <attribute notes="RPRnotePhysical3 RPRnotePhysical10 RPRnotePhysical13">
+                            <name>AfterburnerOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Whether the entity's afterburner is on or not.</semantics>
+                        </attribute>
+                        <attribute notes="RPRnotePhysical3 RPRnotePhysical10 RPRnotePhysical13">
+                            <name>AntiCollisionLightsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Whether the entity's anti-collision lights are on or not.</semantics>
+                        </attribute>
+                        <attribute notes="RPRnotePhysical3 RPRnotePhysical11 RPRnotePhysical12 RPRnotePhysical13">
+                            <name>BlackOutBrakeLightsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Whether the entity's black out brake lights are on or not.</semantics>
+                        </attribute>
+                        <attribute notes="RPRnotePhysical3 RPRnotePhysical11 RPRnotePhysical12 RPRnotePhysical13">
+                            <name>BlackOutLightsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Whether the entity's black out lights are on or not.</semantics>
+                        </attribute>
+                        <attribute notes="RPRnotePhysical3 RPRnotePhysical11 RPRnotePhysical12 RPRnotePhysical13">
+                            <name>BrakeLightsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Whether the entity's brake lights are on or not.</semantics>
+                        </attribute>
+                        <attribute notes="RPRnotePhysical3 RPRnotePhysical10 RPRnotePhysical13">
+                            <name>FormationLightsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Whether the entity's formation lights are on or not.</semantics>
+                        </attribute>
+                        <attribute notes="RPRnotePhysical5 RPRnotePhysical11 RPRnotePhysical12 RPRnotePhysical13 RPRnotePhysical14">
+                            <name>HatchState</name>
+                            <dataType>HatchStateEnum32</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>The state of the entity's (main) hatch.</semantics>
+                        </attribute>
+                        <attribute notes="RPRnotePhysical3 RPRnotePhysical11 RPRnotePhysical12 RPRnotePhysical13">
+                            <name>HeadLightsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Whether the entity's headlights are on or not.</semantics>
+                        </attribute>
+                        <attribute notes="RPRnotePhysical3 RPRnotePhysical10 RPRnotePhysical11 RPRnotePhysical12 RPRnotePhysical13 RPRnotePhysical15">
+                            <name>InteriorLightsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Whether the entity's internal lights are on or not.</semantics>
+                        </attribute>
+                        <attribute notes="RPRnotePhysical3 RPRnotePhysical10 RPRnotePhysical13">
+                            <name>LandingLightsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Whether the entity's landing lights are on or not.</semantics>
+                        </attribute>
+                        <attribute notes="RPRnotePhysical3 RPRnotePhysical13">
+                            <name>LauncherRaised</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Whether the entity's weapon launcher is in the raised position.</semantics>
+                        </attribute>
+                        <attribute notes="RPRnotePhysical3 RPRnotePhysical10 RPRnotePhysical13">
+                            <name>NavigationLightsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Whether the entity's navigation lights are on or not.</semantics>
+                        </attribute>
+                        <attribute notes="RPRnotePhysical3 RPRnotePhysical13">
+                            <name>RampDeployed</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Whether the entity has deployed a ramp or not.</semantics>
+                        </attribute>
+                        <attribute notes="RPRnotePhysical3 RPRnotePhysical11 RPRnotePhysical13 RPRnotePhysical14 RPRnotePhysical15">
+                            <name>RunningLightsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Whether the entity's running lights are on or not.</semantics>
+                        </attribute>
+                        <attribute notes="RPRnotePhysical3 RPRnotePhysical10 RPRnotePhysical11 RPRnotePhysical12 RPRnotePhysical13 RPRnotePhysical15">
+                            <name>SpotLightsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Whether the entity's spotlights are on or not.</semantics>
+                        </attribute>
+                        <attribute notes="RPRnotePhysical3 RPRnotePhysical11 RPRnotePhysical12 RPRnotePhysical13">
+                            <name>TailLightsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Whether the entity's tail lights are on or not.</semantics>
+                        </attribute>
+                        <objectClass>
+                            <name>Aircraft</name>
+                            <sharing>PublishSubscribe</sharing>
+                            <semantics>A platform entity that operates mainly in the air, such as aircraft, balloons, etc. This includes the entities when they are on the ground.</semantics>
+                        </objectClass>
+                        <objectClass>
+                            <name>AmphibiousVehicle</name>
+                            <sharing>PublishSubscribe</sharing>
+                            <semantics>A platform entity that can operate both on the land and the sea.</semantics>
+                        </objectClass>
+                        <objectClass>
+                            <name>GroundVehicle</name>
+                            <sharing>PublishSubscribe</sharing>
+                            <semantics>A platform entity that operates wholly on the surface of the earth.</semantics>
+                        </objectClass>
+                        <objectClass>
+                            <name>MultiDomainPlatform</name>
+                            <sharing>PublishSubscribe</sharing>
+                            <semantics>A platform entity that operates in more than one domain (excluding those combinations explicitly defined as subclasses of the superclass of this class).</semantics>
+                        </objectClass>
+                        <objectClass>
+                            <name>Spacecraft</name>
+                            <sharing>PublishSubscribe</sharing>
+                            <semantics>A platform entity that operates mainly in space.</semantics>
+                        </objectClass>
+                        <objectClass>
+                            <name>SubmersibleVessel</name>
+                            <sharing>PublishSubscribe</sharing>
+                            <semantics>A platform entity that operates either on the surface of the sea, or beneath it.</semantics>
+                        </objectClass>
+                        <objectClass>
+                            <name>SurfaceVessel</name>
+                            <sharing>PublishSubscribe</sharing>
+                            <semantics>A platform entity that operates wholly on the surface of the sea.</semantics>
+                        </objectClass>
+                    </objectClass>
+                    <objectClass>
+                        <name>Lifeform</name>
+                        <sharing>Subscribe</sharing>
+                        <semantics>A living military platform (human or not).</semantics>
+                        <attribute notes="RPRnotePhysical3">
+                            <name>FlashLightsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Whether the lifeform's flash lights are on or not.</semantics>
+                        </attribute>
+                        <attribute notes="RPRnotePhysical5">
+                            <name>StanceCode</name>
+                            <dataType>StanceCodeEnum32</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>The stance of the lifeform.</semantics>
+                        </attribute>
+                        <attribute notes="RPRnotePhysical8">
+                            <name>PrimaryWeaponState</name>
+                            <dataType>WeaponStateEnum32</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>The state of the soldier's primary weapon system.</semantics>
+                        </attribute>
+                        <attribute notes="RPRnotePhysical8">
+                            <name>SecondaryWeaponState</name>
+                            <dataType>WeaponStateEnum32</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>The state of the soldier's secondary weapon system.</semantics>
+                        </attribute>
+                        <attribute notes="RPRnotePhysical4">
+                            <name>ComplianceState</name>
+                            <dataType>ComplianceStateEnum32</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>The compliance of the lifeform.</semantics>
+                        </attribute>
+                        <objectClass>
+                            <name>Human</name>
+                            <sharing>PublishSubscribe</sharing>
+                            <semantics>A human lifeform.</semantics>
+                        </objectClass>
+                        <objectClass>
+                            <name>NonHuman</name>
+                            <sharing>PublishSubscribe</sharing>
+                            <semantics>An animal or other non-human lifeform.</semantics>
+                        </objectClass>
+                    </objectClass>
+                    <objectClass>
+                        <name>CulturalFeature</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <semantics>Engineering and natural effects such as craters, bridges, vehicle tracks, etc.</semantics>
+                        <attribute notes="RPRnotePhysical3">
+                            <name>ExternalLightsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Whether the cultural feature's external lights are on or not.</semantics>
+                        </attribute>
+                        <attribute notes="RPRnotePhysical3">
+                            <name>InternalHeatSourceOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Whether the cultural feature's internal heat source is on or not.</semantics>
+                        </attribute>
+                        <attribute notes="RPRnotePhysical3">
+                            <name>InternalLightsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Whether the cultural feature's internal lights are on or not.</semantics>
+                        </attribute>
+                    </objectClass>
+                    <objectClass>
+                        <name>Munition</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <semantics>A complete device charged with explosives, propellants, pyrotechnics, initiating composition, or nuclear, biological or chemical material for use in military operations, including demolitions.</semantics>
+                        <attribute notes="RPRnotePhysical3">
+                            <name>LauncherFlashPresent</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Whether the flash of the munition being launched is present or not.</semantics>
+                        </attribute>
+                    </objectClass>
+                    <objectClass>
+                        <name>Expendables</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <semantics>Countermeasures devices that are dispensed from another entity. The devices may be active emitters or passive reflectors of energy.</semantics>
+                    </objectClass>
+                    <objectClass>
+                        <name>Radio</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <semantics>Electronic devices for the communication of both audio and data, operated by entities belonging to armed forces.</semantics>
+                    </objectClass>
+                    <objectClass>
+                        <name>Sensor</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <semantics>Sensors and emitters, such as stand-alone radars, jammers, and detection systems, that are not part of another platform or system described by another Physical Entity, and are operated by armed forces.</semantics>
+                        <attribute notes="RPRnotePhysical3">
+                            <name>AntennaRaised</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Whether the sensor/emitter's antenna is raised or not.</semantics>
+                        </attribute>
+                        <attribute notes="RPRnotePhysical3">
+                            <name>BlackoutLightsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Whether the sensor/emitter's blackout lights are on or not.</semantics>
+                        </attribute>
+                        <attribute notes="RPRnotePhysical3">
+                            <name>LightsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Whether the sensor/emitter's lights are on or not.</semantics>
+                        </attribute>
+                        <attribute notes="RPRnotePhysical3">
+                            <name>InteriorLightsOn</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Whether the sensor/emitter's interior lights are on or not.</semantics>
+                        </attribute>
+                        <attribute notes="RPRnotePhysical3">
+                            <name>MissionKill</name>
+                            <dataType>RPRboolean</dataType>
+                            <updateType>Conditional</updateType>
+                            <updateCondition>On change</updateCondition>
+                            <ownership>DivestAcquire</ownership>
+                            <sharing>PublishSubscribe</sharing>
+                            <transportation>HLAbestEffort</transportation>
+                            <order>Receive</order>
+                            <semantics>Whether the sensor/emitter has sustained damage that will prevent it carrying out its mission or not (e.g. damaged antenna).</semantics>
+                        </attribute>
+                    </objectClass>
+                    <objectClass>
+                        <name>Supplies</name>
+                        <sharing>PublishSubscribe</sharing>
+                        <semantics>Supplies other than munitions, such as fuel, food and personnel.</semantics>
+                    </objectClass>
+                </objectClass>
+            </objectClass>
+        </objectClass>
+    </objects>
+    <interactions>
+        <interactionClass>
+            <name>HLAinteractionRoot</name>
+            <interactionClass>
+                <name>Collision</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>The act or instance of coming together with solid impact.</semantics>
+                <parameter notes="RPRnotePhysical16">
+                    <name>CollidingObjectIdentifier</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>The object instance ID of the object that the issuing object has collided with.</semantics>
+                </parameter>
+                <parameter>
+                    <name>IssuingObjectMass</name>
+                    <dataType>MassKilogramFloat32</dataType>
+                    <semantics>The mass of the issuing object.</semantics>
+                </parameter>
+                <parameter>
+                    <name>IssuingObjectVelocityVector</name>
+                    <dataType>VelocityVectorStruct</dataType>
+                    <semantics>The velocity vector of the issuing object at the moment of impact.</semantics>
+                </parameter>
+                <parameter>
+                    <name>CollisionType</name>
+                    <dataType>CollisionTypeEnum8</dataType>
+                    <semantics>The type of collision.</semantics>
+                </parameter>
+                <parameter>
+                    <name>CollisionLocation</name>
+                    <dataType>RelativePositionStruct</dataType>
+                    <semantics>The location of the collision relative to the object that the issuing object has collided with.</semantics>
+                </parameter>
+                <parameter>
+                    <name>EventIdentifier</name>
+                    <dataType>EventIdentifierStruct</dataType>
+                    <semantics>An ID assigned by the issuing object to associate related collision events.</semantics>
+                </parameter>
+                <parameter notes="RPRnotePhysical17">
+                    <name>IssuingObjectIdentifier</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>The object instance ID of the object that has detected the collision and issued the collision interaction.</semantics>
+                </parameter>
+                <interactionClass>
+                    <name>CollisionElastic</name>
+                    <sharing>PublishSubscribe</sharing>
+                    <transportation>HLAbestEffort</transportation>
+                    <order>Receive</order>
+                    <semantics>The act or instance of coming together with solid impact in an elastic manner. An elastic collision allows a higher fidelity collision to be modeled, taking into account linear and rotational momentum transfer, variable elasticity, and momentum transfer that is dependent on surface orientation.</semantics>
+                    <parameter>
+                        <name>CoefficientOfRestitution</name>
+                        <dataType>Float32</dataType>
+                        <semantics>The degree that energy is conserved in a collision.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>IntermediateResultXX</name>
+                        <dataType>Float32</dataType>
+                        <semantics>X-X Component of the positive semi-definite Collision Intermediate Result matrix.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>IntermediateResultXY</name>
+                        <dataType>Float32</dataType>
+                        <semantics>X-Y Component of the positive semi-definite Collision Intermediate Result matrix.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>IntermediateResultXZ</name>
+                        <dataType>Float32</dataType>
+                        <semantics>X-Z Component of the positive semi-definite Collision Intermediate Result matrix.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>IntermediateResultYY</name>
+                        <dataType>Float32</dataType>
+                        <semantics>Y-Y Component of the positive semi-definite Collision Intermediate Result matrix.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>IntermediateResultYZ</name>
+                        <dataType>Float32</dataType>
+                        <semantics>Y-Z Component of the positive semi-definite Collision Intermediate Result matrix.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>IntermediateResultZZ</name>
+                        <dataType>Float32</dataType>
+                        <semantics>Z-Z Component of the positive semi-definite Collision Intermediate Result matrix.</semantics>
+                    </parameter>
+                    <parameter>
+                        <name>UnitSurfaceNormal</name>
+                        <dataType>EntityCoordinateVectorStruct</dataType>
+                        <semantics>The normal vector to the surface at the point of collision detection.</semantics>
+                    </parameter>
+                </interactionClass>
+            </interactionClass>
+        </interactionClass>
+    </interactions>
+    <dataTypes>
+        <simpleDataTypes>
+            <simpleData>
+                <name>RevolutionsPerMinuteFloat32</name>
+                <representation>HLAfloat32BE</representation>
+                <units>RPM</units>
+                <resolution>NA</resolution>
+                <accuracy>perfect</accuracy>
+                <semantics>Rotation speed expressed in revolutions per minute.</semantics>
+            </simpleData>
+            <simpleData>
+                <name>VelocityDecimeterPerSecondInteger16</name>
+                <representation>RPRunsignedInteger16BE</representation>
+                <units>decimeter per second (dm/s)</units>
+                <resolution>1</resolution>
+                <accuracy>perfect</accuracy>
+                <semantics>Velocity/Speed measured in decimeter per second.</semantics>
+            </simpleData>
+        </simpleDataTypes>
+        <arrayDataTypes>
+            <arrayData>
+                <name>MarkingArray11</name>
+                <dataType>Octet</dataType>
+                <cardinality>11</cardinality>
+                <encoding>HLAfixedArray</encoding>
+                <semantics>String of characters represented by an 11 element character string.</semantics>
+            </arrayData>
+            <arrayData>
+                <name>PropulsionSystemDataStructLengthlessArray</name>
+                <dataType>PropulsionSystemDataStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>A set of Propulsion System Data descriptions.</semantics>
+            </arrayData>
+            <arrayData>
+                <name>VectoringNozzleSystemDataStructLengthlessArray</name>
+                <dataType>VectoringNozzleSystemDataStruct</dataType>
+                <cardinality>Dynamic</cardinality>
+                <encoding>RPRlengthlessArray</encoding>
+                <semantics>A set of Vectoring Nozzle System Data description.</semantics>
+            </arrayData>
+        </arrayDataTypes>
+        <fixedRecordDataTypes>
+            <fixedRecordData>
+                <name>EntityCoordinateVectorStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Vector in the entity coordinate system. Based on the Entity Coordinate Vector record as specified in IEEE 1278.1-1995 section 5.2.33a.</semantics>
+                <field>
+                    <name>XComponent</name>
+                    <dataType>MeterFloat32</dataType>
+                    <semantics>Component along the X axis</semantics>
+                </field>
+                <field>
+                    <name>YComponent</name>
+                    <dataType>MeterFloat32</dataType>
+                    <semantics>Component along the Y axis</semantics>
+                </field>
+                <field>
+                    <name>ZComponent</name>
+                    <dataType>MeterFloat32</dataType>
+                    <semantics>Component along the Z axis</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData notes="RPRnotePhysical18">
+                <name>MarkingStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Character set used in the marking and the string of characters to be interpreted for display.</semantics>
+                <field>
+                    <name>MarkingEncodingType</name>
+                    <dataType>MarkingEncodingEnum8</dataType>
+                    <semantics>Character set representation.</semantics>
+                </field>
+                <field>
+                    <name>MarkingData</name>
+                    <dataType>MarkingArray11</dataType>
+                    <semantics>11 element character string</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>PropulsionSystemDataStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Information describing a propulsion system in terms of power settings and current RPM.</semantics>
+                <field>
+                    <name>PowerSetting</name>
+                    <dataType>Float32</dataType>
+                    <semantics>The power setting of the propulsion system, after any response lags have been incorporated.</semantics>
+                </field>
+                <field>
+                    <name>EngineRPM</name>
+                    <dataType>RevolutionsPerMinuteFloat32</dataType>
+                    <semantics>The current engine speed.</semantics>
+                </field>
+            </fixedRecordData>
+            <fixedRecordData>
+                <name>VectoringNozzleSystemDataStruct</name>
+                <encoding>HLAfixedRecord</encoding>
+                <semantics>Operational data for describing the vectoring nozzle systems being simulated.</semantics>
+                <field>
+                    <name>HorizontalDeflectionAngle</name>
+                    <dataType>AngleDegreeFloat32</dataType>
+                    <semantics>The nozzle deflection angle in the horizontal body axis of the entity.</semantics>
+                </field>
+                <field>
+                    <name>VerticalDeflectionAngle</name>
+                    <dataType>AngleDegreeFloat32</dataType>
+                    <semantics>The nozzle deflection angle in the vertical body axis of the entity.</semantics>
+                </field>
+            </fixedRecordData>
+        </fixedRecordDataTypes>
+    </dataTypes>
+    <notes>
+        <note>
+            <label>RPRnotePhysical1</label>
+            <semantics>Default value: empty</semantics>
+        </note>
+        <note>
+            <label>RPRnotePhysical2</label>
+            <semantics>Default value: 0</semantics>
+        </note>
+        <note>
+            <label>RPRnotePhysical3</label>
+            <semantics>Default value: False</semantics>
+        </note>
+        <note>
+            <label>RPRnotePhysical4</label>
+            <semantics>Default value: Other</semantics>
+        </note>
+        <note>
+            <label>RPRnotePhysical5</label>
+            <semantics>Default value: NotApplicable</semantics>
+        </note>
+        <note>
+            <label>RPRnotePhysical6</label>
+            <semantics>Default value: NoDamage</semantics>
+        </note>
+        <note>
+            <label>RPRnotePhysical7</label>
+            <semantics>Default value: UniformPaintScheme</semantics>
+        </note>
+        <note>
+            <label>RPRnotePhysical8</label>
+            <semantics>Default value: NoWeapon</semantics>
+        </note>
+        <note>
+            <label>RPRnotePhysical9</label>
+            <semantics>Default value: BaseEntity.EntityType</semantics>
+        </note>
+        <note>
+            <label>RPRnotePhysical10</label>
+            <semantics>Applicable to Aircraft</semantics>
+        </note>
+        <note>
+            <label>RPRnotePhysical11</label>
+            <semantics>Applicable to AmphibiousVehicle</semantics>
+        </note>
+        <note>
+            <label>RPRnotePhysical12</label>
+            <semantics>Applicable to GroundVehicle</semantics>
+        </note>
+        <note>
+            <label>RPRnotePhysical13</label>
+            <semantics>Applicable to MultiDomainPlatform</semantics>
+        </note>
+        <note>
+            <label>RPRnotePhysical14</label>
+            <semantics>Applicable to SubmersibleVessel</semantics>
+        </note>
+        <note>
+            <label>RPRnotePhysical15</label>
+            <semantics>Applicable to SurfaceVessel</semantics>
+        </note>
+        <note>
+            <label>RPRnotePhysical16</label>
+            <semantics>If there is no object instance associated with the parameter, then this should be set to the empty string (no characters). Refer to SISO-STD-001 section 7.8.6 for handling empty strings.</semantics>
+        </note>
+        <note>
+            <label>RPRnotePhysical17</label>
+            <semantics>This must reference a valid object instance.</semantics>
+        </note>
+        <note>
+            <label>RPRnotePhysical18</label>
+            <semantics>The units and semantics for the MarkingData array elements are specified by the value of the MarkingEncodingType.</semantics>
+        </note>
+    </notes>
+</objectModel>

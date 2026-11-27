@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<objectModel xsi:schemaLocation="http://standards.ieee.org/IEEE1516-2010 http://standards.ieee.org/downloads/1516/1516.2-2010/IEEE1516-DIF-2010.xsd" xmlns="http://standards.ieee.org/IEEE1516-2010" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelIdentification>
+        <name>SISO-STD-001.1-2015 - Real-time Platform Reference Warfare FOM Module</name>
+        <type>FOM</type>
+        <version>2.0</version>
+        <modificationDate>2015-08-10</modificationDate>
+        <securityClassification>Unclassified</securityClassification>
+        <purpose>The RPR FOM supports interoperability for real-time, platform oriented defense simulation.</purpose>
+        <applicationDomain>All domains</applicationDomain>
+        <description>Represents the firing and detonation of munitions.</description>
+        <useLimitation></useLimitation>
+        <poc>
+            <pocType>Primary author</pocType>
+            <pocName>RPR FOM Product Development Group</pocName>
+            <pocOrg>SISO - Simulation Interoperability Standards Organization</pocOrg>
+            <pocTelephone>+1 (407) 882-1348</pocTelephone>
+            <pocEmail>siso-help@sisostds.org</pocEmail>
+        </poc>
+        <reference>
+            <type>Dependency</type>
+            <identification>Real-time Platform Reference Base FOM Module</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>Standard for Guidance, Rationale, and Interoperability Modalities for the Real-time Platform Reference Federation Object Model (RPR FOM)
+SISO-STD-001-2015
+10 August 2015</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>IEEE Standard for Distributed Interactive Simulation - Application Protocols
+IEEE Std 1278.1-1995
+September 21, 1995</identification>
+        </reference>
+        <reference>
+            <type>Text Document</type>
+            <identification>IEEE Standard for Distributed Interactive Simulation - Application Protocols
+IEEE Std 1278.1a-1998
+19 March 1998</identification>
+        </reference>
+        <other>Copyright © 2015 by the Simulation Interoperability Standards Organization, Inc.
+P.O. Box 781238
+Orlando, FL 32878-1238, USA
+All rights reserved.
+
+Schema and API: SISO hereby grants a general, royalty-free license to copy, distribute, display, and make derivative works from this material, for all purposes, provided that any use of the material contains the following attribution: “Reprinted with permission from SISO Inc.” Should a reader require additional information, contact the SISO Inc. Board of Directors.
+
+Documentation: SISO hereby grants a general, royalty-free license to copy, distribute, display, and make derivative works from this material, for noncommercial purposes, provided that any use of the material contains the following attribution: “Reprinted with permission from SISO Inc.” The material may not be used for a commercial purpose without express written permission from the SISO Inc. Board of Directors.
+
+SISO Inc. Board of Directors
+P.O. Box 781238
+Orlando, FL 32878-1238, USA
+</other>
+        <glyph type="png" height="64" width="64" alt="">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</glyph>
+    </modelIdentification>
+    <interactions>
+        <interactionClass>
+            <name>HLAinteractionRoot</name>
+            <interactionClass>
+                <name>WeaponFire</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>Communicates information associated with the firing or launch of a munition.</semantics>
+                <parameter>
+                    <name>EventIdentifier</name>
+                    <dataType>EventIdentifierStruct</dataType>
+                    <semantics>An ID, generated by the issuing federate, used to associate related fire and detonation events.</semantics>
+                </parameter>
+                <parameter>
+                    <name>FireControlSolutionRange</name>
+                    <dataType>LengthMeterFloat32</dataType>
+                    <semantics>The range used in the fire control solution. Zero if the range is unknown or inapplicable.</semantics>
+                </parameter>
+                <parameter>
+                    <name>FireMissionIndex</name>
+                    <dataType>UnsignedInteger32</dataType>
+                    <semantics>A unique index to identify the fire mission (used to associate weapon fire interactions in a single fire mission).</semantics>
+                </parameter>
+                <parameter>
+                    <name>FiringLocation</name>
+                    <dataType>WorldLocationStruct</dataType>
+                    <semantics>The location, in world coordinates, from which the munition was launched.</semantics>
+                </parameter>
+                <parameter notes="RPRnoteWarfare2">
+                    <name>FiringObjectIdentifier</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>The object instance ID of the entity firing the munition.</semantics>
+                </parameter>
+                <parameter>
+                    <name>FuseType</name>
+                    <dataType>FuseTypeEnum16</dataType>
+                    <semantics>The type of fuse on the munition.</semantics>
+                </parameter>
+                <parameter>
+                    <name>InitialVelocityVector</name>
+                    <dataType>VelocityVectorStruct</dataType>
+                    <semantics>The velocity vector of the munition when fired.</semantics>
+                </parameter>
+                <parameter notes="RPRnoteWarfare1">
+                    <name>MunitionObjectIdentifier</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>The object instance ID of the fired munition, if an object instance is registered.</semantics>
+                </parameter>
+                <parameter>
+                    <name>MunitionType</name>
+                    <dataType>EntityTypeStruct</dataType>
+                    <semantics>The type of munition being fired.</semantics>
+                </parameter>
+                <parameter>
+                    <name>QuantityFired</name>
+                    <dataType>UnsignedInteger16</dataType>
+                    <semantics>The number of rounds fired in the burst.</semantics>
+                </parameter>
+                <parameter>
+                    <name>RateOfFire</name>
+                    <dataType>UnsignedInteger16</dataType>
+                    <semantics>The rate of fire in rounds per minute when quantity &gt; 1. Zero otherwise.</semantics>
+                </parameter>
+                <parameter notes="RPRnoteWarfare1">
+                    <name>TargetObjectIdentifier</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>The object instance ID of the intended target (if any).</semantics>
+                </parameter>
+                <parameter>
+                    <name>WarheadType</name>
+                    <dataType>WarheadTypeEnum16</dataType>
+                    <semantics>The type of warhead fitted to the munition being fired.</semantics>
+                </parameter>
+            </interactionClass>
+            <interactionClass>
+                <name>MunitionDetonation</name>
+                <sharing>PublishSubscribe</sharing>
+                <transportation>HLAbestEffort</transportation>
+                <order>Receive</order>
+                <semantics>Communicates information associated with the impact or detonation of a munition</semantics>
+                <parameter>
+                    <name>ArticulatedPartData</name>
+                    <dataType>ArticulatedParameterStructLengthlessArray</dataType>
+                    <semantics>The set of articulated parts affected by the detonation (including where on the articulated part the detonation has affected).</semantics>
+                </parameter>
+                <parameter>
+                    <name>DetonationLocation</name>
+                    <dataType>WorldLocationStruct</dataType>
+                    <semantics>The location, in world coordinates, at which the munition detonated.</semantics>
+                </parameter>
+                <parameter>
+                    <name>DetonationResultCode</name>
+                    <dataType>DetonationResultCodeEnum8</dataType>
+                    <semantics>The type of detonation (including no detonation).</semantics>
+                </parameter>
+                <parameter>
+                    <name>EventIdentifier</name>
+                    <dataType>EventIdentifierStruct</dataType>
+                    <semantics>An ID, generated by the issuing federate, used to associate related fire and detonation events.</semantics>
+                </parameter>
+                <parameter notes="RPRnoteWarfare2">
+                    <name>FiringObjectIdentifier</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>The object instance ID of the entity that fired the munition.</semantics>
+                </parameter>
+                <parameter>
+                    <name>FinalVelocityVector</name>
+                    <dataType>VelocityVectorStruct</dataType>
+                    <semantics>The velocity vector of the munition at the moment of the detonation.</semantics>
+                </parameter>
+                <parameter>
+                    <name>FuseType</name>
+                    <dataType>FuseTypeEnum16</dataType>
+                    <semantics>The type of fuse on the munition.</semantics>
+                </parameter>
+                <parameter notes="RPRnoteWarfare1">
+                    <name>MunitionObjectIdentifier</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>The Object instance ID of the fired munition, if an object instance is registered.</semantics>
+                </parameter>
+                <parameter>
+                    <name>MunitionType</name>
+                    <dataType>EntityTypeStruct</dataType>
+                    <semantics>The type of munition that is detonating.</semantics>
+                </parameter>
+                <parameter>
+                    <name>QuantityFired</name>
+                    <dataType>UnsignedInteger16</dataType>
+                    <semantics>The number of rounds fired in the burst.</semantics>
+                </parameter>
+                <parameter>
+                    <name>RateOfFire</name>
+                    <dataType>UnsignedInteger16</dataType>
+                    <semantics>The rate of fire in rounds per minute when quantity &gt; 1. Zero otherwise.</semantics>
+                </parameter>
+                <parameter>
+                    <name>RelativeDetonationLocation</name>
+                    <dataType>RelativePositionStruct</dataType>
+                    <semantics>The location of the detonation in coordinates relative to the target entity (if any).</semantics>
+                </parameter>
+                <parameter notes="RPRnoteWarfare1">
+                    <name>TargetObjectIdentifier</name>
+                    <dataType>RTIobjectId</dataType>
+                    <semantics>The object instance ID of the entity that the munition has detonated on (if any).</semantics>
+                </parameter>
+                <parameter>
+                    <name>WarheadType</name>
+                    <dataType>WarheadTypeEnum16</dataType>
+                    <semantics>The type of warhead on the munition.</semantics>
+                </parameter>
+            </interactionClass>
+        </interactionClass>
+    </interactions>
+    <notes>
+        <note>
+            <label>RPRnoteWarfare1</label>
+            <semantics>If there is no object instance associated with the parameter, then this should be set to the empty string (no characters). Refer to SISO-STD-001 section 7.8.6 for handling empty strings.</semantics>
+        </note>
+        <note>
+            <label>RPRnoteWarfare2</label>
+            <semantics>This must reference a valid Object instance.</semantics>
+        </note>
+    </notes>
+</objectModel>

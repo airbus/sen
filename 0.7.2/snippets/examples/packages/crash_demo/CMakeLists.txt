@@ -1,0 +1,18 @@
+# === CMakeLists.txt ===================================================================================================
+#                                               Sen Infrastructure
+#                   Released under the Apache License v2.0 (SPDX-License-Identifier Apache-2.0).
+#                                    See the LICENSE.txt file for more information.
+#                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+# ======================================================================================================================
+
+include(tps/spdlog)
+
+add_sen_package(
+  TARGET crash_demo
+  MAINTAINER "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
+  VERSION "0.0.1"
+  DESCRIPTION "an object that fails on purpose, shown in users_guide/crash_reports.md"
+  SOURCES src/faulty.h src/faulty.cpp
+  STL_FILES stl/crash_demo/faulty.stl
+  PRIVATE_DEPS spdlog::spdlog
+)

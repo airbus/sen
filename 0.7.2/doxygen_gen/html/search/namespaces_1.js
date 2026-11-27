@@ -1,0 +1,28 @@
+var searchData=
+[
+  ['sen_0',['sen',['../namespacesen.html',1,'']]],
+  ['sen_3a_3adb_1',['db',['../namespacesen_1_1db.html',1,'sen']]],
+  ['sen_3a_3adb_3a_3apython_2',['python',['../namespacesen_1_1db_1_1python.html',1,'sen::db']]],
+  ['sen_3a_3adb_3a_3atest_3',['test',['../namespacesen_1_1db_1_1test.html',1,'sen::db']]],
+  ['sen_3a_3adetail_4',['detail',['../namespacesen_1_1detail.html',1,'sen']]],
+  ['sen_3a_3agen_5',['gen',['../namespacesen_1_1gen.html',1,'sen']]],
+  ['sen_3a_3agen_3a_3adetail_6',['detail',['../namespacesen_1_1gen_1_1detail.html',1,'sen::gen']]],
+  ['sen_3a_3agen_3a_3adetail_3a_3aimpl_7',['impl',['../namespacesen_1_1gen_1_1detail_1_1impl.html',1,'sen::gen::detail']]],
+  ['sen_3a_3agen_3a_3atest_8',['test',['../namespacesen_1_1gen_1_1test.html',1,'sen::gen']]],
+  ['sen_3a_3akernel_9',['kernel',['../namespacesen_1_1kernel.html',1,'sen']]],
+  ['sen_3a_3akernel_3a_3acrash_10',['crash',['../namespacesen_1_1kernel_1_1crash.html',1,'sen::kernel']]],
+  ['sen_3a_3alang_11',['lang',['../namespacesen_1_1lang.html',1,'sen']]],
+  ['sen_3a_3alang_3a_3afom_12',['fom',['../namespacesen_1_1lang_1_1fom.html',1,'sen::lang']]],
+  ['sen_3a_3astd_5futil_13',['std_util',['../namespacesen_1_1std__util.html',1,'sen']]],
+  ['sen_3a_3astd_5futil_3a_3adetail_14',['detail',['../namespacesen_1_1std__util_1_1detail.html',1,'sen::std_util']]],
+  ['sen_3a_3astd_5futil_3a_3aimpl_15',['impl',['../namespacesen_1_1std__util_1_1impl.html',1,'sen::std_util']]],
+  ['sen_3a_3atest_16',['test',['../namespacesen_1_1test.html',1,'sen']]],
+  ['sen_3a_3atest_3a_3acrash_5freport_17',['crash_report',['../namespacesen_1_1test_1_1crash__report.html',1,'sen::test']]],
+  ['sen_3a_3atest_3a_3aruntime_18',['runtime',['../namespacesen_1_1test_1_1runtime.html',1,'sen::test']]],
+  ['sen_3a_3atest_3a_3atype_5fclash_19',['type_clash',['../namespacesen_1_1test_1_1type__clash.html',1,'sen::test']]],
+  ['sen_3a_3autil_20',['util',['../namespacesen_1_1util.html',1,'sen']]],
+  ['sen_3a_3autil_3a_3aimpl_21',['impl',['../namespacesen_1_1util_1_1impl.html',1,'sen::util']]],
+  ['spdlog_22',['spdlog',['../namespacespdlog.html',1,'']]],
+  ['spdlog_3a_3alevel_23',['level',['../namespacespdlog_1_1level.html',1,'spdlog']]],
+  ['std_24',['std',['../namespacestd.html',1,'']]]
+];

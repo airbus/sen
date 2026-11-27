@@ -1,0 +1,7 @@
+# $schema: ../base/schema.json
+# Same as 1_shapes_producer.yaml but with the explorer GUI loaded.
+# Use this when you want to visually monitor shape positions and collision events
+# without having to type shell commands.
+include:
+  - 1_shapes_producer.yaml
+  - ../base/explorer_exp.yaml

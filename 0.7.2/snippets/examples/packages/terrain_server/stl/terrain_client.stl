@@ -1,0 +1,7 @@
+package terrain_server;
+
+// Just a base class to illustrate how to listen to the server.
+class TerrainClient
+{
+  var serverBus : string [static];
+}

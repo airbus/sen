@@ -1,0 +1,9 @@
+{
+  "classes": {
+    "fibonacci.Worker": {
+      "deferredMethods": [
+        "computeFibonacci"
+      ]
+    }
+  }
+}

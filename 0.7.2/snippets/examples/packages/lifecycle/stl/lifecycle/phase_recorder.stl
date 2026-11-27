@@ -1,0 +1,17 @@
+package lifecycle;
+
+// Records which phases of the execution cycle ran on this object, so the
+// ordering the kernel guarantees can be observed rather than described.
+class PhaseRecorder
+{
+  // Cycles completed since this object was registered.
+  var cycles : i32;
+
+  // How the phases ran in the last completed cycle, staged from preCommit().
+  // A string is unbounded, and Sen refuses to carry an unbounded property over a
+  // best-effort transport, so this one has to be confirmed.
+  var lastCycle : string [confirmed];
+
+  // The same summary on demand, without waiting for the next commit.
+  fn report() -> string [const];
+}

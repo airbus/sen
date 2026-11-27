@@ -1,0 +1,7 @@
+# $schema: ../base/schema.json
+
+# this example creates two ClassRoom objects in the school.primary
+# and school.secondary buses respectively.
+include:
+  - 1_school_two_classrooms_one_component.yaml
+  - ../base/ether.yaml
