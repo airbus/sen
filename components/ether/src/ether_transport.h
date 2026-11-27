@@ -100,7 +100,10 @@ private:
   void stopIO() noexcept override
   {
     std::lock_guard lock(ioMutex_);
-    io_->stop();
+    if (io_)
+    {
+      io_->stop();
+    }
   }
 
 private:
@@ -139,9 +142,11 @@ private:
   std::unordered_map<kernel::ProcessId, ProcessHandler*> readyProcesses_;
   std::unordered_map<kernel::BusId, LocalBusState> localBuses_;
   std::recursive_mutex procMutex_;
-  std::unique_ptr<asio::io_context> io_;
+  // The executor keeps a copy while run() is active. This prevents shutdown on the
+  // executor thread from destroying the scheduler underneath asio::io_context::run().
+  std::shared_ptr<asio::io_context> io_;
   std::thread executor_;
-  std::unique_ptr<Acceptor> acceptor_;
+  std::shared_ptr<Acceptor> acceptor_;
   std::shared_ptr<spdlog::logger> logger_;
   std::unique_ptr<sen::kernel::Tracer> tracer_;
   std::mutex ioMutex_;
