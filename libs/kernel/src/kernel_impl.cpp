@@ -39,12 +39,15 @@
 
 // std
 #include <algorithm>
+#include <atomic>
 #include <chrono>
+#include <cmath>
 #include <cstdint>
 #include <cstdlib>
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <thread>
@@ -74,6 +77,30 @@ KernelImpl::KernelImpl(std::shared_ptr<kernel::OperatingSystem> os, Kernel& subj
 // is deliberately not disarmed here: it is armed once for the process by whoever owns the process,
 // so one kernel going would otherwise leave every other kernel, and the host, unreported.
 KernelImpl::~KernelImpl() = default;
+
+bool KernelImpl::supportsSleepFactor() const noexcept { return config_.getParams().runMode == RunMode::realTime; }
+
+void KernelImpl::setSleepFactor(double factor)
+{
+  if (!supportsSleepFactor())
+  {
+    throw std::invalid_argument("sleepFactor is available only in real time mode");
+  }
+  if (!std::isfinite(factor))
+  {
+    throw std::invalid_argument("sleepFactor must be a finite number between 0 and 1");
+  }
+  sleepFactor_.store(factor, std::memory_order_relaxed);
+}
+
+void KernelImpl::setTimeCompression(double compression)
+{
+  if (!std::isfinite(compression) || compression <= 0.0)
+  {
+    throw std::invalid_argument("timeCompression must be a finite number greater than 0 and less than or equal to 1");
+  }
+  timeCompression_.store(compression, std::memory_order_relaxed);
+}
 
 int KernelImpl::run(KernelBlockMode blockMode)
 {

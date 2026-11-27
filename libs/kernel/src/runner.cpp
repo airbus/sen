@@ -45,11 +45,13 @@
 #include <algorithm>
 #include <atomic>
 #include <chrono>
+#include <cmath>
 #include <cstdint>
 #include <exception>
 #include <functional>
 #include <future>
 #include <iterator>
+#include <limits>
 #include <memory>
 #include <optional>
 #include <stdexcept>
@@ -119,6 +121,46 @@ ExecError nameTheComponent(const char* operation, const ComponentContext& contex
   msg.append("error ").append(operation).append(" component '").append(context.info.name).append("': ");
   msg.append(err.explanation);
   return ExecError {err.category, msg};
+}
+
+[[nodiscard]] TimeStamp advanceComponentTime(TimeStamp current, Duration step, double timeCompression) noexcept
+{
+  constexpr auto minTime = std::numeric_limits<TimeStamp::ValueType>::min();
+  constexpr auto maxTime = std::numeric_limits<TimeStamp::ValueType>::max();
+  constexpr auto minTimeAsFloat = static_cast<long double>(minTime);
+  constexpr auto maxTimeExclusive = -minTimeAsFloat;
+  const auto currentNanoseconds = current.sinceEpoch().getNanoseconds();
+  auto stepNanoseconds = step.getNanoseconds();
+
+  if (timeCompression != 1.0)
+  {
+    const auto scaledStep = std::round(static_cast<long double>(stepNanoseconds) / timeCompression);
+    if (scaledStep < minTimeAsFloat || scaledStep >= maxTimeExclusive)
+    {
+      // A step can exceed Duration's range even when it ends at a representable time.
+      const auto target = std::round(static_cast<long double>(currentNanoseconds) + scaledStep);
+      if (target >= maxTimeExclusive)
+      {
+        return TimeStamp(Duration {maxTime});
+      }
+      if (target < minTimeAsFloat)
+      {
+        return TimeStamp(Duration {minTime});
+      }
+      return TimeStamp(Duration {static_cast<TimeStamp::ValueType>(target)});
+    }
+    stepNanoseconds = static_cast<Duration::ValueType>(scaledStep);
+  }
+
+  if (stepNanoseconds > 0 && currentNanoseconds > maxTime - stepNanoseconds)
+  {
+    return TimeStamp(Duration {maxTime});
+  }
+  if (stepNanoseconds < 0 && currentNanoseconds < minTime - stepNanoseconds)
+  {
+    return TimeStamp(Duration {minTime});
+  }
+  return current + Duration {stepNanoseconds};
 }
 
 }  // namespace
@@ -911,8 +953,9 @@ void Runner::virtualTimeExecLoop(std::function<void()>&& workFunction)
     {
       case WorkerCommand::commandTimeAdvance:
       {
-        nextExecutionDeltaTime_ -= targetVirtualTime_ - time_;
-        time_ = targetVirtualTime_;
+        nextExecutionDeltaTime_ -= virtualTimeDelta_;
+        virtualScheduleTime_ += virtualTimeDelta_;
+        time_ = advanceComponentTime(time_, virtualTimeDelta_, virtualTimeCompression_);
 
         if (nextExecutionDeltaTime_ <= 0)
         {
@@ -938,7 +981,7 @@ void Runner::virtualTimeExecLoop(std::function<void()>&& workFunction)
 
           // Delta time until the next execution calculated as the cycleTime (1/freq)
           // minus the time advanced from the execution of the last cycle
-          nextExecutionDeltaTime_ = cycleTime.get() - (time_->sinceEpoch().get() % cycleTime.get());
+          nextExecutionDeltaTime_ = cycleTime.get() - (virtualScheduleTime_.sinceEpoch().get() % cycleTime.get());
           const auto commitStartCpuTime = getThreadCpuTime();
           commit();
           executionCpuTime += getThreadCpuTime() - commitStartCpuTime;
@@ -973,6 +1016,7 @@ void Runner::initializeTime()
 {
   if (runsVirtualTimeLoop())
   {
+    virtualScheduleTime_ = {};
     time_ = TimeStamp {};
     startTime_ = {};
   }
@@ -1000,9 +1044,11 @@ void Runner::realTimeExecLoop(std::function<void()>&& workFunction, bool logOver
   const auto startOfSchedule = time_->sinceEpoch().toChrono();
   auto nextCalibrationTime = startOfSchedule + wallClock.getCalibrateIntervalNs();
 
-  auto time64 = startOfSchedule;
+  auto nextCycleStart = startOfSchedule;
 
   bool firstCycle = true;
+  // Infrastructure that opts out of virtual time keeps its wall-clock timestamps in virtual kernels.
+  const bool scalesComponentTime = !needsVirtualTime();
 
   const bool isKernel = (name_ == "kernel");
   std::string nameToUse;
@@ -1047,18 +1093,21 @@ void Runner::realTimeExecLoop(std::function<void()>&& workFunction, bool logOver
       }
     }
 
-    // time64 now marks the next cycle
-    time64 += period;
+    // Keep a separate component time step when the wall-clock deadline is shortened.
+    auto componentTimeStep = period;
+    nextCycleStart += period;
 
     int64_t missedCycles = 0;
 
     // check if we need to skip cycles. A clock that jumps forward puts the next cycle an arbitrary
     // distance away, so walk to it in one step: period by period is unbounded and stopFlag_ is not
     // read along the way. Only ever forward, as the bus discards updates stamped before the last.
-    if (workEnd > time64)
+    if (workEnd > nextCycleStart)
     {
-      missedCycles = cyclesToCover(workEnd - time64, period);
-      time64 += period * missedCycles;
+      missedCycles = cyclesToCover(workEnd - nextCycleStart, period);
+      const auto skippedTime = period * missedCycles;
+      nextCycleStart += skippedTime;
+      componentTimeStep += skippedTime;
     }
 
     if (missedCycles > 0)
@@ -1093,57 +1142,74 @@ void Runner::realTimeExecLoop(std::function<void()>&& workFunction, bool logOver
       nextCalibrationTime = workEnd + calibrateInterval;
     }
 
-  doSleep:
-    // sleep until nextCycleStart, never asking for longer than a cycle. A backward jump makes this
-    // difference arbitrarily large, and the sleeper issues it as one call that does not read
-    // stopFlag_. This bounds the request, not the sleep: where highResNow is the system clock, a
-    // jump landing inside a sleep still holds it for the size of the jump.
-    sleeper.sleep(static_cast<std::chrono::nanoseconds>(std::min(time64 - wallClock.highResNow(), period)));
-    const auto wakeUpTime = wallClock.highResNow();
-
-    // How late the thread woke for the cycle it was waiting for. The sleeper promises a minimum
-    // and no maximum, so this is the scheduler's contribution, kept apart from the component's.
-    const auto startDelay = wakeUpTime - time64;
-    tracer_->plot(oversleepPlotName_, startDelay.count());
-    lastCycleStartDelay_.store(startDelay.count(), std::memory_order_relaxed);
-
-    if (startDelay.count() > worstStartDelay_.load(std::memory_order_relaxed))
+    const auto sleepFactor = kernel_.getSleepFactor();
+    if (sleepFactor == 0.0)
     {
-      worstStartDelay_.store(startDelay.count(), std::memory_order_relaxed);
+      nextCycleStart = wallClock.highResNow();
     }
-
-    // check if we missed one or more cycles while sleeping
-    int64_t oversleptCycles = 0;
-
-    // jump over the cycles we missed, in one step for the same reason as above
-    if (wakeUpTime - time64 > period)
+    else
     {
-      oversleptCycles = cyclesToCover(wakeUpTime - time64 - period, period);
-      time64 += period * oversleptCycles;
-    }
-
-    if (oversleptCycles > 0)
-    {
-      oversleptCount_.fetch_add(static_cast<uint64_t>(oversleptCycles), std::memory_order_relaxed);
-      tracer_->message(oversleptMessage_);
-
-      if (SEN_LIKELY(logOverruns))
+      if (sleepFactor < 1.0)
       {
-        SPDLOG_LOGGER_WARN(logger, oversleptMessage_);
+        const auto now = wallClock.highResNow();
+        const auto remaining = std::clamp(nextCycleStart - now, NanoSecs::zero(), period);
+        const auto shortened = static_cast<NanoSecs::rep>(static_cast<long double>(remaining.count()) * sleepFactor);
+        nextCycleStart = now + NanoSecs {shortened};
       }
 
-      // check if we have enough time to run. If not, sleep until the next cycle
-      if (wakeUpTime - time64 > halfPeriod)
+    doSleep:
+      // sleep until nextCycleStart, never asking for longer than a cycle. A backward jump makes this
+      // difference arbitrarily large, and the sleeper issues it as one call that does not read
+      // stopFlag_. This bounds the request, not the sleep: where highResNow is the system clock, a
+      // jump landing inside a sleep still holds it for the size of the jump.
+      const auto remaining = std::min(nextCycleStart - wallClock.highResNow(), period);
+      if (remaining > NanoSecs::zero())
       {
-        // that cycle is dropped too, so it is counted with the ones slept through
-        oversleptCount_.fetch_add(1U, std::memory_order_relaxed);
-        time64 += period;
-        goto doSleep;  // NOLINT(cppcoreguidelines-avoid-goto, hicpp-avoid-goto)
+        sleeper.sleep(remaining);
+      }
+      const auto wakeUpTime = wallClock.highResNow();
+
+      // How late the thread woke for the cycle it was waiting for. The sleeper promises a minimum
+      // and no maximum, so this is the scheduler's contribution, kept apart from the component's.
+      const auto startDelay = wakeUpTime - nextCycleStart;
+      tracer_->plot(oversleepPlotName_, startDelay.count());
+      lastCycleStartDelay_.store(startDelay.count(), std::memory_order_relaxed);
+
+      if (startDelay.count() > worstStartDelay_.load(std::memory_order_relaxed))
+      {
+        worstStartDelay_.store(startDelay.count(), std::memory_order_relaxed);
+      }
+
+      // jump over the cycles we missed, in one step for the same reason as above
+      if (startDelay > period)
+      {
+        const auto oversleptCycles = cyclesToCover(startDelay - period, period);
+        const auto skippedTime = period * oversleptCycles;
+        nextCycleStart += skippedTime;
+        componentTimeStep += skippedTime;
+        oversleptCount_.fetch_add(static_cast<uint64_t>(oversleptCycles), std::memory_order_relaxed);
+        tracer_->message(oversleptMessage_);
+
+        if (SEN_LIKELY(logOverruns))
+        {
+          SPDLOG_LOGGER_WARN(logger, oversleptMessage_);
+        }
+
+        // check if we have enough time to run. If not, sleep until the next cycle
+        if (wakeUpTime - nextCycleStart > halfPeriod)
+        {
+          // that cycle is dropped too, so it is counted with the ones slept through
+          oversleptCount_.fetch_add(1U, std::memory_order_relaxed);
+          nextCycleStart += period;
+          componentTimeStep += period;
+          goto doSleep;  // NOLINT(cppcoreguidelines-avoid-goto, hicpp-avoid-goto)
+        }
       }
     }
 
     firstCycle = false;
-    time_ = TimeStamp(time64);
+    const auto timeCompression = scalesComponentTime ? kernel_.getTimeCompression() : 1.0;
+    time_ = advanceComponentTime(time_, Duration(componentTimeStep), timeCompression);
     tracer_->frameEnd(nameToUse);
   }
 }
