@@ -70,3 +70,23 @@ load test_helpers
     [ "$status" -ne 0 ]
     [[ "$output" == *"--compiler"* ]]
 }
+
+@test "requires exactly one checksum choice for a local archive" {
+    load_install
+    run parse_args --archive ./sen.tar.gz
+    [ "$status" -ne 0 ]
+    [[ "$output" == *"requires exactly one"* ]]
+    run parse_args --archive ./sen.tar.gz --checksums ./SHA256SUMS --skip-checksum
+    [ "$status" -ne 0 ]
+    [[ "$output" == *"requires exactly one"* ]]
+}
+
+@test "rejects online release selection options with a local archive" {
+    load_install
+    local option
+    for option in 0.5.2 --compiler=gcc-12.4.0 --symbols --debug-symbols --debug; do
+        run parse_args "$option" --archive ./sen.tar.gz --skip-checksum
+        [ "$status" -ne 0 ]
+        [[ "$output" == *"cannot be combined"* ]]
+    done
+}

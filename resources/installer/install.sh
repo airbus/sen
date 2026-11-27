@@ -31,6 +31,9 @@ SENV_VERSION_ARG=""
 SENV_COMPILER=""
 SENV_NON_INTERACTIVE=0
 SENV_ALLOW_ROOT=0
+SENV_LOCAL_ARCHIVE=""
+SENV_LOCAL_CHECKSUMS=""
+SENV_SKIP_CHECKSUM=0
 
 # Resolve-stage scratch globals. Functions set these instead of using command substitution so callers don't have to
 # round-trip through subshells (where set -e behaviour is harder to reason about).
@@ -250,6 +253,7 @@ print_usage() {
 $(paint bold "Sen quick installer") $(paint dim "v$SENV_INSTALLER_VERSION")
 
 $(paint bold "Usage:") sh install.sh [<version>] [options]
+       sh install.sh --archive <path> (--checksums <path> | --skip-checksum) [options]
 
 $(paint bold "Options:")
   --compiler <name>-<ver>     pick a specific toolchain (gcc-12.4.0, clang-16.0.0, msvc-19.X)
@@ -260,12 +264,15 @@ $(paint bold "Options:")
                               a crash in it; a much larger download
   --debug                     fetch the unoptimised build, which runs Sen's own internal
                               checks; Linux only, and a much larger download
+  --archive <path>            install a local Linux release tarball without network access
+  --checksums <path>          verify the local archive against a local SHA256SUMS file
+  --skip-checksum             explicitly skip verification of the local archive
   -y, --yes                   non-interactive (refuse rather than open the menu)
   --allow-root                allow running as root (containers)
   -h, --help                  show this help
   -V, --version               print installer version
 
-If <version> is omitted, the script prints the available release tags and
+If neither <version> nor --archive is given, the script prints the available release tags and
 exits. Multiple builds for one version (different compilers / archs) trigger
 an interactive menu unless --compiler resolves to exactly one or --yes is set.
 EOF
@@ -276,11 +283,24 @@ parse_args() {
     SENV_COMPILER=""
     SENV_NON_INTERACTIVE=0
     SENV_ALLOW_ROOT=0
+    SENV_LOCAL_ARCHIVE=""
+    SENV_LOCAL_CHECKSUMS=""
+    SENV_SKIP_CHECKSUM=0
     # What a release ships for running. The other archive carries debug information and is
     # much larger, so it is asked for rather than offered by default.
     SENV_BUILD_TYPE="release"
     while [ $# -gt 0 ]; do
         case "$1" in
+            --archive|--checksums)
+                            case "${2:-}" in
+                                ""|-*) err "install.sh:" "$1 needs a path."; return 1 ;;
+                            esac
+                            case "$1" in
+                                --archive) SENV_LOCAL_ARCHIVE="$2" ;;
+                                --checksums) SENV_LOCAL_CHECKSUMS="$2" ;;
+                            esac
+                            shift 2 ;;
+            --skip-checksum) SENV_SKIP_CHECKSUM=1; shift ;;
             --compiler)     SENV_COMPILER="${2:-}"
                             [ -n "$SENV_COMPILER" ] || { err "install.sh:" "--compiler needs a value."; return 1; }
                             shift 2 ;;
@@ -307,6 +327,21 @@ parse_args() {
                 shift ;;
         esac
     done
+
+    if [ -n "$SENV_LOCAL_ARCHIVE" ]; then
+        if [ -n "$SENV_VERSION_ARG$SENV_COMPILER" ] || [ "$SENV_BUILD_TYPE" != "release" ]; then
+            err "install.sh:" "--archive cannot be combined with a release tag or build selection options."
+            return 1
+        fi
+        if { [ -z "$SENV_LOCAL_CHECKSUMS" ] && [ "$SENV_SKIP_CHECKSUM" = 0 ]; } ||
+           { [ -n "$SENV_LOCAL_CHECKSUMS" ] && [ "$SENV_SKIP_CHECKSUM" = 1 ]; }; then
+            err "install.sh:" "--archive requires exactly one of --checksums and --skip-checksum."
+            return 1
+        fi
+    elif [ -n "$SENV_LOCAL_CHECKSUMS" ] || [ "$SENV_SKIP_CHECKSUM" = 1 ]; then
+        err "install.sh:" "--checksums and --skip-checksum require --archive."
+        return 1
+    fi
 }
 
 #---------------------------------------------------------------------------------------------------------------
@@ -336,17 +371,18 @@ ensure_linux() {
 
 # Verify the tools we need are on PATH.
 ensure_tools() {
-    local tool missing=""
-    for tool in curl tar sha256sum awk sed grep find xargs sort; do
+    local tool missing="" network_tool=""
+    [ -n "$SENV_LOCAL_ARCHIVE" ] || network_tool=curl
+    for tool in $network_tool tar sha256sum awk sed grep find xargs sort; do
         command -v "$tool" >/dev/null 2>&1 || missing="$missing $tool"
     done
     [ -z "$missing" ] && return 0
     err "install.sh:" "missing required tools:$missing"
     printf '%s\n' \
         '       install them and re-run; for example:' \
-        '         Debian/Ubuntu: sudo apt install curl coreutils tar findutils' \
-        '         Fedora/RHEL:   sudo dnf install curl coreutils tar findutils' \
-        '         Arch:          sudo pacman -S curl coreutils tar findutils' \
+        "         Debian/Ubuntu: sudo apt install ${network_tool:+$network_tool }coreutils tar findutils" \
+        "         Fedora/RHEL:   sudo dnf install ${network_tool:+$network_tool }coreutils tar findutils" \
+        "         Arch:          sudo pacman -S ${network_tool:+$network_tool }coreutils tar findutils" \
         >&2
     return 1
 }
@@ -759,7 +795,7 @@ fetch_archive() {
 verify_checksum() {
     local version="$1" fname="$2" archive="$3"
     local sums_url="$SENV_SUMS_URL"
-    local sums expected actual=""
+    local sums
     if [ -z "$sums_url" ]; then
         defer_note "release $version publishes no SHA256SUMS; checksum verification skipped."
         return 0
@@ -770,21 +806,32 @@ verify_checksum() {
         rm -f "$archive"
         return 1
     fi
-    expected=$(printf '%s\n' "$sums" \
-        | awk -v f="$fname" '$2==f || $2=="*"f {print $1; exit}')
-    if [ -z "$expected" ]; then
-        err "install.sh:" "SHA256SUMS has no entry for $fname"
+    if ! check_archive_checksum "$fname" "$archive" <<EOF
+$sums
+EOF
+    then
         rm -f "$archive"
         return 1
     fi
+}
+
+# Read SHA256SUMS from stdin and leave archive ownership to the caller.
+check_archive_checksum() {
+    local fname="$1" archive="$2" expected actual
+    expected=$(awk -v f="$fname" '$2==f || $2=="*"f {print $1; exit}') || return 1
+    if [ -z "$expected" ]; then
+        err "install.sh:" "SHA256SUMS has no entry for $fname"
+        return 1
+    fi
     if command -v sha256sum >/dev/null 2>&1; then
-        actual=$(sha256sum "$archive" | awk '{print $1}')
+        actual=$(sha256sum < "$archive") || return 1
     elif command -v shasum >/dev/null 2>&1; then
-        actual=$(shasum -a 256 "$archive" | awk '{print $1}')
+        actual=$(shasum -a 256 < "$archive") || return 1
     else
         defer_warn "no sha256sum tool found; verification skipped."
         return 0
     fi
+    actual="${actual%% *}"
     if [ "$actual" = "$expected" ]; then
         step_done "Verified sha256 checksum"
         return 0
@@ -792,8 +839,31 @@ verify_checksum() {
     err "install.sh:" "checksum mismatch for $fname"
     printf '      expected: %s\n' "$expected" >&2
     printf '      got:      %s\n' "$actual" >&2
-    rm -f "$archive"
     return 1
+}
+
+# Use the release filename as the build identifier. The host suffix must follow the
+# version, which may itself contain hyphens (for example, 0.7.0-rc1).
+prepare_local_archive() {
+    local fname="$1" stem="$2" platform version_and_platform
+    platform="$(host_arch)-$(host_os)"
+    version_and_platform="${stem%-*}"
+    version_and_platform="${version_and_platform%-*}"
+    case "$fname" in
+        *[!a-zA-Z0-9._+-]*|*--*) return 1 ;;
+        sen-*.tar.gz) ;;
+        *) return 1 ;;
+    esac
+    case "$version_and_platform" in
+        sen-?*-"$platform") ;;
+        *) return 1 ;;
+    esac
+    SENV_VERSION_ARG="${version_and_platform%-$platform}"
+    SENV_VERSION_ARG="${SENV_VERSION_ARG#sen-}"
+    SENV_IS_PRERELEASE=0
+    case "$SENV_VERSION_ARG" in
+        *-rc[0-9]*) SENV_IS_PRERELEASE=1 ;;
+    esac
 }
 
 #---------------------------------------------------------------------------------------------------------------
@@ -1026,14 +1096,27 @@ with_install_lock() {
 # Orchestrator
 #---------------------------------------------------------------------------------------------------------------
 
-# Install pipeline (under with_install_lock when flock is present): resolve URL -> already-installed short-circuit
-# -> download (or cache hit) -> verify -> extract + completions + manifest -> activate scripts -> self-copy ->
-# done panel. Rollback: once unpack creates the build directory, any later failure removes it via an EXIT trap.
+# Install pipeline (under with_install_lock when flock is present): select a local archive or resolve a release,
+# verify the archive, then extract it and generate the manifest and activation scripts. An EXIT trap removes
+# the new build directory if a later step fails.
 do_install() {
-    local fname stem build prefix toolchain
-    resolve_url "$SENV_VERSION_ARG" "$SENV_COMPILER" "$SENV_NON_INTERACTIVE" || return $?
+    local fname stem build prefix toolchain source
+    if [ -n "$SENV_LOCAL_ARCHIVE" ]; then
+        source="$SENV_LOCAL_ARCHIVE"
+        case "$source" in
+            /*) ;;
+            *) source="$PWD/$source" ;;
+        esac
+        if [ ! -f "$source" ] || [ ! -r "$source" ]; then
+            err "install.sh:" "cannot read archive '$SENV_LOCAL_ARCHIVE'."
+            return 1
+        fi
+    else
+        resolve_url "$SENV_VERSION_ARG" "$SENV_COMPILER" "$SENV_NON_INTERACTIVE" || return $?
+        source="$SENV_RESOLVED_URL"
+    fi
 
-    fname="${SENV_RESOLVED_URL##*/}"
+    fname="${source##*/}"
     local split build_type
     if ! split=$(split_archive_name "$fname"); then
         err "install.sh:" "unrecognised archive name '$fname'; expected one of: $SENV_BUILD_TYPES"
@@ -1041,6 +1124,22 @@ do_install() {
     fi
     stem="${split%% *}"
     build_type="${split##* }"
+    if [ -n "$SENV_LOCAL_ARCHIVE" ]; then
+        if ! prepare_local_archive "$fname" "$stem"; then
+            err "install.sh:" "expected a Sen $(host_arch)-$(host_os) release tarball, got '$fname'."
+            return 1
+        fi
+        SENV_ARCHIVE_PATH="$source"
+        if [ "$SENV_SKIP_CHECKSUM" = 1 ]; then
+            warn "install.sh:" "local archive checksum verification explicitly skipped."
+        else
+            if [ ! -f "$SENV_LOCAL_CHECKSUMS" ] || [ ! -r "$SENV_LOCAL_CHECKSUMS" ]; then
+                err "install.sh:" "cannot read checksums file '$SENV_LOCAL_CHECKSUMS'."
+                return 1
+            fi
+            check_archive_checksum "$fname" "$SENV_ARCHIVE_PATH" < "$SENV_LOCAL_CHECKSUMS" || return $?
+        fi
+    fi
     # The release build keeps its bare name, so existing installs and the documented paths still
     # resolve. The others carry their build type, or all four would want one directory and the
     # already-installed check would hand back whichever arrived first.
@@ -1059,12 +1158,14 @@ do_install() {
         return 0
     fi
 
-    toolchain=$(parse_toolchain "$SENV_RESOLVED_URL")
+    toolchain=$(parse_toolchain "$fname")
     config_block "$toolchain" "$prefix"
 
     # Download phase. Cache hit: single done line. Cold fetch: active arrow + curl bar, then complete_step
     # collapses both into one done line on success.
-    if [ -f "$SEN_INSTALL_HOME/cache/$fname" ]; then
+    if [ -n "$SENV_LOCAL_ARCHIVE" ]; then
+        step_done "Using local archive  $(paint dim "$fname")"
+    elif [ -f "$SEN_INSTALL_HOME/cache/$fname" ]; then
         fetch_archive "$SENV_RESOLVED_URL" "$fname" || return $?
         step_done "Using cached archive  $(paint dim "$fname")"
     else
@@ -1075,7 +1176,9 @@ do_install() {
         complete_step "Downloaded  $(paint dim "$fname")${size:+  $(paint dim "($size)")}"
     fi
 
-    verify_checksum "$SENV_VERSION_ARG" "$fname" "$SENV_ARCHIVE_PATH" || return $?
+    if [ -z "$SENV_LOCAL_ARCHIVE" ]; then
+        verify_checksum "$SENV_VERSION_ARG" "$fname" "$SENV_ARCHIVE_PATH" || return $?
+    fi
 
     # Arm the rollback. Disarm with `trap - EXIT` once the install is fully written.
     trap "rm -rf '$prefix'" EXIT
@@ -1091,7 +1194,7 @@ do_install() {
 
     write_activate_scripts "$prefix"
     step_done "Wrote activate scripts"
-    if self_copy_installer; then
+    if [ -z "$SENV_LOCAL_ARCHIVE" ] && self_copy_installer; then
         step_done "Refreshed cached installer"
     fi
 
@@ -1116,7 +1219,7 @@ main() {
 
     mkdir -p "$SEN_INSTALL_HOME"
 
-    if [ -z "$SENV_VERSION_ARG" ]; then
+    if [ -z "$SENV_VERSION_ARG$SENV_LOCAL_ARCHIVE" ]; then
         local listing stable candidates
         listing=$(ls_remote) || return $?
         stable=$(printf '%s\n' "$listing" | awk -F'\t' '$2 == "stable" { print $1 }')

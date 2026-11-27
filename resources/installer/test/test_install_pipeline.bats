@@ -151,6 +151,75 @@ SCRIPT
     printf '%s' "$tarball"
 }
 
+@test "installs a verified local archive without invoking curl" {
+    local build="0.5.2-x86_64-linux-gnu-12.4.0"
+    local archive="$SEN_TEST_TMPDIR/local archives/sen-$build-release.tar.gz"
+    local sums="$SEN_TEST_TMPDIR/SHA256SUMS"
+    mkdir -p "$(dirname "$archive")" "$SEN_TEST_TMPDIR/bin"
+    mv "$(stage_release_tarball)" "$archive"
+    (cd "$(dirname "$archive")" && sha256sum "${archive##*/}") > "$sums"
+
+    cat > "$SEN_TEST_TMPDIR/bin/curl" <<'SCRIPT'
+#!/bin/sh
+printf '%s\n' "$*" >> "$SEN_TEST_TMPDIR/curl.log"
+exit 99
+SCRIPT
+    chmod +x "$SEN_TEST_TMPDIR/bin/curl"
+    export PATH="$SEN_TEST_TMPDIR/bin:$PATH"
+    unset SEN_INSTALLER_NO_SELF_COPY
+    cd "$SEN_TEST_TMPDIR"
+    run sh "$INSTALLER_DIR/install.sh" --allow-root \
+        --archive "${archive#"$SEN_TEST_TMPDIR/"}" --checksums "$sums"
+
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"Verified sha256 checksum"* ]]
+    [ ! -e "$SEN_TEST_TMPDIR/curl.log" ]
+    [ ! -e "$SEN_INSTALL_HOME/cache/${archive##*/}" ]
+    [ -f "$archive" ]
+    [ -x "$SEN_INSTALL_HOME/current/bin/sen" ]
+    [ -r "$SEN_INSTALL_HOME/current/activate" ]
+    [ -r "$SEN_INSTALL_HOME/current/activate.fish" ]
+    [ -r "$SEN_INSTALL_HOME/current/.sen-manifest.sha256" ]
+    [ "$(readlink "$SEN_INSTALL_HOME/current")" = "$build" ]
+}
+
+@test "rejects a local checksum mismatch without removing the source archive" {
+    local archive="$SEN_TEST_TMPDIR/sen-0.5.2-x86_64-linux-gnu-12.4.0-release.tar.gz"
+    local sums="$SEN_TEST_TMPDIR/SHA256SUMS"
+    mv "$(stage_release_tarball)" "$archive"
+    printf '%064d  %s\n' 0 "${archive##*/}" > "$sums"
+
+    run sh "$INSTALLER_DIR/install.sh" --allow-root --archive "$archive" --checksums "$sums"
+
+    [ "$status" -ne 0 ]
+    [[ "$output" == *"checksum mismatch"* ]]
+    [ -f "$archive" ]
+    [ ! -e "$SEN_INSTALL_HOME/current" ]
+    [ ! -d "$SEN_INSTALL_HOME/0.5.2-x86_64-linux-gnu-12.4.0" ]
+}
+
+@test "allows an explicit checksum skip for a local release candidate" {
+    local archive="$SEN_TEST_TMPDIR/sen-0.6.0-rc1-x86_64-linux-gnu-12.4.0-release.tar.gz"
+    mv "$(stage_release_tarball)" "$archive"
+
+    run sh "$INSTALLER_DIR/install.sh" --allow-root --archive "$archive" --skip-checksum
+
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"checksum verification explicitly skipped"* ]]
+    grep -q "SEN_PRERELEASE='1'" "$SEN_INSTALL_HOME/current/activate"
+}
+
+@test "rejects a local archive named for a different architecture" {
+    local archive="$SEN_TEST_TMPDIR/sen-0.5.2-aarch64-linux-gnu-12.4.0-release.tar.gz"
+    mv "$(stage_release_tarball)" "$archive"
+
+    run sh "$INSTALLER_DIR/install.sh" --allow-root --archive "$archive" --skip-checksum
+
+    [ "$status" -ne 0 ]
+    [[ "$output" == *"expected a Sen x86_64-linux release tarball"* ]]
+    [ ! -e "$SEN_INSTALL_HOME/current" ]
+}
+
 @test "installs a release end to end with manifest, activate scripts and the current symlink" {
     load_install
 

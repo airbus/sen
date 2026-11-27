@@ -31,9 +31,9 @@ notes queue and flush as a single block at the end.
 1. `resolve_url`: query the GitHub Releases API for the requested version, filter assets by host arch/os, and
    either auto-pick (single candidate), pick by `--compiler` (explicit), refuse non-interactively, or open the menu.
 2. `fetch_archive`: download to `$SEN_INSTALL_HOME/cache/`. Cache hit returns immediately and silently.
-3. `verify_checksum`: best-effort SHA256SUMS check. Four outcomes: verified (prints `step_done`), no SHA256SUMS
-   published (queues a note), no entry for archive in SHA256SUMS (queues a warn), no `sha256sum`/`shasum` tool
-   on PATH (queues a warn). Mismatch prints `err`, removes the cache, returns non-zero.
+3. `verify_checksum`: fetch and verify against the release's SHA256SUMS. If the release publishes none,
+   queue a note. A failed fetch, missing checksum entry, or verification failure removes the cached
+   archive and stops installation.
 4. `unpack`: extract into a per-PID staging dir under `cache/`, promote a single top-level dir if present. Failure
    paths clean up the staging dir.
 5. `generate_manifest`: write `<prefix>/.sen-manifest.sha256` covering every file in the build tree except the
@@ -49,6 +49,11 @@ notes queue and flush as a single block at the end.
 
 Rollback: `do_install` arms `trap "rm -rf '$prefix'" EXIT` after `verify_checksum` succeeds, and disarms with
 `trap - EXIT` only after the last write succeeds.
+
+With `--archive`, the installer derives the build from the local tarball name and verifies it against the
+local `--checksums` file unless `--skip-checksum` was given. It uses the shared extraction and activation
+steps. Local archives stay at their supplied paths, including on verification failure. Local mode skips
+release lookup, downloads, and installer self-refresh.
 
 ## Multi-compiler / multi-arch handling
 
