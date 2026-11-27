@@ -834,7 +834,7 @@ const std::vector<Completion>& Completer::getMethodCompletions(ConstTypeHandle<C
   auto it = classMethodCache_.find(classType.type());
   if (it != classMethodCache_.end())
   {
-    return it->second;
+    return it->second.completions;
   }
 
   // Build method completions for this class.
@@ -911,8 +911,9 @@ const std::vector<Completion>& Completer::getMethodCompletions(ConstTypeHandle<C
 
   std::sort(completions.begin(), completions.end(), [](const auto& a, const auto& b) { return a.text < b.text; });
 
-  auto [inserted, _] = classMethodCache_.emplace(classType.type(), std::move(completions));
-  return inserted->second;
+  auto [inserted, _] =
+    classMethodCache_.emplace(classType.type(), MethodCompletions {classType, std::move(completions)});
+  return inserted->second.completions;
 }
 
 std::vector<Completion> Completer::completeCdArg(std::string_view prefix) const
