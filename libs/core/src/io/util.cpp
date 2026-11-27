@@ -38,6 +38,7 @@
 #include <spdlog/spdlog.h>
 
 // std
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <exception>
@@ -1026,7 +1027,30 @@ public:  // abstractions
   void apply(const ClassType& type) override { unhandled(type); }
 
 public:  // specific types
-  void apply(const EnumType& type) override { type.getStorageType().accept(*this); }
+  void apply(const EnumType& type) override
+  {
+    if (var_.holds<std::string>())
+    {
+      if (const auto* enumerator = type.getEnumFromName(var_.get<std::string>()); enumerator != nullptr)
+      {
+        const Var keyVar {enumerator->key};
+        StreamWriter writer(keyVar, out_);
+        type.getStorageType().accept(writer);
+        return;
+      }
+    }
+
+    if (var_.isEmpty() || var_.holds<std::string>())
+    {
+      const auto& enums = type.getEnums();
+      const Var defaultKey = enums.empty() ? Var {uint32_t {0U}} : Var {enums.begin()->key};
+      StreamWriter writer(defaultKey, out_);
+      type.getStorageType().accept(writer);
+      return;
+    }
+
+    type.getStorageType().accept(*this);
+  }
 
   void apply(const VoidType& type) override { std::ignore = type; }
 
@@ -1111,51 +1135,110 @@ public:  // specific types
   // custom types
   void apply(const CustomType& type) override { apply(static_cast<const Type&>(type)); }
 
-  void apply(const StructType& type) override
-  {
-    auto map = var_.get<VarMap>();
-    writeStruct(map, type);
-  }
+  void apply(const StructType& type) override { writeStruct(var_.getIf<VarMap>(), type); }
 
   void apply(const VariantType& type) override
   {
     if (var_.holds<KeyedVar>())
     {
       const auto& [fieldKey, fieldValue] = var_.get<KeyedVar>();
-      out_.writeUInt32(fieldKey);
+      if (const auto* field = type.getFieldFromKey(fieldKey); field != nullptr)
+      {
+        out_.writeUInt32(fieldKey);
 
-      StreamWriter writer(*fieldValue, out_);
-      type.getFieldFromKey(fieldKey)->type->accept(writer);
+        const Var emptyValue {};
+        StreamWriter writer(fieldValue ? *fieldValue : emptyValue, out_);
+        field->type->accept(writer);
+        return;
+      }
     }
-    else
+
+    if (var_.holds<VarMap>())
     {
       const auto& map = var_.get<VarMap>();
-      auto fieldKey = map.find("type")->second.getCopyAs<uint32_t>();
-      auto fieldType = type.getFieldFromKey(fieldKey)->type;
-      auto fieldValue = map.find("value")->second;
+      if (const auto typeItr = map.find("type"); typeItr != map.end())
+      {
+        const VariantField* matchedField = nullptr;
+        if (typeItr->second.holds<std::string>())
+        {
+          const auto& fieldTypeName = typeItr->second.get<std::string>();
+          for (const auto& variantField: type.getFields())
+          {
+            const auto* custom = variantField.type->asCustomType();
+            if (variantField.type->getName() == fieldTypeName ||
+                (custom != nullptr && custom->getQualifiedName() == fieldTypeName))
+            {
+              matchedField = &variantField;
+              break;
+            }
+          }
+        }
+        else if (typeItr->second.holdsIntegralValue())
+        {
+          matchedField = type.getFieldFromKey(typeItr->second.getCopyAs<uint32_t>());
+        }
 
-      out_.writeUInt32(fieldKey);
-      StreamWriter writer(fieldValue, out_);
-      fieldType->accept(writer);
+        if (matchedField != nullptr)
+        {
+          const auto valueItr = map.find("value");
+          const Var emptyValue {};
+          const Var& fieldValue = valueItr != map.end() ? valueItr->second : emptyValue;
+
+          out_.writeUInt32(matchedField->key);
+          StreamWriter writer(fieldValue, out_);
+          matchedField->type->accept(writer);
+          return;
+        }
+      }
+    }
+
+    const auto& fields = type.getFields();
+    if (!fields.empty())
+    {
+      const auto& firstField = *fields.begin();
+      out_.writeUInt32(firstField.key);
+
+      const Var emptyValue {};
+      StreamWriter writer(emptyValue, out_);
+      firstField.type->accept(writer);
     }
   }
 
   void apply(const SequenceType& type) override
   {
+    if (type.hasFixedSize())
+    {
+      const auto size = type.getMaxSize().value();
+      if (size == 0U)
+      {
+        return;
+      }
+
+      const auto* list = var_.getIf<VarList>();
+      const auto presentCount = list != nullptr ? std::min<std::size_t>(list->size(), size) : std::size_t {0U};
+
+      for (std::size_t i = 0U; i < presentCount; ++i)
+      {
+        StreamWriter writer((*list)[i], out_);
+        type.getElementType()->accept(writer);
+      }
+
+      const Var emptyElem {};
+      for (std::size_t i = presentCount; i < size; ++i)
+      {
+        StreamWriter writer(emptyElem, out_);
+        type.getElementType()->accept(writer);
+      }
+      return;
+    }
+
     if (var_.holds<VarList>())
     {
       const auto& list = var_.get<VarList>();
-
-      std::size_t size = 0;
-      if (type.hasFixedSize())
-      {
-        size = type.getMaxSize().value();
-      }
-      else
-      {
-        size = static_cast<uint32_t>(list.size());
-        out_.writeUInt32(static_cast<uint32_t>(size));
-      }
+      const auto maxCount =
+        type.isBounded() ? std::min<std::size_t>(list.size(), type.getMaxSize().value()) : list.size();
+      const auto size = static_cast<uint32_t>(maxCount);
+      out_.writeUInt32(size);
 
       if (size == 0U)
       {
@@ -1163,19 +1246,42 @@ public:  // specific types
       }
 
       // write all the elements
-      for (auto& elem: list)
+      for (std::size_t i = 0U; i < maxCount; ++i)
       {
-        StreamWriter writer(elem, out_);
+        StreamWriter writer(list[i], out_);
         type.getElementType()->accept(writer);
       }
     }
     else
     {
-      out_.writeUInt32(0);
+      out_.writeUInt32(0U);
     }
   }
 
-  void apply(const QuantityType& type) override { type.getElementType()->accept(*this); }
+  void apply(const QuantityType& type) override
+  {
+    if (var_.isEmpty())
+    {
+      const auto minVal = type.getMinValue();
+      const auto maxVal = type.getMaxValue();
+      float64_t defaultVal = 0.0;
+      if (minVal.has_value() && (defaultVal < minVal.value() || (maxVal.has_value() && defaultVal > maxVal.value())))
+      {
+        defaultVal = minVal.value();
+      }
+      else if (maxVal.has_value() && defaultVal > maxVal.value())
+      {
+        defaultVal = maxVal.value();
+      }
+
+      const Var boundedDefault {defaultVal};
+      StreamWriter writer(boundedDefault, out_);
+      type.getElementType()->accept(writer);
+      return;
+    }
+
+    type.getElementType()->accept(*this);
+  }
 
   void apply(const AliasType& type) override { type.getAliasedType()->accept(*this); }
 
@@ -1203,16 +1309,27 @@ private:
     }
   }
 
-  void writeStruct(VarMap& map, const StructType& type)
+  void writeStruct(const VarMap* map, const StructType& type)
   {
     if (auto parent = type.getParent())
     {
       writeStruct(map, *parent.value());
     }
 
+    const Var emptyField {};
     for (const auto& field: type.getFields())
     {
-      StreamWriter writer(map[field.name], out_);
+      if (map != nullptr)
+      {
+        if (const auto itr = map->find(field.name); itr != map->end())
+        {
+          StreamWriter writer(itr->second, out_);
+          field.type->accept(writer);
+          continue;
+        }
+      }
+
+      StreamWriter writer(emptyField, out_);
       field.type->accept(writer);
     }
   }

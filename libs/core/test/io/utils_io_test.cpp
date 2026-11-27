@@ -1092,3 +1092,106 @@ TEST(IOUtils, AdaptVariantFallback)
   EXPECT_TRUE(sen::impl::adaptVariant(*sen::BoolType::get(), varListBool).isOk());
   EXPECT_EQ(varListBool.getCopyAs<bool>(), false);
 }
+
+/// @test
+/// Pads missing elements when streaming a fixed-size struct sequence and truncates elements past maxSize
+/// on a bounded sequence.
+/// @requirements(SEN-1053)
+TEST(IOUtils, SequenceFixedSizePadding)
+{
+  auto sType = sen::StructType::make({"S", "S", "", {{"x", "", sen::UInt32Type::get()}}});
+  auto fixedSeqType = sen::SequenceType::make({"FixedSeq", "FixedSeq", "", sType, 3, true});
+
+  sen::VariantSpec vSpec;
+  vSpec.name = "V";
+  vSpec.qualifiedName = "org.test.V";
+  vSpec.fields.emplace_back(0U, "", sen::UInt32Type::get());
+  vSpec.fields.emplace_back(1U, "", fixedSeqType);
+  auto vType = sen::VariantType::make(vSpec);
+
+  sen::VarMap map;
+  map["type"] = std::string("FixedSeq");
+  map["value"] = sen::VarList {};
+  sen::Var v = map;
+
+  sen::test::TestWriter writer;
+  sen::OutputStream out(writer);
+  EXPECT_NO_THROW(sen::impl::writeToStream(v, out, *vType));
+
+  sen::test::TestReader reader(writer.getBuffer());
+  sen::InputStream in(sen::makeConstSpan<uint8_t>(reader.getBuffer()));
+  sen::Var vRead;
+  sen::impl::readFromStream(vRead, in, *vType);
+
+  const auto& [key, payload] = vRead.get<sen::KeyedVar>();
+  EXPECT_EQ(key, 1U);
+  const auto& elems = payload->get<sen::VarList>();
+  ASSERT_EQ(elems.size(), 3U);
+  EXPECT_EQ(elems[0].get<sen::VarMap>().at("x").getCopyAs<uint32_t>(), 0U);
+  EXPECT_EQ(elems[2].get<sen::VarMap>().at("x").getCopyAs<uint32_t>(), 0U);
+
+  auto boundedSeqType = sen::SequenceType::make({"BoundedSeq", "BoundedSeq", "", sen::UInt32Type::get(), 2, false});
+  sen::test::TestWriter boundedWriter;
+  sen::OutputStream boundedOut(boundedWriter);
+  sen::Var overfull = sen::VarList {sen::Var(1U), sen::Var(2U), sen::Var(3U)};
+  EXPECT_NO_THROW(sen::impl::writeToStream(overfull, boundedOut, *boundedSeqType));
+
+  sen::test::TestReader boundedReader(boundedWriter.getBuffer());
+  sen::InputStream boundedIn(sen::makeConstSpan<uint8_t>(boundedReader.getBuffer()));
+  sen::Var boundedRead;
+  sen::impl::readFromStream(boundedRead, boundedIn, *boundedSeqType);
+  EXPECT_EQ(boundedRead.get<sen::VarList>().size(), 2U);
+}
+
+/// @test
+/// Writes default values through writeToStream when given an empty Var for inherited structs, enums, ranged quantities,
+/// fixed-size sequences, and variants.
+/// @requirements(SEN-1053)
+TEST(IOUtils, StreamWriterCustomDefaults)
+{
+  auto baseType = sen::StructType::make({"Base", "Base", "", {{"a", "", sen::Int32Type::get()}}});
+  auto childType = sen::StructType::make({"Child", "Child", "", {{"b", "", sen::Int32Type::get()}}, baseType});
+  auto enumType = sen::EnumType::make({"E", "E", "", {{"first", 5U, ""}, {"second", 8U, ""}}, sen::Int16Type::get()});
+  auto qtyType = sen::QuantityType::make({"Q", "Q", "", sen::Float64Type::get(), std::nullopt, 10.0, 50.0});
+  auto fixedArrType = sen::SequenceType::make({"Arr", "Arr", "", qtyType, 2, true});
+
+  sen::VariantSpec vSpec;
+  vSpec.name = "V";
+  vSpec.qualifiedName = "org.test.V";
+  vSpec.fields.emplace_back(2U, "", childType);
+  auto vType = sen::VariantType::make(vSpec);
+
+  sen::test::TestWriter writer;
+  sen::OutputStream out(writer);
+  const sen::Var empty;
+
+  EXPECT_NO_THROW(sen::impl::writeToStream(empty, out, *enumType));
+  EXPECT_NO_THROW(sen::impl::writeToStream(sen::Var {std::string("unknown")}, out, *enumType));
+  EXPECT_NO_THROW(sen::impl::writeToStream(empty, out, *fixedArrType));
+  EXPECT_NO_THROW(sen::impl::writeToStream(empty, out, *vType));
+
+  sen::test::TestReader reader(writer.getBuffer());
+  sen::InputStream in(sen::makeConstSpan<uint8_t>(reader.getBuffer()));
+
+  sen::Var readEnumEmpty;
+  sen::impl::readFromStream(readEnumEmpty, in, *enumType);
+  EXPECT_EQ(readEnumEmpty.getCopyAs<int16_t>(), 5);
+
+  sen::Var readEnumUnknown;
+  sen::impl::readFromStream(readEnumUnknown, in, *enumType);
+  EXPECT_EQ(readEnumUnknown.getCopyAs<int16_t>(), 5);
+
+  sen::Var readArr;
+  sen::impl::readFromStream(readArr, in, *fixedArrType);
+  const auto& arrList = readArr.get<sen::VarList>();
+  ASSERT_EQ(arrList.size(), 2U);
+  EXPECT_DOUBLE_EQ(arrList[0].getCopyAs<float64_t>(), 10.0);
+  EXPECT_DOUBLE_EQ(arrList[1].getCopyAs<float64_t>(), 10.0);
+
+  sen::Var readVar;
+  sen::impl::readFromStream(readVar, in, *vType);
+  const auto& [key, payload] = readVar.get<sen::KeyedVar>();
+  EXPECT_EQ(key, 2U);
+  EXPECT_EQ(payload->get<sen::VarMap>().at("a").getCopyAs<int32_t>(), 0);
+  EXPECT_EQ(payload->get<sen::VarMap>().at("b").getCopyAs<int32_t>(), 0);
+}

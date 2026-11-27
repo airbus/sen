@@ -117,19 +117,29 @@ export function defaultFor(client: Client | null, declaredType: string): Var {
   switch (spec.data.type) {
     case "sen.kernel.EnumTypeSpec":
       return spec.data.value.enums[0]?.name ?? "";
-    case "sen.kernel.QuantityTypeSpec":
-      return new Quantity(
-        0,
-        spec.data.value.unit,
-        spec.data.value.minValue,
-        spec.data.value.maxValue,
-      );
+    case "sen.kernel.QuantityTypeSpec": {
+      const { unit, minValue, maxValue } = spec.data.value;
+      let initial = 0;
+      if (minValue !== null && (initial < minValue || (maxValue !== null && initial > maxValue))) {
+        initial = minValue;
+      } else if (maxValue !== null && initial > maxValue) {
+        initial = maxValue;
+      }
+      return new Quantity(initial, unit, minValue, maxValue);
+    }
     case "sen.kernel.AliasTypeSpec":
       return defaultFor(client, spec.data.value.aliasedType);
     case "sen.kernel.OptionalTypeSpec":
       return null;
-    case "sen.kernel.SequenceTypeSpec":
+    case "sen.kernel.SequenceTypeSpec": {
+      const seqSpec = spec.data.value;
+      if (seqSpec.fixedSize && seqSpec.maxSize !== null) {
+        return Array.from({ length: Number(seqSpec.maxSize) }, () =>
+          defaultFor(client, seqSpec.elementType),
+        );
+      }
       return [];
+    }
     case "sen.kernel.StructTypeSpec": {
       const out: Record<string, Var> = {};
       for (const field of getAllStructFields(client, spec.data.value)) {

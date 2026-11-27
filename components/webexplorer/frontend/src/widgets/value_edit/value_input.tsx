@@ -5,7 +5,7 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
-import type { Client, Var } from "@sen/client";
+import type { Client, SequenceTypeSpec, Var } from "@sen/client";
 import { Quantity, Variant } from "@sen/client";
 
 import { shortName } from "../../core/format.js";
@@ -28,6 +28,26 @@ export interface ValueInputProps {
   declaredType: string;
   value: Var;
   onChange: (next: Var) => void;
+}
+
+function coerceSequenceValue(
+  client: Client | null,
+  declaredType: string,
+  seqSpec: SequenceTypeSpec,
+  value: Var,
+): Var[] {
+  if (!Array.isArray(value)) {
+    return defaultFor(client, declaredType) as Var[];
+  }
+  if (seqSpec.fixedSize && seqSpec.maxSize !== null) {
+    const targetLength = Number(seqSpec.maxSize);
+    if (value.length !== targetLength) {
+      return Array.from({ length: targetLength }, (_, i) =>
+        i < value.length ? value[i]! : defaultFor(client, seqSpec.elementType),
+      );
+    }
+  }
+  return value;
 }
 
 export function ValueInput({ client, declaredType, value, onChange }: ValueInputProps) {
@@ -90,12 +110,14 @@ export function ValueInput({ client, declaredType, value, onChange }: ValueInput
           value={
             value instanceof Quantity
               ? value
-              : new Quantity(
-                  typeof value === "number" ? value : 0,
+              : typeof value === "number"
+                ? new Quantity(
+                  value,
                   spec.data.value.unit,
                   spec.data.value.minValue,
                   spec.data.value.maxValue,
                 )
+                : (defaultFor(client, declaredType) as Quantity)
           }
           onChange={onChange}
         />
@@ -123,7 +145,7 @@ export function ValueInput({ client, declaredType, value, onChange }: ValueInput
         <SequenceInput
           client={client}
           spec={spec.data.value}
-          value={Array.isArray(value) ? value : []}
+          value={coerceSequenceValue(client, declaredType, spec.data.value, value)}
           onChange={onChange}
         />
       );
