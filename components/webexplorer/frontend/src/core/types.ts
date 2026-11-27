@@ -33,7 +33,7 @@ const PRIMITIVE_TYPES = new Set<string>([
   "bool",
   "string",
   "TimeStamp",
-  "Duration",
+  "sen.TimeStamp",
   ...INTEGER_TYPES,
   ...FLOAT_TYPES,
 ]);
@@ -110,7 +110,7 @@ export function getAllStructFields(client: Client | null, structSpec: StructType
  *  types whose default is meaningfully "absent" (optional, class, unknown). */
 export function defaultFor(client: Client | null, declaredType: string): Var {
   if (declaredType === "bool") return false;
-  if (declaredType === "string" || declaredType === "Duration" || declaredType === "TimeStamp") return "";
+  if (declaredType === "string" || declaredType === "TimeStamp" || declaredType === "sen.TimeStamp") return "";
   if (INTEGER_TYPES.has(declaredType) || FLOAT_TYPES.has(declaredType)) return 0;
   const spec = specOf(client, declaredType);
   if (!spec) return null;

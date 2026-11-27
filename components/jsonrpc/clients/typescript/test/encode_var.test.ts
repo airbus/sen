@@ -120,6 +120,36 @@ describe("encodeVar -- Quantity", () => {
     expect(() => encodeVar("demo.Altitude", "high", cacheOf(altSpec))).toThrow(TransportError);
   });
 
+  it("accepts a numeric string, which is how an i64/u64-backed quantity arrives", () => {
+    expect(encodeVar("demo.Altitude", "999.5", cacheOf(altSpec))).toBe(999.5);
+  });
+
+  it("refuses an empty or blank string instead of encoding it as zero", () => {
+    expect(() => encodeVar("demo.Altitude", "", cacheOf(altSpec))).toThrow(TransportError);
+    expect(() => encodeVar("demo.Altitude", "  ", cacheOf(altSpec))).toThrow(TransportError);
+  });
+
+  it("refuses a 64-bit value beyond the safe-integer range rather than rounding it", () => {
+    const nanosSpec: CustomTypeSpec = {
+      name: "Nanos",
+      qualifiedName: "demo.Nanos",
+      description: "",
+      data: {
+        type: "sen.kernel.QuantityTypeSpec",
+        value: {
+          elementType: { type: "sen.kernel.IntegralType", value: "int64Type" },
+          unit: meters,
+          minValue: null,
+          maxValue: null,
+        },
+      },
+    };
+    expect(encodeVar("demo.Nanos", "9007199254740991", cacheOf(nanosSpec))).toBe(9007199254740991);
+    expect(() => encodeVar("demo.Nanos", "9007199254740993", cacheOf(nanosSpec))).toThrow(
+      /safe-integer range/,
+    );
+  });
+
   it("rejects a Quantity whose unit does not match the spec", () => {
     const milesPerHour = { name: "mile_per_hour", abbreviation: "mph", category: "velocity" as const };
     const q = new Quantity(10, milesPerHour);

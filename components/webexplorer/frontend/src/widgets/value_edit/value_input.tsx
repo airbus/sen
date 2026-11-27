@@ -64,7 +64,7 @@ export function ValueInput({ client, declaredType, value, onChange }: ValueInput
         />
       );
     case "TimeStamp":
-    case "Duration":
+    case "sen.TimeStamp":
       return (
         <StringInput value={typeof value === "string" ? value : ""} onChange={onChange} />
       );
