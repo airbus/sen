@@ -24,7 +24,7 @@ import { useLiveProperty } from "../state/live_value.js";
 import { useIsPlotted, watchActions } from "../state/watch_plot.js";
 import { PropertyLink } from "../ui/explorer_links.js";
 import { HoverIconButton } from "../ui/buttons.js";
-import { LeftTruncated, OfflineText } from "../ui/text_primitives.js";
+import { OfflineText } from "../ui/text_primitives.js";
 
 import {
   ChevronDownIcon,
@@ -141,15 +141,15 @@ export function ReadoutCard({
             fontSize: "var(--fs-md)",
             fontWeight: 500,
             color: "var(--fg-base)",
-            flex: "1 1 auto",
+            flex: "0 1 auto",
             minWidth: 0,
-            // Cap so LeftTruncated takes over and trims from the start past the limit.
-            maxWidth: "60%",
             display: "block",
             overflow: "hidden",
+            whiteSpace: "nowrap",
+            textOverflow: "ellipsis",
           }}
         >
-          <LeftTruncated text={source.propertyName} />
+          {source.propertyName}
         </PropertyLink>
         {(!composite || isVariant) && (
           <InlineValue
@@ -157,7 +157,6 @@ export function ReadoutCard({
             declaredType={source.declaredType}
             value={live.value}
             ok={ok}
-            truncate={compact}
             variantArmOnly={isVariant}
           />
         )}
@@ -233,14 +232,12 @@ function InlineValue({
   declaredType,
   value,
   ok,
-  truncate,
   variantArmOnly,
 }: {
   client: Client | null;
   declaredType: string;
   value: Var | undefined;
   ok: boolean;
-  truncate: boolean;
   /** When true and value is a Variant, render only the arm chip; payload renders on expand. */
   variantArmOnly?: boolean;
 }) {
@@ -262,40 +259,19 @@ function InlineValue({
     }
     return <ValueRenderer client={client} declaredType={declaredType} value={value} />;
   };
-  if (truncate) {
-    return (
-      <span
-        ref={hostRef}
-        className={valueTextClass}
-        style={{
-          flex: 1,
-          minWidth: 0,
-          paddingLeft: 6,
-          overflow: "hidden",
-          whiteSpace: "nowrap",
-          textOverflow: "ellipsis",
-          ...fontStyle,
-        }}
-      >
-        {renderInner()}
-      </span>
-    );
-  }
+
+  // Unconditionally truncate in header so it NEVER forces vertical flex wrapping
   return (
     <span
       ref={hostRef}
       className={valueTextClass}
       style={{
-        flex: 1,
+        flex: "1 1 auto",
         minWidth: 0,
         paddingLeft: 6,
-        display: "flex",
-        justifyContent: "flex-end",
-        alignItems: "baseline",
-        gap: 4,
-        flexWrap: "wrap",
-        wordBreak: "break-word",
         overflow: "hidden",
+        whiteSpace: "nowrap",
+        textOverflow: "ellipsis",
         ...fontStyle,
       }}
     >

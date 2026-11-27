@@ -9,45 +9,50 @@ import logoUrl from "../assets/logo_simple.svg";
 import { colorSchemeActions, useColorScheme } from "../state/color_scheme.js";
 import { SettingsPopover } from "./settings_popover.js";
 
-export function SidebarHeader() {
+export function SidebarHeader({ folded = false }: { folded?: boolean }) {
   return (
     <header
       style={{
         display: "flex",
         alignItems: "center",
         gap: 10,
-        padding: "0 8px 0 14px",
+        padding: folded ? "0" : "0 8px 0 14px",
+        justifyContent: folded ? "center" : "flex-start",
         flex: 1,
         minWidth: 0,
       }}
     >
       <SenMark />
-      <span
-        style={{
-          flex: 1,
-          fontFamily: "var(--font-ui)",
-          fontSize: "var(--fs-xl)",
-          fontWeight: 600,
-          color: "var(--fg-base)",
-          letterSpacing: "0.01em",
-          whiteSpace: "nowrap",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-        }}
-      >
-        Sen Explorer
-      </span>
-      <span
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 4,
-          flex: "none",
-        }}
-      >
-        <ColorSchemeToggle />
-        <SettingsPopover />
-      </span>
+      {!folded && (
+        <>
+          <span
+            style={{
+              flex: 1,
+              fontFamily: "var(--font-ui)",
+              fontSize: "var(--fs-xl)",
+              fontWeight: 600,
+              color: "var(--fg-base)",
+              letterSpacing: "0.01em",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            Sen Explorer
+          </span>
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
+              flex: "none",
+            }}
+          >
+            <ColorSchemeToggle />
+            <SettingsPopover />
+          </span>
+        </>
+      )}
     </header>
   );
 }

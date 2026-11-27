@@ -11,9 +11,11 @@ import type { Client } from "@sen/client";
 
 import { eventWatchActions, useEventWatches } from "../state/event_watches.js";
 import { useWatchSources, watchActions } from "../state/watch_plot.js";
-import { DangerPillButton } from "../ui/buttons.js";
+import { DangerPillButton, HoverIconButton } from "../ui/buttons.js";
 import { EmptyPane, Mono } from "../ui/empty_state.js";
+import { PopOutIcon } from "../ui/icons.js";
 import { ObjectGroupedGrid } from "./watch_groups.js";
+import { watchPopoutActions, useWatchPopout } from "../state/popouts.js";
 
 export interface WatchTabProps {
   client: Client | null;
@@ -36,6 +38,7 @@ function loadCollapsedFromKey(key: string): Set<string> {
 }
 
 export function WatchTab({ client }: WatchTabProps) {
+  const watchPopout = useWatchPopout();
   const watchSources = useWatchSources();
   const eventSources = useEventWatches();
   const [modeOverrideKeys, setModeOverrideKeys] = useState<Set<string>>(() =>
@@ -78,32 +81,51 @@ export function WatchTab({ client }: WatchTabProps) {
     eventWatchActions.clearAllWatches();
   };
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
-      {totalSources > 0 && (
-        <div
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0, minWidth: 0 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          padding: "4px 10px",
+          borderBottom: "1px solid var(--border-default)",
+          flex: "none",
+          background: "var(--surface-list-header)",
+          fontFamily: "var(--font-ui)",
+          fontSize: "var(--fs-xs)",
+          color: "var(--fg-subtle)",
+          letterSpacing: "0.06em",
+          textTransform: "uppercase",
+          minWidth: 0,
+        }}
+      >
+        <span
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            padding: "4px 10px",
-            borderBottom: "1px solid var(--border-default)",
-            flex: "none",
-            background: "var(--surface-list-header)",
-            fontFamily: "var(--font-ui)",
-            fontSize: "var(--fs-xs)",
-            color: "var(--fg-subtle)",
-            letterSpacing: "0.06em",
-            textTransform: "uppercase",
+            flex: "1 1 auto",
+            minWidth: 0,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
           }}
         >
-          <span>{totalSources} watched</span>
-          <span style={{ flex: 1 }} />
+          {totalSources} watched
+        </span>
+        {!watchPopout && (
+          <HoverIconButton
+            onClick={watchPopoutActions.open}
+            tooltip="Open Watch in a separate window"
+            ariaLabel="pop out watch"
+            icon={<PopOutIcon />}
+            size={20}
+          />
+        )}
+        {totalSources > 0 && (
           <DangerPillButton
             onClick={clearAll}
             title="Remove every watch and event-watch from this pane"
           />
-        </div>
-      )}
+        )}
+      </div>
       <div style={{ flex: 1, overflow: "auto" }}>
         {watchSources.length === 0 && eventSources.length === 0 ? (
           <EmptyPane

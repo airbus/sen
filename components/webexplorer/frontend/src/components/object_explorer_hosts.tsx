@@ -30,6 +30,7 @@ export function NavSwitcher({
   onExplorerPopOut,
   client,
   pinnedObjects,
+  folded = false,
 }: {
   showExplorer: boolean;
   explorerSelection: Selection | null;
@@ -37,7 +38,29 @@ export function NavSwitcher({
   onExplorerPopOut: () => void;
   client: Client | null;
   pinnedObjects: ReadonlyMap<string, PinnedObject>;
+  folded?: boolean;
 }) {
+
+  if (folded) {
+    return (
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 16, gap: 16 }}>
+        <span
+          style={{
+            writingMode: "vertical-rl",
+            transform: "rotate(180deg)",
+            fontSize: "var(--fs-sm)",
+            fontWeight: 600,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            color: "var(--fg-muted)"
+          }}
+        >
+          {showExplorer ? "Explorer" : "Queries"}
+        </span>
+      </div>
+    );
+  }
+
   // Plain conditional (no animated transition); CSS/WAAPI/rAF attempts all failed back
   // transitions intermittently while the explorer was receiving live data.
   return (

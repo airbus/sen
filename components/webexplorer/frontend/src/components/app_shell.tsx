@@ -18,6 +18,7 @@ const CENTER_MIN = 320;
 const PANE_OUTER_MARGINS = 24;
 export const WS_STRIP_WIDTH = 24;
 export const WS_FOLDED_WIDTH = WS_STRIP_WIDTH;
+const NAV_FOLDED_WIDTH = 56;
 
 const NAV_KEY = "webex.navWidth";
 const WS_KEY = "webex.wsWidth";
@@ -32,6 +33,9 @@ export interface AppShellProps {
   /** Flip in the same batch as `wsHidden` so the fold animates; off otherwise so splitter
    *  drags don't tween. */
   wsAnimating?: boolean;
+  wsRemoved?: boolean;
+  navFolded?: boolean;
+  navAnimating?: boolean;
 }
 
 function AppShellImpl({
@@ -40,6 +44,9 @@ function AppShellImpl({
   workspace,
   wsHidden = false,
   wsAnimating = false,
+  wsRemoved = false,
+  navFolded = false,
+  navAnimating = false,
 }: AppShellProps) {
   const [navWidth, setNavWidth] = useState(() => readStoredWidth(NAV_KEY, NAV_DEFAULT));
   const [wsWidth, setWsWidth] = useState(() => readStoredWidth(WS_KEY, WS_DEFAULT));
@@ -77,16 +84,19 @@ function AppShellImpl({
     [navWidth],
   );
 
-  const wsColPx = wsHidden ? WS_FOLDED_WIDTH : wsWidth;
+  const wsColPx = wsRemoved ? 0 : wsHidden ? WS_FOLDED_WIDTH : wsWidth;
+  const navColPx = navFolded ? NAV_FOLDED_WIDTH : navWidth;
+  const isAnimating = wsAnimating || navAnimating;
+
   return (
     <div
       style={{
         display: "grid",
         gridTemplateRows: "1fr",
-        gridTemplateColumns: `${navWidth}px 1fr ${wsColPx}px`,
-        gridTemplateAreas: `"nav detail ws"`,
+        gridTemplateColumns: `${navColPx}px 1fr ${wsColPx}px`,
+        gridTemplateAreas: wsRemoved ? `"nav detail detail"` : `"nav detail ws"`,
         height: "100%",
-        transition: wsAnimating ? "grid-template-columns 220ms ease" : "none",
+        transition: isAnimating ? "grid-template-columns 220ms ease" : "none",
       }}
     >
       <aside
@@ -97,47 +107,51 @@ function AppShellImpl({
             "var(--pane-gutter-top) var(--pane-gutter-side) var(--pane-gutter-top) var(--pane-gutter-side)",
           minWidth: 0,
           overflow: "hidden",
-          paddingRight: EDGE_HANDLE_HIT,
+          paddingRight: navFolded ? 0 : EDGE_HANDLE_HIT,
         }}
       >
         {nav}
-        <EdgeResizeHandle
-          side="right"
-          onDrag={onDragNav}
-          onDragEnd={commitNavWidth}
-          ariaLabel="resize navigation pane"
-        />
+        {!navFolded && (
+          <EdgeResizeHandle
+            side="right"
+            onDrag={onDragNav}
+            onDragEnd={commitNavWidth}
+            ariaLabel="resize navigation pane"
+          />
+        )}
       </aside>
       <main style={{ gridArea: "detail", overflow: "auto", minWidth: 0 }}>
         {detail}
       </main>
-      <aside
-        style={{
-          gridArea: "ws",
-          position: "relative",
-          // Flush against the viewport's right edge; only the left edge rounds.
-          margin: "var(--pane-gutter-top) 0 var(--pane-gutter-top) 0",
-          borderRadius: "var(--radius-xl) 0 0 var(--radius-xl)",
-          border: "1px solid var(--border-glass)",
-          borderRight: "none",
-          boxShadow: "var(--surface-shadow), var(--surface-glass-bevel)",
-          overflow: "hidden",
-          background: "var(--surface-glass-top-sheen), var(--surface-pane)",
-          backdropFilter: "var(--surface-blur)",
-          WebkitBackdropFilter: "var(--surface-blur)",
-          minWidth: 0,
-        }}
-      >
-        <div
+      {!wsRemoved && (
+        <aside
           style={{
-            position: "absolute",
-            inset: 0,
+            gridArea: "ws",
+            position: "relative",
+            // Flush against the viewport's right edge; only the left edge rounds.
+            margin: "var(--pane-gutter-top) 0 var(--pane-gutter-top) 0",
+            borderRadius: "var(--radius-xl) 0 0 var(--radius-xl)",
+            border: "1px solid var(--border-glass)",
+            borderRight: "none",
+            boxShadow: "var(--surface-shadow), var(--surface-glass-bevel)",
             overflow: "hidden",
+            background: "var(--surface-glass-top-sheen), var(--surface-pane)",
+            backdropFilter: "var(--surface-blur)",
+            WebkitBackdropFilter: "var(--surface-blur)",
+            minWidth: 0,
           }}
         >
-          {workspace({ onResize: onDragWs, onResizeEnd: commitWsWidth })}
-        </div>
-      </aside>
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              overflow: "hidden",
+            }}
+          >
+            {workspace({ onResize: onDragWs, onResizeEnd: commitWsWidth })}
+          </div>
+        </aside>
+      )}
     </div>
   );
 }

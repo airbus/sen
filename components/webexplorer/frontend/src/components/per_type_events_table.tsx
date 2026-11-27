@@ -320,7 +320,21 @@ function ConnectedTable({ client, tab }: { client: Client; tab: EventTypeTab }) 
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      {headerSlot && createPortal(toolbar, headerSlot)}
+      {headerSlot ? (
+        createPortal(toolbar, headerSlot)
+      ) : (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            padding: "6px 12px",
+            borderBottom: "1px solid var(--border-default)",
+            background: "var(--surface-header)",
+          }}
+        >
+          {toolbar}
+        </div>
+      )}
       {/* Relative wrapper so ResizeOverlay can absolute-cover header+body with full-height handles. */}
       <div style={{ position: "relative", flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
         <HeaderRow

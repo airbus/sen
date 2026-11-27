@@ -37,12 +37,11 @@ export function ValueRow({
       ref={ref}
       className="property-row"
       style={{
-        display: "grid",
-        gridTemplateColumns: "subgrid",
-        gridColumn: "1 / -1",
-        columnGap: 6,
-        alignItems: "baseline",
-        // Vertical-only padding; horizontal would compound across nesting.
+        display: "flex",
+        flexWrap: "wrap",
+        columnGap: 8,
+        rowGap: 4,
+        alignItems: "center",
         padding: "2px 0",
         borderRadius: "var(--radius-sm)",
       }}

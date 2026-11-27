@@ -268,20 +268,20 @@ function PropertyRowImpl({
       ref={rowRef}
       className={rowClass}
       style={{
-        // Right padding 0: action icons are the right edge. Bottom 28 reserves space for
-        // the absolutely-positioned MetaRow.
-        padding: "8px 0 28px 12px",
-        position: "relative",
+        padding: "8px 0 8px 12px",
+        display: "flex",
+        flexDirection: "column",
+        gap: 8,
       }}
     >
       {blockLayout ? (
         <>
-          {/* Grid matches struct_value/sequence_value so action icons stack in one column. */}
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: `auto minmax(0, 1fr) ${ACTIONS_COLUMN_WIDTH}px`,
+              display: "flex",
+              flexWrap: "wrap",
               columnGap: 8,
+              rowGap: 4,
               alignItems: "center",
               cursor: "pointer",
             }}
@@ -295,6 +295,7 @@ function PropertyRowImpl({
                 alignItems: "center",
                 gap: 6,
                 minWidth: 0,
+                flex: "1 1 auto",
               }}
             >
               <span
@@ -312,13 +313,13 @@ function PropertyRowImpl({
               </span>
               {nameCell}
             </span>
-            <span aria-hidden />
             <span
               style={{
                 display: "inline-flex",
                 gap: 4,
-                justifySelf: "end",
-                alignItems: "center",
+                width: ACTIONS_COLUMN_WIDTH,
+                justifyContent: "flex-end",
+                marginLeft: "auto",
               }}
               onClick={(e) => e.stopPropagation()}
             >
@@ -332,20 +333,22 @@ function PropertyRowImpl({
       ) : (
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: `auto minmax(0, 1fr) ${ACTIONS_COLUMN_WIDTH}px`,
+            display: "flex",
+            flexWrap: "wrap",
             columnGap: 12,
+            rowGap: 4,
             alignItems: "center",
           }}
         >
-          <span style={{ minWidth: 0 }}>{nameCell}</span>
+          <span style={{ minWidth: 0, flex: "0 1 auto" }}>{nameCell}</span>
           <div
             className="value-cell"
             style={{
               display: "flex",
-              minWidth: 0,
+              minWidth: 60,
               alignItems: "center",
               gap: 8,
+              flex: "1 1 auto",
             }}
           >
             <span className="value-text">{valueNode}</span>
@@ -354,15 +357,16 @@ function PropertyRowImpl({
             style={{
               display: "inline-flex",
               gap: 4,
-              justifySelf: "end",
-              alignItems: "center",
+              width: ACTIONS_COLUMN_WIDTH,
+              justifyContent: "flex-end",
+              marginLeft: "auto",
             }}
           >
             {actions}
           </span>
         </div>
       )}
-      <span style={{ position: "absolute", left: 12, bottom: 8 }}>
+      <div style={{ display: "flex", paddingRight: 12 }}>
         <MetaRow
           client={client}
           declaredType={property.type}
@@ -370,7 +374,7 @@ function PropertyRowImpl({
           isStatic={isStatic}
           timestamp={live.timestamp ?? null}
         />
-      </span>
+      </div>
     </div>
   );
 }

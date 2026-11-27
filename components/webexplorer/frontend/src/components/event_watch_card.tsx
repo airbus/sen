@@ -27,7 +27,6 @@ import {
 import { bottomPaneActions, bottomTabActions } from "../state/ui_prefs.js";
 import { ObjectLink } from "../ui/explorer_links.js";
 import { HoverIconButton, IconToggle } from "../ui/buttons.js";
-import { LeftTruncated } from "../ui/text_primitives.js";
 import {
   ChevronDownIcon,
   ChevronRightIcon,
@@ -147,14 +146,15 @@ export function EventWatchCard({
             fontSize: "var(--fs-md)",
             fontWeight: 500,
             color: "var(--fg-base)",
-            flex: "1 1 auto",
+            flex: "0 1 auto",
             minWidth: 0,
-            maxWidth: "60%",
             display: "block",
             overflow: "hidden",
+            whiteSpace: "nowrap",
+            textOverflow: "ellipsis",
           }}
         >
-          <LeftTruncated text={source.eventName} className={flashCls} />
+          <span className={flashCls}>{source.eventName}</span>
         </ObjectLink>
         <EventInlineValue delivery={last} flashCls={flashCls} />
         <span
