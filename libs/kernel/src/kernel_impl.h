@@ -34,6 +34,7 @@
 // std
 #include <atomic>
 #include <condition_variable>
+#include <cstddef>
 #include <cstdint>
 #include <filesystem>
 #include <memory>
@@ -90,11 +91,11 @@ public:
   [[nodiscard]] static std::shared_ptr<spdlog::logger> getKernelLogger();
 
   /// Cycles all the runners with virtualized time.
-  /// This is: set time, drain inputs and cycle.
-  Duration advanceTimeDrainInputsAndUpdate(const Duration& delta);
+  /// This is: set time, drain inputs and cycle. Empty once the kernel is stopping.
+  std::optional<Duration> advanceTimeDrainInputsAndUpdate(const Duration& delta);
 
-  /// Flushes all the runners with virtualized time.
-  void flushVirtualTime();
+  /// Flushes all the runners with virtualized time. False once the kernel is stopping.
+  bool flushVirtualTime();
 
   /// Cycles all the runners to get the delta time until the next execution.
   [[nodiscard]] Duration computeNextExecutionDeltaTime() const;
@@ -146,6 +147,41 @@ private:
   /// Implementation of the actual stop() code.
   void doStop();
 
+  /// From here on no clock call tasks a runner.
+  void closeSteps();
+
+  void finishStepInFlight();
+  [[nodiscard]] bool stepCallBegins();
+  void stepCallEnded(bool leavesAFlush);
+  void commitTheStep();
+
+  /// One clock call through the step gate, for as long as it lives.
+  class StepCall
+  {
+    SEN_NOCOPY_NOMOVE(StepCall)
+
+  public:
+    StepCall(KernelImpl& kernel, bool leavesAFlush)
+      : kernel_(kernel), leavesAFlush_(leavesAFlush), letThrough_(kernel.stepCallBegins())
+    {
+    }
+
+    ~StepCall()
+    {
+      if (letThrough_)
+      {
+        kernel_.stepCallEnded(leavesAFlush_);
+      }
+    }
+
+    [[nodiscard]] bool letThrough() const noexcept { return letThrough_; }
+
+  private:
+    KernelImpl& kernel_;
+    bool leavesAFlush_;
+    bool letThrough_;
+  };
+
   /// Sets the initial parameters based on the passed configuration.
   void configure();
 
@@ -185,6 +221,14 @@ private:
   std::vector<std::unique_ptr<Runner>> runners_;
   std::vector<Runner*> virtualTimeRunners_;
   std::vector<std::future<void>> virtualTimeRunnersFutures_;
+
+  // The step gate. A clock call tasks the runners and waits for each to answer, so a runner stopped
+  // under one never answers and the call waits forever. The stop closes the gate first.
+  std::mutex stepGateMutex_;
+  std::condition_variable stepGateCondition_;
+  std::size_t stepCallUnderWay_ = 0U;
+  bool stepsClosed_ = false;
+  bool flushOwed_ = false;
   Executor executor_;
   std::atomic_bool isRunning_ = false;
   std::atomic_bool isStopping_ = false;
@@ -208,8 +252,14 @@ private:
 // Inline implementation
 //----------------------------------------------------------------------------------------------------------------------
 
-inline Duration KernelImpl::advanceTimeDrainInputsAndUpdate(const Duration& delta)
+inline std::optional<Duration> KernelImpl::advanceTimeDrainInputsAndUpdate(const Duration& delta)
 {
+  const StepCall call(*this, true);
+  if (!call.letThrough())
+  {
+    return std::nullopt;
+  }
+
   // task the components
   auto beforeExecution = std::chrono::high_resolution_clock::now();
 
@@ -225,10 +275,22 @@ inline Duration KernelImpl::advanceTimeDrainInputsAndUpdate(const Duration& delt
   }
 
   virtualTimeRunnersFutures_.clear();
-  return {std::chrono::high_resolution_clock::now() - beforeExecution};
+  return Duration {std::chrono::high_resolution_clock::now() - beforeExecution};
 }
 
-inline void KernelImpl::flushVirtualTime()
+inline bool KernelImpl::flushVirtualTime()
+{
+  const StepCall call(*this, false);
+  if (!call.letThrough())
+  {
+    return false;
+  }
+
+  commitTheStep();
+  return true;
+}
+
+inline void KernelImpl::commitTheStep()
 {
   // task the components
   for (auto* runner: virtualTimeRunners_)
