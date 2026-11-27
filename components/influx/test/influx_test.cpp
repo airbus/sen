@@ -1915,8 +1915,8 @@ TEST(InfluxIoThreadTest, WorkPostedAfterAnIdleStretchStillRuns)
     ASSERT_EQ(ranFirst.wait_for(ioThreadWait), std::future_status::ready)
       << "the thread never served the first handler at all";
 
-    // Do not remove this. Without it the second post can land inside the window where a missing
-    // work guard has not bitten yet, and the test passes against a context with no guard at all.
+    // The sleep is the discriminator: a second post landing inside the window where a missing work
+    // guard has not bitten yet would pass against a context that has no guard at all.
     std::this_thread::sleep_for(std::chrono::milliseconds {200});
 
     asio::post(io, [&second]() { second.set_value(std::this_thread::get_id()); });

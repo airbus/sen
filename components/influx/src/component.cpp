@@ -179,7 +179,7 @@ public:
     database->messageOf(batchBoundFor(maxMessageSize, compressionRequested));
 
     // The sending moves to the IoThread near the end of this function. Writes before that thread
-    // exists are not lost: a post to a context nobody is running yet simply waits, bounded by the
+    // exists are not lost: a post to a context nobody is running yet waits, bounded by the
     // same queue. 10000 is what Telegraf's own agent defaults metric_buffer_limit to.
     constexpr std::size_t defaultQueueLimit = 10000U;
     database->sendThrough(io, config.queueLimit == 0U ? defaultQueueLimit : config.queueLimit);
