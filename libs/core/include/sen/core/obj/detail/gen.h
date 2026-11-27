@@ -118,6 +118,7 @@ protected:                                                                      
   void senImplRemoveTypedConnection(::sen::ConnId id) override;                                                        \
   [[nodiscard]] ::sen::Var senImplGetPropertyImpl(::sen::MemberHash propertyId) const override;                        \
   void drainInputsImpl(::sen::TimeStamp lastCommitTime) override;                                                      \
+  void invokeAllPropertyCallbacks() override;                                                                          \
                                                                                                                        \
 private:
 
