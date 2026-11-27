@@ -853,3 +853,10 @@ function ObjectCollectorImpl({
 }
 
 export type { EventTypeTab };
+
+// HMR: dispose the store so iterations do not leave its subscribers behind.
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => {
+    streamViewStore.dispose();
+  });
+}

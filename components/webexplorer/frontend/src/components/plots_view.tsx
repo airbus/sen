@@ -613,3 +613,10 @@ function WindowControl({
     </span>
   );
 }
+
+// HMR: dispose the store so iterations do not leave its subscribers behind.
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => {
+    plotsViewStore.dispose();
+  });
+}

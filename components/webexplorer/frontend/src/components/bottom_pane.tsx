@@ -62,7 +62,10 @@ export function BottomPane({
   const [headerSlot, setHeaderSlot] = useState<HTMLDivElement | null>(null);
 
   // Fall back to the first tab if the persisted key no longer matches.
-  const activeTab = tabs.find((t) => t.key === activeTabKey) ?? tabs[0]!;
+  const activeTab = tabs.find((t) => t.key === activeTabKey) ?? tabs[0];
+  if (!activeTab) {
+    return null;
+  }
 
   const effectiveHeight = folded ? "auto" : height;
 

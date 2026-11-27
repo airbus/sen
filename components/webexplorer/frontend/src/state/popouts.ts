@@ -13,13 +13,15 @@ function createPopout(title: string, width: number, height: number) {
   const actions = Object.freeze({
     open: () => {
       const existing = store.getState().handle;
-      if (existing) {
+      // A closed window does not throw on focus(), so test `closed` instead of catching.
+      // focus() can still be refused, which is no reason to open a second window.
+      if (existing && !existing.popup.closed) {
         try {
           existing.popup.focus();
-          return;
         } catch {
-          /* popup was closed out from under us; fall through and re-open */
+          /* refused; the window is still there */
         }
+        return;
       }
       const handle = openPopout({ title, width, height });
       if (!handle) {
