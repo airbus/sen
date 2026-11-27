@@ -394,10 +394,7 @@ void RemoteObject::logEventArgsWarning(const std::string& eventName,
     numOfReaderEventArgs);
 }
 
-std::weak_ptr<const kernel::impl::RemoteParticipant> RemoteObject::getParticipant() const
-{
-  return info_.remoteParticipant;
-}
+std::weak_ptr<kernel::impl::RemoteParticipant> RemoteObject::getParticipant() const { return info_.remoteParticipant; }
 
 MaybeConstTypeHandle<ClassType> RemoteObject::getWriterSchema() const noexcept { return info_.writerSchema; }
 

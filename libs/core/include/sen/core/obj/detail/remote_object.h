@@ -143,7 +143,7 @@ public:  // implements ProxyObject
 
 public:
   void initializeState(Span<const uint8_t> state, const TimeStamp& time);
-  std::weak_ptr<const kernel::impl::RemoteParticipant> getParticipant() const;
+  std::weak_ptr<kernel::impl::RemoteParticipant> getParticipant() const;
   [[nodiscard]] MaybeConstTypeHandle<ClassType> getWriterSchema() const noexcept;
 
 protected:

@@ -9,8 +9,8 @@ How you get Sen depends on what you want to do:
   installer](#quick-install-linux).
 - **Use Sen as a dependency in your project**: use the [Conan
   package](#using-sen-in-your-project-conan).
-- **Install Sen on a machine without an internet-facing toolchain** (Windows, air-gapped Linux): use
-  the [release zip packages](#manual-release-packages).
+- **Install Sen on air-gapped Linux**: use the [quick installer with a local archive](#offline-install-linux).
+- **Install Sen on Windows**: use the [manual release packages](#manual-release-packages).
 - **Compile Sen yourself**, to track `main` or to run on a platform with no release artifact: see
   [building from source](#building-from-source).
 
@@ -129,6 +129,28 @@ The checksum line is the archive checked against the release's `SHA256SUMS`. Rel
 
 For environment variables, the security model, and the full set of options, see
 [`resources/installer/architecture.md`](https://github.com/airbus/sen/blob/main/resources/installer/architecture.md).
+
+## Offline install (Linux)
+
+On a connected machine, download `install.sh`, the Linux `-release.tar.gz` for your
+target machine, and the same release's `SHA256SUMS`. Keep the original archive filename
+and transfer the three files to the offline machine. Then run:
+
+```shell
+sh ./install.sh --archive ./sen-0.7.0-x86_64-linux-gnu-12.4.0-release.tar.gz \
+  --checksums ./SHA256SUMS
+. ~/.sen/current/activate
+sen --version
+```
+
+Use `source ~/.sen/current/activate.fish` in fish. If the release predates publication of
+`SHA256SUMS`, pass `--skip-checksum` in place of `--checksums ./SHA256SUMS` to explicitly
+install without archive verification.
+
+The archive filename determines the version and build. The installer checks that it matches
+the host architecture and OS, and uses the same install layout and activation scripts as the
+online mode. This mode needs no `curl` or network access. The Linux runtime requirements above
+still apply.
 
 ## Using Sen in your project (Conan)
 
