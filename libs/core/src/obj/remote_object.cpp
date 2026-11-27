@@ -210,30 +210,30 @@ void RemoteObject::senImplRemoveUntypedConnection(ConnId id, MemberHash memberHa
 
 void RemoteObject::senImplEventEmitted(MemberHash id, std::function<VarList()>&& argsGetter, const EventInfo& info)
 {
+  // The map is created by the first subscription, so the test for it belongs under the same mutex.
+  std::scoped_lock<std::recursive_mutex> lock(eventCallbacksMutex_);
+
   if (!eventCallbacks_)
   {
     return;
   }
 
   auto us = shared_from_this();
+
+  if (auto itr = eventCallbacks_->find(id); itr != eventCallbacks_->end())
   {
-    std::scoped_lock<std::recursive_mutex> lock(eventCallbacksMutex_);
+    const auto args = argsGetter();
 
-    if (auto itr = eventCallbacks_->find(id); itr != eventCallbacks_->end())
+    // iterate over all the registered callbacks
+    for (const auto& elem: itr->second.list)
     {
-      const auto args = argsGetter();
-
-      // iterate over all the registered callbacks
-      for (const auto& elem: itr->second.list)
+      if (auto callbackLock = elem.callback->lock(); callbackLock.isValid())
       {
-        if (auto callbackLock = elem.callback->lock(); callbackLock.isValid())
-        {
-          // The work holds the callback rather than a pointer into the list: the entry can be erased
-          // before the queue drains, and a later registration moves the vector's elements. The
-          // arguments go by value too, since argsGetter reads a buffer this thread owns.
-          callbackLock.pushAnswer([callback = elem.callback, info, args, us]() { callback->invoke(info, args); },
-                                  impl::cannotBeDropped(itr->second.transportMode));
-        }
+        // The work holds the callback rather than a pointer into the list: the entry can be erased
+        // before the queue drains, and a later registration moves the vector's elements. The
+        // arguments go by value too, since argsGetter reads a buffer this thread owns.
+        callbackLock.pushAnswer([callback = elem.callback, info, args, us]() { callback->invoke(info, args); },
+                                impl::cannotBeDropped(itr->second.transportMode));
       }
     }
   }

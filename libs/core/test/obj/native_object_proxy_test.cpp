@@ -39,12 +39,14 @@ struct TestOwner final: example_class::ExampleClassBase
 {
   explicit TestOwner(std::string name): ExampleClassBase(std::move(name)) {}
   using ExampleClassBase::commit;
+  using ExampleClassBase::invokeAllPropertyCallbacks;
   using ExampleClassBase::senImplEventEmitted;
 };
 
 struct TestProxy final: example_class::ExampleClassLocalProxy
 {
   using ExampleClassLocalProxy::ExampleClassLocalProxy;
+  using ExampleClassLocalProxy::invokeAllPropertyCallbacks;
   using ExampleClassLocalProxy::senImplRemoveTypedConnection;
 };
 
@@ -191,23 +193,15 @@ TEST(NativeObjectProxy, UntypedPropertySubscriptionFiresOnDrain)
 }
 
 /// @test
-/// Delegates invokeAllPropertyCallbacks to the owner, owner-side subscribers fire while proxy-side
-/// subscribers stay silent.
+/// Invokes the subscribers of whichever object the call was made on, proxy or owner.
 /// @requirements(SEN-573)
 TEST(NativeObjectProxy, InvokeAllPropertyCallbacks)
 {
   const ProxyTestFixture fixture;
+
   bool proxyTriggered = false;
   PropertyCallback proxyCallback(fixture.getQueue(), [&](const auto&) { proxyTriggered = true; });
   auto proxyGuard = fixture.proxy->onProp1Changed(std::move(proxyCallback));
-
-  fixture.proxy->invokeAllPropertyCallbacks();
-
-  while (fixture.getQueue()->executeAll())
-  {
-  }
-
-  EXPECT_FALSE(proxyTriggered);
 
   bool ownerTriggered = false;
   PropertyCallback ownerCallback(fixture.getQueue(), [&](const auto&) { ownerTriggered = true; });
@@ -219,7 +213,18 @@ TEST(NativeObjectProxy, InvokeAllPropertyCallbacks)
   {
   }
 
+  EXPECT_TRUE(proxyTriggered);
+  EXPECT_FALSE(ownerTriggered);
+
+  proxyTriggered = false;
+  fixture.owner->invokeAllPropertyCallbacks();
+
+  while (fixture.getQueue()->executeAll())
+  {
+  }
+
   EXPECT_TRUE(ownerTriggered);
+  EXPECT_FALSE(proxyTriggered);
 }
 
 /// @test
