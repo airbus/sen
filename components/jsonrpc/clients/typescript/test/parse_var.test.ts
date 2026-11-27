@@ -120,7 +120,7 @@ describe("parseVar -- Quantity", () => {
     expect(q.maxValue).toBe(50000);
   });
 
-  it("parses numeric strings (e.g. for i64/u64-based quantities)", () => {
+  it("parses numeric strings, which is how an i64/u64-backed quantity arrives", () => {
     const v = parseVar("demo.Altitude", "12345.6", cacheOf(altSpec));
     expect((v as Quantity).value).toBe(12345.6);
   });
@@ -128,6 +128,39 @@ describe("parseVar -- Quantity", () => {
   it("throws if the wire value is not a number or numeric string", () => {
     expect(() => parseVar("demo.Altitude", "not-a-number", cacheOf(altSpec))).toThrow(TransportError);
     expect(() => parseVar("demo.Altitude", { value: 123 }, cacheOf(altSpec))).toThrow(TransportError);
+  });
+
+  it("throws on an empty or blank string instead of reading it as zero", () => {
+    expect(() => parseVar("demo.Altitude", "", cacheOf(altSpec))).toThrow(TransportError);
+    expect(() => parseVar("demo.Altitude", "   ", cacheOf(altSpec))).toThrow(TransportError);
+  });
+});
+
+describe("parseVar -- Quantity over a 64-bit integer", () => {
+  const nanosSpec: CustomTypeSpec = {
+    name: "Nanos",
+    qualifiedName: "demo.Nanos",
+    description: "",
+    data: {
+      type: "sen.kernel.QuantityTypeSpec",
+      value: {
+        elementType: { type: "sen.kernel.IntegralType", value: "int64Type" },
+        unit: meters,
+        minValue: null,
+        maxValue: null,
+      },
+    },
+  };
+
+  it("parses a value a number can hold exactly", () => {
+    const v = parseVar("demo.Nanos", "9007199254740991", cacheOf(nanosSpec));
+    expect((v as Quantity).value).toBe(9007199254740991);
+  });
+
+  it("refuses a value beyond the safe-integer range rather than rounding it", () => {
+    expect(() => parseVar("demo.Nanos", "9007199254740993", cacheOf(nanosSpec))).toThrow(
+      /safe-integer range/,
+    );
   });
 });
 

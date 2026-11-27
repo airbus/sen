@@ -181,15 +181,39 @@ function parseEnum(spec: EnumTypeSpec, raw: unknown, qn: string, cache: TypeCach
   return raw;
 }
 
+/** True for a quantity over i64 or u64, whose range a `number` cannot hold exactly. */
+function isWideIntegerQuantity(spec: QuantityTypeSpec): boolean {
+  const element = spec.elementType;
+  return (
+    element.type === "sen.kernel.IntegralType" &&
+    (element.value === "int64Type" || element.value === "uint64Type")
+  );
+}
+
+// `Quantity` carries a `number`, so a 64-bit quantity outside the safe-integer range cannot be
+// represented. Refuse it, as the bare i64/u64 path does, rather than rounding without saying so.
+function quantityFromString(spec: QuantityTypeSpec, raw: string, qn: string, role: string): number {
+  if (raw.trim() === "") {
+    throw new TransportError(`Var ${role}: quantity "${qn}" expected a numeric string, got an empty one`);
+  }
+  const numeric = Number(raw);
+  if (!Number.isFinite(numeric)) {
+    throw new TransportError(`Var ${role}: quantity "${qn}" expected a numeric string, got ${raw}`);
+  }
+  if (isWideIntegerQuantity(spec) && !Number.isSafeInteger(numeric)) {
+    throw new TransportError(
+      `Var ${role}: quantity "${qn}" value ${raw} is outside the safe-integer range and a number cannot hold it`,
+    );
+  }
+  return numeric;
+}
+
 function parseQuantity(spec: QuantityTypeSpec, raw: unknown, qn: string): Var {
   let numeric: number;
   if (typeof raw === "number") {
     numeric = raw;
   } else if (typeof raw === "string") {
-    numeric = Number(raw);
-    if (!Number.isFinite(numeric)) {
-      throw new TransportError(`Var parser: quantity "${qn}" expected a numeric string, got ${raw}`);
-    }
+    numeric = quantityFromString(spec, raw, qn, "parser");
   } else {
     throw new TransportError(`Var parser: quantity "${qn}" expected a number or string, got ${typeof raw}`);
   }
@@ -361,10 +385,7 @@ function encodeQuantity(spec: QuantityTypeSpec, value: unknown, qn: string): unk
   } else if (typeof value === "number") {
     numeric = value;
   } else if (typeof value === "string") {
-    numeric = Number(value);
-    if (!Number.isFinite(numeric)) {
-      throw new TransportError(`Var encoder: quantity "${qn}" expected a numeric string, got ${value}`);
-    }
+    numeric = quantityFromString(spec, value, qn, "encoder");
   } else {
     throw new TransportError(
       `Var encoder: quantity "${qn}" expected a Quantity, number, or string, got ${typeof value}`,
