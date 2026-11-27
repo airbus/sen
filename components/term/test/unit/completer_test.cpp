@@ -8,13 +8,13 @@
 #include "completer.h"
 
 // sen
+#include "sen/core/meta/class_type.h"
+#include "sen/core/meta/type.h"
+#include "sen/core/obj/object.h"
 #include "sen/kernel/component_api.h"
 #include "test_completer_utils.h"
 #include "test_object_impl.h"
 #include "util.h"
-
-// sen
-#include "sen/core/obj/object.h"
 
 // google test
 #include <gtest/gtest.h>
@@ -64,6 +64,11 @@ public:
   static void setScopeDepth(Completer& c, int depth) { c.scopeDepth_ = depth; }
 
   static auto splitObjectMethod(std::string_view token) { return Completer::splitObjectMethod(token); }
+
+  static const std::vector<Completion>& getMethodCompletions(const Completer& c, ConstTypeHandle<ClassType> classType)
+  {
+    return c.getMethodCompletions(classType);
+  }
 };
 
 namespace
@@ -941,6 +946,24 @@ TEST(CompleterPath, ReplaceRangeForPath)
 //--------------------------------------------------------------------------------------------------------------
 // Object method completion tests (exact match triggers method listing)
 //--------------------------------------------------------------------------------------------------------------
+
+/// @test
+/// Distinct class instances with identical specs must not share a completion cache.
+TEST(CompleterMethod, IdenticalClassSpecsHaveDistinctCaches)
+{
+  ClassSpec spec;
+  spec.name = "DuplicateClass";
+  spec.qualifiedName = "test.DuplicateClass";
+
+  auto instance1 = ClassType::make(spec);
+  auto instance2 = ClassType::make(spec);
+
+  Completer completer;
+  const auto& comp1 = CompleterTestAccess::getMethodCompletions(completer, instance1);
+  const auto& comp2 = CompleterTestAccess::getMethodCompletions(completer, instance2);
+
+  EXPECT_NE(&comp1, &comp2);
+}
 
 /// @test
 /// A fully typed object name is not offered again, the completer having switched from object

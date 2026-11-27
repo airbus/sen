@@ -199,8 +199,14 @@ private:
   // count goes 0->1 -> insert into childNames_ (sorted), 1->0 -> erase.
   std::unordered_map<std::string, std::size_t> childCounts_;
 
-  // ClassType -> method completions (lazy, never invalidated; class metadata is stable)
-  mutable std::unordered_map<ConstTypeHandle<ClassType>, std::vector<Completion>> classMethodCache_;
+  // ClassType -> method completions (lazy, never invalidated; class metadata is stable).
+  // The entry keeps a handle to the class, so the key cannot outlive what it points at.
+  struct MethodCompletions
+  {
+    ConstTypeHandle<ClassType> classType;
+    std::vector<Completion> completions;
+  };
+  mutable std::unordered_map<const ClassType*, MethodCompletions> classMethodCache_;
   const CustomTypeRegistry* types_ = nullptr;
 
   // Cached scope depth for labeling path segments
