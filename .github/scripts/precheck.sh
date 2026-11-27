@@ -44,10 +44,9 @@ else
   say "commit messages (base $base)" "FAILED"; sed 's/^/    /' "$log/commits"; fail=1
 fi
 
-# 3. The one subject the queue lints with the suffix: a one-commit branch squashes under that
-#    commit's subject, a longer one under the pull request title. main.yaml chooses the same
-#    way, and step 2 lints every subject bare regardless. Adding a second commit moves the
-#    target, so the rule in force is printed rather than left to be inferred.
+# 3. The one subject the queue lints with the suffix. The repository squashes under the pull
+#    request title whatever the commit count (squash_merge_commit_title is PR_TITLE). A rebase
+#    merge lands each commit's own subject instead, bare, which step 2 already lints.
 budget() {
   if printf '%s (#9999)\n' "$2" | "$gitlint" >"$log/squash" 2>&1; then
     say "$1" "ok  $(( ${#2} + SUFFIX_BUDGET )) chars worst case"
@@ -62,13 +61,10 @@ budget() {
 count=$(git rev-list --count "$base..HEAD")
 if [ "$count" -eq 0 ]; then
   say "squash subject" "nothing to push: no commits ahead of $base"
-elif [ "$count" -eq 1 ]; then
-  budget "squash subject (1 commit, so the commit's own)" "$(git log -1 --format='%s' HEAD)"
-  [ $# -ge 1 ] && [ -n "$1" ] && say "pull request title" "not the squash subject with 1 commit"
 elif [ $# -ge 1 ] && [ -n "$1" ]; then
-  budget "squash subject ($count commits, so the title)" "$1"
+  budget "squash subject ($count commit(s), always the title)" "$1"
 else
-  say "squash subject" "NOT CHECKED: $count commits squash under the title; pass it as an argument"
+  say "squash subject" "NOT CHECKED: the squash lands the title; pass it as an argument"
 fi
 
 echo
