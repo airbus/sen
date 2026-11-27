@@ -142,64 +142,6 @@ TEST(Clipboard, EmitsEscapeEvenForEmptyText)
 #endif  // !_WIN32
 
 //--------------------------------------------------------------------------------------------------------------
-// Base64, on every platform
-//--------------------------------------------------------------------------------------------------------------
-//
-// These call the encoder directly. Reading it back out of the terminal escape needs stdout redirected,
-// which is written for POSIX only, and the encoder is the one piece here that behaves identically on
-// every platform.
-
-/// @test
-/// A length that is a multiple of three encodes with no padding.
-TEST(Clipboard, Base64NoPaddingFor3ByteMultiple)
-{
-  // "abc" -> YWJj (three bytes are four characters, no '=').
-  EXPECT_EQ(clipboard::base64Encode("abc"), "YWJj");
-}
-
-/// @test
-/// Two bytes encode with one padding character.
-TEST(Clipboard, Base64SinglePaddingFor2Bytes) { EXPECT_EQ(clipboard::base64Encode("ab"), "YWI="); }
-
-/// @test
-/// One byte encodes with two padding characters.
-TEST(Clipboard, Base64DoublePaddingFor1Byte) { EXPECT_EQ(clipboard::base64Encode("a"), "YQ=="); }
-
-/// @test
-/// Empty input encodes to an empty string.
-TEST(Clipboard, Base64EmptyInput) { EXPECT_EQ(clipboard::base64Encode(""), ""); }
-
-/// @test
-/// Encodes bytes above the ASCII range, 0xFF 0xFE 0xFD becoming //79 at the top of the six bit
-/// range.
-TEST(Clipboard, Base64HandlesNonAsciiBytes)
-{
-  // 0xFF 0xFE 0xFD -> //79, which exercises the top of the 6-bit range and both alphabet tails.
-  EXPECT_EQ(clipboard::base64Encode(std::string("\xFF\xFE\xFD", 3)), "//79");
-}
-
-/// @test
-/// Encodes "Hello, World!" to "SGVsbG8sIFdvcmxkIQ==".
-TEST(Clipboard, Base64KnownValueHelloWorld)
-{
-  EXPECT_EQ(clipboard::base64Encode("Hello, World!"), "SGVsbG8sIFdvcmxkIQ==");
-}
-
-/// @test
-/// The output holds only base64 alphabet characters and padding.
-TEST(Clipboard, Base64OutputUsesOnlyAlphabetChars)
-{
-  const auto encoded = clipboard::base64Encode("The quick brown fox jumps over the lazy dog");
-  EXPECT_FALSE(encoded.empty());
-  for (char c: encoded)
-  {
-    const bool ok =
-      (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '+' || c == '/' || c == '=';
-    EXPECT_TRUE(ok) << "Unexpected character in base64 payload: 0x" << std::hex << static_cast<int>(c);
-  }
-}
-
-//--------------------------------------------------------------------------------------------------------------
 // The worker, and what it can say afterwards
 //--------------------------------------------------------------------------------------------------------------
 

@@ -57,6 +57,24 @@ def test_a_line_holding_a_string_is_left_alone() -> None:
     assert '"host:port"' in formatter.format_text(text)
 
 
+def test_a_quote_in_a_trailing_comment_does_not_stop_alignment() -> None:
+    """Only the code can hide a colon or a comment marker; a quoted value in the comment cannot.
+
+    Testing the whole line left any member whose comment mentioned a quoted value unaligned, and
+    split the run around it so its neighbours aligned to each other instead.
+    """
+    text = 'struct S\n{\n  a : string,  // says "/write"\n  bbbbbb : u16,\n}\n'
+    out = formatter.format_text(text)
+    assert "  a      : string," in out
+    assert "  bbbbbb : u16," in out
+
+
+def test_a_quoted_comment_marker_in_code_still_bails() -> None:
+    """The guard has to stay for code, where a quoted "//" would make the split move text."""
+    text = 'struct S\n{\n  a : string = "x // y",\n  bbbbbb : u16,\n}\n'
+    assert '"x // y"' in formatter.format_text(text)
+
+
 def test_only_whitespace_ever_moves() -> None:
     """A file the formatter misreads comes back ugly, never wrong."""
     for path in _repository_stl_files():

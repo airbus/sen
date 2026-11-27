@@ -9,9 +9,11 @@ load:
     imports: [py_test_package]
   - name: influx
     group: 4
-    protocol: tcp
-    telegrafAddress: 127.0.0.1
-    telegrafPort: 18087
+    transport:
+      type: Tcp
+      value:
+        address: 127.0.0.1
+        port: 18087
     samplingPeriod: 20ms
     batchSize: 4
     selections:

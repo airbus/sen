@@ -7,6 +7,7 @@
 
 set(base_tests
     base/assert_test.cpp
+    base/base64_test.cpp
     base/checked_conversions_test.cpp
     base/bits_test.cpp
     base/duration_test.cpp

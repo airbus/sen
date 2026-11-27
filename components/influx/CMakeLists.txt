@@ -8,26 +8,33 @@
 sen_internal_component_guard(NAME influx)
 
 include(tps/spdlog)
+include(tps/zlib)
 include(tps/asio)
 
 add_sen_package(
   TARGET influx
   MAINTAINER "Enrique Parodi Spalazzi (enrique.parodi@airbus.com)"
   VERSION "0.0.1"
-  DESCRIPTION "Ethernet transport for sen"
-  SOURCES src/component.cpp
+  DESCRIPTION "Records Sen objects to InfluxDB through Telegraf"
+  SOURCES src/bounded_write.h
+          src/component.cpp
           src/data_point.h
           src/data_point.cpp
           src/database.h
           src/database.cpp
           src/recorder.h
           src/recorder.cpp
+          src/http.h
+          src/io_thread.h
+          src/io_thread.cpp
           src/tcp.h
           src/udp.h
+          src/unix_datagram.h
+          src/unix_stream.h
           src/util.h
           src/util.cpp
   STL_FILES stl/configuration.stl
-  PRIVATE_DEPS asio::asio spdlog::spdlog
+  PRIVATE_DEPS asio::asio spdlog::spdlog ZLIB::ZLIB
   TEST_TARGET influx_for_testing
   IS_COMPONENT
 )

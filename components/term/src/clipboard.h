@@ -34,13 +34,6 @@ void copy(std::string_view text);
 /// the render tick and show what it returns. Reading it clears it.
 [[nodiscard]] std::optional<std::string> takeFailure();
 
-/// RFC 4648 base64, as the OSC 52 payload needs it.
-///
-/// Exposed because it is the one piece of this module that is identical on every platform. Reaching it
-/// through the terminal escape instead needs descriptor redirection, which is written for POSIX only, so
-/// the portable half would be verified on one platform out of three.
-[[nodiscard]] std::string base64Encode(std::string_view input);
-
 /// Stop the worker, waiting a bounded time for a write in flight. Call before the component returns.
 ///
 /// There is one worker, not a thread per copy: a drag-select loop would otherwise make several, and a

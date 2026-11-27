@@ -5,14 +5,20 @@
 //                   © Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
 // =====================================================================================================================
 
+#ifndef SEN_COMPONENTS_INFLUX_SRC_TCP_H
+#define SEN_COMPONENTS_INFLUX_SRC_TCP_H
+
 // component
+#include "bounded_write.h"
 #include "database.h"
 
+// sen
+#include "sen/core/base/assert.h"
+
 // asio
-#include <asio/connect.hpp>  // NOLINT(misc-include-cleaner)
 #include <asio/io_context.hpp>
 #include <asio/ip/tcp.hpp>
-#include <asio/write.hpp>  // NOLINT(misc-include-cleaner)
+#include <asio/socket_base.hpp>
 
 // std
 #include <iostream>
@@ -22,21 +28,26 @@
 namespace sen::components::influx
 {
 
-/// UDP transport
+/// TCP transport
 class TCP: public Transport
 {
   SEN_NOCOPY_NOMOVE(TCP)
 
 public:
-  TCP(asio::io_context& ioContext, const std::string& hostname, int port);
+  TCP(asio::io_context& ioContext, const std::string& hostname, int port, IpFamily family);
   ~TCP() override = default;
 
-public:
-  void send(std::string&& message) override;
+protected:
+  void doSend(sen::Span<const char> data) override;
+  [[nodiscard]] bool requiresLineSeparator() const noexcept override { return true; }
 
 private:
-  /// Closes the socket and dials the endpoint once. False when the far end is still gone.
-  [[nodiscard]] bool reconnect();
+  /// Dials on first use, so a sink that is not up yet is not a failure to start.
+  [[nodiscard]] bool connected();
+
+  /// Closes whatever was there and dials the endpoints once, bounded. False when the far end is
+  /// still gone.
+  [[nodiscard]] bool dial();
 
   /// Says once that points are being dropped, whichever of the two writes gave up.
   void reportDropping();
@@ -44,7 +55,8 @@ private:
 private:
   asio::io_context& ioContext_;
   asio::ip::tcp::socket socket_;
-  asio::ip::tcp::endpoint endpoint_;
+  asio::ip::tcp::resolver::results_type endpoints_;
+  bool connected_ {false};
   /// Whether the last send failed, so a sink that stays down is reported once and not per point.
   bool disconnected_ {false};
 };
@@ -53,13 +65,23 @@ private:
 // Inline implementation
 //----------------------------------------------------------------------------------------------------------------------
 
-inline TCP::TCP(asio::io_context& ioContext, const std::string& hostname, int port)
+inline TCP::TCP(asio::io_context& ioContext, const std::string& hostname, int port, IpFamily family)
   : ioContext_(ioContext), socket_(ioContext_)
 {
   asio::ip::tcp::resolver resolver(ioContext_);
-  const auto results = resolver.resolve(hostname, std::to_string(port));
-  asio::connect(socket_, results);
-  endpoint_ = socket_.remote_endpoint();
+
+  // tcp4 and tcp6 ask the resolver for that family alone, so a name with records in both does not
+  // silently connect over the other one.
+  endpoints_ = (family == IpFamily::v4)   ? resolver.resolve(asio::ip::tcp::v4(), hostname, std::to_string(port))
+               : (family == IpFamily::v6) ? resolver.resolve(asio::ip::tcp::v6(), hostname, std::to_string(port))
+                                          : resolver.resolve(hostname, std::to_string(port));
+
+  if (endpoints_.empty())
+  {
+    throwRuntimeError("no address for '" + hostname + "'");
+  }
+
+  // Not connected here: a Telegraf that is not up yet is ordinary, and doSend dials on demand.
 }
 
 inline void TCP::reportDropping()
@@ -71,26 +93,50 @@ inline void TCP::reportDropping()
   }
 }
 
-inline bool TCP::reconnect()
+inline bool TCP::connected() { return connected_ || dial(); }
+
+inline bool TCP::dial()
 {
   // One attempt, not a loop. Waiting here for a sink that may never come back stops the
   // application that is being recorded, which is the wrong way round: the recording is the part
   // that can be missed.
-  // Closing a socket the far end has already dropped can fail, and it does not matter here: what
-  // the caller is told is whether the dial below answered.
   asio::error_code error;
-  std::ignore = socket_.close(error);
-  std::ignore = socket_.connect(endpoint_, error);
-  return !error;
+  connected_ = connectAnyBounded(socket_, endpoints_, streamConnectBound, error);
+
+  if (connected_)
+  {
+    // Asks the operating system to probe an idle connection, on its own configured interval.
+    // Non-blocking mode is already on: connectBounded sets it before the dial, which is what makes
+    // a connect report in_progress instead of waiting, and writeBounded needs it afterwards.
+    asio::error_code ignored;
+    std::ignore = socket_.set_option(asio::socket_base::keep_alive {true}, ignored);
+  }
+
+  return connected_;
 }
 
-inline void TCP::send(std::string&& message)
+inline void TCP::doSend(sen::Span<const char> data)
 {
-  message.append("\n");
-  const auto buffer = asio::buffer(message, message.size());
+  if (!connected())
+  {
+    reportDropping();
+    return;
+  }
 
   asio::error_code error;
-  asio::write(socket_, buffer, error);
+  std::ignore = writeBounded(socket_, data, streamWriteBound, error);
+
+  if (error == asio::error::timed_out)
+  {
+    // The peer is alive and not draining, so part of this message is on the wire and the stream is
+    // out of step. The connection ends: writing the rest would arrive after a gap, and sending the
+    // message again would deliver the lines that did get there twice.
+    asio::error_code closing;
+    std::ignore = socket_.close(closing);
+    connected_ = false;
+    reportDropping();
+    return;
+  }
 
   if (error)
   {
@@ -98,13 +144,13 @@ inline void TCP::send(std::string&& message)
     // throw reached the kernel's callback, where nothing catches it, and the run died with a
     // crash report because a sink went away. One reconnect and one retry; after that the point
     // is dropped, because the application being recorded must outlive its recorder.
-    if (!reconnect())
+    if (!dial())
     {
       reportDropping();
       return;
     }
 
-    asio::write(socket_, buffer, error);
+    std::ignore = writeBounded(socket_, data, streamWriteBound, error);
     if (error)
     {
       reportDropping();
@@ -120,3 +166,5 @@ inline void TCP::send(std::string&& message)
 }
 
 }  // namespace sen::components::influx
+
+#endif  // SEN_COMPONENTS_INFLUX_SRC_TCP_H
