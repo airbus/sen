@@ -31,7 +31,7 @@ enum Wall : u8 { top, bottom, left, right }
 class Shape
 {
   var geometry : Geometry [static];  // Shape's geometry.
-  var frozen   : bool [writable];    // True if the shape should move.
+  var frozen   : bool [writable];    // True if the shape should not move.
   var color    : Color [writable];   // Shape's color.
   var position : Vec2;               // Shape's center.
 

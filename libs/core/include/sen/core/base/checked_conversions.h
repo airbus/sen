@@ -26,7 +26,7 @@ namespace sen::std_util
 {
 
 /// Writes to standard error. Out of line so this header, which every user of the conversion
-/// helpers includes, does not carry <iostream>.
+/// helpers includes, does not carry `<iostream>`.
 void reportToStandardError(std::string_view message);
 
 struct ReportPolicyAssertion

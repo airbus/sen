@@ -1,7 +1,7 @@
 # Calculators example
 
 > **Prerequisites:** [0 - Counter](../0_counter/readme.md) (writing and wiring a Sen package), or
-the [docs quick start](https://airbus.github.io/sen/latest/) if you haven't set up Sen yet.
+the [docs quick start](../../../../getting_started/install.md) if you haven't set up Sen yet.
 
 This example illustrates how you can create a package that holds two implementations of a class
 defined in STL.

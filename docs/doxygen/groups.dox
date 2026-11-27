@@ -1,108 +1,101 @@
 /**
 
-@brief Core library
 @defgroup core Core library
+@brief Core library
 @{
 
-@defgroup base Base classes
-@brief General purpose, used by all other modules
-@{
+  @defgroup base Base classes
+  @brief General purpose, used by all other modules
+  @{
 
-@defgroup error_handling Error handling
-@brief Error processing, assertions, contracts, results.
-@{
-@}
+    @defgroup error_handling Error handling
+    @brief Error processing, assertions, contracts, results.
+    @{
+    @}
 
-@brief General utility macros
-@defgroup macros Macros
-@{
-@}
+    @defgroup macros Macros
+    @brief General utility macros
+    @{
+    @}
 
-@brief Compile-time template magic
-@defgroup templates Template Meta Programming
-@{
-@}
+    @defgroup templates Template Meta Programming
+    @brief Compile-time template magic
+    @{
+    @}
 
-@brief Hashing and compression utilities
-@defgroup hash Hashing and compression
-@{
-@}
+    @defgroup hash Hashing and compression
+    @brief Hashing and compression utilities
+    @{
+    @}
 
-@brief Pools, pointers, and related utilities
-@defgroup mem Memory manipulation utilities
-@{
-@}
+    @defgroup mem Memory manipulation utilities
+    @brief Pools, pointers, and related utilities
+    @{
+    @}
 
-@brief Containers, adapters, and commonly used functions
-@defgroup util General utilities
-@{
-@}
+    @defgroup util General utilities
+    @brief Containers, adapters, and commonly used functions
+    @{
+    @}
+  @}
 
-@}
+  @defgroup io Low level input / output
+  @brief Serialization and deserialization functions
+  @{
+  @}
 
-@brief Serialization and deserialization functions
-@defgroup io Low level input / output
-@{
-@}
+  @defgroup meta Meta Type System
+  @brief Types that represent types
+  @{
+    @defgroup traits Traits
+    @brief Trait structures for generated types
+    @{
+    @}
 
-@brief Types that represent types
-@defgroup meta Meta Type System
-@{
+    @defgroup types Types
+    @brief Classes and containers describing native and custom types
+    @{
+    @}
 
-@defgroup traits Traits
-@brief Trait structures for generated types
-@{
-@}
+    @defgroup type_utils Type Manipulation Utilities
+    @brief Helpers for working with meta types
+    @{
+    @}
+  @}
 
-@brief Classes and containers describing native and custom types
-@defgroup types Types
-@{
-@}
+  @defgroup lang The Sen Type Language
+  @brief Parsing and execution of STL
+  @{
+  @}
 
-@brief Helpers for working with meta types
-@defgroup type_utils Type Manipulation Utilities
-@{
-@}
-
-@}
-
-@brief Parsing and execution of STL
-@defgroup lang The Sen Type Language
-@{
-@}
-
-@brief Manipulation of objects
-@defgroup obj Objects
-@{
-@}
+  @defgroup obj Objects
+  @brief Manipulation of objects
+  @{
+  @}
 
 @}
 
-@brief The Sen kernel API
 @defgroup kernel Kernel library
+@brief The Sen kernel API
 @{
 @}
 
-@brief General sen utils
 @defgroup utils_library Sen Util Library
+@brief General sen utils
 @{
-
-@brief Dead Reckoning utility
-@defgroup dr Dead Reckoning Library
-@{
+  @defgroup dr Dead Reckoning Library
+  @brief Dead Reckoning utility
+  @{
+  @}
 @}
 
-@}
-
-@}
-
-@brief Provides means to read and write recordings
 @defgroup db Archive manipulation library
+@brief Provides means to read and write recordings
 @{
 @}
 
-@brief Code generators that emit source artefacts from Sen type sets
 @defgroup gen Code Generation library
+@brief Code generators that emit source artefacts from Sen type sets
 @{
 @}
 

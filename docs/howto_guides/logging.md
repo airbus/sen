@@ -13,7 +13,7 @@ We now add logging to a component so that:
 The configuration file specifies the sinks, their log level, and other properties. The file
 `libs/kernel/stl/sen/kernel/log.stl` lists available sinks and their properties. In this example,
 the logger that uses these two sinks is named `my_logger` and modifies the log's output pattern, as
-described in `spdlog`'s [documentation](https://github.com/gabime/spdlog/wiki/3.-Custom-formatting).
+described in `spdlog`'s [documentation](https://github.com/gabime/spdlog/wiki/).
 
 ```yaml title="Example configuration"
 kernel:

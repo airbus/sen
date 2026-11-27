@@ -104,4 +104,4 @@ against the shared package.
 
 Any modifications to the target (e.g. `target_include_directories`) must be applied to
 `fibonacci_obj`, the intermediate OBJECT target, not to `fibonacci` or `fibonacci_test_lib` directly
-(see the CMake integration page of the manual for details).
+(see the [CMake documentation](../../../../users_guide/cmake.md) for details).

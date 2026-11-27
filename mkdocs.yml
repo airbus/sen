@@ -9,7 +9,7 @@ site_name: "Sen"
 site_description: "Sen Software Infrastructure"
 # The published site, not the repository: this is what every page advertises as
 # its canonical URL, and what sitemap.xml is built from.
-site_url: https://airbus.github.io/sen/
+site_url: https://airbus.github.io/sen
 site_author: "Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS"
 
 # Screenshots and recordings are not in this branch. They live on the `docs-assets`
@@ -39,7 +39,7 @@ not_in_nav: |
   includes/*
 
 # Copyright
-copyright: &copy Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS.
+copyright: "&copy; Airbus SAS, Airbus Helicopters, and Airbus Defence and Space SAU/GmbH/SAS."
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Theme
@@ -145,7 +145,6 @@ markdown_extensions:
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.keys
-  - pymdownx.details
   - attr_list
   - pymdownx.tabbed:
       alternate_style: true
@@ -174,6 +173,8 @@ plugins:
         - licenses/licensed_code_in_sen.md
   - redoc-tag:
       height: 100vh
+hooks:
+  - docs/hooks.py
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Navigation
@@ -276,6 +277,8 @@ nav:
       - Using Python: snippets/examples/config/10_python/readme.md
       - Request/response servers: snippets/examples/config/9_hla_servers/readme.md
       - JSON-RPC: snippets/examples/config/14_jsonrpc/readme.md
+      - JavaScript REST client: snippets/examples/apps/rest_web_client/readme.md
+      - Python REST client: snippets/examples/apps/rest_python_client/readme.md
       - HTML reference: examples/generated_reference.md
       - Typeset reference (PDF): examples/generated_document.md
       - UML generation: examples/generated_uml.md

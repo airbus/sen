@@ -277,6 +277,7 @@ inline FixedMemoryBlock& FixedMemoryBlock::operator=(FixedMemoryBlock&& other) n
 
   return *this;
 }
+//! @endcond
 
 //--------------------------------------------------------------------------------------------------------------
 // FixedMemoryBlockPool::Block

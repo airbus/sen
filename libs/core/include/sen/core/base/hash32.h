@@ -74,10 +74,10 @@ template <typename... Types>
 /// Kept so a caller outside the repository keeps compiling. True where fileToCompressedArray succeeds.
 // [[nodiscard]] leads: the macro expands to a GNU attribute on gcc and clang, and a standard
 // attribute list has to start the declaration.
-[[nodiscard]] SEN_DEPRECATED_FOR(0.7.0, fileToCompressedArray) bool fileToCompressedArrayFile(
-  const std::filesystem::path& inputFile,
-  std::string_view symbolName,
-  const std::filesystem::path& outputFile);
+[[nodiscard]] bool fileToCompressedArrayFile(const std::filesystem::path& inputFile,
+                                             std::string_view symbolName,
+                                             const std::filesystem::path& outputFile)
+  SEN_DEPRECATED_FOR(0.7.0, fileToCompressedArray);
 
 /// @}
 

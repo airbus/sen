@@ -110,7 +110,7 @@ sen run config/4_school/7_school_one_classroom_teacher_eth.yaml
 ### From an LLM using the MCP gateway
 
 Same two classrooms, but over JSON-RPC so something outside Sen can reach them. The
-[MCP gateway](https://airbus.github.io/sen/latest/components/mcp_gateway.html) is one such thing; the web explorer is another.
+[MCP gateway](../../../../components/mcp_gateway.md) is one such thing; the web explorer is another.
 
 ```shell
 sen run config/4_school/8_school_jsonrpc.yaml
