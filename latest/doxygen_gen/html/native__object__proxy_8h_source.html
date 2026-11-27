@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('native__object
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>  [[nodiscard]] TimeStamp getLastCommitTime() const noexcept final;</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>  [[nodiscard]] ConnectionGuard onEventUntyped(const Event* ev, EventCallback&lt;VarList&gt;&amp;&amp; callback) final;</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>  [[nodiscard]] ConnectionGuard onPropertyChangedUntyped(const Property* prop, EventCallback&lt;VarList&gt;&amp;&amp; callback) final;</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>  <span class="keywordtype">void</span> invokeAllPropertyCallbacks() final;</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>  <span class="keywordtype">void</span> invokeAllPropertyCallbacks() override;</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>  <span class="comment">// NOLINTNEXTLINE</span></div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>  <span class="keywordtype">void</span> invokeUntyped(const Method* method, const VarList&amp; args, MethodCallback&lt;Var&gt;&amp;&amp; onDone = {}) <span class="keyword">final</span>;</div>
