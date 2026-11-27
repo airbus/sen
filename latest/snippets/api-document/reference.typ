@@ -506,6 +506,7 @@
 #sen-table(
   columns: (COL-NAME, COL-TYPE, COL-FLAGS, 1fr),
   table.header([*Name*], [*Type*], [*Flags*], [*Description*]),
+  [#mono("port")], link(<t-u16>)[#"u16"], [RO S BE], "TCP port the server is bound to (0 when no server is attached).",
   [#mono("registered​Bundles")], link(<t-sen-components-jsonrpc-RegisteredBundleInfoList>)[#"Registered​Bundle​Info​List"], [RO D C], "Currently-registered bundles. Externally read-only; the component mutates this whenever a bundle is registered or unregistered. Subscribe to receive notifications on every change.",
 )
 #sen-table(
