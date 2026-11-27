@@ -2,7 +2,7 @@
 
 = Model overview
 
-#prose("955 types in 4 packages. Every class descends from a single root.")
+#prose("961 types in 4 packages. Every class descends from a single root.")
 
 *Packages*
 
@@ -10,8 +10,8 @@
   ([*Package*], [*Types*], [*Object classes*], [*Fixed records*], [*Enumerations*], [*Variant records*], [*Arrays*], [*Quantities*], [*Aliases*], [*Optionals*]),
   ([#h(0pt)#"hla"], [14], [1], [—], [—], [—], [—], [—], [—], [13]),
   ([#h(0pt)#"link16"], [24], [—], [16], [—], [—], [4], [—], [4], [—]),
-  ([#h(0pt)#"netn"], [464], [59], [197], [61], [10], [56], [—], [32], [49]),
-  ([#h(0pt)#"rpr"], [453], [63], [160], [109], [9], [58], [22], [22], [10]),
+  ([#h(0pt)#"netn"], [470], [59], [197], [61], [10], [56], [13], [19], [55]),
+  ([#h(0pt)#"rpr"], [453], [63], [160], [109], [9], [58], [23], [21], [10]),
 )
 
 *Class hierarchy across all packages*
@@ -591,7 +591,7 @@
 
 = #"netn"
 
-#prose[464 types.]
+#prose[470 types.]
 
 #section("Object classes", "classes")
 
@@ -1317,7 +1317,7 @@
   [#mono("precipitation")], link(<t-netn-PrecipitationStruct>)[#"Precipitation​Struct"], [RO D C], "Optional. Current precipitation type and intensity in the region/location specified by the Environment Condition. Default is No Precipitation. If EnvironmentConditions with overlapping regions/locations exist the average intensity should be used. Conflicting precipitation types are resolved according to the following precedence: Snow, Hail, Rain, No Precipitation. E.g. If there is one overlapping Environment Condition with Snow the result is always Snow.",
   [#mono("haze")], link(<t-netn-HazeStruct>)[#"Haze​Struct"], [RO D C], "Optional. Current Haze type and density in the region/location specified by the Environment Condition. Default is No Haze. If EnvironmentConditions with overlapping regions/locations exist having the same Haze type the average density should be used.",
   [#mono("humidity")], link(<t-f32>)[#"f32"], [RO D C], "Optional. Humidity in percent in the region/location specified by the Environment Condition. Default is 75% (Normal value) If EnvironmentConditions with overlapping regions/locations exist the average humidity should be used.",
-  [#mono("barometric​Pressure")], link(<t-f32>)[#"f32"], [RO D C], "Optional. Barometric pressure measured in millibar or hectopascal (1 mbar = 1hPa) in the region/location specified by the Environment Condition. If EnvironmentConditions with overlapping regions/locations exist the average barometric pressure should be used.",
+  [#mono("barometric​Pressure")], link(<t-netn-AtmosphericPressureFloat32>)[#"Atmospheric​Pressure​Float32"], [RO D C], "Optional. Barometric pressure measured in millibar or hectopascal (1 mbar = 1hPa) in the region/location specified by the Environment Condition. If EnvironmentConditions with overlapping regions/locations exist the average barometric pressure should be used.",
   [#mono("visibility​Range")], link(<t-rpr-MeterFloat32>)[#"rpr.​Meter​Float32"], [RO D C], "Optional. The distance at which an object or light can be clearly discerned by the human eye in the region/location specified by the Environment Condition. If EnvironmentConditions with overlapping regions/locations exist the minimum distance should be used.",
 )
 
@@ -1620,7 +1620,7 @@
   [#mono("host​Radio​Index")], link(<t-string>)[#"string"], "Optional (Default: not available). The HostRadioIndex is a unique string that identifies the name of the RadioTransmitter object.",
   [#mono("message​Id")], link(<t-netn-MsgIdEnumType>)[#"Msg​Id​Enum​Type"], "Required. Message type identifier.",
   [#mono("user​Id")], link(<t-netn-MMSIType>)[#"MMSIType"], "Required. The message is from the vessel identified by this MMSI.",
-  [#mono("u​TCtime")], link(<t-i64>)[#"i64"], "Optional (Default: not available). Time of report.",
+  [#mono("u​TCtime")], link(<t-netn-EpochTimeSecInt64>)[#"Epoch​Time​Sec​Int64"], "Optional (Default: not available). Time of report.",
   [#mono("position")], link(<t-netn-GeodeticLocation>)[#"Geodetic​Location"], "Optional (Default: not available). AIS (Lat,Lon) position.",
 )
 
@@ -1656,12 +1656,12 @@
   [#mono("message​Id")], link(<t-netn-MsgIdEnumType>)[#"Msg​Id​Enum​Type"], "Required. Message type identifier.",
   [#mono("user​Id")], link(<t-netn-MMSIType>)[#"MMSIType"], "Required. The message is from the vessel identified by this MMSI.",
   [#mono("navigational​Status")], link(<t-netn-NavigationStatusEnumType>)[#"Navigation​Status​Enum​Type"], "Optional (Default: not defined). Navigational status.",
-  [#mono("rate​Of​Turn")], link(<t-f32>)[#"f32"], "Optional (Default: not available). Rate of turn.",
+  [#mono("rate​Of​Turn")], link(<t-netn-DegreesPerSecondFloat32>)[#"Degrees​Per​Second​Float32"], "Optional (Default: not available). Rate of turn.",
   [#mono("speed​Over​Ground")], link(<t-rpr-VelocityMeterPerSecondFloat32>)[#"rpr.​Velocity​Meter​Per​Second​Float32"], "Optional (Default: not available). Speed over ground.",
   [#mono("position")], link(<t-netn-GeodeticLocation>)[#"Geodetic​Location"], "Optional (Default: not available). AIS (Lat,Lon) position.",
-  [#mono("course​Over​Ground")], link(<t-f32>)[#"f32"], "Optional (Default: not available). Course over ground.",
-  [#mono("true​Heading")], link(<t-f32>)[#"f32"], "Optional (Default: not available). True heading.",
-  [#mono("u​TCtime")], link(<t-i64>)[#"i64"], "Optional (Default: not available). Time of the report.",
+  [#mono("course​Over​Ground")], link(<t-netn-DirectionDegreesFloat32>)[#"Direction​Degrees​Float32"], "Optional (Default: not available). Course over ground.",
+  [#mono("true​Heading")], link(<t-netn-DirectionDegreesFloat32>)[#"Direction​Degrees​Float32"], "Optional (Default: not available). True heading.",
+  [#mono("u​TCtime")], link(<t-netn-EpochTimeSecInt64>)[#"Epoch​Time​Sec​Int64"], "Optional (Default: not available). Time of the report.",
   [#mono("special​Maneuver​Indicator")], link(<t-netn-ManeuverIndicatorEnumType>)[#"Maneuver​Indicator​Enum​Type"], "Optional (Default: not available). Maneuver indication.",
 )
 
@@ -1684,7 +1684,7 @@
   [#mono("host​Radio​Index")], link(<t-string>)[#"string"], "Optional (Default: not available). The HostRadioIndex is a unique string that identifies the name of the RadioTransmitter object.",
   [#mono("message​Id")], link(<t-netn-MsgIdEnumType>)[#"Msg​Id​Enum​Type"], "Required. Message type identifier.",
   [#mono("user​Id")], link(<t-netn-MMSIType>)[#"MMSIType"], "Required. The message is from the vessel identified by this MMSI.",
-  [#mono("u​TCtime")], link(<t-i64>)[#"i64"], "Optional (Default: not available). Time of report.",
+  [#mono("u​TCtime")], link(<t-netn-EpochTimeSecInt64>)[#"Epoch​Time​Sec​Int64"], "Optional (Default: not available). Time of report.",
   [#mono("position")], link(<t-netn-GeodeticLocation>)[#"Geodetic​Location"], "Optional (Default: not available). AIS (Lat,Lon) position.",
 )
 
@@ -1746,9 +1746,9 @@
   [#mono("user​Id")], link(<t-netn-MMSIType>)[#"MMSIType"], "Required. The message is from the vessel identified by this MMSI.",
   [#mono("speed​Over​Ground")], link(<t-rpr-VelocityMeterPerSecondFloat32>)[#"rpr.​Velocity​Meter​Per​Second​Float32"], "Optional (Default: not available). Speed over ground.",
   [#mono("position")], link(<t-netn-GeodeticLocation>)[#"Geodetic​Location"], "Optional (Default: not available). AIS (Lat,Lon) position.",
-  [#mono("course​Over​Ground")], link(<t-f32>)[#"f32"], "Optional (Default: not available). Course over ground.",
-  [#mono("true​Heading")], link(<t-f32>)[#"f32"], "Optional (Default: not available). True heading.",
-  [#mono("u​TCtime")], link(<t-i64>)[#"i64"], "Optional (Default: not available). Time of the report.",
+  [#mono("course​Over​Ground")], link(<t-netn-DirectionDegreesFloat32>)[#"Direction​Degrees​Float32"], "Optional (Default: not available). Course over ground.",
+  [#mono("true​Heading")], link(<t-netn-DirectionDegreesFloat32>)[#"Direction​Degrees​Float32"], "Optional (Default: not available). True heading.",
+  [#mono("u​TCtime")], link(<t-netn-EpochTimeSecInt64>)[#"Epoch​Time​Sec​Int64"], "Optional (Default: not available). Time of the report.",
 )
 
 ==== #"AisMessage19" #chip("structures", "structure") <t-netn-AisMessage19>
@@ -1768,9 +1768,9 @@
   [#mono("dimension​Starboard")], link(<t-rpr-LengthMeterFloat32>)[#"rpr.​Length​Meter​Float32"], "Optional (Default: not available). GPS Ant. distance from starboard.",
   [#mono("speed​Over​Ground")], link(<t-rpr-VelocityMeterPerSecondFloat32>)[#"rpr.​Velocity​Meter​Per​Second​Float32"], "Optional (Default: not available). Speed over ground.",
   [#mono("position")], link(<t-netn-GeodeticLocation>)[#"Geodetic​Location"], "Optional (Default: not available). AIS (Lat,Lon) position.",
-  [#mono("course​Over​Ground")], link(<t-f32>)[#"f32"], "Optional (Default: not available). Course over ground.",
-  [#mono("true​Heading")], link(<t-f32>)[#"f32"], "Optional (Default: not available). True heading.",
-  [#mono("u​TCtime")], link(<t-i64>)[#"i64"], "Optional (Default: not available). Time of the report.",
+  [#mono("course​Over​Ground")], link(<t-netn-DirectionDegreesFloat32>)[#"Direction​Degrees​Float32"], "Optional (Default: not available). Course over ground.",
+  [#mono("true​Heading")], link(<t-netn-DirectionDegreesFloat32>)[#"Direction​Degrees​Float32"], "Optional (Default: not available). True heading.",
+  [#mono("u​TCtime")], link(<t-netn-EpochTimeSecInt64>)[#"Epoch​Time​Sec​Int64"], "Optional (Default: not available). Time of the report.",
 )
 
 ==== #"AisMessage2" #chip("structures", "structure") <t-netn-AisMessage2>
@@ -1782,12 +1782,12 @@
   [#mono("message​Id")], link(<t-netn-MsgIdEnumType>)[#"Msg​Id​Enum​Type"], "Required. Message type identifier.",
   [#mono("user​Id")], link(<t-netn-MMSIType>)[#"MMSIType"], "Required. The message is from the vessel identified by this MMSI.",
   [#mono("navigational​Status")], link(<t-netn-NavigationStatusEnumType>)[#"Navigation​Status​Enum​Type"], "Optional (Default: not defined). Navigational status.",
-  [#mono("rate​Of​Turn")], link(<t-f32>)[#"f32"], "Optional (Default: not available). Rate of turn.",
+  [#mono("rate​Of​Turn")], link(<t-netn-DegreesPerSecondFloat32>)[#"Degrees​Per​Second​Float32"], "Optional (Default: not available). Rate of turn.",
   [#mono("speed​Over​Ground")], link(<t-rpr-VelocityMeterPerSecondFloat32>)[#"rpr.​Velocity​Meter​Per​Second​Float32"], "Optional (Default: not available). Speed over ground.",
   [#mono("position")], link(<t-netn-GeodeticLocation>)[#"Geodetic​Location"], "Optional (Default: not available). AIS (Lat,Lon) position.",
-  [#mono("course​Over​Ground")], link(<t-f32>)[#"f32"], "Optional (Default: not available). Course over ground.",
-  [#mono("true​Heading")], link(<t-f32>)[#"f32"], "Optional (Default: not available). True heading.",
-  [#mono("u​TCtime")], link(<t-i64>)[#"i64"], "Optional (Default: not available). Time of the report.",
+  [#mono("course​Over​Ground")], link(<t-netn-DirectionDegreesFloat32>)[#"Direction​Degrees​Float32"], "Optional (Default: not available). Course over ground.",
+  [#mono("true​Heading")], link(<t-netn-DirectionDegreesFloat32>)[#"Direction​Degrees​Float32"], "Optional (Default: not available). True heading.",
+  [#mono("u​TCtime")], link(<t-netn-EpochTimeSecInt64>)[#"Epoch​Time​Sec​Int64"], "Optional (Default: not available). Time of the report.",
   [#mono("special​Maneuver​Indicator")], link(<t-netn-ManeuverIndicatorEnumType>)[#"Maneuver​Indicator​Enum​Type"], "Optional (Default: not available). Maneuver indication.",
 )
 
@@ -1806,7 +1806,7 @@
   [#mono("dimension​Stern")], link(<t-rpr-LengthMeterFloat32>)[#"rpr.​Length​Meter​Float32"], "Optional (Default: not available). Distance from stern.",
   [#mono("dimension​Port")], link(<t-rpr-LengthMeterFloat32>)[#"rpr.​Length​Meter​Float32"], "Optional (Default: not available). Distance from port.",
   [#mono("dimension​Starboard")], link(<t-rpr-LengthMeterFloat32>)[#"rpr.​Length​Meter​Float32"], "Optional (Default: not available). Distance from starboard.",
-  [#mono("u​TCtime")], link(<t-i64>)[#"i64"], "Optional (Default: not available). Time of the report.",
+  [#mono("u​TCtime")], link(<t-netn-EpochTimeSecInt64>)[#"Epoch​Time​Sec​Int64"], "Optional (Default: not available). Time of the report.",
   [#mono("off​Position​Flag")], link(<t-bool>)[#"bool"], "Optional (Default: false). Off-Position Indicator. The Off-Position Indicator is for floating Aids-to-Navigation only: false means on position; true means off position. Only valid if UTCsecond is available.",
   [#mono("virtual​Flag")], link(<t-bool>)[#"bool"], "Optional (Default: false). Virtual-aid flag. The Virtual Aid flag is interpreted as follows: false = real Aid to Navigation at indicated position; true = virtual Aid to Navigation simulated by nearby AIS station.",
 )
@@ -1843,7 +1843,7 @@
   [#mono("navigation​Status")], link(<t-netn-NavigationStatusEnumType>)[#"Navigation​Status​Enum​Type"], "Optional (Default: not defined). Navigational status.",
   [#mono("position")], link(<t-netn-GeodeticLocation>)[#"Geodetic​Location"], "Optional (Default: not available). AIS (Lat,Lon) position.",
   [#mono("speed​Over​Ground")], link(<t-rpr-VelocityMeterPerSecondFloat32>)[#"rpr.​Velocity​Meter​Per​Second​Float32"], "Optional (Default: not available). Speed over ground.",
-  [#mono("course​Over​Ground")], link(<t-f32>)[#"f32"], "Optional (Default: not available). Course over ground.",
+  [#mono("course​Over​Ground")], link(<t-netn-DirectionDegreesFloat32>)[#"Direction​Degrees​Float32"], "Optional (Default: not available). Course over ground.",
 )
 
 ==== #"AisMessage3" #chip("structures", "structure") <t-netn-AisMessage3>
@@ -1855,12 +1855,12 @@
   [#mono("message​Id")], link(<t-netn-MsgIdEnumType>)[#"Msg​Id​Enum​Type"], "Required. Message type identifier.",
   [#mono("user​Id")], link(<t-netn-MMSIType>)[#"MMSIType"], "Required. The message is from the vessel identified by this MMSI.",
   [#mono("navigational​Status")], link(<t-netn-NavigationStatusEnumType>)[#"Navigation​Status​Enum​Type"], "Optional (Default: not defined). Navigational status.",
-  [#mono("rate​Of​Turn")], link(<t-f32>)[#"f32"], "Optional (Default: not available). Rate of turn.",
+  [#mono("rate​Of​Turn")], link(<t-netn-DegreesPerSecondFloat32>)[#"Degrees​Per​Second​Float32"], "Optional (Default: not available). Rate of turn.",
   [#mono("speed​Over​Ground")], link(<t-rpr-VelocityMeterPerSecondFloat32>)[#"rpr.​Velocity​Meter​Per​Second​Float32"], "Optional (Default: not available). Speed over ground.",
   [#mono("position")], link(<t-netn-GeodeticLocation>)[#"Geodetic​Location"], "Optional (Default: not available). AIS (Lat,Lon) position.",
-  [#mono("course​Over​Ground")], link(<t-f32>)[#"f32"], "Optional (Default: not available). Course over ground.",
-  [#mono("true​Heading")], link(<t-f32>)[#"f32"], "Optional (Default: not available). True heading.",
-  [#mono("u​TCtime")], link(<t-i64>)[#"i64"], "Optional (Default: not available). Time of the report.",
+  [#mono("course​Over​Ground")], link(<t-netn-DirectionDegreesFloat32>)[#"Direction​Degrees​Float32"], "Optional (Default: not available). Course over ground.",
+  [#mono("true​Heading")], link(<t-netn-DirectionDegreesFloat32>)[#"Direction​Degrees​Float32"], "Optional (Default: not available). True heading.",
+  [#mono("u​TCtime")], link(<t-netn-EpochTimeSecInt64>)[#"Epoch​Time​Sec​Int64"], "Optional (Default: not available). Time of the report.",
   [#mono("special​Maneuver​Indicator")], link(<t-netn-ManeuverIndicatorEnumType>)[#"Maneuver​Indicator​Enum​Type"], "Optional (Default: not available). Maneuver indication.",
 )
 
@@ -1872,7 +1872,7 @@
   [#mono("host​Radio​Index")], link(<t-string>)[#"string"], "Optional (Default: not available). The HostRadioIndex is a unique string that identifies the name of the RadioTransmitter object.",
   [#mono("message​Id")], link(<t-netn-MsgIdEnumType>)[#"Msg​Id​Enum​Type"], "Required. Message type identifier.",
   [#mono("user​Id")], link(<t-netn-MMSIType>)[#"MMSIType"], "Required. The message is from the vessel identified by this MMSI.",
-  [#mono("u​TCtime")], link(<t-i64>)[#"i64"], "Optional (Default: not available). Time of report.",
+  [#mono("u​TCtime")], link(<t-netn-EpochTimeSecInt64>)[#"Epoch​Time​Sec​Int64"], "Optional (Default: not available). Time of report.",
   [#mono("position")], link(<t-netn-GeodeticLocation>)[#"Geodetic​Location"], "Optional (Default: not available). AIS (Lat,Lon) position.",
 )
 
@@ -1892,8 +1892,8 @@
   [#mono("dimension​Port")], link(<t-rpr-LengthMeterFloat32>)[#"rpr.​Length​Meter​Float32"], "Optional (Default: not available). GPS Ant. distance from port.",
   [#mono("dimension​Starboard")], link(<t-rpr-LengthMeterFloat32>)[#"rpr.​Length​Meter​Float32"], "Optional (Default: not available). GPS Ant. distance from starboard.",
   [#mono("imo")], link(<t-i32>)[#"i32"], "Optional (Default: zero). The IMO ship ID number. Not applicable to SAR aircraft.",
-  [#mono("e​TAtime")], link(<t-i64>)[#"i64"], "Optional (Default: not available). Estimated time of arrival. Not applicable to SAR aircraft. If a zero value is provided then this shall be interpreted as not available.",
-  [#mono("draught")], link(<t-f32>)[#"f32"], "Optional (Default: not available). Maximum present static draught.",
+  [#mono("e​TAtime")], link(<t-netn-EpochTimeSecInt64>)[#"Epoch​Time​Sec​Int64"], "Optional (Default: not available). Estimated time of arrival. Not applicable to SAR aircraft. If a zero value is provided then this shall be interpreted as not available.",
+  [#mono("draught")], link(<t-netn-DraughtMeterFloat32>)[#"Draught​Meter​Float32"], "Optional (Default: not available). Maximum present static draught.",
   [#mono("destination")], link(<t-string>)[#"string"], "Optional (Default: not available, 20 six-bit '@' value). 20 six-bit characters for the destination. For SAR aircraft, the use of this field may be decided by the responsible administration.",
 )
 
@@ -1946,11 +1946,11 @@
   [#mono("host​Radio​Index")], link(<t-string>)[#"string"], "Optional (Default: not available). The HostRadioIndex is a unique string that identifies the name of the RadioTransmitter object.",
   [#mono("message​Id")], link(<t-netn-MsgIdEnumType>)[#"Msg​Id​Enum​Type"], "Required. Message type identifier.",
   [#mono("user​Id")], link(<t-netn-MMSIType>)[#"MMSIType"], "Required. The message is from the vessel identified by this MMSI.",
-  [#mono("altitude")], link(<t-f64>)[#"f64"], "Optional (Default: not available). Altitude.",
+  [#mono("altitude")], link(<t-netn-AltitudeMeterFloat64>)[#"Altitude​Meter​Float64"], "Optional (Default: not available). Altitude.",
   [#mono("speed​Over​Ground")], link(<t-rpr-VelocityMeterPerSecondFloat32>)[#"rpr.​Velocity​Meter​Per​Second​Float32"], "Optional (Default: not available). Speed over ground.",
   [#mono("position")], link(<t-netn-GeodeticLocation>)[#"Geodetic​Location"], "Optional (Default: not available). AIS (Lat,Lon) position.",
-  [#mono("course​Over​Ground")], link(<t-f32>)[#"f32"], "Optional (Default: not available). Course over ground.",
-  [#mono("u​TCtime")], link(<t-i64>)[#"i64"], "Optional (Default: not available). Time of the report.",
+  [#mono("course​Over​Ground")], link(<t-netn-DirectionDegreesFloat32>)[#"Direction​Degrees​Float32"], "Optional (Default: not available). Course over ground.",
+  [#mono("u​TCtime")], link(<t-netn-EpochTimeSecInt64>)[#"Epoch​Time​Sec​Int64"], "Optional (Default: not available). Time of the report.",
 )
 
 ==== #"AisNavigationData" #chip("structures", "structure") <t-netn-AisNavigationData>
@@ -1962,12 +1962,12 @@
   [#mono("message​Id")], link(<t-netn-MsgIdEnumType>)[#"Msg​Id​Enum​Type"], "Required. Message type identifier.",
   [#mono("user​Id")], link(<t-netn-MMSIType>)[#"MMSIType"], "Required. The message is from the vessel identified by this MMSI.",
   [#mono("navigational​Status")], link(<t-netn-NavigationStatusEnumType>)[#"Navigation​Status​Enum​Type"], "Optional (Default: not defined). Navigational status.",
-  [#mono("rate​Of​Turn")], link(<t-f32>)[#"f32"], "Optional (Default: not available). Rate of turn.",
+  [#mono("rate​Of​Turn")], link(<t-netn-DegreesPerSecondFloat32>)[#"Degrees​Per​Second​Float32"], "Optional (Default: not available). Rate of turn.",
   [#mono("speed​Over​Ground")], link(<t-rpr-VelocityMeterPerSecondFloat32>)[#"rpr.​Velocity​Meter​Per​Second​Float32"], "Optional (Default: not available). Speed over ground.",
   [#mono("position")], link(<t-netn-GeodeticLocation>)[#"Geodetic​Location"], "Optional (Default: not available). AIS (Lat,Lon) position.",
-  [#mono("course​Over​Ground")], link(<t-f32>)[#"f32"], "Optional (Default: not available). Course over ground.",
-  [#mono("true​Heading")], link(<t-f32>)[#"f32"], "Optional (Default: not available). True heading.",
-  [#mono("u​TCtime")], link(<t-i64>)[#"i64"], "Optional (Default: not available). Time of the report.",
+  [#mono("course​Over​Ground")], link(<t-netn-DirectionDegreesFloat32>)[#"Direction​Degrees​Float32"], "Optional (Default: not available). Course over ground.",
+  [#mono("true​Heading")], link(<t-netn-DirectionDegreesFloat32>)[#"Direction​Degrees​Float32"], "Optional (Default: not available). True heading.",
+  [#mono("u​TCtime")], link(<t-netn-EpochTimeSecInt64>)[#"Epoch​Time​Sec​Int64"], "Optional (Default: not available). Time of the report.",
   [#mono("special​Maneuver​Indicator")], link(<t-netn-ManeuverIndicatorEnumType>)[#"Maneuver​Indicator​Enum​Type"], "Optional (Default: not available). Maneuver indication.",
 )
 
@@ -2778,7 +2778,7 @@
   [#mono("precipitation")], link(<t-netn-PrecipitationStruct>)[#"Precipitation​Struct"], "Optional. Average precipitation intensisty region/location for a precipitation type in the following order of precedence Snow, Hail, Rain, NoPrecipitation.",
   [#mono("haze")], link(<t-netn-HazeStruct>)[#"Haze​Struct"], "Optional. Average haze density in the region/location,",
   [#mono("humidity")], link(<t-f32>)[#"f32"], "Optional. Average humidity in percent in the region/location.",
-  [#mono("barometric​Pressure")], link(<t-f32>)[#"f32"], "Optional. Average barometric pressure measured in millibar or hectopascal (1 mbar = 1hPa) in the region/location.",
+  [#mono("barometric​Pressure")], link(<t-netn-AtmosphericPressureFloat32>)[#"Atmospheric​Pressure​Float32"], "Optional. Average barometric pressure measured in millibar or hectopascal (1 mbar = 1hPa) in the region/location.",
   [#mono("visibility​Range")], link(<t-rpr-MeterFloat32>)[#"rpr.​Meter​Float32"], "Optional. Average distance at which an object or light can be clearly discerned by the human eye in the region/location.",
   [#mono("snow")], link(<t-netn-SnowStruct>)[#"Snow​Struct"], "Optional. Average snow depth and density in the region/location.",
   [#mono("moisture")], link(<t-netn-SurfaceMoistureEnum16>)[#"Surface​Moisture​Enum16"], "Optional. Maximum surface moisture in the region/location.",
@@ -3020,7 +3020,7 @@
   [#mono("offer​Id")], link(<t-netn-TransactionId>)[#"Transaction​Id"], "Required: Unique offer identifier.",
   [#mono("provider​Entity")], link(<t-netn-UuidArrayOfHLAbyte16>)[#"Uuid​Array​Of​HLAbyte16"], "Required: Unique identifier of a simulated entity intended to perform the service. If not provided, the entity performing the service is considered unknown.",
   [#mono("offer​Type")], link(<t-netn-OfferTypeEnum32>)[#"Offer​Type​Enum32"], "Optional: Specifies if the offer is Negative (no Offer), Positive (Complete as requested) or Modified (not the same as the requested).",
-  [#mono("offer​Time​Out")], link(<t-i64>)[#"i64"], "Optional: The system wallclock time (in seconds after 1 January 1970) when the offer stops being valid. If not provided, the offer valid until otherwise specified.",
+  [#mono("offer​Time​Out")], link(<t-netn-EpochTimeSecInt64>)[#"Epoch​Time​Sec​Int64"], "Optional: The system wallclock time (in seconds after 1 January 1970) when the offer stops being valid. If not provided, the offer valid until otherwise specified.",
   [#mono("start​Appointment")], link(<t-netn-AppointmentStruct>)[#"Appointment​Struct"], "Optional: Time and location of the start of service delivery.",
   [#mono("repair​Data")], link(<t-netn-ArrayOfRepairStruct>)[#"Array​Of​Repair​Struct"], "Required: List of the type of repairs offered. May be different from the list of requested repairs. List of all offered repairs if isOffering = true otherwise Undefined",
 )
@@ -3034,7 +3034,7 @@
   [#mono("offer​Id")], link(<t-netn-TransactionId>)[#"Transaction​Id"], "Required: Unique offer identifier.",
   [#mono("provider​Entity")], link(<t-netn-UuidArrayOfHLAbyte16>)[#"Uuid​Array​Of​HLAbyte16"], "Required: Unique identifier of a simulated entity intended to perform the service. If not provided, the entity performing the service is considered unknown.",
   [#mono("offer​Type")], link(<t-netn-OfferTypeEnum32>)[#"Offer​Type​Enum32"], "Optional: Specifies if the offer is Negative (no Offer), Positive (Complete as requested) or Modified (not the same as the requested).",
-  [#mono("offer​Time​Out")], link(<t-i64>)[#"i64"], "Optional: The system wallclock time (in seconds after 1 January 1970) when the offer stops being valid. If not provided, the offer valid until otherwise specified.",
+  [#mono("offer​Time​Out")], link(<t-netn-EpochTimeSecInt64>)[#"Epoch​Time​Sec​Int64"], "Optional: The system wallclock time (in seconds after 1 January 1970) when the offer stops being valid. If not provided, the offer valid until otherwise specified.",
   [#mono("start​Appointment")], link(<t-netn-AppointmentStruct>)[#"Appointment​Struct"], "Optional: Time and location of the start of service delivery.",
 )
 
@@ -3047,7 +3047,7 @@
   [#mono("offer​Id")], link(<t-netn-TransactionId>)[#"Transaction​Id"], "Required: Unique offer identifier.",
   [#mono("provider​Entity")], link(<t-netn-UuidArrayOfHLAbyte16>)[#"Uuid​Array​Of​HLAbyte16"], "Required: Unique identifier of a simulated entity intended to perform the service. If not provided, the entity performing the service is considered unknown.",
   [#mono("offer​Type")], link(<t-netn-OfferTypeEnum32>)[#"Offer​Type​Enum32"], "Optional: Specifies if the offer is Negative (no Offer), Positive (Complete as requested) or Modified (not the same as the requested).",
-  [#mono("offer​Time​Out")], link(<t-i64>)[#"i64"], "Optional: The system wallclock time (in seconds after 1 January 1970) when the offer stops being valid. If not provided, the offer valid until otherwise specified.",
+  [#mono("offer​Time​Out")], link(<t-netn-EpochTimeSecInt64>)[#"Epoch​Time​Sec​Int64"], "Optional: The system wallclock time (in seconds after 1 January 1970) when the offer stops being valid. If not provided, the offer valid until otherwise specified.",
   [#mono("start​Appointment")], link(<t-netn-AppointmentStruct>)[#"Appointment​Struct"], "Optional: Time and location of the start of service delivery.",
   [#mono("supplies​Data")], link(<t-netn-NETNArrayOfSupplyStruct>)[#"NETNArray​Of​Supply​Struct"], "Required: List of type and quantity of supplies offered. May be different from the list of requested supplies. All offered supplies if isOffering = true otherwise Undefined",
 )
@@ -3071,7 +3071,7 @@
   [#mono("offer​Id")], link(<t-netn-TransactionId>)[#"Transaction​Id"], "Required: Unique offer identifier.",
   [#mono("provider​Entity")], link(<t-netn-UuidArrayOfHLAbyte16>)[#"Uuid​Array​Of​HLAbyte16"], "Required: Unique identifier of a simulated entity intended to perform the service. If not provided, the entity performing the service is considered unknown.",
   [#mono("offer​Type")], link(<t-netn-OfferTypeEnum32>)[#"Offer​Type​Enum32"], "Optional: Specifies if the offer is Negative (no Offer), Positive (Complete as requested) or Modified (not the same as the requested).",
-  [#mono("offer​Time​Out")], link(<t-i64>)[#"i64"], "Optional: The system wallclock time (in seconds after 1 January 1970) when the offer stops being valid. If not provided, the offer valid until otherwise specified.",
+  [#mono("offer​Time​Out")], link(<t-netn-EpochTimeSecInt64>)[#"Epoch​Time​Sec​Int64"], "Optional: The system wallclock time (in seconds after 1 January 1970) when the offer stops being valid. If not provided, the offer valid until otherwise specified.",
   [#mono("start​Appointment")], link(<t-netn-AppointmentStruct>)[#"Appointment​Struct"], "Optional: Time and location of the start of service delivery.",
   [#mono("transport​Data")], link(<t-netn-ArrayOfUuid>)[#"Array​Of​Uuid"], "Required: Entities to be transported.",
   [#mono("end​Appointment")], link(<t-netn-AppointmentStruct>)[#"Appointment​Struct"], "Optional: Location and time for disembarkment.",
@@ -3370,7 +3370,7 @@
   [#mono("request​Id")], link(<t-netn-TransactionId>)[#"Transaction​Id"], "Required: Unique identifier for the requested service related to the transaction.",
   [#mono("consumer​Entity")], link(<t-netn-UuidArrayOfHLAbyte16>)[#"Uuid​Array​Of​HLAbyte16"], "Required: Unique identifier for a simulated entity that is the intended receiver of service",
   [#mono("provider​Entity")], link(<t-netn-UuidArrayOfHLAbyte16>)[#"Uuid​Array​Of​HLAbyte16"], "Optional: Unique identifier of a simulated entity intended to perform the service. If not provided, the entity performing the service is considered unknown.",
-  [#mono("request​Time​Out")], link(<t-i64>)[#"i64"], "Optional: Wallclock time. The timeout time in seconds after 1 January 1970.",
+  [#mono("request​Time​Out")], link(<t-netn-EpochTimeSecInt64>)[#"Epoch​Time​Sec​Int64"], "Optional: Wallclock time. The timeout time in seconds after 1 January 1970.",
   [#mono("start​Appointment")], link(<t-netn-AppointmentStruct>)[#"Appointment​Struct"], "Optional: The time and location of the start of the service delivery.",
   [#mono("repair​Data")], link(<t-netn-ArrayOfRepairStruct>)[#"Array​Of​Repair​Struct"], "Required: List of all requested repairs.",
 )
@@ -3383,7 +3383,7 @@
   [#mono("request​Id")], link(<t-netn-TransactionId>)[#"Transaction​Id"], "Required: Unique identifier for the requested service related to the transaction.",
   [#mono("consumer​Entity")], link(<t-netn-UuidArrayOfHLAbyte16>)[#"Uuid​Array​Of​HLAbyte16"], "Required: Unique identifier for a simulated entity that is the intended receiver of service",
   [#mono("provider​Entity")], link(<t-netn-UuidArrayOfHLAbyte16>)[#"Uuid​Array​Of​HLAbyte16"], "Optional: Unique identifier of a simulated entity intended to perform the service. If not provided, the entity performing the service is considered unknown.",
-  [#mono("request​Time​Out")], link(<t-i64>)[#"i64"], "Optional: Wallclock time. The timeout time in seconds after 1 January 1970.",
+  [#mono("request​Time​Out")], link(<t-netn-EpochTimeSecInt64>)[#"Epoch​Time​Sec​Int64"], "Optional: Wallclock time. The timeout time in seconds after 1 January 1970.",
   [#mono("start​Appointment")], link(<t-netn-AppointmentStruct>)[#"Appointment​Struct"], "Optional: The time and location of the start of the service delivery.",
 )
 
@@ -3407,7 +3407,7 @@
   [#mono("request​Id")], link(<t-netn-TransactionId>)[#"Transaction​Id"], "Required: Unique identifier for the requested service related to the transaction.",
   [#mono("consumer​Entity")], link(<t-netn-UuidArrayOfHLAbyte16>)[#"Uuid​Array​Of​HLAbyte16"], "Required: Unique identifier for a simulated entity that is the intended receiver of service",
   [#mono("provider​Entity")], link(<t-netn-UuidArrayOfHLAbyte16>)[#"Uuid​Array​Of​HLAbyte16"], "Optional: Unique identifier of a simulated entity intended to perform the service. If not provided, the entity performing the service is considered unknown.",
-  [#mono("request​Time​Out")], link(<t-i64>)[#"i64"], "Optional: Wallclock time. The timeout time in seconds after 1 January 1970.",
+  [#mono("request​Time​Out")], link(<t-netn-EpochTimeSecInt64>)[#"Epoch​Time​Sec​Int64"], "Optional: Wallclock time. The timeout time in seconds after 1 January 1970.",
   [#mono("start​Appointment")], link(<t-netn-AppointmentStruct>)[#"Appointment​Struct"], "Optional: The time and location of the start of the service delivery.",
   [#mono("supplies​Data")], link(<t-netn-NETNArrayOfSupplyStruct>)[#"NETNArray​Of​Supply​Struct"], "Required: List of type and quantity of supplies requested.",
   [#mono("transfer​Direction")], link(<t-netn-TransferDirectionEnum32>)[#"Transfer​Direction​Enum32"], "Required: Indicates if the transfer of supplies are from Consumer to Provider or from Provider to Consumer.",
@@ -3433,7 +3433,7 @@
   [#mono("request​Id")], link(<t-netn-TransactionId>)[#"Transaction​Id"], "Required: Unique identifier for the requested service related to the transaction.",
   [#mono("consumer​Entity")], link(<t-netn-UuidArrayOfHLAbyte16>)[#"Uuid​Array​Of​HLAbyte16"], "Required: Unique identifier for a simulated entity that is the intended receiver of service",
   [#mono("provider​Entity")], link(<t-netn-UuidArrayOfHLAbyte16>)[#"Uuid​Array​Of​HLAbyte16"], "Optional: Unique identifier of a simulated entity intended to perform the service. If not provided, the entity performing the service is considered unknown.",
-  [#mono("request​Time​Out")], link(<t-i64>)[#"i64"], "Optional: Wallclock time. The timeout time in seconds after 1 January 1970.",
+  [#mono("request​Time​Out")], link(<t-netn-EpochTimeSecInt64>)[#"Epoch​Time​Sec​Int64"], "Optional: Wallclock time. The timeout time in seconds after 1 January 1970.",
   [#mono("start​Appointment")], link(<t-netn-AppointmentStruct>)[#"Appointment​Struct"], "Optional: The time and location of the start of the service delivery.",
   [#mono("transport​Data")], link(<t-netn-ArrayOfUuid>)[#"Array​Of​Uuid"], "Required: Entities to be transported.",
   [#mono("end​Appointment")], link(<t-netn-AppointmentStruct>)[#"Appointment​Struct"], "Optional: Location and time for disembarkment.",
@@ -3864,7 +3864,7 @@
   [#mono("precipitation")], link(<t-netn-PrecipitationStruct>)[#"Precipitation​Struct"], "Optional. Average precipitation intensisty region/location for a precipitation type in the following order of precedence Snow, Hail, Rain, NoPrecipitation.",
   [#mono("haze")], link(<t-netn-HazeStruct>)[#"Haze​Struct"], "Optional. Average haze density in the region/location,",
   [#mono("humidity")], link(<t-f32>)[#"f32"], "Optional. Average humidity in percent in the region/location.",
-  [#mono("barometric​Pressure")], link(<t-f32>)[#"f32"], "Optional. Average barometric pressure measured in millibar or hectopascal (1 mbar = 1hPa) in the region/location.",
+  [#mono("barometric​Pressure")], link(<t-netn-AtmosphericPressureFloat32>)[#"Atmospheric​Pressure​Float32"], "Optional. Average barometric pressure measured in millibar or hectopascal (1 mbar = 1hPa) in the region/location.",
   [#mono("visibility​Range")], link(<t-rpr-MeterFloat32>)[#"rpr.​Meter​Float32"], "Optional. Average distance at which an object or light can be clearly discerned by the human eye in the region/location.",
   [#mono("cloud")], link(<t-netn-CloudStruct>)[#"Cloud​Struct"], "Optional. Cloud cover.",
 )
@@ -3973,7 +3973,7 @@
   [#mono("precipitation")], link(<t-netn-PrecipitationStruct>)[#"Precipitation​Struct"], "Optional. Average precipitation intensisty region/location for a precipitation type in the following order of precedence Snow, Hail, Rain, NoPrecipitation.",
   [#mono("haze")], link(<t-netn-HazeStruct>)[#"Haze​Struct"], "Optional. Average haze density in the region/location,",
   [#mono("humidity")], link(<t-f32>)[#"f32"], "Optional. Average humidity in percent in the region/location.",
-  [#mono("barometric​Pressure")], link(<t-f32>)[#"f32"], "Optional. Average barometric pressure measured in millibar or hectopascal (1 mbar = 1hPa) in the region/location.",
+  [#mono("barometric​Pressure")], link(<t-netn-AtmosphericPressureFloat32>)[#"Atmospheric​Pressure​Float32"], "Optional. Average barometric pressure measured in millibar or hectopascal (1 mbar = 1hPa) in the region/location.",
   [#mono("visibility​Range")], link(<t-rpr-MeterFloat32>)[#"rpr.​Meter​Float32"], "Optional. Average distance at which an object or light can be clearly discerned by the human eye in the region/location.",
   [#mono("sea​State")], link(<t-netn-SeaStateEnum16>)[#"Sea​State​Enum16"], "Optional. Sea state data.",
   [#mono("salinity")], link(<t-f32>)[#"f32"], "Optional. Salinity in the surface water.",
@@ -4010,7 +4010,7 @@
   [#mono("precipitation")], link(<t-netn-PrecipitationStruct>)[#"Precipitation​Struct"], "Optional. Average precipitation intensisty region/location for a precipitation type in the following order of precedence Snow, Hail, Rain, NoPrecipitation.",
   [#mono("haze")], link(<t-netn-HazeStruct>)[#"Haze​Struct"], "Optional. Average haze density in the region/location,",
   [#mono("humidity")], link(<t-f32>)[#"f32"], "Optional. Average humidity in percent in the region/location.",
-  [#mono("barometric​Pressure")], link(<t-f32>)[#"f32"], "Optional. Average barometric pressure measured in millibar or hectopascal (1 mbar = 1hPa) in the region/location.",
+  [#mono("barometric​Pressure")], link(<t-netn-AtmosphericPressureFloat32>)[#"Atmospheric​Pressure​Float32"], "Optional. Average barometric pressure measured in millibar or hectopascal (1 mbar = 1hPa) in the region/location.",
   [#mono("visibility​Range")], link(<t-rpr-MeterFloat32>)[#"rpr.​Meter​Float32"], "Optional. Average distance at which an object or light can be clearly discerned by the human eye in the region/location.",
 )
 
@@ -5724,60 +5724,117 @@
 #declared[#kw[sequence]\<#link(<t-u8>)[#"u8"], #lit[16]\> #"Uuid​Array​Of​HLAbyte16"#";"]
 #facts[Named by #link(<t-netn-ATP45HazardArea>)[#"ATP45Hazard​Area"], #link(<t-netn-Activate>)[#"Activate"], #link(<t-netn-Aggregate>)[#"Aggregate"], #link(<t-netn-ArrayOfUuid>)[#"Array​Of​Uuid"], #link(<t-netn-CBRNCasualty>)[#"CBRNCasualty"], #link(<t-netn-CBRNDetector>)[#"CBRNDetector"], #link(<t-netn-CBRNDetectorAlarm>)[#"CBRNDetector​Alarm"], #link(<t-netn-CBRNFacilityUpdate>)[#"CBRNFacility​Update"], #link(<t-netn-CBRNPlatformUpdate>)[#"CBRNPlatform​Update"], #link(<t-netn-CBRNRelease>)[#"CBRNRelease"], #link(<t-netn-CBRNSensor>)[#"CBRNSensor"], #link(<t-netn-CBRNSensorUpdate>)[#"CBRNSensor​Update"], #link(<t-netn-COLPROUpdate>)[#"COLPROUpdate"], #link(<t-netn-Deactivate>)[#"Deactivate"], #link(<t-netn-DecontaminationStationUpdate>)[#"Decontamination​Station​Update"], #link(<t-netn-Disaggregate>)[#"Disaggregate"], #link(<t-netn-Divide>)[#"Divide"], #link(<t-netn-EntityStruct>)[#"Entity​Struct"], #link(<t-netn-Merge>)[#"Merge"], #link(<t-netn-NETNAggregate>)[#"NETNAggregate"], #link(<t-netn-NETNAircraft>)[#"NETNAircraft"], #link(<t-netn-NETNAmphibiousVehicle>)[#"NETNAmphibious​Vehicle"], #link(<t-netn-NETNCulturalFeature>)[#"NETNCultural​Feature"], #link(<t-netn-NETNGroundVehicle>)[#"NETNGround​Vehicle"], #link(<t-netn-NETNHuman>)[#"NETNHuman"], #link(<t-netn-NETNMultiDomainPlatform>)[#"NETNMulti​Domain​Platform"], #link(<t-netn-NETNMunition>)[#"NETNMunition"], #link(<t-netn-NETNNonHuman>)[#"NETNNon​Human"], #link(<t-netn-NETNSpacecraft>)[#"NETNSpacecraft"], #link(<t-netn-NETNSubmersibleVessel>)[#"NETNSubmersible​Vessel"], #link(<t-netn-NETNSurfaceVessel>)[#"NETNSurface​Vessel"], #link(<t-netn-OfferRepair>)[#"Offer​Repair"], #link(<t-netn-OfferService>)[#"Offer​Service"], #link(<t-netn-OfferSupply>)[#"Offer​Supply"], #link(<t-netn-OfferTransport>)[#"Offer​Transport"], #link(<t-netn-PathVariantStruct>)[#"Path​Variant​Struct"], #link(<t-netn-PointVariantStruct>)[#"Point​Variant​Struct"], #link(<t-netn-ProbabilityHazardContourGroup>)[#"Probability​Hazard​Contour​Group"], #link(<t-netn-QuerySupportedCapabilitiesMRM>)[#"Query​Supported​Capabilities​MRM"], #link(<t-netn-RawDataHazardContourGroup>)[#"Raw​Data​Hazard​Contour​Group"], #link(<t-netn-RepairStruct>)[#"Repair​Struct"], #link(<t-netn-RequestMRM>)[#"Request​MRM"], #link(<t-netn-RequestRepair>)[#"Request​Repair"], #link(<t-netn-RequestService>)[#"Request​Service"], #link(<t-netn-RequestSupply>)[#"Request​Supply"], #link(<t-netn-RequestTransport>)[#"Request​Transport"], #link(<t-netn-SEFacility>)[#"SEFacility"], #link(<t-netn-SEGeoObject>)[#"SEGeo​Object"], #link(<t-netn-SendSafetyRelatedMessage>)[#"Send​Safety​Related​Message"], #link(<t-netn-TransportDisembarkmentStatus>)[#"Transport​Disembarkment​Status"], #link(<t-netn-TransportEmbarkmentStatus>)[#"Transport​Embarkment​Status"], #link(<t-netn-TreatmentStruct>)[#"Treatment​Struct"].]
 
-#section("Aliases", "aliases")
+#section("Quantities", "quantities")
 
 #summary(
   (link(<t-netn-AltitudeMeterFloat64>)[#"Altitude​Meter​Float64"], "Generic representation of altitude defined by the context of use, i.e. height Above Mean Sea Level, height Above Ground Level.", <t-netn-AltitudeMeterFloat64>),
   (link(<t-netn-AtmosphericPressureFloat32>)[#"Atmospheric​Pressure​Float32"], "Pressure measured in Millibar or Hecto Pascal. 1 mbar = 1 hPa", <t-netn-AtmosphericPressureFloat32>),
-  (link(<t-netn-BitsPerSecond>)[#"Bits​Per​Second"], "Data transfer rate.", <t-netn-BitsPerSecond>),
   (link(<t-netn-DegreesPerSecondFloat32>)[#"Degrees​Per​Second​Float32"], "The turn rate in degrees per second, where: (a) zero value: not turning; (b) positive value: turning right; (c) negative value: turning left.", <t-netn-DegreesPerSecondFloat32>),
-  (link(<t-netn-DensityRatioFloat32>)[#"Density​Ratio​Float32"], "Ratio of density of two materials in range [0, 1].", <t-netn-DensityRatioFloat32>),
-  (link(<t-netn-DesignatedAreaCodeType>)[#"Designated​Area​Code​Type"], "A 10 bits value. Designated area code (DAC).", <t-netn-DesignatedAreaCodeType>),
   (link(<t-netn-DirectionDegreesFloat32>)[#"Direction​Degrees​Float32"], "Compass direction measured clockwise relative to true north. Calculate values outside the range [0, 360) as modulo 360.", <t-netn-DirectionDegreesFloat32>),
-  (link(<t-netn-DosageKgSecondPerMeterCubedFloat32>)[#"Dosage​Kg​Second​Per​Meter​Cubed​Float32"], "Dosage in SI units.", <t-netn-DosageKgSecondPerMeterCubedFloat32>),
   (link(<t-netn-DraughtMeterFloat32>)[#"Draught​Meter​Float32"], "The vertical distance between the waterline and the bottom of the hull (keel), with the thickness of the hull included; Draught determines the minimum depth of water a ship or boat can safely navigate.", <t-netn-DraughtMeterFloat32>),
   (link(<t-netn-EpochTimeSecInt64>)[#"Epoch​Time​Sec​Int64"], "The number of seconds since 1 Jan 1970 (wallclock time) or since the start of the simulation (logical time).", <t-netn-EpochTimeSecInt64>),
+  (link(<t-netn-LatLongDegreesFloat64>)[#"Lat​Long​Degrees​Float64"], "Represents a measure of either latitude or longitude in decimal degrees of arc.", <t-netn-LatLongDegreesFloat64>),
+  (link(<t-netn-MassConcentrationFloat32>)[#"Mass​Concentration​Float32"], "Concentration of a substance measured as kg/m3.", <t-netn-MassConcentrationFloat32>),
+  (link(<t-netn-MassDensityFloat32>)[#"Mass​Density​Float32"], "Density of substance measured as kg per cubic meter.", <t-netn-MassDensityFloat32>),
+  (link(<t-netn-MeanMetersFloat32>)[#"Mean​Meters​Float32"], "Mean of a Gaussian distribution, based on SI unit meter, unit symbol m.", <t-netn-MeanMetersFloat32>),
+  (link(<t-netn-RangeFloat32>)[#"Range​Float32"], "Range of sensor", <t-netn-RangeFloat32>),
+  (link(<t-netn-TimeSecInt32>)[#"Time​Sec​Int32"], "A generic time interval in seconds.", <t-netn-TimeSecInt32>),
+  (link(<t-netn-VarianceMetersSquaredFloat32>)[#"Variance​Meters​Squared​Float32"], "Variance of a Gaussian distribution, based on SI unit meter squared, unit symbol m2.", <t-netn-VarianceMetersSquaredFloat32>),
+)
+
+==== #"AltitudeMeterFloat64" #chip("quantities", "quantity") <t-netn-AltitudeMeterFloat64>
+#prose("Generic representation of altitude defined by the context of use, i.e. height Above Mean Sea Level, height Above Ground Level.")
+#declared[#kw[quantity]\<#link(<t-f64>)[#"f64"], #lit($"m"$)\> #"Altitude​Meter​Float64"#";"]
+#facts[Named by #link(<t-netn-AisMessage9>)[#"Ais​Message9"], #link(<t-netn-GeodeticPoint>)[#"Geodetic​Point"], #link(<t-netn-SetOrderedAltitude>)[#"Set​Ordered​Altitude"].]
+
+==== #"AtmosphericPressureFloat32" #chip("quantities", "quantity") <t-netn-AtmosphericPressureFloat32>
+#prose("Pressure measured in Millibar or Hecto Pascal. 1 mbar = 1 hPa")
+#declared[#kw[quantity]\<#link(<t-f32>)[#"f32"], #lit($"hPa"$)\> #"Atmospheric​Pressure​Float32"#";"]
+#facts[Named by #link(<t-netn-LandSurfaceCondition>)[#"Land​Surface​Condition"], #link(<t-netn-TroposphereLayerCondition>)[#"Troposphere​Layer​Condition"], #link(<t-netn-WaterSurfaceCondition>)[#"Water​Surface​Condition"], #link(<t-netn-Weather>)[#"Weather"], #link(<t-netn-WeatherCondition>)[#"Weather​Condition"].]
+
+==== #"DegreesPerSecondFloat32" #chip("quantities", "quantity") <t-netn-DegreesPerSecondFloat32>
+#prose("The turn rate in degrees per second, where: (a) zero value: not turning; (b) positive value: turning right; (c) negative value: turning left.")
+#declared[#kw[quantity]\<#link(<t-f32>)[#"f32"], #lit($"°"\/"s"$)\> #"Degrees​Per​Second​Float32"#";"]
+#facts[Named by #link(<t-netn-AisMessage1>)[#"Ais​Message1"], #link(<t-netn-AisMessage2>)[#"Ais​Message2"], #link(<t-netn-AisMessage3>)[#"Ais​Message3"], #link(<t-netn-AisNavigationData>)[#"Ais​Navigation​Data"].]
+
+==== #"DirectionDegreesFloat32" #chip("quantities", "quantity") <t-netn-DirectionDegreesFloat32>
+#prose("Compass direction measured clockwise relative to true north. Calculate values outside the range [0, 360) as modulo 360.")
+#declared[#kw[quantity]\<#link(<t-f32>)[#"f32"], #lit($"°"$)\> #"Direction​Degrees​Float32"#";"]
+#facts[Named by #link(<t-netn-AisMessage1>)[#"Ais​Message1"], #link(<t-netn-AisMessage18>)[#"Ais​Message18"], #link(<t-netn-AisMessage19>)[#"Ais​Message19"], #link(<t-netn-AisMessage2>)[#"Ais​Message2"], #link(<t-netn-AisMessage27>)[#"Ais​Message27"], #link(<t-netn-AisMessage3>)[#"Ais​Message3"], #link(<t-netn-AisMessage9>)[#"Ais​Message9"], #link(<t-netn-AisNavigationData>)[#"Ais​Navigation​Data"], #link(<t-netn-CurrentStruct>)[#"Current​Struct"], #link(<t-netn-DispositionStruct>)[#"Disposition​Struct"], #link(<t-netn-EntityStruct>)[#"Entity​Struct"], #link(<t-netn-FormationPositionStruct>)[#"Formation​Position​Struct"], #link(<t-netn-FormationStruct>)[#"Formation​Struct"], #link(<t-netn-WaveStruct>)[#"Wave​Struct"], #link(<t-netn-WindStruct>)[#"Wind​Struct"].]
+
+==== #"DraughtMeterFloat32" #chip("quantities", "quantity") <t-netn-DraughtMeterFloat32>
+#prose("The vertical distance between the waterline and the bottom of the hull (keel), with the thickness of the hull included; Draught determines the minimum depth of water a ship or boat can safely navigate.")
+#declared[#kw[quantity]\<#link(<t-f32>)[#"f32"], #lit($"m"$)\> #"Draught​Meter​Float32"#";"]
+#facts[Named by #link(<t-netn-AisMessage5>)[#"Ais​Message5"].]
+
+==== #"EpochTimeSecInt64" #chip("quantities", "quantity") <t-netn-EpochTimeSecInt64>
+#prose("The number of seconds since 1 Jan 1970 (wallclock time) or since the start of the simulation (logical time).")
+#declared[#kw[quantity]\<#link(<t-i64>)[#"i64"], #lit($"s"$)\> #"Epoch​Time​Sec​Int64"#";"]
+#facts[Named by #link(<t-netn-ATP45HazardArea>)[#"ATP45Hazard​Area"], #link(<t-netn-AisBaseStationReportAndUTCDateResponseData>)[#"Ais​Base​Station​Report​And​UTCDate​Response​Data"], #link(<t-netn-AisMessage1>)[#"Ais​Message1"], #link(<t-netn-AisMessage11>)[#"Ais​Message11"], #link(<t-netn-AisMessage18>)[#"Ais​Message18"], #link(<t-netn-AisMessage19>)[#"Ais​Message19"], #link(<t-netn-AisMessage2>)[#"Ais​Message2"], #link(<t-netn-AisMessage21>)[#"Ais​Message21"], #link(<t-netn-AisMessage3>)[#"Ais​Message3"], #link(<t-netn-AisMessage4>)[#"Ais​Message4"], #link(<t-netn-AisMessage5>)[#"Ais​Message5"], #link(<t-netn-AisMessage9>)[#"Ais​Message9"], #link(<t-netn-AisNavigationData>)[#"Ais​Navigation​Data"], #link(<t-netn-AppointmentStruct>)[#"Appointment​Struct"], #link(<t-netn-CBRNAlarmStruct>)[#"CBRNAlarm​Struct"], #link(<t-netn-CBRNSensorReadingStruct>)[#"CBRNSensor​Reading​Struct"], #link(<t-netn-CBRNSensorUpdate>)[#"CBRNSensor​Update"], #link(<t-netn-MissionStruct>)[#"Mission​Struct"], #link(<t-netn-OfferRepair>)[#"Offer​Repair"], #link(<t-netn-OfferService>)[#"Offer​Service"], #link(<t-netn-OfferSupply>)[#"Offer​Supply"], #link(<t-netn-OfferTransport>)[#"Offer​Transport"], #link(<t-netn-ProbabilityHazardContourGroup>)[#"Probability​Hazard​Contour​Group"], #link(<t-netn-RawDataHazardContourGroup>)[#"Raw​Data​Hazard​Contour​Group"], #link(<t-netn-RequestRepair>)[#"Request​Repair"], #link(<t-netn-RequestService>)[#"Request​Service"], #link(<t-netn-RequestSupply>)[#"Request​Supply"], #link(<t-netn-RequestTransport>)[#"Request​Transport"].]
+
+==== #"LatLongDegreesFloat64" #chip("quantities", "quantity") <t-netn-LatLongDegreesFloat64>
+#prose("Represents a measure of either latitude or longitude in decimal degrees of arc.")
+#declared[#kw[quantity]\<#link(<t-f64>)[#"f64"], #lit($"°"$)\> #"Lat​Long​Degrees​Float64"#";"]
+#facts[Named by #link(<t-netn-GeodeticLocation>)[#"Geodetic​Location"], #link(<t-netn-GeodeticPoint>)[#"Geodetic​Point"].]
+
+==== #"MassConcentrationFloat32" #chip("quantities", "quantity") <t-netn-MassConcentrationFloat32>
+#prose("Concentration of a substance measured as kg/m3.")
+#declared[#kw[quantity]\<#link(<t-f32>)[#"f32"], #lit($"kg"\/"m3"$)\> #"Mass​Concentration​Float32"#";"]
+#facts[Named by #link(<t-netn-AgentConcentrationStruct>)[#"Agent​Concentration​Struct"].]
+
+==== #"MassDensityFloat32" #chip("quantities", "quantity") <t-netn-MassDensityFloat32>
+#prose("Density of substance measured as kg per cubic meter.")
+#declared[#kw[quantity]\<#link(<t-f32>)[#"f32"], #lit($"kg"\/"m3"$)\> #"Mass​Density​Float32"#";"]
+#facts[Named by #link(<t-netn-CloudStruct>)[#"Cloud​Struct"], #link(<t-netn-HazeStruct>)[#"Haze​Struct"], #link(<t-netn-SnowStruct>)[#"Snow​Struct"].]
+
+==== #"MeanMetersFloat32" #chip("quantities", "quantity") <t-netn-MeanMetersFloat32>
+#prose("Mean of a Gaussian distribution, based on SI unit meter, unit symbol m.")
+#declared[#kw[quantity]\<#link(<t-f32>)[#"f32"], #lit($"m"$)\> #"Mean​Meters​Float32"#";"]
+#facts[Named by #link(<t-netn-ReleaseDistributionStruct>)[#"Release​Distribution​Struct"].]
+
+==== #"RangeFloat32" #chip("quantities", "quantity") <t-netn-RangeFloat32>
+#prose("Range of sensor")
+#declared[#kw[quantity]\<#link(<t-f32>)[#"f32"], #lit($"m"$)\> #"Range​Float32"#";"]
+#facts[Named by #link(<t-netn-SensorStruct>)[#"Sensor​Struct"].]
+
+==== #"TimeSecInt32" #chip("quantities", "quantity") <t-netn-TimeSecInt32>
+#prose("A generic time interval in seconds.")
+#declared[#kw[quantity]\<#link(<t-i32>)[#"i32"], #lit($"s"$)\> #"Time​Sec​Int32"#";"]
+#facts[Named by #link(<t-netn-EstablishCheckPoint>)[#"Establish​Check​Point"], #link(<t-netn-FireAtLocation>)[#"Fire​At​Location"], #link(<t-netn-FireAtLocationWM>)[#"Fire​At​Location​WM"], #link(<t-netn-FollowEntity>)[#"Follow​Entity"], #link(<t-netn-Move>)[#"Move"], #link(<t-netn-OperateCheckPoint>)[#"Operate​Check​Point"], #link(<t-netn-PatrolRepeating>)[#"Patrol​Repeating"], #link(<t-netn-Wait>)[#"Wait"].]
+
+==== #"VarianceMetersSquaredFloat32" #chip("quantities", "quantity") <t-netn-VarianceMetersSquaredFloat32>
+#prose("Variance of a Gaussian distribution, based on SI unit meter squared, unit symbol m2.")
+#declared[#kw[quantity]\<#link(<t-f32>)[#"f32"], #lit($"m"^2$)\> #"Variance​Meters​Squared​Float32"#";"]
+#facts[Named by #link(<t-netn-ReleaseDistributionStruct>)[#"Release​Distribution​Struct"].]
+
+#section("Aliases", "aliases")
+
+#summary(
+  (link(<t-netn-BitsPerSecond>)[#"Bits​Per​Second"], "Data transfer rate.", <t-netn-BitsPerSecond>),
+  (link(<t-netn-DensityRatioFloat32>)[#"Density​Ratio​Float32"], "Ratio of density of two materials in range [0, 1].", <t-netn-DensityRatioFloat32>),
+  (link(<t-netn-DesignatedAreaCodeType>)[#"Designated​Area​Code​Type"], "A 10 bits value. Designated area code (DAC).", <t-netn-DesignatedAreaCodeType>),
+  (link(<t-netn-DosageKgSecondPerMeterCubedFloat32>)[#"Dosage​Kg​Second​Per​Meter​Cubed​Float32"], "Dosage in SI units.", <t-netn-DosageKgSecondPerMeterCubedFloat32>),
   (link(<t-netn-ExposureFloat32>)[#"Exposure​Float32"], "Data type for exposure.", <t-netn-ExposureFloat32>),
   (link(<t-netn-FormationInt32>)[#"Formation​Int32"], "Defines the formation.", <t-netn-FormationInt32>),
   (link(<t-netn-FunctionIdType>)[#"Function​Id​Type"], "A 6 bits value. Functional ID (FID).", <t-netn-FunctionIdType>),
   (link(<t-netn-IMOType>)[#"IMOType"], "A 30 bits value. The International Maritime Organization (IMO) number is a unique identifier for vessels. See https://www.itu.int/en/ITU-R. The IMO number is made of the three letters 'IMO' followed by a seven-digit number. This number consists of a six-digit sequential unique number followed by a check digit. The integrity of an IMO number can be verified using its check digit.This is done by multiplying each of the first six digits by a factor of 2 to 7 corresponding to their position from right to left. The rightmost digit of this sum is the check digit. For example, for IMO 9074729: (9×7) + (0×6) + (7×5) + (4×4) + (7×3) + (2×2) = 139. This attribute represents the 7 digits value of the IMO number. The value shall be zero for not available (default). The value shall also be zero for inland vessels.", <t-netn-IMOType>),
-  (link(<t-netn-LatLongDegreesFloat64>)[#"Lat​Long​Degrees​Float64"], "Represents a measure of either latitude or longitude in decimal degrees of arc.", <t-netn-LatLongDegreesFloat64>),
   (link(<t-netn-MMSIType>)[#"MMSIType"], "A 30 bits value. The MMSI number (Maritime Mobile Service Identity) is a unique nine-digit number for identifying an AIS station.", <t-netn-MMSIType>),
-  (link(<t-netn-MassConcentrationFloat32>)[#"Mass​Concentration​Float32"], "Concentration of a substance measured as kg/m3.", <t-netn-MassConcentrationFloat32>),
-  (link(<t-netn-MassDensityFloat32>)[#"Mass​Density​Float32"], "Density of substance measured as kg per cubic meter.", <t-netn-MassDensityFloat32>),
-  (link(<t-netn-MeanMetersFloat32>)[#"Mean​Meters​Float32"], "Mean of a Gaussian distribution, based on SI unit meter, unit symbol m.", <t-netn-MeanMetersFloat32>),
   (link(<t-netn-PercentFloat64>)[#"Percent​Float64"], "A generic measure of percentage (0-100).", <t-netn-PercentFloat64>),
   (link(<t-netn-PrecipitationIntensityFloat32>)[#"Precipitation​Intensity​Float32"], "Light rain — when the precipitation rate is < 2.5 mm (0.098 in) per hour. Moderate rain — when the precipitation rate is between 2.5 mm (0.098 in) - 7.6 mm (0.30 in) or 10 mm (0.39 in) per hour. Heavy rain — when the precipitation rate is > 7.6 mm (0.30 in) per hour, or between 10 mm (0.39 in) and 50 mm (2.0 in) per hour. Violent rain — when the precipitation rate is > 50 mm (2.0 in) per hour.", <t-netn-PrecipitationIntensityFloat32>),
   (link(<t-netn-QuantityFloat32>)[#"Quantity​Float32"], "A generic floating-point quantity.", <t-netn-QuantityFloat32>),
   (link(<t-netn-QuantityFloat64>)[#"Quantity​Float64"], "A generic floating-point quantity.", <t-netn-QuantityFloat64>),
   (link(<t-netn-QuantityInt32>)[#"Quantity​Int32"], "A generic discrete quantity.", <t-netn-QuantityInt32>),
   (link(<t-netn-QuantityUInt32>)[#"Quantity​UInt32"], "Quantity in range [0, 2^32-1]", <t-netn-QuantityUInt32>),
-  (link(<t-netn-RangeFloat32>)[#"Range​Float32"], "Range of sensor", <t-netn-RangeFloat32>),
   (link(<t-netn-SalinityFloat32>)[#"Salinity​Float32"], "Practical Salinity Unit (PSU) measured in g/kg.", <t-netn-SalinityFloat32>),
   (link(<t-netn-SerialNumberType>)[#"Serial​Number​Type"], "A 20 bits value. (Part B) Serial Number.", <t-netn-SerialNumberType>),
   (link(<t-netn-ShipTypeType>)[#"Ship​Type​Type"], "A 8 bits value. The type of ship and cargo. See https://www.itu.int/en/ITU-R.", <t-netn-ShipTypeType>),
-  (link(<t-netn-TimeSecInt32>)[#"Time​Sec​Int32"], "A generic time interval in seconds.", <t-netn-TimeSecInt32>),
   (link(<t-netn-UnitModelType>)[#"Unit​Model​Type"], "A 4 bits value. (Part B) Unit Model Code.", <t-netn-UnitModelType>),
-  (link(<t-netn-VarianceMetersSquaredFloat32>)[#"Variance​Meters​Squared​Float32"], "Variance of a Gaussian distribution, based on SI unit meter squared, unit symbol m2.", <t-netn-VarianceMetersSquaredFloat32>),
 )
-
-==== #"AltitudeMeterFloat64" #chip("aliases", "alias") <t-netn-AltitudeMeterFloat64>
-#prose("Generic representation of altitude defined by the context of use, i.e. height Above Mean Sea Level, height Above Ground Level.")
-#declared[#kw[alias] #"Altitude​Meter​Float64" #link(<t-f64>)[#"f64"]#";"]
-#facts[Named by #link(<t-netn-GeodeticPoint>)[#"Geodetic​Point"], #link(<t-netn-SetOrderedAltitude>)[#"Set​Ordered​Altitude"].]
-
-==== #"AtmosphericPressureFloat32" #chip("aliases", "alias") <t-netn-AtmosphericPressureFloat32>
-#prose("Pressure measured in Millibar or Hecto Pascal. 1 mbar = 1 hPa")
-#declared[#kw[alias] #"Atmospheric​Pressure​Float32" #link(<t-f32>)[#"f32"]#";"]
 
 ==== #"BitsPerSecond" #chip("aliases", "alias") <t-netn-BitsPerSecond>
 #prose("Data transfer rate.")
 #declared[#kw[alias] #"Bits​Per​Second" #link(<t-i64>)[#"i64"]#";"]
 #facts[Named by #link(<t-netn-ConnectionReceiverStruct>)[#"Connection​Receiver​Struct"], #link(<t-netn-IncomingConnectionStruct>)[#"Incoming​Connection​Struct"], #link(<t-netn-LinkStatusStruct>)[#"Link​Status​Struct"], #link(<t-netn-PhysicalGenericNetworkStruct>)[#"Physical​Generic​Network​Struct"].]
-
-==== #"DegreesPerSecondFloat32" #chip("aliases", "alias") <t-netn-DegreesPerSecondFloat32>
-#prose("The turn rate in degrees per second, where: (a) zero value: not turning; (b) positive value: turning right; (c) negative value: turning left.")
-#declared[#kw[alias] #"Degrees​Per​Second​Float32" #link(<t-f32>)[#"f32"]#";"]
 
 ==== #"DensityRatioFloat32" #chip("aliases", "alias") <t-netn-DensityRatioFloat32>
 #prose("Ratio of density of two materials in range [0, 1].")
@@ -5789,24 +5846,10 @@
 #declared[#kw[alias] #"Designated​Area​Code​Type" #link(<t-i32>)[#"i32"]#";"]
 #facts[Named by #link(<t-netn-AisBinaryMessageData>)[#"Ais​Binary​Message​Data"], #link(<t-netn-AisMessage6>)[#"Ais​Message6"], #link(<t-netn-AisMessage8>)[#"Ais​Message8"].]
 
-==== #"DirectionDegreesFloat32" #chip("aliases", "alias") <t-netn-DirectionDegreesFloat32>
-#prose("Compass direction measured clockwise relative to true north. Calculate values outside the range [0, 360) as modulo 360.")
-#declared[#kw[alias] #"Direction​Degrees​Float32" #link(<t-f32>)[#"f32"]#";"]
-#facts[Named by #link(<t-netn-CurrentStruct>)[#"Current​Struct"], #link(<t-netn-DispositionStruct>)[#"Disposition​Struct"], #link(<t-netn-EntityStruct>)[#"Entity​Struct"], #link(<t-netn-FormationPositionStruct>)[#"Formation​Position​Struct"], #link(<t-netn-FormationStruct>)[#"Formation​Struct"], #link(<t-netn-WaveStruct>)[#"Wave​Struct"], #link(<t-netn-WindStruct>)[#"Wind​Struct"].]
-
 ==== #"DosageKgSecondPerMeterCubedFloat32" #chip("aliases", "alias") <t-netn-DosageKgSecondPerMeterCubedFloat32>
 #prose("Dosage in SI units.")
 #declared[#kw[alias] #"Dosage​Kg​Second​Per​Meter​Cubed​Float32" #link(<t-f32>)[#"f32"]#";"]
 #facts[Named by #link(<t-netn-CBRNExposureStruct>)[#"CBRNExposure​Struct"].]
-
-==== #"DraughtMeterFloat32" #chip("aliases", "alias") <t-netn-DraughtMeterFloat32>
-#prose("The vertical distance between the waterline and the bottom of the hull (keel), with the thickness of the hull included; Draught determines the minimum depth of water a ship or boat can safely navigate.")
-#declared[#kw[alias] #"Draught​Meter​Float32" #link(<t-f32>)[#"f32"]#";"]
-
-==== #"EpochTimeSecInt64" #chip("aliases", "alias") <t-netn-EpochTimeSecInt64>
-#prose("The number of seconds since 1 Jan 1970 (wallclock time) or since the start of the simulation (logical time).")
-#declared[#kw[alias] #"Epoch​Time​Sec​Int64" #link(<t-i64>)[#"i64"]#";"]
-#facts[Named by #link(<t-netn-ATP45HazardArea>)[#"ATP45Hazard​Area"], #link(<t-netn-AppointmentStruct>)[#"Appointment​Struct"], #link(<t-netn-CBRNAlarmStruct>)[#"CBRNAlarm​Struct"], #link(<t-netn-CBRNSensorReadingStruct>)[#"CBRNSensor​Reading​Struct"], #link(<t-netn-CBRNSensorUpdate>)[#"CBRNSensor​Update"], #link(<t-netn-MissionStruct>)[#"Mission​Struct"], #link(<t-netn-ProbabilityHazardContourGroup>)[#"Probability​Hazard​Contour​Group"], #link(<t-netn-RawDataHazardContourGroup>)[#"Raw​Data​Hazard​Contour​Group"].]
 
 ==== #"ExposureFloat32" #chip("aliases", "alias") <t-netn-ExposureFloat32>
 #prose("Data type for exposure.")
@@ -5827,30 +5870,10 @@
 #prose("A 30 bits value. The International Maritime Organization (IMO) number is a unique identifier for vessels. See https://www.itu.int/en/ITU-R. The IMO number is made of the three letters 'IMO' followed by a seven-digit number. This number consists of a six-digit sequential unique number followed by a check digit. The integrity of an IMO number can be verified using its check digit.This is done by multiplying each of the first six digits by a factor of 2 to 7 corresponding to their position from right to left. The rightmost digit of this sum is the check digit. For example, for IMO 9074729: (9×7) + (0×6) + (7×5) + (4×4) + (7×3) + (2×2) = 139. This attribute represents the 7 digits value of the IMO number. The value shall be zero for not available (default). The value shall also be zero for inland vessels.")
 #declared[#kw[alias] #"IMOType" #link(<t-i32>)[#"i32"]#";"]
 
-==== #"LatLongDegreesFloat64" #chip("aliases", "alias") <t-netn-LatLongDegreesFloat64>
-#prose("Represents a measure of either latitude or longitude in decimal degrees of arc.")
-#declared[#kw[alias] #"Lat​Long​Degrees​Float64" #link(<t-f64>)[#"f64"]#";"]
-#facts[Named by #link(<t-netn-GeodeticLocation>)[#"Geodetic​Location"], #link(<t-netn-GeodeticPoint>)[#"Geodetic​Point"].]
-
 ==== #"MMSIType" #chip("aliases", "alias") <t-netn-MMSIType>
 #prose("A 30 bits value. The MMSI number (Maritime Mobile Service Identity) is a unique nine-digit number for identifying an AIS station.")
 #declared[#kw[alias] #"MMSIType" #link(<t-i32>)[#"i32"]#";"]
 #facts[Named by #link(<t-netn-AcknowledgeData>)[#"Acknowledge​Data"], #link(<t-netn-AisBaseStationReportAndUTCDateResponseData>)[#"Ais​Base​Station​Report​And​UTCDate​Response​Data"], #link(<t-netn-AisBinaryMessageData>)[#"Ais​Binary​Message​Data"], #link(<t-netn-AisMessage>)[#"Ais​Message"], #link(<t-netn-AisMessage1>)[#"Ais​Message1"], #link(<t-netn-AisMessage10>)[#"Ais​Message10"], #link(<t-netn-AisMessage11>)[#"Ais​Message11"], #link(<t-netn-AisMessage12>)[#"Ais​Message12"], #link(<t-netn-AisMessage13>)[#"Ais​Message13"], #link(<t-netn-AisMessage14>)[#"Ais​Message14"], #link(<t-netn-AisMessage17>)[#"Ais​Message17"], #link(<t-netn-AisMessage18>)[#"Ais​Message18"], #link(<t-netn-AisMessage19>)[#"Ais​Message19"], #link(<t-netn-AisMessage2>)[#"Ais​Message2"], #link(<t-netn-AisMessage21>)[#"Ais​Message21"], #link(<t-netn-AisMessage24>)[#"Ais​Message24"], #link(<t-netn-AisMessage27>)[#"Ais​Message27"], #link(<t-netn-AisMessage3>)[#"Ais​Message3"], #link(<t-netn-AisMessage4>)[#"Ais​Message4"], #link(<t-netn-AisMessage5>)[#"Ais​Message5"], #link(<t-netn-AisMessage6>)[#"Ais​Message6"], #link(<t-netn-AisMessage7>)[#"Ais​Message7"], #link(<t-netn-AisMessage8>)[#"Ais​Message8"], #link(<t-netn-AisMessage9>)[#"Ais​Message9"], #link(<t-netn-AisNavigationData>)[#"Ais​Navigation​Data"], #link(<t-netn-AisStaticAndVoyageData>)[#"Ais​Static​And​Voyage​Data"].]
-
-==== #"MassConcentrationFloat32" #chip("aliases", "alias") <t-netn-MassConcentrationFloat32>
-#prose("Concentration of a substance measured as kg/m3.")
-#declared[#kw[alias] #"Mass​Concentration​Float32" #link(<t-f32>)[#"f32"]#";"]
-#facts[Named by #link(<t-netn-AgentConcentrationStruct>)[#"Agent​Concentration​Struct"].]
-
-==== #"MassDensityFloat32" #chip("aliases", "alias") <t-netn-MassDensityFloat32>
-#prose("Density of substance measured as kg per cubic meter.")
-#declared[#kw[alias] #"Mass​Density​Float32" #link(<t-f32>)[#"f32"]#";"]
-#facts[Named by #link(<t-netn-CloudStruct>)[#"Cloud​Struct"], #link(<t-netn-HazeStruct>)[#"Haze​Struct"], #link(<t-netn-SnowStruct>)[#"Snow​Struct"].]
-
-==== #"MeanMetersFloat32" #chip("aliases", "alias") <t-netn-MeanMetersFloat32>
-#prose("Mean of a Gaussian distribution, based on SI unit meter, unit symbol m.")
-#declared[#kw[alias] #"Mean​Meters​Float32" #link(<t-f32>)[#"f32"]#";"]
-#facts[Named by #link(<t-netn-ReleaseDistributionStruct>)[#"Release​Distribution​Struct"].]
 
 ==== #"PercentFloat64" #chip("aliases", "alias") <t-netn-PercentFloat64>
 #prose("A generic measure of percentage (0-100).")
@@ -5882,11 +5905,6 @@
 #declared[#kw[alias] #"Quantity​UInt32" #link(<t-u32>)[#"u32"]#";"]
 #facts[Named by #link(<t-netn-COLPRO>)[#"COLPRO"], #link(<t-netn-DecontaminationStation>)[#"Decontamination​Station"].]
 
-==== #"RangeFloat32" #chip("aliases", "alias") <t-netn-RangeFloat32>
-#prose("Range of sensor")
-#declared[#kw[alias] #"Range​Float32" #link(<t-f32>)[#"f32"]#";"]
-#facts[Named by #link(<t-netn-SensorStruct>)[#"Sensor​Struct"].]
-
 ==== #"SalinityFloat32" #chip("aliases", "alias") <t-netn-SalinityFloat32>
 #prose("Practical Salinity Unit (PSU) measured in g/kg.")
 #declared[#kw[alias] #"Salinity​Float32" #link(<t-f32>)[#"f32"]#";"]
@@ -5900,20 +5918,10 @@
 #prose("A 8 bits value. The type of ship and cargo. See https://www.itu.int/en/ITU-R.")
 #declared[#kw[alias] #"Ship​Type​Type" #link(<t-u8>)[#"u8"]#";"]
 
-==== #"TimeSecInt32" #chip("aliases", "alias") <t-netn-TimeSecInt32>
-#prose("A generic time interval in seconds.")
-#declared[#kw[alias] #"Time​Sec​Int32" #link(<t-i32>)[#"i32"]#";"]
-#facts[Named by #link(<t-netn-EstablishCheckPoint>)[#"Establish​Check​Point"], #link(<t-netn-FireAtLocation>)[#"Fire​At​Location"], #link(<t-netn-FireAtLocationWM>)[#"Fire​At​Location​WM"], #link(<t-netn-FollowEntity>)[#"Follow​Entity"], #link(<t-netn-Move>)[#"Move"], #link(<t-netn-OperateCheckPoint>)[#"Operate​Check​Point"], #link(<t-netn-PatrolRepeating>)[#"Patrol​Repeating"], #link(<t-netn-Wait>)[#"Wait"].]
-
 ==== #"UnitModelType" #chip("aliases", "alias") <t-netn-UnitModelType>
 #prose("A 4 bits value. (Part B) Unit Model Code.")
 #declared[#kw[alias] #"Unit​Model​Type" #link(<t-u8>)[#"u8"]#";"]
 #facts[Named by #link(<t-netn-AisMessage24>)[#"Ais​Message24"].]
-
-==== #"VarianceMetersSquaredFloat32" #chip("aliases", "alias") <t-netn-VarianceMetersSquaredFloat32>
-#prose("Variance of a Gaussian distribution, based on SI unit meter squared, unit symbol m2.")
-#declared[#kw[alias] #"Variance​Meters​Squared​Float32" #link(<t-f32>)[#"f32"]#";"]
-#facts[Named by #link(<t-netn-ReleaseDistributionStruct>)[#"Release​Distribution​Struct"].]
 
 #section("Optionals", "optionals")
 
@@ -5921,6 +5929,7 @@
   (link(<t-netn-MaybeActiveStatusEnum8>)[#"Maybe​Active​Status​Enum8"], "", <t-netn-MaybeActiveStatusEnum8>),
   (link(<t-netn-MaybeAggregateMissionEnum16>)[#"Maybe​Aggregate​Mission​Enum16"], "", <t-netn-MaybeAggregateMissionEnum16>),
   (link(<t-netn-MaybeAidTypeEnumType>)[#"Maybe​Aid​Type​Enum​Type"], "", <t-netn-MaybeAidTypeEnumType>),
+  (link(<t-netn-MaybeAltitudeMeterFloat64>)[#"Maybe​Altitude​Meter​Float64"], "", <t-netn-MaybeAltitudeMeterFloat64>),
   (link(<t-netn-MaybeAppointmentStruct>)[#"Maybe​Appointment​Struct"], "", <t-netn-MaybeAppointmentStruct>),
   (link(<t-netn-MaybeArrayOfCommunicationNetworks>)[#"Maybe​Array​Of​Communication​Networks"], "", <t-netn-MaybeArrayOfCommunicationNetworks>),
   (link(<t-netn-MaybeArrayOfEntityStruct>)[#"Maybe​Array​Of​Entity​Struct"], "", <t-netn-MaybeArrayOfEntityStruct>),
@@ -5930,12 +5939,17 @@
   (link(<t-netn-MaybeArrayOfText64>)[#"Maybe​Array​Of​Text64"], "", <t-netn-MaybeArrayOfText64>),
   (link(<t-netn-MaybeArrayOfUuid>)[#"Maybe​Array​Of​Uuid"], "", <t-netn-MaybeArrayOfUuid>),
   (link(<t-netn-MaybeArrayOfWorldLocationStruct>)[#"Maybe​Array​Of​World​Location​Struct"], "", <t-netn-MaybeArrayOfWorldLocationStruct>),
+  (link(<t-netn-MaybeAtmosphericPressureFloat32>)[#"Maybe​Atmospheric​Pressure​Float32"], "", <t-netn-MaybeAtmosphericPressureFloat32>),
   (link(<t-netn-MaybeCancellationReasonEnum32>)[#"Maybe​Cancellation​Reason​Enum32"], "", <t-netn-MaybeCancellationReasonEnum32>),
   (link(<t-netn-MaybeCloudStruct>)[#"Maybe​Cloud​Struct"], "", <t-netn-MaybeCloudStruct>),
   (link(<t-netn-MaybeCommunicationNetworkTypeEnum>)[#"Maybe​Communication​Network​Type​Enum"], "", <t-netn-MaybeCommunicationNetworkTypeEnum>),
   (link(<t-netn-MaybeCommunicationServiceTypeEnum>)[#"Maybe​Communication​Service​Type​Enum"], "", <t-netn-MaybeCommunicationServiceTypeEnum>),
   (link(<t-netn-MaybeCurrentStruct>)[#"Maybe​Current​Struct"], "", <t-netn-MaybeCurrentStruct>),
+  (link(<t-netn-MaybeDegreesPerSecondFloat32>)[#"Maybe​Degrees​Per​Second​Float32"], "", <t-netn-MaybeDegreesPerSecondFloat32>),
+  (link(<t-netn-MaybeDirectionDegreesFloat32>)[#"Maybe​Direction​Degrees​Float32"], "", <t-netn-MaybeDirectionDegreesFloat32>),
+  (link(<t-netn-MaybeDraughtMeterFloat32>)[#"Maybe​Draught​Meter​Float32"], "", <t-netn-MaybeDraughtMeterFloat32>),
   (link(<t-netn-MaybeEchelonEnum32>)[#"Maybe​Echelon​Enum32"], "", <t-netn-MaybeEchelonEnum32>),
+  (link(<t-netn-MaybeEpochTimeSecInt64>)[#"Maybe​Epoch​Time​Sec​Int64"], "", <t-netn-MaybeEpochTimeSecInt64>),
   (link(<t-netn-MaybeEquipmentSymbolAmplificationStruct>)[#"Maybe​Equipment​Symbol​Amplification​Struct"], "", <t-netn-MaybeEquipmentSymbolAmplificationStruct>),
   (link(<t-netn-MaybeFormationStruct>)[#"Maybe​Formation​Struct"], "", <t-netn-MaybeFormationStruct>),
   (link(<t-netn-MaybeGeoReferenceVariant>)[#"Maybe​Geo​Reference​Variant"], "", <t-netn-MaybeGeoReferenceVariant>),
@@ -5978,6 +5992,9 @@
 ==== #"MaybeAidTypeEnumType" #chip("optionals", "optional") <t-netn-MaybeAidTypeEnumType>
 #declared[#kw[optional]\<#link(<t-netn-AidTypeEnumType>)[#"Aid​Type​Enum​Type"]\> #"Maybe​Aid​Type​Enum​Type"#";"]
 
+==== #"MaybeAltitudeMeterFloat64" #chip("optionals", "optional") <t-netn-MaybeAltitudeMeterFloat64>
+#declared[#kw[optional]\<#link(<t-netn-AltitudeMeterFloat64>)[#"Altitude​Meter​Float64"]\> #"Maybe​Altitude​Meter​Float64"#";"]
+
 ==== #"MaybeAppointmentStruct" #chip("optionals", "optional") <t-netn-MaybeAppointmentStruct>
 #declared[#kw[optional]\<#link(<t-netn-AppointmentStruct>)[#"Appointment​Struct"]\> #"Maybe​Appointment​Struct"#";"]
 
@@ -6005,6 +6022,9 @@
 ==== #"MaybeArrayOfWorldLocationStruct" #chip("optionals", "optional") <t-netn-MaybeArrayOfWorldLocationStruct>
 #declared[#kw[optional]\<#link(<t-netn-ArrayOfWorldLocationStruct>)[#"Array​Of​World​Location​Struct"]\> #"Maybe​Array​Of​World​Location​Struct"#";"]
 
+==== #"MaybeAtmosphericPressureFloat32" #chip("optionals", "optional") <t-netn-MaybeAtmosphericPressureFloat32>
+#declared[#kw[optional]\<#link(<t-netn-AtmosphericPressureFloat32>)[#"Atmospheric​Pressure​Float32"]\> #"Maybe​Atmospheric​Pressure​Float32"#";"]
+
 ==== #"MaybeCancellationReasonEnum32" #chip("optionals", "optional") <t-netn-MaybeCancellationReasonEnum32>
 #declared[#kw[optional]\<#link(<t-netn-CancellationReasonEnum32>)[#"Cancellation​Reason​Enum32"]\> #"Maybe​Cancellation​Reason​Enum32"#";"]
 
@@ -6020,8 +6040,20 @@
 ==== #"MaybeCurrentStruct" #chip("optionals", "optional") <t-netn-MaybeCurrentStruct>
 #declared[#kw[optional]\<#link(<t-netn-CurrentStruct>)[#"Current​Struct"]\> #"Maybe​Current​Struct"#";"]
 
+==== #"MaybeDegreesPerSecondFloat32" #chip("optionals", "optional") <t-netn-MaybeDegreesPerSecondFloat32>
+#declared[#kw[optional]\<#link(<t-netn-DegreesPerSecondFloat32>)[#"Degrees​Per​Second​Float32"]\> #"Maybe​Degrees​Per​Second​Float32"#";"]
+
+==== #"MaybeDirectionDegreesFloat32" #chip("optionals", "optional") <t-netn-MaybeDirectionDegreesFloat32>
+#declared[#kw[optional]\<#link(<t-netn-DirectionDegreesFloat32>)[#"Direction​Degrees​Float32"]\> #"Maybe​Direction​Degrees​Float32"#";"]
+
+==== #"MaybeDraughtMeterFloat32" #chip("optionals", "optional") <t-netn-MaybeDraughtMeterFloat32>
+#declared[#kw[optional]\<#link(<t-netn-DraughtMeterFloat32>)[#"Draught​Meter​Float32"]\> #"Maybe​Draught​Meter​Float32"#";"]
+
 ==== #"MaybeEchelonEnum32" #chip("optionals", "optional") <t-netn-MaybeEchelonEnum32>
 #declared[#kw[optional]\<#link(<t-netn-EchelonEnum32>)[#"Echelon​Enum32"]\> #"Maybe​Echelon​Enum32"#";"]
+
+==== #"MaybeEpochTimeSecInt64" #chip("optionals", "optional") <t-netn-MaybeEpochTimeSecInt64>
+#declared[#kw[optional]\<#link(<t-netn-EpochTimeSecInt64>)[#"Epoch​Time​Sec​Int64"]\> #"Maybe​Epoch​Time​Sec​Int64"#";"]
 
 ==== #"MaybeEquipmentSymbolAmplificationStruct" #chip("optionals", "optional") <t-netn-MaybeEquipmentSymbolAmplificationStruct>
 #declared[#kw[optional]\<#link(<t-netn-EquipmentSymbolAmplificationStruct>)[#"Equipment​Symbol​Amplification​Struct"]\> #"Maybe​Equipment​Symbol​Amplification​Struct"#";"]
@@ -14421,6 +14453,7 @@
   (link(<t-rpr-AngleDegreeFloat32>)[#"Angle​Degree​Float32"], "Angle, based on unit degree (of arc), unit symbol °.", <t-rpr-AngleDegreeFloat32>),
   (link(<t-rpr-AngleRadianFloat32>)[#"Angle​Radian​Float32"], "Angle, based on SI derived unit radian, unit symbol rad.", <t-rpr-AngleRadianFloat32>),
   (link(<t-rpr-AngularVelocityRadianPerSecondFloat32>)[#"Angular​Velocity​Radian​Per​Second​Float32"], "Angular velocity vector composed of SI base units. Based on the Angular Velocity Vector record as specified in IEEE 1278.1-1995 section 5.2.2.", <t-rpr-AngularVelocityRadianPerSecondFloat32>),
+  (link(<t-rpr-ClockTimeHourInteger32>)[#"Clock​Time​Hour​Integer32"], "Time past on the clock in full hours since a specified point in time.", <t-rpr-ClockTimeHourInteger32>),
   (link(<t-rpr-DepthMeterFloat32>)[#"Depth​Meter​Float32"], "Depth, based on SI base unit meter, unit symbol m.", <t-rpr-DepthMeterFloat32>),
   (link(<t-rpr-FrequencyHertzFloat32>)[#"Frequency​Hertz​Float32"], "Frequency, based on SI derived unit hertz, unit symbol Hz.", <t-rpr-FrequencyHertzFloat32>),
   (link(<t-rpr-FrequencyHertzUnsignedInteger64>)[#"Frequency​Hertz​Unsigned​Integer64"], "Frequency of a radio transmission, in hertz.", <t-rpr-FrequencyHertzUnsignedInteger64>),
@@ -14460,6 +14493,11 @@
 #prose("Angular velocity vector composed of SI base units. Based on the Angular Velocity Vector record as specified in IEEE 1278.1-1995 section 5.2.2.")
 #declared[#kw[quantity]\<#link(<t-f32>)[#"f32"], #lit($"rad"\/"s"$)\> #"Angular​Velocity​Radian​Per​Second​Float32"#";"]
 #facts[Named by #link(<t-rpr-AngularVelocityVectorStruct>)[#"Angular​Velocity​Vector​Struct"].]
+
+==== #"ClockTimeHourInteger32" #chip("quantities", "quantity") <t-rpr-ClockTimeHourInteger32>
+#prose("Time past on the clock in full hours since a specified point in time.")
+#declared[#kw[quantity]\<#link(<t-i32>)[#"i32"], #lit($"hour"$)\> #"Clock​Time​Hour​Integer32"#";"]
+#facts[Named by #link(<t-rpr-ClockTimeStruct>)[#"Clock​Time​Struct"].]
 
 ==== #"DepthMeterFloat32" #chip("quantities", "quantity") <t-rpr-DepthMeterFloat32>
 #prose("Depth, based on SI base unit meter, unit symbol m.")
@@ -14556,7 +14594,6 @@
 #summary(
   (link(<t-rpr-BitRateBitPerSecondUnsignedInteger32>)[#"Bit​Rate​Bit​Per​Second​Unsigned​Integer32"], "Rate of transmission, in bits per second.", <t-rpr-BitRateBitPerSecondUnsignedInteger32>),
   (link(<t-rpr-BitsUnsignedInteger16>)[#"Bits​Unsigned​Integer16"], "Transmission size, in number of bits.", <t-rpr-BitsUnsignedInteger16>),
-  (link(<t-rpr-ClockTimeHourInteger32>)[#"Clock​Time​Hour​Integer32"], "Time past on the clock in full hours since a specified point in time.", <t-rpr-ClockTimeHourInteger32>),
   (link(<t-rpr-Float32>)[#"Float32"], "Single-precision floating point number.", <t-rpr-Float32>),
   (link(<t-rpr-Float64>)[#"Float64"], "Double-precision floating point number.", <t-rpr-Float64>),
   (link(<t-rpr-Integer16>)[#"Integer16"], "Integer in the range [-2^15, 2^15-1].", <t-rpr-Integer16>),
@@ -14587,11 +14624,6 @@
 #prose("Transmission size, in number of bits.")
 #declared[#kw[alias] #"Bits​Unsigned​Integer16" #link(<t-u16>)[#"u16"]#";"]
 #facts[Named by #link(<t-link16-JTIDSLETRadioSignal>)[#"link16.​JTIDSLETRadio​Signal"], #link(<t-link16-JTIDSMessageRadioSignal>)[#"link16.​JTIDSMessage​Radio​Signal"], #link(<t-link16-JTIDSVoiceCVSDRadioSignal>)[#"link16.​JTIDSVoice​CVSDRadio​Signal"], #link(<t-link16-JTIDSVoiceLPC10RadioSignal>)[#"link16.​JTIDSVoice​LPC10Radio​Signal"], #link(<t-link16-JTIDSVoiceLPC12RadioSignal>)[#"link16.​JTIDSVoice​LPC12Radio​Signal"], #link(<t-link16-Link16RadioSignal>)[#"link16.​Link16Radio​Signal"], #link(<t-link16-RTTABRadioSignal>)[#"link16.​RTTABRadio​Signal"], #link(<t-link16-RTTReplyRadioSignal>)[#"link16.​RTTReply​Radio​Signal"], #link(<t-link16-TDLBinaryRadioSignal>)[#"link16.​TDLBinary​Radio​Signal"], #link(<t-link16-VMFRadioSignal>)[#"link16.​VMFRadio​Signal"], #link(<t-rpr-ApplicationSpecificRadioSignal>)[#"Application​Specific​Radio​Signal"], #link(<t-rpr-AudioDataTypeStruct>)[#"Audio​Data​Type​Struct"], #link(<t-rpr-RawBinaryRadioSignal>)[#"Raw​Binary​Radio​Signal"].]
-
-==== #"ClockTimeHourInteger32" #chip("aliases", "alias") <t-rpr-ClockTimeHourInteger32>
-#prose("Time past on the clock in full hours since a specified point in time.")
-#declared[#kw[alias] #"Clock​Time​Hour​Integer32" #link(<t-i32>)[#"i32"]#";"]
-#facts[Named by #link(<t-rpr-ClockTimeStruct>)[#"Clock​Time​Struct"].]
 
 ==== #"Float32" #chip("aliases", "alias") <t-rpr-Float32>
 #prose("Single-precision floating point number.")
@@ -15024,6 +15056,7 @@
   (link(<t-netn-MaybeActiveStatusEnum8>)[#"netn.​Maybe​Active​Status​Enum8"], <t-netn-MaybeActiveStatusEnum8>),
   (link(<t-netn-MaybeAggregateMissionEnum16>)[#"netn.​Maybe​Aggregate​Mission​Enum16"], <t-netn-MaybeAggregateMissionEnum16>),
   (link(<t-netn-MaybeAidTypeEnumType>)[#"netn.​Maybe​Aid​Type​Enum​Type"], <t-netn-MaybeAidTypeEnumType>),
+  (link(<t-netn-MaybeAltitudeMeterFloat64>)[#"netn.​Maybe​Altitude​Meter​Float64"], <t-netn-MaybeAltitudeMeterFloat64>),
   (link(<t-netn-MaybeAppointmentStruct>)[#"netn.​Maybe​Appointment​Struct"], <t-netn-MaybeAppointmentStruct>),
   (link(<t-netn-MaybeArrayOfCommunicationNetworks>)[#"netn.​Maybe​Array​Of​Communication​Networks"], <t-netn-MaybeArrayOfCommunicationNetworks>),
   (link(<t-netn-MaybeArrayOfEntityStruct>)[#"netn.​Maybe​Array​Of​Entity​Struct"], <t-netn-MaybeArrayOfEntityStruct>),
@@ -15033,12 +15066,17 @@
   (link(<t-netn-MaybeArrayOfText64>)[#"netn.​Maybe​Array​Of​Text64"], <t-netn-MaybeArrayOfText64>),
   (link(<t-netn-MaybeArrayOfUuid>)[#"netn.​Maybe​Array​Of​Uuid"], <t-netn-MaybeArrayOfUuid>),
   (link(<t-netn-MaybeArrayOfWorldLocationStruct>)[#"netn.​Maybe​Array​Of​World​Location​Struct"], <t-netn-MaybeArrayOfWorldLocationStruct>),
+  (link(<t-netn-MaybeAtmosphericPressureFloat32>)[#"netn.​Maybe​Atmospheric​Pressure​Float32"], <t-netn-MaybeAtmosphericPressureFloat32>),
   (link(<t-netn-MaybeCancellationReasonEnum32>)[#"netn.​Maybe​Cancellation​Reason​Enum32"], <t-netn-MaybeCancellationReasonEnum32>),
   (link(<t-netn-MaybeCloudStruct>)[#"netn.​Maybe​Cloud​Struct"], <t-netn-MaybeCloudStruct>),
   (link(<t-netn-MaybeCommunicationNetworkTypeEnum>)[#"netn.​Maybe​Communication​Network​Type​Enum"], <t-netn-MaybeCommunicationNetworkTypeEnum>),
   (link(<t-netn-MaybeCommunicationServiceTypeEnum>)[#"netn.​Maybe​Communication​Service​Type​Enum"], <t-netn-MaybeCommunicationServiceTypeEnum>),
   (link(<t-netn-MaybeCurrentStruct>)[#"netn.​Maybe​Current​Struct"], <t-netn-MaybeCurrentStruct>),
+  (link(<t-netn-MaybeDegreesPerSecondFloat32>)[#"netn.​Maybe​Degrees​Per​Second​Float32"], <t-netn-MaybeDegreesPerSecondFloat32>),
+  (link(<t-netn-MaybeDirectionDegreesFloat32>)[#"netn.​Maybe​Direction​Degrees​Float32"], <t-netn-MaybeDirectionDegreesFloat32>),
+  (link(<t-netn-MaybeDraughtMeterFloat32>)[#"netn.​Maybe​Draught​Meter​Float32"], <t-netn-MaybeDraughtMeterFloat32>),
   (link(<t-netn-MaybeEchelonEnum32>)[#"netn.​Maybe​Echelon​Enum32"], <t-netn-MaybeEchelonEnum32>),
+  (link(<t-netn-MaybeEpochTimeSecInt64>)[#"netn.​Maybe​Epoch​Time​Sec​Int64"], <t-netn-MaybeEpochTimeSecInt64>),
   (link(<t-netn-MaybeEquipmentSymbolAmplificationStruct>)[#"netn.​Maybe​Equipment​Symbol​Amplification​Struct"], <t-netn-MaybeEquipmentSymbolAmplificationStruct>),
   (link(<t-netn-MaybeFormationStruct>)[#"netn.​Maybe​Formation​Struct"], <t-netn-MaybeFormationStruct>),
   (link(<t-netn-MaybeGeoReferenceVariant>)[#"netn.​Maybe​Geo​Reference​Variant"], <t-netn-MaybeGeoReferenceVariant>),

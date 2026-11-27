@@ -1167,7 +1167,7 @@ package netn <<Folder>>
     + precipitation : MaybePrecipitationStruct
     + haze : MaybeHazeStruct
     + humidity : hla.MaybeF32
-    + barometricPressure : hla.MaybeF32
+    + barometricPressure : MaybeAtmosphericPressureFloat32
     + visibilityRange : rpr.MaybeMeterFloat32
   }
 

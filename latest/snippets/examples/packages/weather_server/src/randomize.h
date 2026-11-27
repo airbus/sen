@@ -33,7 +33,7 @@ template <typename T>
 void randomizeData(T& result, const netn::GeoReferenceVariant& ref)
 {
   result.geoReference = ref;
-  result.barometricPressure = hla::MaybeF32(getRand(0.0f, 50.0f));
+  result.barometricPressure = netn::MaybeAtmosphericPressureFloat32(getRand(0.0f, 50.0f));
   result.humidity = hla::MaybeF32(getRand(0.0f, 100.0f));
   result.temperature = getRand(-40.0f, 40.0f);
   result.visibilityRange = getRand(0.0f, 50000.0f);
